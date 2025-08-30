@@ -60,7 +60,7 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
     },
     {
       type: 'hls',
-      uri: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+      uri: ' https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
     },
     {
       type: 'dash',

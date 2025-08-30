@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { Title, Subtitle } from '../display';
 import { minimalTheme } from '../themes';
 import { useVideo } from '../providers';
-import BottomSheet from 'src/components/common/BottomSheet';
+import { Menu } from '../components';
 /**
  * `MinimalLayout` is a predefined layout component for the video player controls,
  * offering a more streamlined and less intrusive user interface.
@@ -20,7 +20,7 @@ export const MinimalLayout = () => {
   const { buffering } = useBuffering();
   const opacity = useSharedValue(1);
   const { state, setTheme } = useVideo();
-  const { isSettingsMenuVisible, openSettings, closeSettings } = useSettings();
+  const { isSettingsMenuVisible, toggleSettingsMenu } = useSettings();
   // Get theme and store functions
   const { setOpacity } = useControlsVisibility();
 
@@ -50,15 +50,39 @@ export const MinimalLayout = () => {
               <Subtitle text="Minimal Subtitle" />
             </View>
             <View>
-              <VideoPlayer.SettingsButton />
-              <BottomSheet visible={isSettingsMenuVisible} onClose={closeSettings}>
-                <>
-                  <VideoPlayer.Menu.Item value={0.5}>0.5x</VideoPlayer.Menu.Item>
-                  <VideoPlayer.Menu.Item value={1}>1x (Normal)</VideoPlayer.Menu.Item>
-                  <VideoPlayer.Menu.Item value={1.5}>1.5x</VideoPlayer.Menu.Item>
-                  <VideoPlayer.Menu.Item value={2}>2x</VideoPlayer.Menu.Item>
-                </>
-              </BottomSheet>
+              <Menu.Root>
+                <Menu.Trigger />
+                <Menu.Content>
+                  <Menu.SubContent viewId="root">
+                    <Menu.Item navigateTo="audio">Audio</Menu.Item>
+                    <Menu.Item navigateTo="video">Video</Menu.Item>
+                    <Menu.Item navigateTo="playback">Playback Rate</Menu.Item>
+                    <Menu.Separator />
+                    <Menu.Close />
+                  </Menu.SubContent>
+                  <Menu.SubContent viewId="audio">
+                    {/* Audio options, e.g., tracks or volume */}
+                    <Menu.RadioGroup value="Audio" onValueChange={(value) => console.log(value)}>
+                      <Menu.RadioItem value="en">English</Menu.RadioItem>
+                      <Menu.RadioItem value="es">Spanish</Menu.RadioItem>
+                    </Menu.RadioGroup>
+                  </Menu.SubContent>
+                  <Menu.SubContent viewId="video">
+                    <Menu.RadioGroup value="Audio" onValueChange={(value) => console.log(value)}>
+                      <Menu.RadioItem value="en">English</Menu.RadioItem>
+                      <Menu.RadioItem value="es">Spanish</Menu.RadioItem>
+                    </Menu.RadioGroup>
+                  </Menu.SubContent>
+                  <Menu.SubContent viewId="playback">
+                    <Menu.Item value={0.5} onPress={() => console.log('Set rate to 0.5x')}>
+                      0.5x
+                    </Menu.Item>
+                    <Menu.Item value={1} onPress={() => console.log('Set rate to 1x')}>
+                      1x (Normal)
+                    </Menu.Item>
+                  </Menu.SubContent>
+                </Menu.Content>
+              </Menu.Root>
             </View>
           </View>
           <View style={layoutStyles.centerControls}>

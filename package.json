@@ -49,7 +49,7 @@
     "clean": "del-cli android/build lib \"example/*/android/.gradle\" \"example/*/android/build\" \"example/*/android/app/build\" \"example/*/ios/build\" \"example/*/ios/Pods\"",
     "prepare": "bob build",
     "codegen": "bob build && npx react-native codegen",
-    "release": "release-it --only-version",
+    "release": "release-it",
     "prettier": "prettier --write ."
   },
   "keywords": [
@@ -95,6 +95,7 @@
     "react-native": "0.79.5",
     "react-native-builder-bob": "^0.31.0",
     "react-native-gesture-handler": "2.24.0",
+    "react-native-orientation-director": "^2.6.1",
     "react-native-reanimated": "3.17.4",
     "react-native-svg": "^15.12.1",
     "react-native-video": "6.14.0",
@@ -110,6 +111,7 @@
     "react": "*",
     "react-native": "*",
     "react-native-gesture-handler": ">=2.0.0",
+    "react-native-orientation-director": ">=2.0.0",
     "react-native-reanimated": ">=3.0.0",
     "react-native-svg": ">=15.0.0",
     "react-native-video": ">=6.0.0"
@@ -190,7 +192,6 @@
   "dependencies": {
     "@rn-primitives/portal": "^1.3.0",
     "react-native-awesome-slider": "^2.9.0",
-    "react-native-material-ripple": "^0.9.1",
-    "react-native-orientation-director": "^2.6.1"
+    "react-native-material-ripple": "^0.9.1"
   }
 }

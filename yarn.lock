@@ -19797,6 +19797,7 @@ __metadata:
     react: "*"
     react-native: "*"
     react-native-gesture-handler: ">=2.0.0"
+    react-native-orientation-director: ">=2.0.0"
     react-native-reanimated: ">=3.0.0"
     react-native-svg: ">=15.0.0"
     react-native-video: ">=6.0.0"
