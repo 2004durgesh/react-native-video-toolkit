@@ -1,13 +1,10 @@
 import { View, StyleSheet } from 'react-native';
-import { VideoPlayer } from '../components/VideoPlayer';
-import { CommonLayoutStyles as layoutStyles } from '../components/common';
 import { useBuffering, useControlsVisibility, useSettings } from '../hooks';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
-import { Title, Subtitle } from '../display';
 import { minimalTheme } from '../themes';
 import { useVideo } from '../providers';
-import { Menu } from '../components';
+import { Menu, Subtitle, Title, CommonLayoutStyles as layoutStyles, VideoPlayer } from '../components';
 /**
  * `MinimalLayout` is a predefined layout component for the video player controls,
  * offering a more streamlined and less intrusive user interface.

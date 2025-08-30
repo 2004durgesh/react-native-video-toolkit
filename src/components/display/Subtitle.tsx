@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet, type StyleProp, type TextStyle } from 'react-native';
-import { useVideo } from '../providers';
+import { useVideo } from '../../providers';
 
 /**
  * `Subtitle` is a display component used to render textual subtitles or secondary information.

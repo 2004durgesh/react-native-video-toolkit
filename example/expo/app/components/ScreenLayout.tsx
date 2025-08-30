@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Button } from 'react-native';
-import { VideoPlayer, VideoProvider, useFullscreen } from 'react-native-video-toolkit';
+import { VideoPlayer, VideoProvider, useFullscreen, type VideoSource } from 'react-native-video-toolkit';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { TextTrackType } from 'react-native-video';
 
 type Sample = {
   type: string;
@@ -71,7 +72,23 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
   ];
   const { fullscreen } = useFullscreen();
   const [uri, setUri] = useState<string>(samples[3]?.uri!);
-  const videoSource = { uri };
+  const videoSource: VideoSource = {
+    uri,
+    textTracks: [
+      {
+        uri: 'https://example.com/path/to/subtitles.vtt',
+        title: 'English Subtitles',
+        language: 'en',
+        type: TextTrackType.VTT,
+      },
+      {
+        uri: 'https://example.com/path/to/spanish-subtitles.vtt',
+        title: 'Spanish Subtitles',
+        language: 'es',
+        type: TextTrackType.VTT,
+      },
+    ],
+  };
 
   return (
     <>

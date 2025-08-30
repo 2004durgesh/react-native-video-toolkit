@@ -1,0 +1,45 @@
+---
+sidebar_position: 4
+---
+
+# Settings Hooks
+
+### `useSettings()`
+
+A hook for managing video settings such as quality, audio tracks, and subtitle tracks, and controlling the visibility of a settings menu.
+
+#### Returns
+
+`useSettings` returns an object with the following properties:
+
+- `quality`: The current video quality setting (`VideoTrack | null`).
+- `setQuality`: A function `(newQuality: VideoTrack | null) => void` to set the video quality.
+- `audioTrack`: The current audio track setting (`AudioTrack | null`).
+- `setAudioTrack`: A function `(newAudioTrack: AudioTrack | null) => void` to set the audio track.
+- `subtitleTrack`: The current subtitle track setting (`TextTrack | null`).
+- `setSubtitleTrack`: A function `(newSubtitleTrack: TextTrack | null) => void` to set the subtitle track.
+- `isSettingsMenuVisible`: A boolean indicating whether the settings menu is currently visible.
+- `openSettings`: A function `() => void` to explicitly open the settings menu.
+- `closeSettings`: A function `() => void` to explicitly close the settings menu.
+- `toggleSettingsMenu`: A function `() => void` to toggle the visibility of the settings menu.
+- `settingsTapGesture`: A `Gesture.Tap()` object configured for single taps to toggle the settings menu. ExecutesThis can be used with a `GestureDetector` component.
+
+```tsx
+import { useSettings } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
+
+const MySettingsButton = () => {
+  const { isSettingsMenuVisible, toggleSettingsMenu, settingsTapGesture, setQuality } = useSettings();
+
+  const handleQualityChange = () => {
+    // Example: set quality to 720p
+    setQuality({ type: 'resolution', value: 720 });
+  };
+
+  return (
+    <GestureDetector gesture={settingsTapGesture}>
+      <GearIcon />
+    </GestureDetector>
+  );
+};
+```

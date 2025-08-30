@@ -6,22 +6,22 @@ This document outlines the types related to player gestures.
 
 The `UseDoubleTapGestureProps` interface defines the props for the `useDoubleTapGesture` hook.
 
-| Property                | Type                   | Description                                                       |
-| ----------------------- | ---------------------- | ----------------------------------------------------------------- |
-| `videoRef`              | `React.RefObject<any>` | A ref to the video player component.                              |
-| `doubleTapSeekInterval` | `number`               | The number of seconds to seek forward or backward on double-tap.  |
-| `onDoubleTapSeekStart`  | `() => void`           | A callback function that is called when a double-tap seek starts. |
-| `onDoubleTapSeekEnd`    | `() => void`           | A callback function that is called when a double-tap seek ends.   |
+| Property                | Type                   | Description                                                       | Default     |
+| ----------------------- | ---------------------- | ----------------------------------------------------------------- | ----------- |
+| `videoRef`              | `React.RefObject<any>` | A ref to the video player component.                              | `null`      |
+| `doubleTapSeekInterval` | `number`               | The number of seconds to seek forward or backward on double-tap.  | `10`        |
+| `onDoubleTapSeekStart`  | `() => void`           | A callback function that is called when a double-tap seek starts. | `undefined` |
+| `onDoubleTapSeekEnd`    | `() => void`           | A callback function that is called when a double-tap seek ends.   | `undefined` |
 
 ## `UsePanGestureProps`
 
 The `UsePanGestureProps` interface defines the props for the `usePanGesture` hook.
 
-| Property              | Type                                                             | Description                                                                                                 |
-| --------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `onLeftVerticalPan`   | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | A callback function that is called when a vertical pan gesture is detected on the left side of the screen.  |
-| `onRightVerticalPan`  | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | A callback function that is called when a vertical pan gesture is detected on the right side of the screen. |
-| `onGlobalVerticalPan` | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | A callback function that is called when a vertical pan gesture is detected anywhere on the screen.          |
+| Property              | Type                                                             | Description                                                                                                 | Default     |
+| --------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------- |
+| `onLeftVerticalPan`   | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | A callback function that is called when a vertical pan gesture is detected on the left side of the screen.  | `undefined` |
+| `onRightVerticalPan`  | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | A callback function that is called when a vertical pan gesture is detected on the right side of the screen. | `undefined` |
+| `onGlobalVerticalPan` | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | A callback function that is called when a vertical pan gesture is detected anywhere on the screen.          | `undefined` |
 
 :::danger
 If you use the `onGlobalVerticalPan` prop, it will override the `onLeftVerticalPan` and `onRightVerticalPan` props. You should use either the global pan handler or the side-specific pan handlers, but not both.

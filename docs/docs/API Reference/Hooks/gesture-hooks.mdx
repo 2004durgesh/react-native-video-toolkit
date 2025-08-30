@@ -1,0 +1,117 @@
+---
+sidebar_position: 2
+---
+
+# Gesture Hooks
+
+### `useSingleTapGesture()`
+
+A hook for handling single tap gestures to toggle the visibility of the video controls.
+
+#### Returns
+
+`useSingleTapGesture` returns an object with the following properties:
+
+- `singleTapGesture`: A `Gesture.Tap()` object configured for single taps. This gesture should be applied to a `GestureDetector` component that wraps the video player.
+
+```tsx
+import { useSingleTapGesture } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
+
+const MyVideoPlayer = () => {
+  const { singleTapGesture } = useSingleTapGesture();
+
+  return (
+    <GestureDetector gesture={singleTapGesture}>
+      <VideoPlayer source={videoSource}>{/* ... video player content */}</VideoPlayer>
+    </GestureDetector>
+  );
+};
+```
+
+### `useDoubleTapGesture()`
+
+A hook for handling double tap gestures to seek forward or backward in the video. The parameter is of type [`UseDoubleTapGestureProps`](../Types/gestures#usedoubletapgestureprops).
+
+#### Returns
+
+`useDoubleTapGesture` returns an object with the following properties:
+
+- `doubleTapGesture`: The `Gesture.Tap()` object configured for double-tap seeking. This gesture should be applied to a `GestureDetector` component that wraps the video player.
+- `isDoubleTap`: A boolean indicating whether a double tap animation is currently in progress.
+- `doubleTapValue`: An object `{ forward: number, backward: number }` representing the accumulated seek values for consecutive forward or backward double taps.
+- `backwardRippleRef`: A ref for the backward ripple animation container.
+- `forwardRippleRef`: A ref for the forward ripple animation container.
+- `backwardAnimatedRipple`: The animated style for the backward ripple effect.
+- `forwardAnimatedRipple`: The animated style for the forward ripple effect.
+- `forwardAnimatedStyle`: The animated style for the forward seek animation (e.g., showing "+10").
+- `backwardAnimatedStyle`: The animated style for the backward seek animation (e.g., showing "-10").
+
+```tsx
+import { useDoubleTapGesture } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
+import { VideoPlayer } from 'react-native-video-toolkit'; // Assuming VideoPlayer has a ref
+
+const MyVideoPlayer = () => {
+  const videoRef = useRef(null); // Ref for your Video component
+  const { doubleTapGesture, isDoubleTap, doubleTapValue, forwardAnimatedStyle, backwardAnimatedStyle } =
+    useDoubleTapGesture({
+      videoRef,
+      doubleTapSeekInterval: 15,
+      onDoubleTapSeekStart: () => console.log('Double tap seek started'),
+      onDoubleTapSeekEnd: () => console.log('Double tap seek ended'),
+    });
+
+  return (
+    <GestureDetector gesture={doubleTapGesture}>
+      <VideoPlayer source={videoSource} videoRef={videoRef}>
+        {/* ... video player content */}
+        {isDoubleTap && (
+          <>
+            <Animated.Text style={forwardAnimatedStyle}>+{doubleTapValue.forward}</Animated.Text>
+            <Animated.Text style={backwardAnimatedStyle}>-{doubleTapValue.backward}</Animated.Text>
+          </>
+        )}
+      </VideoPlayer>
+    </GestureDetector>
+  );
+};
+```
+
+### `usePanGesture()`
+
+A hook for handling pan gestures, typically used for controlling volume and brightness by vertical swipes on different sides of the screen. The parameter is of type [`UsePanGestureProps`](../Types/gestures#usepangestureprops).
+
+#### Returns
+
+`usePanGesture` returns an object with the following properties:
+
+- `verticalPanGesture`: The `Gesture.Pan()` object configured for vertical pan gestures. This gesture should be applied to a `GestureDetector` component that wraps the video player.
+
+```tsx
+import { usePanGesture } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
+
+const MyVideoPlayer = () => {
+  const handleLeftPan = (event) => {
+    // Implement brightness control
+    console.log('Left vertical pan:', event.translationY);
+  };
+
+  const handleRightPan = (event) => {
+    // Implement volume control
+    console.log('Right vertical pan:', event.translationY);
+  };
+
+  const { verticalPanGesture } = usePanGesture({
+    onLeftVerticalPan: handleLeftPan,
+    onRightVerticalPan: handleRightPan,
+  });
+
+  return (
+    <GestureDetector gesture={verticalPanGesture}>
+      <VideoPlayer source={videoSource}>{/* ... video player content */}</VideoPlayer>
+    </GestureDetector>
+  );
+};
+```

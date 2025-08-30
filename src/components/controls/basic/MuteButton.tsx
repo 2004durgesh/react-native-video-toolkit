@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
-import { useVolume } from '../../hooks';
+import { useVolume } from '../../../hooks';
 import { Volume2, VolumeX } from 'lucide-react-native';
-import { BaseIconButton } from '../../components/common/BaseIconButton';
+import { BaseIconButton } from '../../../components/common/BaseIconButton';
 import { GestureDetector } from 'react-native-gesture-handler';
 
 export interface MuteButtonProps {

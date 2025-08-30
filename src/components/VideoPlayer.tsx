@@ -9,7 +9,7 @@ import {
   MuteButton,
   LoadingSpinner,
   SettingsButton,
-} from '../controls';
+} from './controls';
 import type { GestureHandlerProps, VideoSource } from '../types';
 import { VideoSurface } from './core';
 import type { ReactVideoProps } from 'react-native-video';
@@ -24,6 +24,7 @@ interface VideoPlayerProps {
   /**
    * The source of the video to be played.
    * This can be a remote URL or a local file path.
+   * Extends the source prop from react-native-video.
    */
   source: VideoSource;
   /**

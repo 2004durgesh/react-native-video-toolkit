@@ -1,7 +1,9 @@
+import type { ReactVideoSource } from 'react-native-video';
+
 /**
  * Represents the source of the video to be played.
  */
-export interface VideoSource {
+export interface VideoSource extends ReactVideoSource {
   /**
    * The URI of the video. This can be a remote URL or a local file path.
    */

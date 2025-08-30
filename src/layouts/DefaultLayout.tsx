@@ -1,8 +1,6 @@
 import { View } from 'react-native';
-import { VideoPlayer } from '../components/VideoPlayer';
-import { CommonLayoutStyles as layoutStyles } from '../components/common/CommonLayoutStyles';
+import { CommonLayoutStyles as layoutStyles, VideoPlayer, Title, Subtitle } from '../components';
 import { useBuffering } from '../hooks';
-import { Title, Subtitle } from '../display';
 import { defaultTheme } from '../themes';
 import { useEffect } from 'react';
 import { useVideo } from '../providers';

@@ -1,5 +1,5 @@
 import { Text, StyleSheet, type StyleProp, type TextStyle } from 'react-native';
-import { useVideo } from '../providers';
+import { useVideo } from '../../providers';
 
 /**
  * `Title` is a display component used to render a prominent title or heading.

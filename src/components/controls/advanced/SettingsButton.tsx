@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
-import { useSettings } from '../../hooks';
+import { useSettings } from '../../../hooks';
 import { Settings } from 'lucide-react-native';
-import { BaseIconButton } from '../../components/common/BaseIconButton';
+import { BaseIconButton } from '../../../components';
 import { GestureDetector } from 'react-native-gesture-handler';
 
 export interface SettingsButtonProps {

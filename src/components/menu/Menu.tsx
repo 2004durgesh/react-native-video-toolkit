@@ -14,8 +14,7 @@ import { BottomSheet, type BottomSheetProps } from '../common';
 import { useVideo } from '../../providers';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
-import { SettingsButton } from 'src/controls';
-import type { SettingsButtonProps } from 'src/controls/advanced/SettingsButton';
+import { SettingsButton, type SettingsButtonProps } from '../controls';
 
 interface MenuContextType {
   closeSettings: () => void;
@@ -100,7 +99,7 @@ export const Menu = {
     sheetStyle?: ViewStyle;
     header?: (currentView: string) => ReactNode; // Optional custom header
   } & Partial<BottomSheetProps>) => {
-    const { isSettingsMenuVisible, closeSettings, currentView, goBack, navigationStack } = useMenuContext();
+    const { isSettingsMenuVisible, closeSettings, currentView, navigationStack } = useMenuContext();
     const menuContext = useMenuContext(); // Capture the full context value here
     const { state } = useVideo();
     const { theme } = state;
@@ -296,6 +295,7 @@ export const Menu = {
     };
 
     return (
+      // @ts-ignore
       <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} {...props}>
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
@@ -335,6 +335,7 @@ export const Menu = {
     };
 
     return (
+      // @ts-ignore
       <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} {...props}>
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
@@ -351,6 +352,7 @@ export const Menu = {
     const { closeSettings } = useMenuContext();
 
     return (
+      // @ts-ignore
       <Menu.Item onPress={closeSettings} style={style} {...props}>
         {children}
       </Menu.Item>

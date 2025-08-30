@@ -1,8 +1,8 @@
 import { View, StyleSheet, type ViewStyle, type StyleProp } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
-import { useProgress, useControlsVisibility } from '../../hooks';
-import { useVideo } from '../../providers';
+import { useProgress, useControlsVisibility } from '../../../hooks';
+import { useVideo } from '../../../providers';
 
 export interface ProgressBarProps {
   height?: number;

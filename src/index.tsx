@@ -11,11 +11,11 @@ export { DefaultLayout, MinimalLayout } from './layouts';
 export { VideoSurface } from './components/core';
 
 // Basic controls and their types
-export * from './controls';
+export * from './components/controls';
 export * from './gestures';
 
-// Store
-export { useVideo, VideoProvider, useTheme, ThemeProvider } from './providers';
+// Store and Providers
+export { useVideo, VideoProvider, useTheme, ThemeProvider, useSettingsContext, SettingsProvider } from './providers';
 
 // Types
 export type * from './types';

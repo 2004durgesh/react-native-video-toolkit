@@ -1,0 +1,184 @@
+---
+sidebar_position: 3
+---
+
+# Media Hooks
+
+### `useBuffering()`
+
+A hook to check and control the video's buffering state.
+
+#### Returns
+
+`useBuffering` returns an object with the following properties:
+
+- `buffering`: A boolean indicating whether the video is currently buffering (`true`) or not (`false`).
+- `setBuffering`: A function `(isBuffering: boolean) => void` that allows you to manually set the buffering state. This is primarily used internally but can be useful for custom buffering indicators.
+
+```tsx
+import { useBuffering } from 'react-native-video-toolkit';
+
+const MyBufferingIndicator = () => {
+  const { buffering } = useBuffering();
+
+  if (buffering) {
+    return <ActivityIndicator size="large" color="#fff" />;
+  }
+  return null;
+};
+```
+
+### `useControlsVisibility()`
+
+A hook for managing the visibility of the video player controls, including functions to show, hide, or toggle them.
+
+#### Returns
+
+`useControlsVisibility` returns an object with the following properties:
+
+- `showControls`: A function `() => void` that makes the video controls visible.
+- `hideControls`: A function `() => void` that hides the video controls.
+- `toggleControls`: A function `() => void` that toggles the visibility of the controls (shows if hidden, hides if visible).
+- `setOpacity`: A function `(opacity: SharedValue<number>) => void` that sets the shared value for the controls' opacity. This is primarily used internally for animations.
+
+```tsx
+import { useControlsVisibility } from 'react-native-video-toolkit';
+
+const MyCustomControl = () => {
+  const { showControls, hideControls, toggleControls } = useControlsVisibility();
+
+  return (
+    <View>
+      <Button title="Show" onPress={showControls} />
+      <Button title="Hide" onPress={hideControls} />
+      <Button title="Toggle" onPress={toggleControls} />
+    </View>
+  );
+};
+```
+
+### `useFullscreen()`
+
+A hook for managing the video player's fullscreen mode.
+
+#### Returns
+
+`useFullscreen` returns an object with the following properties:
+
+- `fullscreen`: A boolean indicating whether the video player is currently in fullscreen mode.
+- `toggleFullscreen`: A function `() => void` that toggles the fullscreen mode. This function also handles screen orientation locking if `enableScreenRotation` is true in `VideoPlayerConfig`.
+- `fullscreenTapGesture`: A `Gesture.Tap()` object configured for single taps to toggle fullscreen. Executes `toggleFullscreen` when tapped. This can be used with a `GestureDetector` component.
+
+```tsx
+import { useFullscreen } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
+
+const MyFullscreenButton = () => {
+  const { fullscreen, toggleFullscreen, fullscreenTapGesture } = useFullscreen();
+
+  return (
+    <GestureDetector gesture={fullscreenTapGesture}>
+      <FullscreenIcon />
+    </GestureDetector>
+  );
+};
+```
+
+### `usePlayback()`
+
+A hook for controlling the video's playback state (play, pause).
+
+#### Returns
+
+`usePlayback` returns an object with the following properties:
+
+- `isPlaying`: A boolean indicating whether the video is currently playing.
+- `togglePlayPause`: A function `() => void` that toggles the video between playing and paused states.
+- `setPlaying`: A function `(isPlaying: boolean) => void` that directly sets the playing state of the video.
+- `playTapGesture`: A `Gesture.Tap()` object configured for single taps to toggle play/pause. ExecutesThis can be used with a `GestureDetector` component.
+
+```tsx
+import { usePlayback } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
+
+const MyPlayPauseButton = () => {
+  const { isPlaying, togglePlayPause, playTapGesture } = usePlayback();
+
+  return (
+    <GestureDetector gesture={playTapGesture}>
+      <PlayPauseIcon />
+    </GestureDetector>
+  );
+};
+```
+
+### `useProgress()`
+
+A hook for accessing and controlling the video's current playback time and duration.
+
+#### Returns
+
+`useProgress` returns an object with the following properties:
+
+- `currentTime`: The current playback time of the video in seconds.
+- `duration`: The total duration of the video in seconds.
+- `seek`: A function `(time: number) => void` that seeks the video to a specific time in seconds.
+- `setCurrentTime`: A function `(time: number) => void` that manually sets the current time state. Primarily used internally.
+- `setDuration`: A function `(duration: number) => void` that manually sets the duration state. Primarily used internally.
+
+```tsx
+import { useProgress } from 'react-native-video-toolkit';
+import Slider from '@react-native-community/slider'; // Example slider component (This is the slider the library uses internally)
+
+const MyProgressBar = () => {
+  const { currentTime, duration, seek } = useProgress();
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
+  return (
+    <View>
+      <Text>
+        {formatTime(currentTime)} / {formatTime(duration)}
+      </Text>
+      <Slider minimumValue={0} maximumValue={duration} value={currentTime} onSlidingComplete={seek} />
+    </View>
+  );
+};
+```
+
+### `useVolume()`
+
+A hook for managing the video's volume and mute state.
+
+#### Returns
+
+`useVolume` returns an object with the following properties:
+
+- `volume`: The current volume level of the video, a number between 0 and 1.
+- `muted`: A boolean indicating whether the video is currently muted.
+- `setVolume`: A function `(volume: number) => void` that sets the video's volume to a specific level (0 to 1).
+- `toggleMute`: A function `() => void` that toggles the mute state of the video.
+- `muteTapGesture`: A `Gesture.Tap()` object configured for single taps to toggle mute. Executes `toggleMute` when tapped. This can be used with a `GestureDetector` component.
+
+```tsx
+import { useVolume } from 'react-native-video-toolkit';
+import Slider from '@react-native-community/slider'; // Example slider component
+import { GestureDetector } from 'react-native-gesture-handler';
+
+const MyVolumeControl = () => {
+  const { volume, muted, setVolume, toggleMute, muteTapGesture } = useVolume();
+
+  return (
+    <View>
+      <GestureDetector gesture={muteTapGesture}>
+        <MuteIcon />
+      </GestureDetector>
+      <Slider minimumValue={0} maximumValue={1} value={volume} onSlidingComplete={setVolume} disabled={muted} />
+    </View>
+  );
+};
+```

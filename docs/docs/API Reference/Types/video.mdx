@@ -4,7 +4,7 @@ This document outlines the types related to the video player.
 
 ## `VideoSource`
 
-The `VideoSource` interface defines the source of the video to be played.
+The `VideoSource` interface defines the source of the video to be played. Extends the source prop from `react-native-video` to include all the properties available in source prop of `react-native-video`.
 
 ```typescript
 export interface VideoSource {
@@ -40,59 +40,18 @@ export interface VideoState {
 
 The `VideoPlayerConfig` interface allows you to configure the behavior of the video player.
 
-| Property                  | Type         | Description                                                                 |
-| ------------------------- | ------------ | --------------------------------------------------------------------------- |
-| `autoHideControls`        | `boolean`    | If `true`, the controls will automatically hide after a certain delay.      |
-| `autoPlay`                | `boolean`    | If `true`, the video will start playing automatically.                      |
-| `autoHideDelay`           | `number`     | The delay in milliseconds before the controls are hidden.                   |
-| `enableDoubleTapGestures` | `boolean`    | If `true`, the user can double-tap to seek forward or backward.             |
-| `enableFullscreen`        | `boolean`    | If `true`, the user can enter and exit fullscreen mode.                     |
-| `enableVolumeControl`     | `boolean`    | If `true`, the user can control the volume of the video.                    |
-| `enablePanGestures`       | `boolean`    | If `true`, the user can use pan gestures to control volume and brightness.  |
-| `enableScreenRotation`    | `boolean`    | If `true`, the screen will rotate automatically when the device is rotated. |
-| `playbackRates`           | `number[]`   | An array of playback rates to be displayed in the settings menu.            |
-| `onEnterFullscreen`       | `() => void` | A callback function that is called when the player enters fullscreen mode.  |
-| `onExitFullscreen`        | `() => void` | A callback function that is called when the player exits fullscreen mode.   |
-| `onHideControls`          | `() => void` | A callback function that is called when the controls are hidden.            |
-| `onShowControls`          | `() => void` | A callback function that is called when the controls are shown.             |
-
-<details>
-  <summary>Full TypeScript definition</summary>
-
-```typescript
-export interface VideoSource {
-  uri: string;
-  type?: string;
-  headers?: Record<string, string>;
-}
-
-export interface VideoState {
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  buffering: boolean;
-  muted: boolean;
-  volume: number;
-  playbackRate: number;
-  fullscreen: boolean;
-  error: string | null;
-}
-
-export interface VideoPlayerConfig {
-  autoHideControls: boolean;
-  autoPlay: boolean;
-  autoHideDelay: number;
-  enableDoubleTapGestures: boolean;
-  enableFullscreen: boolean;
-  enableVolumeControl: boolean;
-  enablePanGestures: boolean;
-  enableScreenRotation: boolean;
-  playbackRates: number[];
-  onEnterFullscreen?: () => void;
-  onExitFullscreen?: () => void;
-  onHideControls?: () => void;
-  onShowControls?: () => void;
-}
-```
-
-</details>
+| Property                  | Type         | Description                                                                 | Default                  |
+| ------------------------- | ------------ | --------------------------------------------------------------------------- | ------------------------ |
+| `autoHideControls`        | `boolean`    | If `true`, the controls will automatically hide after a certain delay.      | `true`                   |
+| `autoPlay`                | `boolean`    | If `true`, the video will start playing automatically.                      | `true`                   |
+| `autoHideDelay`           | `number`     | The delay in milliseconds before the controls are hidden.                   | `5000`                   |
+| `enableDoubleTapGestures` | `boolean`    | If `true`, the user can double-tap to seek forward or backward.             | `true`                   |
+| `enableFullscreen`        | `boolean`    | If `true`, the user can enter and exit fullscreen mode.                     | `true`                   |
+| `enableVolumeControl`     | `boolean`    | If `true`, the user can control the volume of the video.                    | `true`                   |
+| `enablePanGestures`       | `boolean`    | If `true`, the user can use pan gestures to control volume and brightness.  | `true`                   |
+| `enableScreenRotation`    | `boolean`    | If `true`, the screen will rotate automatically when the device is rotated. | `true`                   |
+| `playbackRates`           | `number[]`   | An array of playback rates to be displayed in the settings menu.            | `[0.5, 1, 1.25, 1.5, 2]` |
+| `onEnterFullscreen`       | `() => void` | A callback function that is called when the player enters fullscreen mode.  | `undefined`              |
+| `onExitFullscreen`        | `() => void` | A callback function that is called when the player exits fullscreen mode.   | `undefined`              |
+| `onHideControls`          | `() => void` | A callback function that is called when the controls are hidden.            | `undefined`              |
+| `onShowControls`          | `() => void` | A callback function that is called when the controls are shown.             | `undefined`              |

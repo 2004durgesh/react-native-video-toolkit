@@ -44,7 +44,7 @@
     "example:bare": "yarn workspace react-native-video-toolkit-bare-example",
     "docs": "yarn workspace docs",
     "test": "jest",
-    "typecheck": "yarn workspaces foreach --verbose --topological --exclude docs run typecheck && yarn workspace docs typecheck",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli android/build lib \"example/*/android/.gradle\" \"example/*/android/build\" \"example/*/android/app/build\" \"example/*/ios/build\" \"example/*/ios/Pods\"",
     "prepare": "bob build",

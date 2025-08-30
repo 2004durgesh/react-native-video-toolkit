@@ -1,4 +1,4 @@
-import { hexToRgba } from 'src/utils';
+import { hexToRgba } from '../utils';
 import type { Theme } from '../types';
 
 /**
