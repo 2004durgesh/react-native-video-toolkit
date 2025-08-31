@@ -18,8 +18,8 @@ export const MinimalLayout = () => {
   const opacity = useSharedValue(1);
   const { state, setTheme } = useVideo();
   const { isSettingsMenuVisible, toggleSettingsMenu } = useSettings();
-  // Get theme and store functions
   const { setOpacity } = useControlsVisibility();
+  // const
 
   useEffect(() => {
     setTheme(minimalTheme);

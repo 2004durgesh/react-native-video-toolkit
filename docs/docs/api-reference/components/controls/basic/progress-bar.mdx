@@ -1,0 +1,93 @@
+---
+sidebar_label: 'ProgressBar'
+sidebar_position: 3
+---
+
+# ProgressBar
+
+`ProgressBar` is a customizable slider component that displays the **current playback position** and the **total duration** of the video.  
+It supports scrubbing (seeking), integrates with the player theme, and automatically updates as playback progresses.
+
+---
+
+## Usage
+
+```tsx
+import { ProgressBar } from 'react-native-media-toolkit';
+
+const MyProgressBar = () => {
+  return <ProgressBar />;
+};
+```
+
+---
+
+## Props
+
+| Prop         | Type                   | Required | Default | Description                           |
+| ------------ | ---------------------- | -------- | ------- | ------------------------------------- |
+| `height`     | `number`               | No       | `4`     | Height of the progress track (in px). |
+| `thumbWidth` | `number`               | No       | `12`    | Width of the draggable thumb control. |
+| `style`      | `StyleProp<ViewStyle>` | No       | –       | Optional styles for the container.    |
+
+---
+
+## Features
+
+- Shows **current playback time** relative to total video duration.
+- Allows scrubbing to seek a new playback position.
+- Automatically updates as playback progresses.
+- Fully themed: colors come from the video player's `theme`.
+- Expands visibility of controls when sliding begins.
+
+---
+
+## Examples
+
+### Default ProgressBar
+
+```tsx
+<ProgressBar />
+```
+
+### Custom Height & Thumb
+
+```tsx
+<ProgressBar height={6} thumbWidth={16} />
+```
+
+### Styled ProgressBar
+
+```tsx
+<ProgressBar style={{ marginHorizontal: 20 }} />
+```
+
+---
+
+## Integration Example
+
+Embed inside your `VideoPlayer` controls:
+
+```tsx
+import { VideoPlayer, ProgressBar } from 'react-native-media-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={videoSource}>
+      <Controls>
+        <ProgressBar height={6} thumbWidth={14} />
+      </Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
+:::info
+
+- Progress is managed via the `useProgress` hook (provides `currentTime`, `duration`, `seek`).
+- When sliding starts, `showControls()` is called so the UI remains visible during scrubbing.
+- Colors adapt automatically using the player's theme (`primary` for progress, `secondary` for track).
+
+:::

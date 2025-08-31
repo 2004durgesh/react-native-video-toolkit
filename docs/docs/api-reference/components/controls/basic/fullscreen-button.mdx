@@ -1,0 +1,81 @@
+---
+sidebar_label: 'FullscreenButton'
+sidebar_position: 7
+---
+
+# FullscreenButton
+
+`FullscreenButton` is a control component that toggles fullscreen mode for the video player.  
+It uses the `useFullscreen` hook internally and automatically switches between an **enter fullscreen** and **exit fullscreen** icon.
+
+## Usage
+
+```tsx
+import { FullscreenButton } from 'react-native-media-toolkit';
+
+const MyFullscreenButton = () => {
+  return <FullscreenButton />;
+};
+```
+
+---
+
+## Props
+
+| Prop              | Type                    | Required | Default                                 | Description                                      |
+| ----------------- | ----------------------- | -------- | --------------------------------------- | ------------------------------------------------ |
+| `size`            | `number`                | No       | –                                       | Size of the icon.                                |
+| `color`           | `string`                | No       | –                                       | Color of the icon.                               |
+| `style`           | `StyleProp<ViewStyle>`  | No       | –                                       | Optional styles applied to the button container. |
+| `renderEnterIcon` | `() => React.ReactNode` | No       | `Maximize` (from `lucide-react-native`) | Custom renderer for the "enter fullscreen" icon. |
+| `renderExitIcon`  | `() => React.ReactNode` | No       | `Minimize` (from `lucide-react-native`) | Custom renderer for the "exit fullscreen" icon.  |
+
+---
+
+## Examples
+
+### Default Fullscreen Button
+
+```tsx
+<FullscreenButton size={24} color="white" />
+```
+
+### Custom Icons
+
+```tsx
+import { ArrowsOut, ArrowsIn } from 'phosphor-react-native';
+
+<FullscreenButton
+  renderEnterIcon={() => <ArrowsOut size={24} color="white" />}
+  renderExitIcon={() => <ArrowsIn size={24} color="white" />}
+/>;
+```
+
+---
+
+## Integration Example
+
+Typically used within a `VideoPlayer`:
+
+```tsx
+import { VideoPlayer, FullscreenButton } from 'react-native-media-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={videoSource}>
+      <Controls>
+        <FullscreenButton size={28} color="white" />
+      </Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
+:::info
+
+- Handles **tap gestures** internally using `useFullscreen` and `GestureDetector`, so you don't need to wire gestures yourself.
+- Works seamlessly with both **custom layouts** and **pre-built control sets**.
+
+:::

@@ -1,0 +1,182 @@
+---
+sidebar_label: 'Menu'
+sidebar_position: 1
+---
+
+# Menu
+
+The `Menu` component provides a **settings/navigation system** for the video player.  
+It uses the [`BottomSheet`](../common/bottom-sheet.mdx) as the container and supports:
+
+- Multiple sub-views with a navigation stack
+- Triggers for opening/closing
+- Items, labels, separators, groups
+- Radio and checkbox selection patterns
+- Customizable headers
+
+---
+
+## Usage
+
+```tsx
+import { Menu } from 'react-native-media-toolkit';
+
+export function Example() {
+  return (
+    <Menu.Root>
+      <Menu.Trigger />
+
+      <Menu.Content>
+        <Menu.SubContent viewId="root">
+          <Menu.Label>Playback</Menu.Label>
+          <Menu.Item navigateTo="playback-speed">Speed</Menu.Item>
+          <Menu.Item navigateTo="quality">Quality</Menu.Item>
+        </Menu.SubContent>
+
+        <Menu.SubContent viewId="playback-speed">
+          <Menu.RadioGroup value="1x" onValueChange={console.log}>
+            <Menu.RadioItem value="0.5x">0.5x</Menu.RadioItem>
+            <Menu.RadioItem value="1x">Normal</Menu.RadioItem>
+            <Menu.RadioItem value="1.5x">1.5x</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.SubContent>
+      </Menu.Content>
+    </Menu.Root>
+  );
+}
+```
+
+---
+
+## API Reference
+
+### `Menu.Root`
+
+Wraps all menu components and manages the navigation stack.
+
+| Prop          | Type     | Default  | Description                    |
+| ------------- | -------- | -------- | ------------------------------ |
+| `initialView` | `string` | `"root"` | The first viewId in the stack. |
+
+---
+
+### `Menu.Trigger`
+
+Button that opens the menu.
+:::info
+
+Internally uses [`SettingsButton`](../controls/advanced/settings-button.mdx).
+
+:::
+
+---
+
+### `Menu.Content`
+
+The `BottomSheet` wrapper for menu views.
+
+| Prop         | Type                                 | Description                      |
+| ------------ | ------------------------------------ | -------------------------------- |
+| `children`   | `ReactNode`                          | Nested `Menu.SubContent` blocks. |
+| `header`     | `(currentView: string) => ReactNode` | Optional custom header renderer. |
+| `sheetStyle` | `ViewStyle`                          | Custom style for the sheet body. |
+
+---
+
+### `Menu.SubContent`
+
+Renders content for a specific `viewId`.
+Only visible when `currentView` matches.
+
+| Prop       | Type        | Required | Description                           |
+| ---------- | ----------- | -------- | ------------------------------------- |
+| `viewId`   | `string`    | ✅ Yes   | ID to match against navigation stack. |
+| `children` | `ReactNode` | ✅ Yes   | Sub-menu items.                       |
+
+---
+
+### `Menu.Item`
+
+Basic clickable row. Can either close the menu or navigate to a sub-view.
+
+| Prop         | Type                    | Default | Description                                                             |
+| ------------ | ----------------------- | ------- | ----------------------------------------------------------------------- |
+| `onPress`    | `(value?: any) => void` | –       | Action when pressed.                                                    |
+| `navigateTo` | `string`                | –       | If set, navigates to this sub-view.                                     |
+| `autoClose`  | `boolean`               | `true`  | If true, closes menu after press (ignored if `navigateTo` is provided). |
+| `disabled`   | `boolean`               | `false` | Disables interaction.                                                   |
+| `value`      | `any`                   | –       | Optional value passed to `onPress`.                                     |
+
+---
+
+### `Menu.Label`
+
+Non-interactive label for section headers.
+
+---
+
+### `Menu.Separator`
+
+Divider line between items.
+
+---
+
+### `Menu.Group`
+
+Simple wrapper for grouping related items.
+
+---
+
+### `Menu.RadioGroup`
+
+Manages selection state across `Menu.RadioItem`s.
+
+| Prop            | Type                      | Description                      |
+| --------------- | ------------------------- | -------------------------------- |
+| `value`         | `any`                     | Current selected value.          |
+| `onValueChange` | `(newValue: any) => void` | Callback when selection changes. |
+
+---
+
+### `Menu.RadioItem`
+
+Selectable option inside a `RadioGroup`.
+
+| Prop       | Type        | Description       |
+| ---------- | ----------- | ----------------- |
+| `value`    | `any`       | The item's value. |
+| `children` | `ReactNode` | Displayed text.   |
+
+:::tip
+
+Shows ✓ checkmark if selected.
+
+:::
+
+---
+
+### `Menu.CheckboxItem`
+
+Toggleable option with a check indicator.
+
+| Prop              | Type                         | Description               |
+| ----------------- | ---------------------------- | ------------------------- |
+| `checked`         | `boolean`                    | Controlled checked state. |
+| `onCheckedChange` | `(checked: boolean) => void` | Called when toggled.      |
+
+If `checked` is not provided, it manages its own state.
+
+---
+
+### `Menu.Close`
+
+Button that closes the menu manually.
+Defaults to rendering `"Close"` as the label.
+
+---
+
+## Styling
+
+- Colors, background, and borders adapt automatically to `theme` from `useVideo()`.
+- Default item height: `48px`
+- Default text size: `16px`

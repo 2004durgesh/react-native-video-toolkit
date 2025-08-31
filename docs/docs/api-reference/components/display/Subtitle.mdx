@@ -1,0 +1,49 @@
+---
+sidebar_label: 'Subtitle'
+sidebar_position: 2
+---
+
+# Subtitle
+
+`Subtitle` is a **secondary text component** for displaying subtitles, descriptions, or supporting information within the video player UI.  
+It is theme-aware, automatically using the active `theme.colors.text` while applying slightly muted styling.
+
+---
+
+## Usage
+
+```tsx
+import { Subtitle } from 'react-native-media-toolkit';
+
+export function Example() {
+  return <Subtitle text="Tap to adjust playback speed" />;
+}
+```
+
+---
+
+## Props
+
+| Prop    | Type                   | Required | Default | Description                                              |
+| ------- | ---------------------- | -------- | ------- | -------------------------------------------------------- |
+| `text`  | `string`               | Yes      | –       | The string to display.                                   |
+| `style` | `StyleProp<TextStyle>` | No       | –       | Optional override styles (merged with theme + defaults). |
+
+---
+
+## Default Styles
+
+- Font size: `14`
+- Opacity: `0.8`
+- Color: derived from `theme.colors.text`
+
+---
+
+:::info[When to Use]
+
+- Use `Subtitle` for **secondary information** under a `Title`, such as:
+  - Episode numbers
+  - Season numbers/series titles
+  - Short descriptions or hints
+
+:::

@@ -1,16 +1,19 @@
 ---
+sidebar_label: Customization
 sidebar_position: 2
 ---
 
 # Customization
 
-`react-native-video-toolkit` is designed for high customizability, allowing you to create unique video player experiences. This section covers how to leverage its compound component pattern, theming system, and gesture controls.
+`react-native-video-toolkit` is designed for high customizability, allowing you to create unique video player experiences. This section covers how to leverage its **compound component pattern**, **theming system**, and **gesture controls**.
+
+---
 
 ## Compound Components
 
-The `VideoPlayer` component uses a compound component pattern, meaning it exposes several sub-components that you can arrange and style as needed. This gives you full control over the player's UI layout.
+The `VideoPlayer` component uses a **compound component pattern**, meaning it exposes several sub-components that you can arrange and style as needed. This gives you full control over the player's UI layout.
 
-Here's an example of building a custom player UI:
+### Custom Player UI Example
 
 ```tsx
 import React from 'react';
@@ -88,9 +91,14 @@ const styles = StyleSheet.create({
 export default CustomPlayerExample;
 ```
 
+---
+
 ## Theming
 
-The library provides a flexible theming system to easily customize colors, fonts, sizing, and other visual elements. Custom themes should be of type [`Theme`](./API%20Reference/Types/theme).
+The library provides a flexible **theming system** to easily customize colors, fonts, sizing, and other visual elements.
+Custom themes should be of type [`Theme`](./api-reference/types/theme).
+
+### Theming Example
 
 ```tsx
 import React from 'react';
@@ -122,9 +130,20 @@ const ThemedPlayer = () => {
 export default ThemedPlayer;
 ```
 
+---
+
 ## Configuration Options
 
-The `VideoPlayer` component accepts various props to configure its behavior. The `theme` prop is of type [`Theme`](./API%20Reference/Types/theme) and the `config` prop is of type [`VideoPlayerConfig`](./API%20Reference/Types/video#videoplayerconfig).
+The `VideoProvider` and `VideoPlayer` accept various props to configure their behavior.
+
+### VideoProvider Props
+
+| Prop     | Type                                                                 | Default | Description                                         |
+| -------- | -------------------------------------------------------------------- | ------- | --------------------------------------------------- |
+| `theme`  | [`Theme`](./api-reference/types/theme)                               | —       | Custom theme object for colors, fonts, sizing, etc. |
+| `config` | [`VideoPlayerConfig`](./api-reference/types/video#videoplayerconfig) | —       | Configuration options for player behavior.          |
+
+### Configuration Example
 
 ```tsx
 <VideoProvider
@@ -142,9 +161,14 @@ The `VideoPlayer` component accepts various props to configure its behavior. The
 </VideoProvider>
 ```
 
+---
+
 ## Gestures
 
-The `VideoPlayer` includes built-in gesture support for common interactions like double-tapping to seek and tapping to toggle controls. You can leverage more complex gestures by passing `gestureProps` to the `VideoPlayer` component. This prop accepts [`GestureHandlerProps`](./API%20Reference/Types/gestures#gesturehandlerprops).
+The `VideoPlayer` includes built-in gesture support for common interactions like **double-tapping to seek** and **tapping to toggle controls**.
+You can also pass `gestureProps` to extend behavior. This prop accepts [`GestureHandlerProps`](./api-reference/types/gestures#gesturehandlerprops).
+
+### Gestures Example
 
 ```tsx
 <VideoPlayer
@@ -164,3 +188,11 @@ The `VideoPlayer` includes built-in gesture support for common interactions like
   <MinimalLayout />
 </VideoPlayer>
 ```
+
+---
+
+## Notes
+
+> ⚠️ When overriding gestures, ensure they don't conflict with system gestures (like swipe-back on iOS).
+> 💡 Prefer using the provided **compound components** before re-implementing controls from scratch.
+> 🎨 Themes should be consistent across the app — define once in `VideoProvider` for best maintainability.

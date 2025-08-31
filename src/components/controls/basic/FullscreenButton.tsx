@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useFullscreen } from '../../../hooks';
 import { Maximize, Minimize } from 'lucide-react-native';
 import { BaseIconButton } from '../../../components';
@@ -7,10 +7,9 @@ import { GestureDetector } from 'react-native-gesture-handler';
 export interface FullscreenButtonProps {
   size?: number;
   color?: string;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
   renderEnterIcon?: () => React.ReactNode;
   renderExitIcon?: () => React.ReactNode;
-  onPress?: () => void;
 }
 
 /**
@@ -25,7 +24,6 @@ export const FullscreenButton = ({
   style,
   renderEnterIcon,
   renderExitIcon,
-  onPress,
 }: FullscreenButtonProps): React.ReactElement => {
   const { fullscreen, toggleFullscreen, fullscreenTapGesture } = useFullscreen();
 
@@ -38,9 +36,6 @@ export const FullscreenButton = ({
         IconComponent={fullscreen ? ExitIcon : EnterIcon}
         size={size}
         color={color}
-        // onPress={() => {
-        //   (toggleFullscreen(), onPress && onPress());
-        // }}
         style={[styles.fullscreenButton, style]}
       />
     </GestureDetector>

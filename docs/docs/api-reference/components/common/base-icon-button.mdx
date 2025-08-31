@@ -1,0 +1,78 @@
+---
+sidebar_label: 'BaseIconButton'
+sidebar_position: 2
+---
+
+# BaseIconButton
+
+`BaseIconButton` is a **low-level utility component** used to create touchable icon buttons in the video player.  
+It provides a consistent ripple effect, theming integration, and standard spacing, making it the base for other controls like `PlayButton`, `MuteButton`, and `SettingsButton`.
+
+---
+
+## Usage
+
+```tsx
+import { BaseIconButton } from 'react-native-media-toolkit';
+import { Heart } from 'lucide-react-native';
+
+const MyButton = () => {
+  return <BaseIconButton IconComponent={Heart} size={28} color="#f00" onPress={() => console.log('Pressed')} />;
+};
+```
+
+---
+
+## Props
+
+| Prop            | Type                            | Required | Default              | Description                                                               |
+| --------------- | ------------------------------- | -------- | -------------------- | ------------------------------------------------------------------------- |
+| `IconComponent` | `React.ElementType`             | Yes      | –                    | The icon component to render (e.g. from `lucide-react-native` or custom). |
+| `size`          | `number`                        | No       | `theme.iconSizes.md` | Size of the icon.                                                         |
+| `color`         | `string`                        | No       | `theme.colors.text`  | Color of the icon.                                                        |
+| `...props`      | `TouchableWithoutFeedbackProps` | No       | –                    | Additional props passed to the touchable ripple wrapper.                  |
+
+---
+
+## Features
+
+- Built on [`react-native-material-ripple`](https://github.com/n4kz/react-native-material-ripple) for touch feedback.
+- Integrates with the **theme system** (`useVideo`) for colors & sizes.
+- Provides **consistent padding (10px)** around icons.
+- Serves as the **base layer** for all other control buttons.
+
+---
+
+## Examples
+
+### Default Icon Button
+
+```tsx
+<BaseIconButton IconComponent={Heart} />
+```
+
+### Customized Ripple Button
+
+```tsx
+<BaseIconButton
+  IconComponent={Heart}
+  size={32}
+  color="purple"
+  rippleCentered
+  rippleDuration={800}
+  onPress={() => console.log('Liked!')}
+/>
+```
+
+---
+
+:::warning
+
+This is a **building block** — you typically won't use it directly. Instead, use higher-level controls like:
+
+- [`PlayButton`](../controls/basic/play-button.mdx)
+- [`MuteButton`](../controls/basic/mute-button.mdx)
+- [`FullscreenButton`](../controls/basic/fullscreen-button.mdx)
+- [`SettingsButton`](../controls/advanced/settings-button.mdx)
+
+:::

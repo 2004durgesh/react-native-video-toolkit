@@ -1,11 +1,11 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useBuffering } from '../../../hooks';
 import { useVideo } from '../../../providers';
 
 export interface LoadingSpinnerProps {
   size?: 'small' | 'large';
   color?: string;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -16,7 +16,7 @@ export interface LoadingSpinnerProps {
  * @param {object} props - The props for the LoadingSpinner component.
  * @param {'small' | 'large'} [props.size='large'] - The size of the activity indicator.
  * @param {string} [props.color] - The color of the activity indicator. Defaults to the primary color from the theme.
- * @param {any} [props.style] - Optional style to apply to the spinner container.
+ * @param {StyleProp<ViewStyle>} [props.style] - Optional style to apply to the spinner container.
  *
  * @returns {React.ReactElement | null} An `ActivityIndicator` component if buffering, otherwise `null`.
  */

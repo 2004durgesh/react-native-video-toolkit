@@ -1,8 +1,17 @@
 ---
+sidebar_label: 'Gesture Hooks'
 sidebar_position: 2
 ---
 
 # Gesture Hooks
+
+:::note
+When using the `VideoPlayer` component, functions passed to
+[`gestureProps`](../../customization.mdx#gestures) are automatically wired up
+to the corresponding gesture hooks internally.
+This means that when you use pre-built layouts, you only need to provide
+functions via `gestureProps` — you don't have to call the hooks yourself.
+:::
 
 ### `useSingleTapGesture()`
 
@@ -31,7 +40,7 @@ const MyVideoPlayer = () => {
 
 ### `useDoubleTapGesture()`
 
-A hook for handling double tap gestures to seek forward or backward in the video. The parameter is of type [`UseDoubleTapGestureProps`](../Types/gestures#usedoubletapgestureprops).
+A hook for handling double tap gestures to seek forward or backward in the video. The parameter is of type [`UseDoubleTapGestureProps`](../types/gestures#usedoubletapgestureprops).
 
 #### Returns
 
@@ -80,7 +89,7 @@ const MyVideoPlayer = () => {
 
 ### `usePanGesture()`
 
-A hook for handling pan gestures, typically used for controlling volume and brightness by vertical swipes on different sides of the screen. The parameter is of type [`UsePanGestureProps`](../Types/gestures#usepangestureprops).
+A hook for handling pan gestures, typically used for controlling volume and brightness by vertical swipes on different sides of the screen. The parameter is of type [`UsePanGestureProps`](../types/gestures#usepangestureprops).
 
 #### Returns
 

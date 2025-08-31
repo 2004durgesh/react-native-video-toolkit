@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { usePlayback } from '../../../hooks';
 import { Pause, Play } from 'lucide-react-native';
 import { BaseIconButton } from '../../../components/common/BaseIconButton';
@@ -7,7 +7,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 export interface PlayButtonProps {
   size?: number;
   color?: string;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
   renderPlayIcon?: () => React.ReactNode;
   renderPauseIcon?: () => React.ReactNode;
 }

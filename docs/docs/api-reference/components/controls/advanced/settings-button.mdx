@@ -1,0 +1,71 @@
+---
+sidebar_label: 'SettingsButton'
+sidebar_position: 1
+---
+
+# SettingsButton
+
+`SettingsButton` is an **icon-based control** that opens the video player's settings menu.  
+By default, it renders a gear icon (`lucide-react-native`), but the icon can be customized.
+
+---
+
+## Usage
+
+```tsx
+import { SettingsButton } from 'react-native-media-toolkit';
+
+const MySettings = () => {
+  return <SettingsButton />;
+};
+```
+
+---
+
+## Props
+
+| Prop                | Type                    | Required | Default                | Description                                   |
+| ------------------- | ----------------------- | -------- | ---------------------- | --------------------------------------------- |
+| `size`              | `number`                | No       | –                      | Size of the icon.                             |
+| `color`             | `string`                | No       | –                      | Color of the icon.                            |
+| `style`             | `StyleProp<ViewStyle>`  | No       | –                      | Optional styles for the button container.     |
+| `renderSettingIcon` | `() => React.ReactNode` | No       | Gear icon (`Settings`) | Custom render function for the settings icon. |
+
+---
+
+## Features
+
+- Triggers the **settings menu** via `useSettings` hook.
+- Uses [`GestureDetector`](https://docs.swmansion.com/react-native-gesture-handler/docs/api/components/gesture-detector/) for better gesture handling.
+- Fully customizable **icon rendering** with `renderSettingIcon`.
+- Theme-friendly and lightweight.
+
+---
+
+## Examples
+
+### Default Settings Button
+
+```tsx
+<SettingsButton size={28} color="#fff" />
+```
+
+### Custom Icon
+
+```tsx
+import { Sliders } from 'lucide-react-native';
+
+<SettingsButton renderSettingIcon={() => <Sliders />} />;
+```
+
+---
+
+:::info
+
+- Works seamlessly inside control bars alongside `PlayButton`, `MuteButton`, and `FullscreenButton`.
+- Typically used to open menus for:
+  - Video quality selection
+  - Subtitle / text track management
+  - Playback speed adjustment
+
+:::
