@@ -9,10 +9,6 @@
     "web": "expo start --web",
     "web:export": "expo export -p web"
   },
-  "react-native": {
-    "./NativeVideoToolkit": "./NativeVideoToolkit.ts",
-    "./NativeVideoToolkit.web": "./NativeVideoToolkit.web.ts"
-  },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
     "expo": "^53.0.16",

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Button } from 'react-native';
-import { VideoPlayer, VideoProvider, useFullscreen, type VideoSource } from 'react-native-video-toolkit';
+import { VideoPlayer, VideoProvider, useFullscreen, type VideoSource } from '../../../../src';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -61,7 +61,7 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
     },
     {
       type: 'hls',
-      uri: ' https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+      uri: 'https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
     },
     {
       type: 'dash',
@@ -95,15 +95,12 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
       <VideoPlayer
         source={videoSource}
         containerStyle={styles.videoPlayer}
-        gestureProps={{
-          onLeftVerticalPan(e) {
-            console.log('left pan', e);
+        videoProps={{
+          onLoad(e) {
+            console.log('Video Loaded!', e);
           },
-          onRightVerticalPan(e) {
-            console.log('right pan', e);
-          },
-          onGlobalVerticalPan(e) {
-            console.log('global pan', e);
+          onLoadStart(e) {
+            console.log('Video Load Started!', e);
           },
         }}>
         {layout}

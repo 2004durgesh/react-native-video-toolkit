@@ -5,6 +5,7 @@ import { NativeVideoToolkit } from '../../NativeVideoToolkit';
 import RNOrientationDirector, { Orientation } from 'react-native-orientation-director';
 import { Gesture } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
+import { Platform } from 'react-native';
 
 /**
  * A hook for controlling fullscreen mode.
@@ -27,13 +28,13 @@ export const useFullscreen = () => {
 
     if (newFullscreenState) {
       showControls();
-      if (state.config.enableScreenRotation) {
+      if (state.config.enableScreenRotation && Platform.OS !== 'web') {
         RNOrientationDirector.lockTo(Orientation.landscape);
       }
       NativeVideoToolkit.enterFullscreen();
       state.config.onEnterFullscreen?.();
     } else if (state.hideTimeoutRef) {
-      if (state.config.enableScreenRotation) {
+      if (state.config.enableScreenRotation && Platform.OS !== 'web') {
         RNOrientationDirector.lockTo(Orientation.portrait);
       }
       NativeVideoToolkit.exitFullscreen();

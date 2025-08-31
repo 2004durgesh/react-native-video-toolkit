@@ -1,8 +1,19 @@
 // Main VideoPlayer component and compound components
 export { VideoPlayer } from './components/VideoPlayer';
+// Export the VideoToolkit module with platform-specific resolution
+import { Platform } from 'react-native';
 
-//Export the VideoToolkit module
-export { NativeVideoToolkit } from './NativeVideoToolkit';
+// Platform-specific export
+let NativeVideoToolkit;
+
+if (Platform.OS === 'web') {
+  // Dynamically import web implementation
+  NativeVideoToolkit = require('./NativeVideoToolkit.web').default;
+} else {
+  // Use native implementation for iOS/Android
+  NativeVideoToolkit = require('./NativeVideoToolkit').default;
+}
+export { NativeVideoToolkit };
 
 // Export Layouts components
 export { DefaultLayout, MinimalLayout } from './layouts';
