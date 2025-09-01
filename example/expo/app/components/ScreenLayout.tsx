@@ -71,23 +71,18 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
     { type: 'asset-vertical', uri: require('../../assets/vertical.mp4') },
   ];
   const { fullscreen } = useFullscreen();
-  const [uri, setUri] = useState<string>(samples[3]?.uri!);
+  const [uri, setUri] = useState<string>(samples[1]?.uri!);
   const videoSource: VideoSource = {
     uri,
     textTracks: [
       {
-        uri: 'https://example.com/path/to/subtitles.vtt',
-        title: 'English Subtitles',
+        title: 'external',
         language: 'en',
         type: TextTrackType.VTT,
-      },
-      {
-        uri: 'https://example.com/path/to/spanish-subtitles.vtt',
-        title: 'Spanish Subtitles',
-        language: 'es',
-        type: TextTrackType.VTT,
+        uri: 'https://raw.githubusercontent.com/1c7/vtt-test-file/refs/heads/master/vtt%20files/4.%20No%20Hour.vtt',
       },
     ],
+    textTracksAllowChunklessPreparation: false,
   };
 
   return (
@@ -101,6 +96,15 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
           },
           onLoadStart(e) {
             console.log('Video Load Started!', e);
+          },
+          onVideoTracks(e) {
+            console.log('video tracks changed', e);
+          },
+          onTextTracks(e) {
+            console.log('text tracks changed', e);
+          },
+          onAudioTracks(e) {
+            console.log('audio tracks changed', e);
           },
         }}>
         {layout}

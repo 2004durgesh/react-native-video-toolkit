@@ -5,15 +5,15 @@ import { Gesture } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 
 /**
- * A hook for managing video settings like quality, audio tracks, and subtitles.
+ * A hook for managing video settings like videoTrack, audio tracks, and texts.
  *
  * @returns An object with the following properties:
- * - `quality`: The current video quality setting.
- * - `setQuality`: A function to set the video quality.
+ * - `videoTrack`: The current video videoTrack setting.
+ * - `setVideoTrack`: A function to set the video videoTrack.
  * - `audioTrack`: The current audio track setting.
  * - `setAudioTrack`: A function to set the audio track.
- * - `subtitleTrack`: The current subtitle track setting.
- * - `setSubtitleTrack`: A function to set the subtitle track.
+ * - `textTrack`: The current text track setting.
+ * - `setTextTrack`: A function to set the text track.
  */
 export const useSettings = () => {
   const { state, dispatch } = useSettingsContext();
@@ -37,12 +37,24 @@ export const useSettings = () => {
   }, [dispatch, state.isSettingsMenuVisible, openSettings, closeSettings]);
 
   /**
-   * Sets the video quality.
-   * @param newQuality - The new video quality (e.g., 'auto', '1080p', '720p').
+   * Sets the video videoTrack.
+   * @param newVideoTrack - The new video videoTrack (e.g., 'auto', '1080p', '720p').
    */
-  const setQuality = useCallback(
-    (newQuality: VideoTrack | null) => {
-      dispatch({ type: 'SET_QUALITY', payload: newQuality });
+  const setVideoTrack = useCallback(
+    (newVideoTrack: VideoTrack | null) => {
+      dispatch({ type: 'SET_VIDEO_TRACK', payload: newVideoTrack });
+    },
+    [dispatch]
+  );
+
+  /**
+   * Gets the available video videoTracks.
+   * @param videoTracks - An array of available video videoTracks.
+   */
+
+  const getVideoTracks = useCallback(
+    (videoTracks: VideoTrack[]) => {
+      dispatch({ type: 'GET_VIDEO_TRACKS', payload: videoTracks });
     },
     [dispatch]
   );
@@ -59,12 +71,36 @@ export const useSettings = () => {
   );
 
   /**
-   * Sets the subtitle track.
-   * @param newSubtitleTrack - The new subtitle track (e.g., 'off', 'english', 'french').
+   * Gets the available audio tracks.
+   * @param audioTracks - An array of available audio tracks.
    */
-  const setSubtitleTrack = useCallback(
-    (newSubtitleTrack: TextTrack | null) => {
-      dispatch({ type: 'SET_SUBTITLE_TRACK', payload: newSubtitleTrack });
+
+  const getAudioTracks = useCallback(
+    (audioTracks: AudioTrack[]) => {
+      dispatch({ type: 'GET_AUDIO_TRACKS', payload: audioTracks });
+    },
+    [dispatch]
+  );
+
+  /**
+   * Gets the available text tracks.
+   * @param textTracks - An array of available text tracks.
+   */
+
+  const getTextTracks = useCallback(
+    (textTracks: TextTrack[]) => {
+      dispatch({ type: 'GET_TEXT_TRACKS', payload: textTracks });
+    },
+    [dispatch]
+  );
+
+  /**
+   * Sets the text track.
+   * @param newTextTrack - The new text track (e.g., 'off', 'english', 'french').
+   */
+  const setTextTrack = useCallback(
+    (newTextTrack: TextTrack | null) => {
+      dispatch({ type: 'SET_TEXT_TRACK', payload: newTextTrack });
     },
     [dispatch]
   );
@@ -82,12 +118,18 @@ export const useSettings = () => {
   );
 
   return {
-    quality: state.quality,
-    setQuality,
+    videoTrack: state.videoTrack,
+    videoTracks: state.videoTracks,
+    setVideoTrack,
+    getVideoTracks,
     audioTrack: state.audioTrack,
+    audioTracks: state.audioTracks,
     setAudioTrack,
-    subtitleTrack: state.subtitleTrack,
-    setSubtitleTrack,
+    getAudioTracks,
+    textTrack: state.textTrack,
+    textTracks: state.textTracks,
+    setTextTrack,
+    getTextTracks,
     isSettingsMenuVisible: state.isSettingsMenuVisible,
     openSettings,
     closeSettings,

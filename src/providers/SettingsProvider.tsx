@@ -10,17 +10,29 @@ interface SettingsProviderState {
    */
   isSettingsMenuVisible: boolean;
   /**
-   * The current video quality setting.
+   * The current video videoTrack setting.
    */
-  quality: VideoTrack | null;
+  videoTrack: VideoTrack | null;
+  /**
+   * The list of available video videoTracks.
+   */
+  videoTracks: VideoTrack[];
   /**
    * The current audio track setting.
    */
   audioTrack: AudioTrack | null;
   /**
+   * The list of available audio tracks.
+   */
+  audioTracks: AudioTrack[];
+  /**
    * The current subtitle track setting.
    */
-  subtitleTrack: TextTrack | null;
+  textTrack: TextTrack | null;
+  /**
+   * The list of available subtitle tracks.
+   */
+  textTracks: TextTrack[];
   /**
    * The current playback rate setting.
    */
@@ -32,9 +44,12 @@ interface SettingsProviderState {
  */
 type SettingsAction =
   | { type: 'TOGGLE_SETTINGS_MENU' }
-  | { type: 'SET_QUALITY'; payload: VideoTrack | null }
+  | { type: 'SET_VIDEO_TRACK'; payload: VideoTrack | null }
+  | { type: 'GET_VIDEO_TRACKS'; payload: VideoTrack[] }
   | { type: 'SET_AUDIO_TRACK'; payload: AudioTrack | null }
-  | { type: 'SET_SUBTITLE_TRACK'; payload: TextTrack | null }
+  | { type: 'GET_AUDIO_TRACKS'; payload: AudioTrack[] }
+  | { type: 'SET_TEXT_TRACK'; payload: TextTrack | null }
+  | { type: 'GET_TEXT_TRACKS'; payload: TextTrack[] }
   | { type: 'SET_PLAYBACK_RATE'; payload: number }
   | { type: 'OPEN_SETTINGS_SHEET' }
   | { type: 'CLOSE_SETTINGS_SHEET' };
@@ -44,9 +59,12 @@ type SettingsAction =
  */
 const initialSettingsState: SettingsProviderState = {
   isSettingsMenuVisible: false,
-  quality: null,
+  videoTrack: null,
+  videoTracks: [],
   audioTrack: null,
-  subtitleTrack: null,
+  audioTracks: [],
+  textTrack: null,
+  textTracks: [],
   playbackRate: 1,
 };
 
@@ -57,12 +75,18 @@ function settingsReducer(state: SettingsProviderState, action: SettingsAction): 
   switch (action.type) {
     case 'TOGGLE_SETTINGS_MENU':
       return { ...state, isSettingsMenuVisible: !state.isSettingsMenuVisible };
-    case 'SET_QUALITY':
-      return { ...state, quality: action.payload };
+    case 'SET_VIDEO_TRACK':
+      return { ...state, videoTrack: action.payload };
+    case 'GET_VIDEO_TRACKS':
+      return { ...state, videoTracks: action.payload };
     case 'SET_AUDIO_TRACK':
       return { ...state, audioTrack: action.payload };
-    case 'SET_SUBTITLE_TRACK':
-      return { ...state, subtitleTrack: action.payload };
+    case 'GET_AUDIO_TRACKS':
+      return { ...state, audioTracks: action.payload };
+    case 'SET_TEXT_TRACK':
+      return { ...state, textTrack: action.payload };
+    case 'GET_TEXT_TRACKS':
+      return { ...state, textTracks: action.payload };
     case 'SET_PLAYBACK_RATE':
       return { ...state, playbackRate: action.payload };
     case 'OPEN_SETTINGS_SHEET':

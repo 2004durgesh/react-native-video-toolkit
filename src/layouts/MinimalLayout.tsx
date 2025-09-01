@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useBuffering, useControlsVisibility, useSettings } from '../hooks';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
@@ -17,9 +17,19 @@ export const MinimalLayout = () => {
   const { buffering } = useBuffering();
   const opacity = useSharedValue(1);
   const { state, setTheme } = useVideo();
-  const { isSettingsMenuVisible, toggleSettingsMenu } = useSettings();
+  const {
+    videoTracks,
+    textTracks,
+    audioTracks,
+    videoTrack,
+    textTrack,
+    audioTrack,
+    setVideoTrack,
+    setTextTrack,
+    setAudioTrack,
+  } = useSettings();
   const { setOpacity } = useControlsVisibility();
-  // const
+  // console.log({videoTracks, textTracks, audioTracks});
 
   useEffect(() => {
     setTheme(minimalTheme);
@@ -53,30 +63,60 @@ export const MinimalLayout = () => {
                   <Menu.SubContent viewId="root">
                     <Menu.Item navigateTo="audio">Audio</Menu.Item>
                     <Menu.Item navigateTo="video">Video</Menu.Item>
-                    <Menu.Item navigateTo="playback">Playback Rate</Menu.Item>
-                    <Menu.Separator />
-                    <Menu.Close />
+                    <Menu.Item navigateTo="captions">Captions</Menu.Item>
                   </Menu.SubContent>
                   <Menu.SubContent viewId="audio">
-                    {/* Audio options, e.g., tracks or volume */}
-                    <Menu.RadioGroup value="Audio" onValueChange={(value) => console.log(value)}>
-                      <Menu.RadioItem value="en">English</Menu.RadioItem>
-                      <Menu.RadioItem value="es">Spanish</Menu.RadioItem>
-                    </Menu.RadioGroup>
+                    {audioTracks.length > 0 ? (
+                      <Menu.RadioGroup value={audioTrack} onValueChange={(value) => console.log(value)}>
+                        <ScrollView style={{ maxHeight: '100%' }}>
+                          {audioTracks.map((track) => (
+                            <Menu.RadioItem
+                              onSelect={() => setAudioTrack(track)}
+                              key={track.index}
+                              value={track.language}>
+                              {track.title}
+                            </Menu.RadioItem>
+                          ))}
+                        </ScrollView>
+                      </Menu.RadioGroup>
+                    ) : (
+                      <View style={{ padding: 10 }}>
+                        <Subtitle text="No audio tracks available" />
+                      </View>
+                    )}
                   </Menu.SubContent>
                   <Menu.SubContent viewId="video">
-                    <Menu.RadioGroup value="Audio" onValueChange={(value) => console.log(value)}>
-                      <Menu.RadioItem value="en">English</Menu.RadioItem>
-                      <Menu.RadioItem value="es">Spanish</Menu.RadioItem>
-                    </Menu.RadioGroup>
+                    {videoTracks.length > 0 ? (
+                      <Menu.RadioGroup value={videoTrack} onValueChange={(value) => console.log(value)}>
+                        <ScrollView style={{ maxHeight: '100%' }}>
+                          {videoTracks.map((track) => (
+                            <Menu.RadioItem
+                              onSelect={() => setVideoTrack(track)}
+                              key={`${track.index}`}
+                              value={`${track.height}`}>{`${track.height}p`}</Menu.RadioItem>
+                          ))}
+                        </ScrollView>
+                      </Menu.RadioGroup>
+                    ) : (
+                      <View style={{ padding: 10 }}>
+                        <Subtitle text="No video tracks available" />
+                      </View>
+                    )}
                   </Menu.SubContent>
-                  <Menu.SubContent viewId="playback">
-                    <Menu.Item value={0.5} onPress={() => console.log('Set rate to 0.5x')}>
-                      0.5x
-                    </Menu.Item>
-                    <Menu.Item value={1} onPress={() => console.log('Set rate to 1x')}>
-                      1x (Normal)
-                    </Menu.Item>
+                  <Menu.SubContent viewId="captions">
+                    {textTracks.length > 0 ? (
+                      <Menu.RadioGroup value={textTrack} onValueChange={(value) => console.log(value)}>
+                        {textTracks.map((track) => (
+                          <Menu.RadioItem onSelect={() => setTextTrack(track)} key={track.index} value={track.language}>
+                            {track.title}
+                          </Menu.RadioItem>
+                        ))}
+                      </Menu.RadioGroup>
+                    ) : (
+                      <View style={{ padding: 10 }}>
+                        <Subtitle text="No captions available" />
+                      </View>
+                    )}
                   </Menu.SubContent>
                 </Menu.Content>
               </Menu.Root>
