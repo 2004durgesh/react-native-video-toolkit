@@ -1,0 +1,127 @@
+---
+sidebar_label: Common
+sidebar_position: 3
+---
+
+# Common Utils
+
+This document provides an overview of the common utility functions available in the `react-native-media-toolkit`.
+
+## `combineHandlers`
+
+A utility function that combines multiple event handlers into a single function. It's particularly useful when you want to attach multiple callbacks to a single event without creating a new function inline.
+
+:::tip
+You can use `combineHandlers` to merge your custom `onPress` handler with the one provided by a component. This is useful when you want to extend the functionality of a component without losing its original behavior.
+:::
+
+### Usage
+
+```tsx
+import { combineHandlers } from 'react-native-media-toolkit';
+
+const handleClick = combineHandlers(onClick1, onClick2);
+```
+
+### Parameters
+
+| Parameter  | Type                           | Description                            |
+| ---------- | ------------------------------ | -------------------------------------- |
+| `handlers` | `((...args: any[]) => void)[]` | An array of event handlers to combine. |
+
+### Returns
+
+| Type                       | Description                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------- |
+| `(...args: any[]) => void` | A single function that calls all the provided handlers in the order they were passed. |
+
+### Example
+
+```tsx
+import { combineHandlers } from 'react-native-media-toolkit';
+
+const onClick1 = () => console.log('click1');
+const onClick2 = () => console.log('click2');
+
+const handleClick = combineHandlers(onClick1, onClick2);
+```
+
+## `dedupeTracks`
+
+A utility function that removes duplicate tracks from an array of tracks.
+
+### Usage
+
+```tsx
+import { dedupeTracks } from 'react-native-media-toolkit';
+
+const tracks = [
+  { language: 'en', title: 'English' },
+  { language: 'en', title: 'English' },
+  { language: 'fr', title: 'French' },
+];
+
+const dedupedTracks = dedupeTracks(tracks, ['language', 'title']);
+```
+
+### Parameters
+
+| Parameter | Type       | Description                           |
+| --------- | ---------- | ------------------------------------- |
+| `tracks`  | `any[]`    | The array of tracks to dedupe.        |
+| `keys`    | `string[]` | The keys to use for comparing tracks. |
+
+### Returns
+
+| Type    | Description                  |
+| ------- | ---------------------------- |
+| `any[]` | The array of deduped tracks. |
+
+### Example
+
+```tsx
+import { dedupeTracks } from 'react-native-media-toolkit';
+
+const tracks = [
+  { language: 'en', title: 'English' },
+  { language: 'en', title: 'English' },
+  { language: 'fr', title: 'French' },
+];
+
+const dedupedTracks = dedupeTracks(tracks, ['language', 'title']);
+console.log(dedupedTracks);
+```
+
+## `hexToRgba`
+
+A utility function that converts a hex color to an rgba color.
+
+### Usage
+
+```tsx
+import { hexToRgba } from 'react-native-media-toolkit';
+
+const rgbaColor = hexToRgba('#FF0000', 0.5);
+```
+
+### Parameters
+
+| Parameter | Type     | Description               |
+| --------- | -------- | ------------------------- |
+| `hex`     | `string` | The hex color to convert. |
+| `alpha`   | `number` | The alpha value to apply. |
+
+### Returns
+
+| Type     | Description            |
+| -------- | ---------------------- |
+| `string` | The rgba color string. |
+
+### Example
+
+```tsx
+import { hexToRgba } from 'react-native-media-toolkit';
+
+const rgbaColor = hexToRgba('#FF0000', 0.5);
+console.log(rgbaColor);
+```

@@ -1,5 +1,5 @@
 import React, { type FC, type ReactNode } from 'react';
-import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { View, StyleSheet, type StyleProp, type ViewStyle, Platform } from 'react-native';
 import {
   PlayButton,
   ProgressBar,
@@ -57,11 +57,15 @@ const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, ge
   return (
     <View
       style={[
-        { position: 'relative', height: state.fullscreen ? state.videoLayout.width : state.videoLayout.height },
+        {
+          position: 'relative',
+          height: state.fullscreen ? state.videoLayout.width : state.videoLayout.height,
+          ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
+        },
         containerStyle,
       ]}>
       <GestureHandler {...gestureProps}>
-        <View style={{ overflow: 'hidden' }}>
+        <View style={{ overflow: 'hidden', ...(Platform.OS === 'web' && { flex: 1 }) }}>
           <VideoSurface {...videoProps} source={source} />
           {children}
         </View>

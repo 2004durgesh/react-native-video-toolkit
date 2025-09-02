@@ -7,7 +7,7 @@ import RNVideo, {
   type ReactVideoProps,
 } from 'react-native-video';
 import { useEffect, useMemo, useRef, type FC } from 'react';
-import { Dimensions, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Dimensions, Platform, View, type StyleProp, type ViewStyle } from 'react-native';
 import type { VideoSource } from '../../types';
 import { useVideo } from '../../providers';
 import { usePlayback, useVolume, useProgress, useBuffering, useControlsVisibility, useSettings } from '../../hooks';
@@ -110,7 +110,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   );
 
   return (
-    <View style={{ height: state.videoLayout.height }}>
+    <View style={{ height: state.videoLayout.height, ...(Platform.OS === 'web' && { height: '100%' }) }}>
       <RNVideo
         ref={internalVideoRef}
         source={source}

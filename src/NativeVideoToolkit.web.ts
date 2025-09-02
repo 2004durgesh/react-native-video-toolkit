@@ -30,6 +30,7 @@ export const NativeVideoToolkit: Spec = {
   enterFullscreen: async (): Promise<boolean> => {
     try {
       if (document.documentElement.requestFullscreen) {
+        console.log('Entering fullscreen mode');
         await document.documentElement.requestFullscreen();
         return true;
       }

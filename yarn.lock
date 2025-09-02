@@ -4831,6 +4831,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-tvos/config-tv@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "@react-native-tvos/config-tv@npm:0.1.3"
+  dependencies:
+    getenv: ^1.0.0
+  peerDependencies:
+    expo: ">=52.0.0"
+  checksum: bd7ee0a89d3880d4db986208a561c205a29126af1c4e09ecc8d20477163eaf28032e2adbcb036fdc6242df34e115aec6e45400fa395a8f60fb47d14b6e8e9759
+  languageName: node
+  linkType: hard
+
+"@react-native-tvos/virtualized-lists@npm:0.79.5-0":
+  version: 0.79.5-0
+  resolution: "@react-native-tvos/virtualized-lists@npm:0.79.5-0"
+  dependencies:
+    invariant: ^2.2.4
+    nullthrows: ^1.1.1
+  peerDependencies:
+    "@types/react": ^19.0.0
+    react: "*"
+    react-native: "*"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 4b2dfccaab59b9ac94abe8592373cfe2c120bf1d2c4efc3712e5fb5985ad7bc943e02b491bb0bf116343b27df87701e5c92fb32a877e83b0d54916b37c9241ee
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.79.5":
   version: 0.79.5
   resolution: "@react-native/assets-registry@npm:0.79.5"
@@ -11878,6 +11906,13 @@ __metadata:
     data-uri-to-buffer: ^6.0.2
     debug: ^4.3.4
   checksum: aef94dbecde44bc9cd23f5c1b6af5bf772a3d16612c0fc37d3a4056ffd202f2cdd329746d4fdc2124813ea6c8b1c5279f3749d27226a2b161df43dbcb70082e3
+  languageName: node
+  linkType: hard
+
+"getenv@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "getenv@npm:1.0.0"
+  checksum: 19ae5cad603a1cf1bcb8fa3bed48e00d062eb0572a4404c02334b67f3b3499f238383082b064bb42515e9e25c2b08aef1a3e3d2b6852347721aa8b174825bd56
   languageName: node
   linkType: hard
 
@@ -19732,6 +19767,7 @@ __metadata:
   dependencies:
     "@babel/core": ^7.20.0
     "@expo/metro-runtime": ~5.0.4
+    "@react-native-tvos/config-tv": ^0.1.3
     expo: ^53.0.16
     expo-constants: ~17.1.7
     expo-linking: ~7.1.7
@@ -19740,7 +19776,7 @@ __metadata:
     lucide-react-native: ^0.539.0
     react: 19.0.0
     react-dom: 19.0.0
-    react-native: 0.79.5
+    react-native: "npm:react-native-tvos@0.79.5-0"
     react-native-builder-bob: ^0.31.0
     react-native-gesture-handler: 2.24.0
     react-native-orientation-director: ^2.6.1
@@ -19942,6 +19978,58 @@ __metadata:
   bin:
     react-native: cli.js
   checksum: 6db9368ca97ad2b4b2326d63edcb4ac151d77ad564afb3cbf1ae5caf8f169fee02bc83cb2411fc8b3e42f9d1ef08b2ac937a4260f67187829bed310e5d431988
+  languageName: node
+  linkType: hard
+
+"react-native@npm:react-native-tvos@0.79.5-0":
+  version: 0.79.5-0
+  resolution: "react-native-tvos@npm:0.79.5-0"
+  dependencies:
+    "@jest/create-cache-key-function": ^29.7.0
+    "@react-native-tvos/virtualized-lists": 0.79.5-0
+    "@react-native/assets-registry": 0.79.5
+    "@react-native/codegen": 0.79.5
+    "@react-native/community-cli-plugin": 0.79.5
+    "@react-native/gradle-plugin": 0.79.5
+    "@react-native/js-polyfills": 0.79.5
+    "@react-native/normalize-colors": 0.79.5
+    abort-controller: ^3.0.0
+    anser: ^1.4.9
+    ansi-regex: ^5.0.0
+    babel-jest: ^29.7.0
+    babel-plugin-syntax-hermes-parser: 0.25.1
+    base64-js: ^1.5.1
+    chalk: ^4.0.0
+    commander: ^12.0.0
+    event-target-shim: ^5.0.1
+    flow-enums-runtime: ^0.0.6
+    glob: ^7.1.1
+    invariant: ^2.2.4
+    jest-environment-node: ^29.7.0
+    memoize-one: ^5.0.0
+    metro-runtime: ^0.82.0
+    metro-source-map: ^0.82.0
+    nullthrows: ^1.1.1
+    pretty-format: ^29.7.0
+    promise: ^8.3.0
+    react-devtools-core: ^6.1.1
+    react-refresh: ^0.14.0
+    regenerator-runtime: ^0.13.2
+    scheduler: 0.25.0
+    semver: ^7.1.3
+    stacktrace-parser: ^0.1.10
+    whatwg-fetch: ^3.0.0
+    ws: ^6.2.3
+    yargs: ^17.6.2
+  peerDependencies:
+    "@types/react": ^19.0.0
+    react: ^19.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  bin:
+    react-native: cli.js
+  checksum: d1c5c0c2c75b5c5e68267d1b4c7af588e15717854621c072cb147d623675b46be753ca8ab627a6b88de083b3982641bb3cbf5dee107617a3a58d0680a910627b
   languageName: node
   linkType: hard
 
