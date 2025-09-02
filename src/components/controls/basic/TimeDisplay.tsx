@@ -14,12 +14,7 @@ export interface TimeDisplayProps {
  * and/or the total duration of the video. It can be configured to show only
  * the current time, only the duration, or both.
  *
- * @param {object} props - The props for the TimeDisplay component.
- * @param {'current' | 'duration' | 'both'} [props.type='both'] - Specifies what time information to display.
- * @param {number} [props.fontSize=14] - The font size of the displayed time text.
- * @param {string} [props.color] - The color of the displayed time text. Defaults to the text color from the theme.
- * @param {StyleProp<ViewStyle>} [props.style] - Optional style to apply to the time display container.
- *
+ * @param {TimeDisplayProps} props - The props for the TimeDisplay component.
  * @returns {React.ReactElement} A component that displays video time information.
  */
 export const TimeDisplay = ({ type = 'both', fontSize = 14, color, style }: TimeDisplayProps): React.ReactElement => {

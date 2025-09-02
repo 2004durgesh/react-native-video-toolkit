@@ -1,10 +1,9 @@
 <h1 align="centre">react-native-video-toolkit</h1>
 
 
-<p align="center">
-My <strong>first ever real OSS project</strong> 😭. Be kind, I’m still figuring this out.<br>
+
+My **first ever real OSS project** 😭. Be kind, I’m still figuring this out.<br>
 A flexible and customizable video player UI toolkit for React Native, designed for a great mobile viewing experience (and maybe TV one day… if I survive).
-</p>
 
 <a href="https://www.npmjs.com/package/react-native-video-toolkit">
   <img src="https://img.shields.io/npm/v/react-native-video-toolkit" alt="npm version" />

@@ -11,6 +11,8 @@ This document provides an overview of the providers available in `react-native-v
 
 The `VideoProvider` is a context provider that manages the state of the video player and makes it available to all child components. It is the root component of the video player and should wrap your entire player implementation.
 
+### Usage
+
 ```tsx
 import { VideoProvider } from 'react-native-video-toolkit';
 
@@ -36,3 +38,7 @@ const App = () => {
 ## `ThemeProvider`
 
 The `ThemeProvider` is a context provider that makes the theme object available to all child components. It is used internally by the `VideoProvider` to apply the theme to the video player. You generally won't need to use this component directly, as the `VideoProvider` handles it for you.
+
+### Usage
+
+The `ThemeProvider` is primarily for internal use within the `VideoProvider`. Direct usage is generally not required.

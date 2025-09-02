@@ -74,6 +74,46 @@ const MyVideoPlayer = () => {
 
 ---
 
+## Examples
+
+### Default Spinner
+
+```tsx
+<LoadingSpinner />
+```
+
+### Small White Spinner
+
+```tsx
+<LoadingSpinner size="small" color="#fff" />
+```
+
+### Custom Positioned Spinner
+
+```tsx
+<LoadingSpinner style={{ top: 100, left: 100 }} />
+```
+
+### Integration Example
+
+Place inside your `VideoPlayer` layout to show buffering status automatically:
+
+```tsx
+import { VideoPlayer, LoadingSpinner } from 'react-native-media-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={videoSource}>
+      <Controls>
+        <LoadingSpinner size="large" color="cyan" />
+      </Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
 :::info
 
 - Spinner visibility is fully **managed internally** by the `useBuffering` hook.

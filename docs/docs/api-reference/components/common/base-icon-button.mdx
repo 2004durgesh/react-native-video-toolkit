@@ -8,6 +8,13 @@ sidebar_position: 2
 `BaseIconButton` is a **low-level utility component** used to create touchable icon buttons in the video player.  
 It provides a consistent ripple effect, theming integration, and standard spacing, making it the base for other controls like `PlayButton`, `MuteButton`, and `SettingsButton`.
 
+**Features:**
+
+- Built on [`react-native-material-ripple`](https://github.com/n4kz/react-native-material-ripple) for touch feedback.
+- Integrates with the **theme system** (`useVideo`) for colors & sizes.
+- Provides **consistent padding (10px)** around icons.
+- Serves as the **base layer** for all other control buttons.
+
 ---
 
 ## Usage
@@ -33,13 +40,6 @@ const MyButton = () => {
 | `...props`      | `TouchableWithoutFeedbackProps` | No       | –                    | Additional props passed to the touchable ripple wrapper.                  |
 
 ---
-
-## Features
-
-- Built on [`react-native-material-ripple`](https://github.com/n4kz/react-native-material-ripple) for touch feedback.
-- Integrates with the **theme system** (`useVideo`) for colors & sizes.
-- Provides **consistent padding (10px)** around icons.
-- Serves as the **base layer** for all other control buttons.
 
 ---
 

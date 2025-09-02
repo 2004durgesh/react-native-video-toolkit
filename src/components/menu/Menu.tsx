@@ -39,7 +39,15 @@ export const Menu = {
   /**
    * Root component with navigation stack for sub-menus.
    */
-  Root: ({ children, initialView = 'root' }: { children: ReactNode; initialView?: string }) => {
+  /**
+   * Root component with navigation stack for sub-menus.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The child components to render within the menu.
+   * @param {string} [props.initialView='root'] - The initial view ID to display when the menu opens.
+   * @returns {React.ReactElement} The root menu component.
+   */
+  Root: ({ children, initialView = 'root' }: { children: ReactNode; initialView?: string }): React.ReactElement => {
     const { openSettings, closeSettings, isSettingsMenuVisible } = useSettings();
     const [navigationStack, setNavigationStack] = useState<string[]>([initialView]);
     const currentView = navigationStack[navigationStack.length - 1]!;
@@ -80,14 +88,27 @@ export const Menu = {
   /**
    * Trigger to open the menu.
    * @note handles its own press events internally.
+   *
+   * @param {SettingsButtonProps} props - The props for the component.
+   * @returns {React.ReactElement} The menu trigger component.
    */
-  Trigger: ({ ...props }: SettingsButtonProps) => {
+  Trigger: ({ ...props }: SettingsButtonProps): React.ReactElement => {
     return <SettingsButton {...props} />;
   },
 
   /**
    * Content wrapper for the BottomSheet. Renders children based on current view.
    * Supports fade animation on view change.
+   */
+  /**
+   * Content wrapper for the BottomSheet. Renders children based on current view.
+   * Supports fade animation on view change.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The content to be rendered inside the menu content.
+   * @param {ViewStyle} [props.sheetStyle] - Optional style for the sheet container.
+   * @param {(currentView: string) => ReactNode} [props.header] - Optional custom header renderer function.
+   * @returns {React.ReactElement} The menu content component.
    */
   Content: ({
     children,
@@ -98,7 +119,7 @@ export const Menu = {
     children: ReactNode;
     sheetStyle?: ViewStyle;
     header?: (currentView: string) => ReactNode; // Optional custom header
-  } & Partial<BottomSheetProps>) => {
+  } & Partial<BottomSheetProps>): React.ReactElement => {
     const { isSettingsMenuVisible, closeSettings, currentView, navigationStack } = useMenuContext();
     const menuContext = useMenuContext(); // Capture the full context value here
     const { state } = useVideo();
@@ -138,7 +159,25 @@ export const Menu = {
    * SubContent: Conditionally renders content for a specific view ID.
    * Use multiple of these inside Content for different sub-menus.
    */
-  SubContent: ({ viewId, children, style }: { viewId: string; children: ReactNode; style?: ViewStyle }) => {
+  /**
+   * SubContent: Conditionally renders content for a specific view ID.
+   * Use multiple of these inside Content for different sub-menus.
+   *
+   * @param {object} props - The props for the component.
+   * @param {string} props.viewId - The ID of the view this sub-content belongs to.
+   * @param {ReactNode} props.children - The content to be rendered inside the sub-content.
+   * @param {ViewStyle} [props.style] - Optional style for the sub-content container.
+   * @returns {React.ReactElement | null} The menu sub-content component or null if not the current view.
+   */
+  SubContent: ({
+    viewId,
+    children,
+    style,
+  }: {
+    viewId: string;
+    children: ReactNode;
+    style?: ViewStyle;
+  }): React.ReactElement | null => {
     const { currentView } = useMenuContext();
     if (currentView !== viewId) return null;
     return <View style={[styles.subContent, style]}>{children}</View>;
@@ -146,6 +185,20 @@ export const Menu = {
 
   /**
    * Item: Now supports navigating to sub-views if `navigateTo` prop is provided.
+   */
+  /**
+   * Item: Now supports navigating to sub-views if `navigateTo` prop is provided.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The content to be rendered inside the menu item.
+   * @param {(value?: any) => void} [props.onPress] - Callback function invoked when the item is pressed.
+   * @param {boolean} [props.disabled=false] - If true, the item is not pressable.
+   * @param {ViewStyle} [props.style] - Optional style for the item container.
+   * @param {TextStyle} [props.textStyle] - Optional style for the item text.
+   * @param {any} [props.value] - An optional value associated with the item, passed to `onPress`.
+   * @param {boolean} [props.autoClose=true] - If true, the menu will close after pressing the item (unless `navigateTo` is set).
+   * @param {string} [props.navigateTo] - The view ID to navigate to on press, if provided.
+   * @returns {React.ReactElement} The menu item component.
    */
   Item: ({
     children,
@@ -166,7 +219,7 @@ export const Menu = {
     value?: any;
     autoClose?: boolean;
     navigateTo?: string; // View ID to navigate to on press
-  } & PressableProps) => {
+  } & PressableProps): React.ReactElement => {
     const { closeSettings, navigateTo: ctxNavigate } = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
@@ -203,7 +256,19 @@ export const Menu = {
   /**
    * Label component for section headers in the menu.
    */
-  Label: ({ children, style, ...props }: { children: ReactNode; style?: TextStyle } & TextProps) => {
+  /**
+   * Label component for section headers in the menu.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The content to be rendered inside the label.
+   * @param {TextStyle} [props.style] - Optional style for the label text.
+   * @returns {React.ReactElement} The menu label component.
+   */
+  Label: ({
+    children,
+    style,
+    ...props
+  }: { children: ReactNode; style?: TextStyle } & TextProps): React.ReactElement => {
     const { state } = useVideo();
     const { theme } = state;
 
@@ -217,7 +282,14 @@ export const Menu = {
   /**
    * Separator component for dividing menu sections.
    */
-  Separator: ({ style, ...props }: { style?: ViewStyle } & ViewProps) => {
+  /**
+   * Separator component for dividing menu sections.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ViewStyle} [props.style] - Optional style for the separator.
+   * @returns {React.ReactElement} The menu separator component.
+   */
+  Separator: ({ style, ...props }: { style?: ViewStyle } & ViewProps): React.ReactElement => {
     const { state } = useVideo();
     const { theme } = state;
 
@@ -228,7 +300,20 @@ export const Menu = {
    * Group component for grouping related items (e.g., radio groups).
    * This is a simple wrapper; for radio behavior, use RadioGroup below.
    */
-  Group: ({ children, style, ...props }: { children: ReactNode; style?: ViewStyle } & ViewProps) => {
+  /**
+   * Group component for grouping related items (e.g., radio groups).
+   * This is a simple wrapper; for radio behavior, use RadioGroup below.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The content to be rendered inside the group.
+   * @param {ViewStyle} [props.style] - Optional style for the group container.
+   * @returns {React.ReactElement} The menu group component.
+   */
+  Group: ({
+    children,
+    style,
+    ...props
+  }: { children: ReactNode; style?: ViewStyle } & ViewProps): React.ReactElement => {
     return (
       <View style={[styles.group, style]} {...props}>
         {children}
@@ -239,6 +324,17 @@ export const Menu = {
   /**
    * RadioGroup component for managing radio selection states.
    * Use with RadioItem for selectable options like playback speeds.
+   */
+  /**
+   * RadioGroup component for managing radio selection states.
+   * Use with RadioItem for selectable options like playback speeds.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The RadioItem components to render within the group.
+   * @param {any} props.value - The currently selected value in the radio group.
+   * @param {(newValue: any) => void} props.onValueChange - Callback function invoked when the selected value changes.
+   * @param {ViewStyle} [props.style] - Optional style for the radio group container.
+   * @returns {React.ReactElement} The menu radio group component.
    */
   RadioGroup: ({
     children,
@@ -251,7 +347,7 @@ export const Menu = {
     value: any;
     onValueChange: (newValue: any) => void;
     style?: ViewStyle;
-  } & ViewProps) => {
+  } & ViewProps): React.ReactElement => {
     return (
       <View style={[styles.group, style]} {...props}>
         {React.Children.map(children, (child) =>
@@ -270,6 +366,19 @@ export const Menu = {
    * RadioItem component for use within RadioGroup.
    * Displays a check or indicator when selected.
    */
+  /**
+   * RadioItem component for use within RadioGroup.
+   * Displays a check or indicator when selected.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The content to be rendered inside the radio item.
+   * @param {any} props.value - The value of this radio item.
+   * @param {any} [props.selectedValue] - The currently selected value from the parent RadioGroup.
+   * @param {(newValue: any) => void} [props.onSelect] - Callback function invoked when this item is selected.
+   * @param {ViewStyle} [props.style] - Optional style for the radio item container.
+   * @param {TextStyle} [props.textStyle] - Optional style for the radio item text.
+   * @returns {React.ReactElement} The menu radio item component.
+   */
   RadioItem: ({
     children,
     value,
@@ -285,7 +394,7 @@ export const Menu = {
     onSelect?: (newValue: any) => void;
     style?: ViewStyle;
     textStyle?: TextStyle;
-  } & PressableProps) => {
+  } & PressableProps): React.ReactElement => {
     const isSelected = value === selectedValue;
     const { state } = useVideo();
     const { theme } = state;
@@ -309,6 +418,18 @@ export const Menu = {
    * CheckboxItem component for toggleable options.
    * Manages its own checked state unless controlled.
    */
+  /**
+   * CheckboxItem component for toggleable options.
+   * Manages its own checked state unless controlled.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} props.children - The content to be rendered inside the checkbox item.
+   * @param {boolean} [props.checked] - Controls the checked state of the checkbox (controlled component).
+   * @param {(checked: boolean) => void} [props.onCheckedChange] - Callback function invoked when the checked state changes.
+   * @param {ViewStyle} [props.style] - Optional style for the checkbox item container.
+   * @param {TextStyle} [props.textStyle] - Optional style for the checkbox item text.
+   * @returns {React.ReactElement} The menu checkbox item component.
+   */
   CheckboxItem: ({
     children,
     checked,
@@ -322,7 +443,7 @@ export const Menu = {
     onCheckedChange?: (checked: boolean) => void;
     style?: ViewStyle;
     textStyle?: TextStyle;
-  } & PressableProps) => {
+  } & PressableProps): React.ReactElement => {
     const [internalChecked, setInternalChecked] = useState(checked ?? false);
     const isChecked = checked !== undefined ? checked : internalChecked;
     const { state } = useVideo();
@@ -348,7 +469,19 @@ export const Menu = {
   /**
    * Close component: a button to manually close the menu.
    */
-  Close: ({ children = 'Close', style, ...props }: { children?: ReactNode; style?: ViewStyle } & PressableProps) => {
+  /**
+   * Close component: a button to manually close the menu.
+   *
+   * @param {object} props - The props for the component.
+   * @param {ReactNode} [props.children='Close'] - The content to be rendered inside the close button.
+   * @param {ViewStyle} [props.style] - Optional style for the close button container.
+   * @returns {React.ReactElement} The menu close button component.
+   */
+  Close: ({
+    children = 'Close',
+    style,
+    ...props
+  }: { children?: ReactNode; style?: ViewStyle } & PressableProps): React.ReactElement => {
     const { closeSettings } = useMenuContext();
 
     return (

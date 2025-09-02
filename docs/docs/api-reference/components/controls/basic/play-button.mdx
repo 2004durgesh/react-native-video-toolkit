@@ -78,10 +78,46 @@ const MyVideoPlayer = () => {
 
 ---
 
+## Examples
+
+### Default PlayButton
+
+```tsx
+<PlayButton />
+```
+
+### Custom Size & Color
+
+```tsx
+<PlayButton size={36} color="green" />
+```
+
+### With Custom Icons
+
+```tsx
+import { CirclePlay, CirclePause } from 'lucide-react-native';
+
+<PlayButton renderPlayIcon={() => <CirclePlay />} renderPauseIcon={() => <CirclePause />} />;
+```
+
+### Integration Example
+
+Embed inside your `VideoPlayer` layout:
+
+```tsx
+import { VideoPlayer, PlayButton } from 'react-native-media-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={videoSource}>
+      <Controls>
+        <PlayButton size={40} color="white" />
+      </Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
 :::info
-
-- Playback state is managed internally by the `usePlayback` hook.
-- Icon rendering can be overridden for a branded or themed player.
-- Supports gesture handling automatically via `playTapGesture`.
-
-:::

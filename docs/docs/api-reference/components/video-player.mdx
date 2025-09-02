@@ -50,30 +50,11 @@ export default function App() {
 
 | Prop             | Type                   | Required | Default | Description                                                                                                             |
 | ---------------- | ---------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `source`         | `VideoSource`          | ✅ Yes   | –       | Video source (`uri`, local file, or require). Extends `react-native-video`.                                             |
+| `source`         | `VideoSource`          | Yes      | –       | Video source (`uri`, local file, or require). Extends `react-native-video`.                                             |
 | `children`       | `ReactNode`            | No       | –       | Optional custom overlay or controls.                                                                                    |
 | `containerStyle` | `StyleProp<ViewStyle>` | No       | –       | Style applied to the root container.                                                                                    |
 | `videoProps`     | `ReactVideoProps`      | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player. |
 | `gestureProps`   | `GestureHandlerProps`  | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                      |
-
----
-
-## Compound Components
-
-The `VideoPlayer` exports several prebuilt UI primitives:
-
-| Component                      | Description                                         |
-| ------------------------------ | --------------------------------------------------- |
-| `VideoPlayer.Controls`         | A container for grouping controls (`absoluteFill`). |
-| `VideoPlayer.PlayButton`       | Toggles play/pause.                                 |
-| `VideoPlayer.ProgressBar`      | Displays seekable progress.                         |
-| `VideoPlayer.TimeDisplay`      | Shows current time / duration.                      |
-| `VideoPlayer.VolumeControl`    | Slider for adjusting volume.                        |
-| `VideoPlayer.FullscreenButton` | Toggles fullscreen.                                 |
-| `VideoPlayer.MuteButton`       | Toggles mute on/off.                                |
-| `VideoPlayer.LoadingSpinner`   | Spinner for buffering state.                        |
-| `VideoPlayer.SettingsButton`   | Opens settings menu.                                |
-| `VideoPlayer.Menu`             | Bottom-sheet style menu for settings.               |
 
 ---
 
@@ -96,6 +77,25 @@ The `VideoPlayer` exports several prebuilt UI primitives:
   </VideoPlayer.Controls>
 </VideoPlayer>
 ```
+
+---
+
+## Compound Components
+
+The `VideoPlayer` exports several prebuilt UI primitives:
+
+| Component                      | Description                                         |
+| ------------------------------ | --------------------------------------------------- |
+| `VideoPlayer.Controls`         | A container for grouping controls (`absoluteFill`). |
+| `VideoPlayer.PlayButton`       | Toggles play/pause.                                 |
+| `VideoPlayer.ProgressBar`      | Displays seekable progress.                         |
+| `VideoPlayer.TimeDisplay`      | Shows current time / duration.                      |
+| `VideoPlayer.VolumeControl`    | Slider for adjusting volume.                        |
+| `VideoPlayer.FullscreenButton` | Toggles fullscreen.                                 |
+| `VideoPlayer.MuteButton`       | Toggles mute on/off.                                |
+| `VideoPlayer.LoadingSpinner`   | Spinner for buffering state.                        |
+| `VideoPlayer.SettingsButton`   | Opens settings menu.                                |
+| `VideoPlayer.Menu`             | Bottom-sheet style menu for settings.               |
 
 ---
 

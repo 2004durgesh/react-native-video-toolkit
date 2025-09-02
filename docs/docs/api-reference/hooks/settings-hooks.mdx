@@ -5,35 +5,60 @@ sidebar_position: 4
 
 # Settings Hooks
 
-### `useSettings()`
+## `useSettings()`
 
 A hook for managing video settings such as videoTrack, audio tracks, and subtitle tracks, and controlling the visibility of a settings menu.
 
-#### Returns
+### Usage
 
-`useSettings` returns an object with the following properties:
+Always provide a **minimal code snippet** showing import + usage.
+Use **TypeScript syntax highlighting**.
+Keep it runnable (no pseudo code unless necessary).
 
-- `videoTrack`: The current video quality setting (`VideoTrack | null`).
-- `videoTracks`: The list of available video qualities (`VideoTrack[]`).
-- `setVideoTrack`: A function `(newVideoTrack: VideoTrack | null) => void` to set the video quality.
-- `getVideoTracks`: A function `(videoTracks: VideoTrack[]) => void` to get the available video qualities.
-- `audioTrack`: The current audio track setting (`AudioTrack | null`).
-- `audioTracks`: The list of available audio tracks (`AudioTrack[]`).
-- `setAudioTrack`: A function `(newAudioTrack: AudioTrack | null) => void` to set the audio track.
-- `getAudioTracks`: A function `(audioTracks: AudioTrack[]) => void` to get the available audio tracks.
-- `textTrack`: The current subtitle track setting (`TextTrack | null`).
-- `textTracks`: The list of available subtitle tracks (`TextTrack[]`).
-- `setTextTrack`: A function `(newTextTrack: TextTrack | null) => void` to set the subtitle track.
-- `getTextTracks`: A function `(textTracks: TextTrack[]) => void` to get the available subtitle tracks.
-- `isSettingsMenuVisible`: A boolean indicating whether the settings menu is currently visible.
-- `openSettings`: A function `() => void` to explicitly open the settings menu.
-- `closeSettings`: A function `() => void` to explicitly close the settings menu.
-- `toggleSettingsMenu`: A function `() => void` to toggle the visibility of the settings menu.
-- `settingsTapGesture`: A `Gesture.Tap()` object configured for single taps to toggle the settings menu. ExecutesThis can be used with a `GestureDetector` component.
+```tsx
+import { useSettings } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { isSettingsMenuVisible, toggleSettingsMenu } = useSettings();
+  // ...
+};
+```
+
+### Returns
+
+| Value                   | Type                                          | Description                                                                                                                 |
+| ----------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `videoTrack`            | `VideoTrack \| null`                          | The current video quality setting.                                                                                          |
+| `videoTracks`           | `VideoTrack[]`                                | The list of available video qualities.                                                                                      |
+| `setVideoTrack`         | `(newVideoTrack: VideoTrack \| null) => void` | A function to set the video quality.                                                                                        |
+| `getVideoTracks`        | `(videoTracks: VideoTrack[]) => void`         | A function to get the available video qualities.                                                                            |
+| `audioTrack`            | `AudioTrack \| null`                          | The current audio track setting.                                                                                            |
+| `audioTracks`           | `AudioTrack[]`                                | The list of available audio tracks.                                                                                         |
+| `setAudioTrack`         | `(newAudioTrack: AudioTrack \| null) => void` | A function to set the audio track.                                                                                          |
+| `getAudioTracks`        | `(audioTracks: AudioTrack[]) => void`         | A function to get the available audio tracks.                                                                               |
+| `textTrack`             | `TextTrack \| null`                           | The current subtitle track setting.                                                                                         |
+| `textTracks`            | `TextTrack[]`                                 | The list of available subtitle tracks.                                                                                      |
+| `setTextTrack`          | `(newTextTrack: TextTrack \| null) => void`   | A function to set the subtitle track.                                                                                       |
+| `getTextTracks`         | `(textTracks: TextTrack[]) => void`           | A function to get the available subtitle tracks.                                                                            |
+| `isSettingsMenuVisible` | `boolean`                                     | A boolean indicating whether the settings menu is currently visible.                                                        |
+| `openSettings`          | `() => void`                                  | A function to explicitly open the settings menu.                                                                            |
+| `closeSettings`         | `() => void`                                  | A function to explicitly close the settings menu.                                                                           |
+| `toggleSettingsMenu`    | `() => void`                                  | A function to toggle the visibility of the settings menu.                                                                   |
+| `settingsTapGesture`    | `Gesture.Tap()`                               | A gesture object for handling single taps to toggle the settings menu. This can be used with a `GestureDetector` component. |
+
+### Example
+
+Must include **at least one full example**.
+Prefer a **realistic UI snippet** over barebones.
+Use React functional components with hooks.
 
 ```tsx
 import { useSettings } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
+import React from 'react'; // Assuming React is needed for JSX
+
+// Placeholder for GearIcon, replace with actual import if available
+const GearIcon = () => <></>;
 
 const MySettingsButton = () => {
   const { isSettingsMenuVisible, toggleSettingsMenu, settingsTapGesture, setVideoTrack, videoTracks } = useSettings();
@@ -51,4 +76,6 @@ const MySettingsButton = () => {
     </GestureDetector>
   );
 };
+
+export default MySettingsButton; // Exporting for example usage
 ```

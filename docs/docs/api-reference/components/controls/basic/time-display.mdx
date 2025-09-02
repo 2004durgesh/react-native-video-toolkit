@@ -73,6 +73,46 @@ const MyVideoPlayer = () => {
 
 ---
 
+## Examples
+
+### Show Current Time Only
+
+```tsx
+<TimeDisplay type="current" /> // e.g. "0:15"
+```
+
+### Show Duration Only
+
+```tsx
+<TimeDisplay type="duration" /> // e.g. "3:45"
+```
+
+### Show Both Current Time and Duration
+
+```tsx
+<TimeDisplay type="both" /> // e.g. "0:15 / 3:45"
+```
+
+### Integration Example
+
+`TimeDisplay` is typically used inside the `VideoPlayer` as part of your controls:
+
+```tsx
+import { VideoPlayer, TimeDisplay } from 'react-native-media-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={videoSource}>
+      <Controls>
+        <TimeDisplay type="both" fontSize={16} />
+      </Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
 :::info
 
 - If you don't pass a `color`, `TimeDisplay` automatically uses `theme.colors.text` from the current video context.

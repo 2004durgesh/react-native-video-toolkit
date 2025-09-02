@@ -13,11 +13,7 @@ export interface LoadingSpinnerProps {
  * when the video is buffering. It automatically hides itself when buffering is not active.
  * The spinner's appearance can be customized via props and integrates with the player's theme.
  *
- * @param {object} props - The props for the LoadingSpinner component.
- * @param {'small' | 'large'} [props.size='large'] - The size of the activity indicator.
- * @param {string} [props.color] - The color of the activity indicator. Defaults to the primary color from the theme.
- * @param {StyleProp<ViewStyle>} [props.style] - Optional style to apply to the spinner container.
- *
+ * @param {LoadingSpinnerProps} props - The props for the LoadingSpinner component.
  * @returns {React.ReactElement | null} An `ActivityIndicator` component if buffering, otherwise `null`.
  */
 export const LoadingSpinner = ({ size = 'large', color, style }: LoadingSpinnerProps): React.ReactElement | null => {

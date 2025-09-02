@@ -79,6 +79,48 @@ const MyVideoPlayer = () => {
 
 ---
 
+## Examples
+
+### Default MuteButton
+
+```tsx
+<MuteButton />
+```
+
+### Customized Icon Size & Color
+
+```tsx
+<MuteButton size={32} color="red" />
+```
+
+### With Custom Icons
+
+```tsx
+import { Bell, BellOff } from 'lucide-react-native';
+
+<MuteButton renderMuteIcon={() => <BellOff />} renderUnmuteIcon={() => <Bell />} />;
+```
+
+### Integration Example
+
+Place inside your `VideoPlayer` layout:
+
+```tsx
+import { VideoPlayer, MuteButton } from 'react-native-media-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={videoSource}>
+      <Controls>
+        <MuteButton size={28} color="white" />
+      </Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
 :::info
 
 - The mute state is fully managed internally by the `useVolume` hook.
