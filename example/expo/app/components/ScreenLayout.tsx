@@ -71,7 +71,7 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
     { type: 'asset-vertical', uri: require('../../assets/vertical.mp4') },
   ];
   const { fullscreen } = useFullscreen();
-  const [uri, setUri] = useState<string>(samples[1]?.uri!);
+  const [uri, setUri] = useState<string>(samples[3]?.uri!);
   const videoSource: VideoSource = {
     uri,
     textTracks: [
@@ -117,7 +117,15 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
 export const ScreenLayout = ({ layout }: { layout: React.ReactNode }) => {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'black' }}>
-      <VideoProvider>
+      <VideoProvider
+        config={{
+          onHideControls() {
+            console.log('Controls hidden');
+          },
+          onShowControls() {
+            console.log('Controls shown');
+          },
+        }}>
         <SafeAreaView edges={['top']}>
           <Main layout={layout} />
         </SafeAreaView>

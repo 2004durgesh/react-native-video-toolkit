@@ -1,6 +1,9 @@
 package com.videotoolkit
 
 import android.app.Activity
+import android.app.UiModeManager
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import android.view.View
 import android.view.Window
@@ -11,9 +14,7 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.UiThreadUtil
-import com.facebook.react.module.annotations.ReactModule
 
-@ReactModule(name = VideoToolkitModule.NAME)
 class VideoToolkitModule(reactContext: ReactApplicationContext) :
   NativeVideoToolkitSpec(reactContext) {
 
@@ -25,6 +26,14 @@ class VideoToolkitModule(reactContext: ReactApplicationContext) :
     private const val INSETS_TYPE_SHOW = 1
     private const val INSETS_TYPE_BEHAVIOR = 2
     private const val INSETS_TYPE_APPEARANCE_CLEAR = 3
+  }
+
+  /**
+   * Check if the device is running Android TV
+   */
+  private fun isAndroidTV(): Boolean {
+    val uiModeManager = reactApplicationContext.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+    return uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
   }
 
   override fun getName(): String {
@@ -43,23 +52,36 @@ class VideoToolkitModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun stickyImmersive(enabled: Boolean, promise: Promise) {
+    val isTV = isAndroidTV()
+    
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       val visibility = WindowInsets.Type.navigationBars() or WindowInsets.Type.statusBars()
       if (enabled) {
         setSystemInsetsController(visibility, INSETS_TYPE_HIDE, promise)
-        setSystemInsetsController(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE, INSETS_TYPE_BEHAVIOR, promise)
+        // Use different behavior for TV vs mobile
+        val behavior = if (isTV) {
+          WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_SWIPE
+        } else {
+          WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+        setSystemInsetsController(behavior, INSETS_TYPE_BEHAVIOR, promise)
       } else {
         setSystemInsetsController(visibility, INSETS_TYPE_SHOW, promise)
         setSystemInsetsController(WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_SWIPE, INSETS_TYPE_APPEARANCE_CLEAR, promise)
       }
     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       if (enabled) {
-        setSystemUIFlags(
+        // Different flags for TV vs mobile
+        val flags = if (isTV) {
+          View.SYSTEM_UI_FLAG_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_IMMERSIVE
+        } else {
           View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
             View.SYSTEM_UI_FLAG_FULLSCREEN or
-            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION,
-          promise
-        )
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        }
+        setSystemUIFlags(flags, promise)
       } else {
         setSystemUIFlags(View.SYSTEM_UI_FLAG_VISIBLE, promise)
       }
@@ -71,21 +93,32 @@ class VideoToolkitModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun fullScreen(enabled: Boolean, promise: Promise) {
+    val isTV = isAndroidTV()
+    
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       val visibility = WindowInsets.Type.navigationBars() or WindowInsets.Type.statusBars()
       val type = if (enabled) INSETS_TYPE_HIDE else INSETS_TYPE_SHOW
       setSystemInsetsController(visibility, type, promise)
     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       if (enabled) {
-        setSystemUIFlags(
+        val flags = if (isTV) {
+          // TV-specific flags - avoid IMMERSIVE_STICKY which can cause issues
+          View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_IMMERSIVE
+        } else {
+          // Mobile flags
           View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
             View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE or
-            View.SYSTEM_UI_FLAG_FULLSCREEN,
-          promise
-        )
+            View.SYSTEM_UI_FLAG_FULLSCREEN
+        }
+        setSystemUIFlags(flags, promise)
       } else {
         setSystemUIFlags(
           View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
@@ -110,10 +143,13 @@ class VideoToolkitModule(reactContext: ReactApplicationContext) :
         window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         if (enabled) {
-          window.setFlags(
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
-          )
+          // For TV, avoid translucent navigation which can cause layout issues
+          if (!isTV) {
+            window.setFlags(
+              WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+              WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+            )
+          }
         }
       }
     }
@@ -196,5 +232,10 @@ class VideoToolkitModule(reactContext: ReactApplicationContext) :
         promise.resolve(isCurrentlyFullscreen)
       }
     }
+  }
+
+  @ReactMethod
+  fun isTV(promise: Promise) {
+    promise.resolve(isAndroidTV())
   }
 }

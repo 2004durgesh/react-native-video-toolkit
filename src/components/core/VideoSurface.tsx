@@ -110,7 +110,8 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   );
 
   return (
-    <View style={{ height: state.videoLayout.height, ...(Platform.OS === 'web' && { height: '100%' }) }}>
+    // @ts-ignore
+    <View style={{ height: state.videoLayout.height, ...(Platform.OS === 'web' && { height: '100vh' }) }}>
       <RNVideo
         ref={internalVideoRef}
         source={source}

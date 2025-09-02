@@ -1,4 +1,4 @@
-import React, { type FC, type ReactNode } from 'react';
+import React, { type FC, type ReactNode, useMemo } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle, Platform } from 'react-native';
 import {
   PlayButton,
@@ -54,8 +54,28 @@ interface VideoPlayerProps {
 const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, gestureProps }: VideoPlayerProps) => {
   // this is the root of all the things :)
   const { state } = useVideo();
+
+  // For web fullscreen, we need to adjust overflow to ensure controls are visible
+  const innerViewStyle = useMemo(() => {
+    const baseStyle = {
+      overflow: 'hidden' as const,
+    };
+
+    if (Platform.OS === 'web') {
+      return {
+        ...baseStyle,
+        flex: 1,
+        position: 'relative' as const,
+        ...(state.fullscreen && { overflow: 'visible' as const }),
+      };
+    }
+
+    return baseStyle;
+  }, [state.fullscreen]);
+
   return (
     <View
+      {...(Platform.OS === 'web' && { 'data-videotoolkit': 'container' })}
       style={[
         {
           position: 'relative',
@@ -65,7 +85,7 @@ const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, ge
         containerStyle,
       ]}>
       <GestureHandler {...gestureProps}>
-        <View style={{ overflow: 'hidden', ...(Platform.OS === 'web' && { flex: 1 }) }}>
+        <View style={innerViewStyle}>
           <VideoSurface {...videoProps} source={source} />
           {children}
         </View>
@@ -102,5 +122,9 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
 const styles = StyleSheet.create({
   controlsContainer: {
     ...StyleSheet.absoluteFillObject,
+    ...(Platform.OS === 'web' && {
+      zIndex: 10,
+      pointerEvents: 'box-none',
+    }),
   },
 });

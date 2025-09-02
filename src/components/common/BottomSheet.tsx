@@ -1,4 +1,4 @@
-import React, { useEffect, type FC, type ReactNode } from 'react';
+import React, { useEffect, useMemo, type FC, type ReactNode } from 'react';
 import { StyleSheet, View, Dimensions, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -12,6 +12,7 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useVideo } from '../../providers';
 import { Portal } from '@rn-primitives/portal';
+import { detectDeviceType, getOptimalConfig, PlatformUtils } from '../../utils/orientation';
 
 export interface BottomSheetProps {
   visible: boolean;
@@ -23,7 +24,50 @@ export interface BottomSheetProps {
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
 /**
- * `BottomSheet` is a customizable, animated bottom sheet component.
+ * Calculate responsive dimensions for the bottom sheet based on device type and orientation
+ */
+const getResponsiveSheetDimensions = (fullscreen: boolean) => {
+  const deviceType = detectDeviceType();
+  const config = getOptimalConfig();
+  const isTV = PlatformUtils.isTV();
+  const isTablet = PlatformUtils.isTablet();
+
+  // Base dimensions
+  let sheetHeight: number;
+  let sheetWidth: number;
+
+  if (isTV) {
+    // TV-specific sizing - larger and centered
+    sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.7 : SCREEN_HEIGHT * 0.6;
+    sheetWidth = fullscreen ? SCREEN_WIDTH * 0.6 : SCREEN_WIDTH * 0.5;
+  } else if (isTablet) {
+    // Tablet sizing - more conservative than TV but larger than phone
+    sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.8 : SCREEN_HEIGHT * 0.55;
+    sheetWidth = fullscreen ? SCREEN_WIDTH * 0.7 : SCREEN_WIDTH * 0.8;
+  } else if (deviceType === 'foldable') {
+    // Foldable device - adapt to unique form factor
+    sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.75 : SCREEN_HEIGHT * 0.5;
+    sheetWidth = fullscreen ? SCREEN_WIDTH * 0.8 : SCREEN_WIDTH * 0.9;
+  } else {
+    // Phone/default - original mobile sizing
+    sheetHeight = fullscreen ? SCREEN_WIDTH * 0.85 : SCREEN_HEIGHT * 0.45;
+    sheetWidth = fullscreen ? SCREEN_HEIGHT * 0.75 : SCREEN_WIDTH * 0.9;
+  }
+
+  // Ensure minimum and maximum constraints
+  const minHeight = isTV ? 400 : isTablet ? 300 : 250;
+  const maxHeight = SCREEN_HEIGHT * 0.9;
+  const minWidth = isTV ? 600 : isTablet ? 400 : 300;
+  const maxWidth = SCREEN_WIDTH * 0.95;
+
+  return {
+    height: Math.max(minHeight, Math.min(maxHeight, sheetHeight)),
+    width: Math.max(minWidth, Math.min(maxWidth, sheetWidth)),
+  };
+};
+
+/**
+ * `BottomSheet` is a responsive, cross-platform animated bottom sheet component.
  * It provides a modal-like overlay that slides up from the bottom of the screen,
  * and can be dismissed by swiping down or tapping outside.
  * It integrates with the video player's theme and handles fullscreen mode adjustments.
@@ -44,8 +88,13 @@ export const BottomSheet: FC<BottomSheetProps> = ({
 }: BottomSheetProps): JSX.Element | null => {
   const { state } = useVideo();
   const { theme, fullscreen } = state;
-  const SHEET_HEIGHT = fullscreen ? SCREEN_WIDTH * 0.85 : SCREEN_HEIGHT * 0.45;
-  const SHEET_WIDTH = fullscreen ? SCREEN_HEIGHT * 0.75 : SCREEN_WIDTH * 0.9;
+
+  // Calculate responsive dimensions
+  const sheetDimensions = useMemo(() => getResponsiveSheetDimensions(fullscreen), [fullscreen]);
+
+  const SHEET_HEIGHT = sheetDimensions.height;
+  const SHEET_WIDTH = sheetDimensions.width;
+
   const translateY = useSharedValue(SHEET_HEIGHT);
   const context = useSharedValue({ y: 0 });
 
@@ -57,8 +106,23 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     }
   }, [visible, SHEET_HEIGHT, translateY]);
 
-  // Pan gesture to swipe down
+  // Platform-aware gesture sensitivity
+  const gestureConfig = useMemo(() => {
+    const isTV = PlatformUtils.isTV();
+    const isTablet = PlatformUtils.isTablet();
+
+    return {
+      // TV: Less sensitive gestures, higher thresholds
+      closeThreshold: isTV ? SHEET_HEIGHT / 2 : SHEET_HEIGHT / 3,
+      velocityThreshold: isTV ? 300 : isTablet ? 500 : 600,
+      // TV users might not have precise gesture control
+      gestureEnabled: !isTV || PlatformUtils.isBrowser(), // Enable on web TV platforms
+    };
+  }, [SHEET_HEIGHT]);
+
+  // Pan gesture to swipe down (with platform adaptations)
   const gesture = Gesture.Pan()
+    .enabled(gestureConfig.gestureEnabled)
     .onStart(() => {
       context.value = { y: translateY.value };
     })
@@ -67,7 +131,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     })
     .onEnd((event) => {
       let shouldClose = false;
-      if (event.translationY > SHEET_HEIGHT / 3 || event.velocityY > 600) {
+      if (event.translationY > gestureConfig.closeThreshold || event.velocityY > gestureConfig.velocityThreshold) {
         shouldClose = true;
       }
       if (shouldClose) {
@@ -85,6 +149,20 @@ export const BottomSheet: FC<BottomSheetProps> = ({
   const backdropAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(translateY.value, [0, SHEET_HEIGHT], [1, 0], Extrapolation.CLAMP),
   }));
+  // Platform-specific styling
+  const platformStyles = useMemo(() => {
+    const isTV = PlatformUtils.isTV();
+    const isTablet = PlatformUtils.isTablet();
+
+    return {
+      borderRadius: isTV ? 12 : 16, // Slightly less rounded for TV
+      padding: isTV ? 24 : isTablet ? 20 : 16, // More padding for TV/tablet
+      marginBottom: isTV ? 16 : 8, // More bottom margin for TV
+      handleHeight: isTV ? 6 : 4, // Thicker handle for TV visibility
+      handleWidth: isTV ? 60 : 40, // Wider handle for TV
+    };
+  }, []);
+
   if (!visible) return null;
 
   return (
@@ -99,18 +177,31 @@ export const BottomSheet: FC<BottomSheetProps> = ({
               backgroundColor: theme.colors.background,
               height: SHEET_HEIGHT,
               width: SHEET_WIDTH,
-              borderRadius: 16,
+              borderRadius: platformStyles.borderRadius,
+              padding: platformStyles.padding,
+              marginBottom: platformStyles.marginBottom,
               overflow: 'hidden',
             },
           ]}>
           {showHandle && (
             <GestureDetector gesture={gesture}>
               <View style={styles.handleContainer}>
-                <View style={styles.handle} />
+                <View
+                  style={[
+                    styles.handle,
+                    {
+                      height: platformStyles.handleHeight,
+                      width: platformStyles.handleWidth,
+                    },
+                  ]}
+                />
               </View>
             </GestureDetector>
           )}
-          {!showHandle && <GestureDetector gesture={gesture}>{children}</GestureDetector>}
+          {!showHandle && gestureConfig.gestureEnabled && (
+            <GestureDetector gesture={gesture}>{children}</GestureDetector>
+          )}
+          {!showHandle && !gestureConfig.gestureEnabled && children}
           {showHandle && children}
         </Animated.View>
       </Animated.View>
@@ -135,8 +226,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     overflow: 'hidden',
-    marginBottom: 8,
-    padding: 16,
+    // Platform-specific values will be applied inline
   },
   handleContainer: {
     height: 24,
@@ -145,9 +235,8 @@ const styles = StyleSheet.create({
     marginTop: -8, // Adjust to position above padding if needed
   },
   handle: {
-    width: 40,
-    height: 4,
     backgroundColor: '#ccc',
     borderRadius: 2,
+    // Width and height will be applied inline based on platform
   },
 });
