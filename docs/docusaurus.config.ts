@@ -6,7 +6,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'React Native Video Toolkit',
-  tagline: 'Video playback and handling toolkit for React Native',
+  tagline:
+    'Build a fully-customizable, themeable, and gesture-driven video experience with a developer-friendly compound component API.',
   favicon: 'img/icon.png',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -70,6 +71,11 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
+    colorMode: {
+      defaultMode: 'dark',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
+    },
     navbar: {
       title: 'React Native Media Toolkit',
       logo: {
@@ -95,7 +101,7 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} react-native-video-toolkit.`,
     },
     prism: {
-      theme: prismThemes.github,
+      theme: prismThemes.palenight,
       darkTheme: prismThemes.palenight,
     },
   } satisfies Preset.ThemeConfig,
