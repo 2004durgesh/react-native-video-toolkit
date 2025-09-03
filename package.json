@@ -1,6 +1,6 @@
 {
   "name": "react-native-video-toolkit",
-  "version": "0.2.0-rc.0",
+  "version": "0.2.0-rc.1",
   "description": "A powerful, flexible, and customizable video player UI toolkit for React Native apps. Inspired by Vidstack, designed for mobile and TV experiences.",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
@@ -144,7 +144,7 @@
     },
     "plugins": {
       "@release-it/conventional-changelog": {
-       "preset": "conventionalcommits",
+        "preset": "conventionalcommits",
         "infile": "CHANGELOG.md"
       }
     }

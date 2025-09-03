@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0-rc.1 (2025-09-03)
+
+* docs: complete overhaul of documentation ([c18c04c](https://github.com/2004durgesh/react-native-video-toolkit/commit/c18c04c))
+* docs: improve hooks, providers, and layout documentation ([55af157](https://github.com/2004durgesh/react-native-video-toolkit/commit/55af157))
+* refactor: web compatibility, new hook for orientation, and changes to handle tv fullscreen ([c5a3cc5](https://github.com/2004durgesh/react-native-video-toolkit/commit/c5a3cc5))
+* refactor(utils): improve rotation detection and layout handling ([b53ad7e](https://github.com/2004durgesh/react-native-video-toolkit/commit/b53ad7e))
+* feat(docs): redesign homepage and implement dark theme ([f542769](https://github.com/2004durgesh/react-native-video-toolkit/commit/f542769))
+* feat(menu): add nestable settings menu with advanced components ([bb99bb0](https://github.com/2004durgesh/react-native-video-toolkit/commit/bb99bb0))
+* feat(docs,components): enhance documentation and refactor structure ([ede9f3c](https://github.com/2004durgesh/react-native-video-toolkit/commit/ede9f3c))
+* feat(settings | layout): add unified track selection for video, audio, and text ([742a949](https://github.com/2004durgesh/react-native-video-toolkit/commit/742a949))
+* fix: update import paths and improve fullscreen handling for non-web platforms ([f5756d5](https://github.com/2004durgesh/react-native-video-toolkit/commit/f5756d5))
+
 ## 0.2.0-rc.0 (2025-08-29)
 
 * refactor: bare example working now, other deps and theming fix, changes in basic-example in docs ([562cffe](https://github.com/2004durgesh/react-native-video-toolkit/commit/562cffe))
