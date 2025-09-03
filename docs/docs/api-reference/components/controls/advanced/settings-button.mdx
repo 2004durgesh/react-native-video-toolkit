@@ -13,7 +13,8 @@ By default, it renders a gear icon (`lucide-react-native`), but the icon can be 
 ## Usage
 
 ```tsx
-import { SettingsButton } from 'react-native-media-toolkit';
+import { SettingsButton } from 'react-native-video-toolkit';
+import React from 'react';
 
 const MySettings = () => {
   return <SettingsButton />;
@@ -33,20 +34,22 @@ const MySettings = () => {
 
 ---
 
----
-
 ## Examples
 
 ### Default Settings Button
 
 ```tsx
-<SettingsButton size={28} color="#fff" />
+import { SettingsButton } from 'react-native-video-toolkit';
+
+<SettingsButton size={28} color="#fff" />;
 ```
 
 ### Custom Icon
 
 ```tsx
+import { SettingsButton } from 'react-native-video-toolkit';
 import { Sliders } from 'lucide-react-native';
+import React from 'react';
 
 <SettingsButton renderSettingIcon={() => <Sliders />} />;
 ```

@@ -13,7 +13,8 @@ It integrates with the video player's state and adapts to the active theme.
 ## Usage
 
 ```tsx
-import { VolumeControl } from 'react-native-media-toolkit';
+import { VolumeControl } from 'react-native-video-toolkit';
+import React from 'react';
 
 const MyVolume = () => {
   return <VolumeControl />;
@@ -36,26 +37,30 @@ const MyVolume = () => {
 
 ---
 
----
-
 ## Examples
 
 ### Default VolumeControl
 
 ```tsx
-<VolumeControl />
+import { VolumeControl } from 'react-native-video-toolkit';
+
+<VolumeControl />;
 ```
 
 ### Vertical Slider
 
 ```tsx
-<VolumeControl orientation="vertical" height={120} width={6} />
+import { VolumeControl } from 'react-native-video-toolkit';
+
+<VolumeControl orientation="vertical" height={120} width={6} />;
 ```
 
 ### Custom Size & Style
 
 ```tsx
-<VolumeControl width={150} height={6} thumbWidth={16} style={{ marginVertical: 10 }} />
+import { VolumeControl } from 'react-native-video-toolkit';
+
+<VolumeControl width={150} height={6} thumbWidth={16} style={{ marginVertical: 10 }} />;
 ```
 
 ---

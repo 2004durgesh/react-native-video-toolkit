@@ -11,9 +11,9 @@ Welcome to `react-native-video-toolkit` . This guide will help you get started w
 
 To install the library, run the following command in your project:
 
-    ```bash npm2yarn
-    npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-svg lottie-react-native react-native-orientation-director
-    ```
+```bash npm2yarn
+npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-svg lottie-react-native react-native-orientation-director react-native-safe-area-context
+```
 
 :::note
 
@@ -46,13 +46,13 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { VideoPlayer, DefaultLayout, VideoProvider, defaultTheme } from 'react-native-video-toolkit';
 import { SafeAreaView } from 'react-native-safe-area-context'; // Import SafeAreaView from react-native-safe-area-context
-function App(): React.JSX.Element {
+function App(): React.ReactElement {
   const videoSource = {
     uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   };
 
   return (
-    <SafeAreaView edges={['top']}>
+    <SafeAreaView style={styles.container}>
       <VideoProvider theme={defaultTheme}>
         <View style={styles.videoContainer}>
           <VideoPlayer source={videoSource}>

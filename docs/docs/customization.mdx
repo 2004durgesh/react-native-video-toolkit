@@ -112,7 +112,7 @@ const customTheme = {
     background: 'rgba(0, 0, 0, 0.6)',
     text: '#ffffff',
   },
-  // ... other theme properties (sizing, fonts, etc.)
+  // other theme properties (sizing, fonts, etc.)
 };
 
 const ThemedPlayer = () => {
@@ -138,16 +138,17 @@ The `VideoProvider` and `VideoPlayer` accept various props to configure their be
 
 ### VideoProvider Props
 
-| Prop     | Type                                                                 | Default | Description                                         |
-| -------- | -------------------------------------------------------------------- | ------- | --------------------------------------------------- |
-| `theme`  | [`Theme`](./api-reference/types/theme)                               | —       | Custom theme object for colors, fonts, sizing, etc. |
-| `config` | [`VideoPlayerConfig`](./api-reference/types/video#videoplayerconfig) | —       | Configuration options for player behavior.          |
+| Prop     | Type                                                                 | Required | Default | Description                                         |
+| -------- | -------------------------------------------------------------------- | -------- | ------- | --------------------------------------------------- |
+| `theme`  | [`Theme`](./api-reference/types/theme)                               | No       | –       | Custom theme object for colors, fonts, sizing, etc. |
+| `config` | [`VideoPlayerConfig`](./api-reference/types/video#videoplayerconfig) | No       | –       | Configuration options for player behavior.          |
 
 ### Configuration Example
 
 ```tsx
+import { VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
+
 <VideoProvider
-  theme={{ ...customTheme }}
   config={{
     enableScreenRotation: true,
     onEnterFullscreen: () => console.log('Entered fullscreen'),
@@ -155,10 +156,10 @@ The `VideoProvider` and `VideoPlayer` accept various props to configure their be
     onHideControls: () => console.log('Controls hidden'),
     onShowControls: () => console.log('Controls shown'),
   }}>
-  <VideoPlayer source={videoSource}>
+  <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
     <CustomPlayerUI />
   </VideoPlayer>
-</VideoProvider>
+</VideoProvider>;
 ```
 
 ---
@@ -171,8 +172,11 @@ You can also pass `gestureProps` to extend behavior. This prop accepts [`Gesture
 ### Gestures Example
 
 ```tsx
+import { VideoPlayer, MinimalLayout } from 'react-native-video-toolkit';
+import { StyleSheet } from 'react-native';
+
 <VideoPlayer
-  source={videoSource}
+  source={{ uri: 'https://example.com/video.mp4' }}
   containerStyle={styles.videoPlayer}
   gestureProps={{
     onLeftVerticalPan(e) {
@@ -186,13 +190,14 @@ You can also pass `gestureProps` to extend behavior. This prop accepts [`Gesture
     },
   }}>
   <MinimalLayout />
-</VideoPlayer>
+</VideoPlayer>;
+
+const styles = StyleSheet.create({
+  videoPlayer: {
+    width: '100%',
+    height: 200,
+  },
+});
 ```
 
 ---
-
-## Notes
-
-> ⚠️ When overriding gestures, ensure they don't conflict with system gestures (like swipe-back on iOS).
-> 💡 Prefer using the provided **compound components** before re-implementing controls from scratch.
-> 🎨 Themes should be consistent across the app — define once in `VideoProvider` for best maintainability.

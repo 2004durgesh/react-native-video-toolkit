@@ -13,7 +13,8 @@ It switches icons automatically based on playback state and supports customizati
 ## Usage
 
 ```tsx
-import { PlayButton } from 'react-native-media-toolkit';
+import { PlayButton } from 'react-native-video-toolkit';
+import React from 'react';
 
 const MyPlayButton = () => {
   return <PlayButton />;
@@ -39,19 +40,25 @@ const MyPlayButton = () => {
 ### Default PlayButton
 
 ```tsx
-<PlayButton />
+import { PlayButton } from 'react-native-video-toolkit';
+
+<PlayButton />;
 ```
 
 ### Custom Size & Color
 
 ```tsx
-<PlayButton size={36} color="green" />
+import { PlayButton } from 'react-native-video-toolkit';
+
+<PlayButton size={36} color="green" />;
 ```
 
 ### With Custom Icons
 
 ```tsx
+import { PlayButton } from 'react-native-video-toolkit';
 import { CirclePlay, CirclePause } from 'lucide-react-native';
+import React from 'react';
 
 <PlayButton renderPlayIcon={() => <CirclePlay />} renderPauseIcon={() => <CirclePause />} />;
 ```
@@ -63,56 +70,14 @@ import { CirclePlay, CirclePause } from 'lucide-react-native';
 Embed inside your `VideoPlayer` layout:
 
 ```tsx
-import { VideoPlayer, PlayButton } from 'react-native-media-toolkit';
+import { VideoPlayer, PlayButton } from 'react-native-video-toolkit';
 
 const MyVideoPlayer = () => {
   return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <VideoPlayer.Controls>
         <PlayButton size={40} color="white" />
-      </Controls>
-    </VideoPlayer>
-  );
-};
-```
-
----
-
-## Examples
-
-### Default PlayButton
-
-```tsx
-<PlayButton />
-```
-
-### Custom Size & Color
-
-```tsx
-<PlayButton size={36} color="green" />
-```
-
-### With Custom Icons
-
-```tsx
-import { CirclePlay, CirclePause } from 'lucide-react-native';
-
-<PlayButton renderPlayIcon={() => <CirclePlay />} renderPauseIcon={() => <CirclePause />} />;
-```
-
-### Integration Example
-
-Embed inside your `VideoPlayer` layout:
-
-```tsx
-import { VideoPlayer, PlayButton } from 'react-native-media-toolkit';
-
-const MyVideoPlayer = () => {
-  return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
-        <PlayButton size={40} color="white" />
-      </Controls>
+      </VideoPlayer.Controls>
     </VideoPlayer>
   );
 };
@@ -121,3 +86,8 @@ const MyVideoPlayer = () => {
 ---
 
 :::info
+
+- The play/pause state is managed internally by the `usePlayback` hook.
+- You can override the icons for a fully customized experience.
+
+:::

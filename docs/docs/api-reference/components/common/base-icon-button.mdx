@@ -20,7 +20,7 @@ It provides a consistent ripple effect, theming integration, and standard spacin
 ## Usage
 
 ```tsx
-import { BaseIconButton } from 'react-native-media-toolkit';
+import { BaseIconButton } from 'react-native-video-toolkit';
 import { Heart } from 'lucide-react-native';
 
 const MyButton = () => {
@@ -37,9 +37,7 @@ const MyButton = () => {
 | `IconComponent` | `React.ElementType`             | Yes      | –                    | The icon component to render (e.g. from `lucide-react-native` or custom). |
 | `size`          | `number`                        | No       | `theme.iconSizes.md` | Size of the icon.                                                         |
 | `color`         | `string`                        | No       | `theme.colors.text`  | Color of the icon.                                                        |
-| `...props`      | `TouchableWithoutFeedbackProps` | No       | –                    | Additional props passed to the touchable ripple wrapper.                  |
-
----
+| `...props`      | `TouchableWithoutFeedbackProps` | No       | –                    | Any other props from `react-native-material-ripple` are passed through.   |
 
 ---
 

@@ -11,10 +11,6 @@ A hook for managing video settings such as videoTrack, audio tracks, and subtitl
 
 ### Usage
 
-Always provide a **minimal code snippet** showing import + usage.
-Use **TypeScript syntax highlighting**.
-Keep it runnable (no pseudo code unless necessary).
-
 ```tsx
 import { useSettings } from 'react-native-video-toolkit';
 
@@ -48,17 +44,11 @@ export const MyComponent = () => {
 
 ### Example
 
-Must include **at least one full example**.
-Prefer a **realistic UI snippet** over barebones.
-Use React functional components with hooks.
-
 ```tsx
-import { useSettings } from 'react-native-video-toolkit';
+import { useSettings, VideoPlayer } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
-import React from 'react'; // Assuming React is needed for JSX
-
-// Placeholder for GearIcon, replace with actual import if available
-const GearIcon = () => <></>;
+import React from 'react';
+import { View, Button } from 'react-native';
 
 const MySettingsButton = () => {
   const { isSettingsMenuVisible, toggleSettingsMenu, settingsTapGesture, setVideoTrack, videoTracks } = useSettings();
@@ -77,5 +67,5 @@ const MySettingsButton = () => {
   );
 };
 
-export default MySettingsButton; // Exporting for example usage
+export default MySettingsButton;
 ```

@@ -8,18 +8,12 @@ sidebar_position: 1
 The `Menu` component provides a **settings/navigation system** for the video player.  
 It uses the [`BottomSheet`](../common/bottom-sheet.mdx) as the container and supports:
 
-- Multiple sub-views with a navigation stack
-- Triggers for opening/closing
-- Items, labels, separators, groups
-- Radio and checkbox selection patterns
-- Customizable headers
-
 ---
 
 ## Usage
 
 ```tsx
-import { Menu } from 'react-native-media-toolkit';
+import { Menu } from 'react-native-video-toolkit';
 
 export function Example() {
   return (
@@ -54,9 +48,9 @@ export function Example() {
 
 Wraps all menu components and manages the navigation stack.
 
-| Prop          | Type     | Default  | Description                    |
-| ------------- | -------- | -------- | ------------------------------ |
-| `initialView` | `string` | `"root"` | The first viewId in the stack. |
+| Prop          | Type     | Default  | Required | Description                    |
+| ------------- | -------- | -------- | -------- | ------------------------------ |
+| `initialView` | `string` | `"root"` | No       | The first viewId in the stack. |
 
 ---
 
@@ -69,17 +63,20 @@ Internally uses [`SettingsButton`](../controls/advanced/settings-button.mdx).
 
 :::
 
+| Prop | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
+
 ---
 
 ### `Menu.Content`
 
 The `BottomSheet` wrapper for menu views.
 
-| Prop         | Type                                 | Description                      |
-| ------------ | ------------------------------------ | -------------------------------- |
-| `children`   | `ReactNode`                          | Nested `Menu.SubContent` blocks. |
-| `header`     | `(currentView: string) => ReactNode` | Optional custom header renderer. |
-| `sheetStyle` | `ViewStyle`                          | Custom style for the sheet body. |
+| Prop         | Type                                 | Default | Required | Description                      |
+| ------------ | ------------------------------------ | ------- | -------- | -------------------------------- |
+| `children`   | `ReactNode`                          |         | Yes      | Nested `Menu.SubContent` blocks. |
+| `header`     | `(currentView: string) => ReactNode` |         | No       | Optional custom header renderer. |
+| `sheetStyle` | `ViewStyle`                          |         | No       | Custom style for the sheet body. |
 
 ---
 
@@ -90,8 +87,8 @@ Only visible when `currentView` matches.
 
 | Prop       | Type        | Required | Description                           |
 | ---------- | ----------- | -------- | ------------------------------------- |
-| `viewId`   | `string`    | ✅ Yes   | ID to match against navigation stack. |
-| `children` | `ReactNode` | ✅ Yes   | Sub-menu items.                       |
+| `viewId`   | `string`    | Yes      | ID to match against navigation stack. |
+| `children` | `ReactNode` | Yes      | Sub-menu items.                       |
 
 ---
 
@@ -99,13 +96,13 @@ Only visible when `currentView` matches.
 
 Basic clickable row. Can either close the menu or navigate to a sub-view.
 
-| Prop         | Type                    | Default | Description                                                             |
-| ------------ | ----------------------- | ------- | ----------------------------------------------------------------------- |
-| `onPress`    | `(value?: any) => void` | –       | Action when pressed.                                                    |
-| `navigateTo` | `string`                | –       | If set, navigates to this sub-view.                                     |
-| `autoClose`  | `boolean`               | `true`  | If true, closes menu after press (ignored if `navigateTo` is provided). |
-| `disabled`   | `boolean`               | `false` | Disables interaction.                                                   |
-| `value`      | `any`                   | –       | Optional value passed to `onPress`.                                     |
+| Prop         | Type                    | Default | Required | Description                                                             |
+| ------------ | ----------------------- | ------- | -------- | ----------------------------------------------------------------------- |
+| `onPress`    | `(value?: any) => void` | –       | No       | Action when pressed.                                                    |
+| `navigateTo` | `string`                | –       | No       | If set, navigates to this sub-view.                                     |
+| `autoClose`  | `boolean`               | `true`  | No       | If true, closes menu after press (ignored if `navigateTo` is provided). |
+| `disabled`   | `boolean`               | `false` | No       | Disables interaction.                                                   |
+| `value`      | `any`                   | –       | No       | Optional value passed to `onPress`.                                     |
 
 ---
 
@@ -113,11 +110,17 @@ Basic clickable row. Can either close the menu or navigate to a sub-view.
 
 Non-interactive label for section headers.
 
+| Prop | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
+
 ---
 
 ### `Menu.Separator`
 
 Divider line between items.
+
+| Prop | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
 
 ---
 
@@ -125,16 +128,19 @@ Divider line between items.
 
 Simple wrapper for grouping related items.
 
+| Prop | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
+
 ---
 
 ### `Menu.RadioGroup`
 
 Manages selection state across `Menu.RadioItem`s.
 
-| Prop            | Type                      | Description                      |
-| --------------- | ------------------------- | -------------------------------- |
-| `value`         | `any`                     | Current selected value.          |
-| `onValueChange` | `(newValue: any) => void` | Callback when selection changes. |
+| Prop            | Type                      | Default | Required | Description                      |
+| --------------- | ------------------------- | ------- | -------- | -------------------------------- |
+| `value`         | `any`                     |         | Yes      | Current selected value.          |
+| `onValueChange` | `(newValue: any) => void` |         | Yes      | Callback when selection changes. |
 
 ---
 
@@ -142,10 +148,10 @@ Manages selection state across `Menu.RadioItem`s.
 
 Selectable option inside a `RadioGroup`.
 
-| Prop       | Type        | Description       |
-| ---------- | ----------- | ----------------- |
-| `value`    | `any`       | The item's value. |
-| `children` | `ReactNode` | Displayed text.   |
+| Prop       | Type        | Default | Required | Description       |
+| ---------- | ----------- | ------- | -------- | ----------------- |
+| `value`    | `any`       |         | Yes      | The item's value. |
+| `children` | `ReactNode` |         | Yes      | Displayed text.   |
 
 :::tip
 
@@ -159,10 +165,10 @@ Shows ✓ checkmark if selected.
 
 Toggleable option with a check indicator.
 
-| Prop              | Type                         | Description               |
-| ----------------- | ---------------------------- | ------------------------- |
-| `checked`         | `boolean`                    | Controlled checked state. |
-| `onCheckedChange` | `(checked: boolean) => void` | Called when toggled.      |
+| Prop              | Type                         | Default | Required | Description               |
+| ----------------- | ---------------------------- | ------- | -------- | ------------------------- |
+| `checked`         | `boolean`                    |         | No       | Controlled checked state. |
+| `onCheckedChange` | `(checked: boolean) => void` |         | No       | Called when toggled.      |
 
 If `checked` is not provided, it manages its own state.
 
@@ -172,6 +178,9 @@ If `checked` is not provided, it manages its own state.
 
 Button that closes the menu manually.
 Defaults to rendering `"Close"` as the label.
+
+| Prop | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
 
 ---
 

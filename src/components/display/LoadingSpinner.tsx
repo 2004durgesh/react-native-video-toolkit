@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
-import { useBuffering } from '../../../hooks';
-import { useVideo } from '../../../providers';
+import { useBuffering } from '../../hooks';
+import { useVideo } from '../../providers';
 
 export interface LoadingSpinnerProps {
   size?: 'small' | 'large';

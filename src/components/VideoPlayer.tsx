@@ -1,21 +1,13 @@
 import React, { type FC, type ReactNode, useMemo } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle, Platform } from 'react-native';
-import {
-  PlayButton,
-  ProgressBar,
-  TimeDisplay,
-  VolumeControl,
-  FullscreenButton,
-  MuteButton,
-  LoadingSpinner,
-  SettingsButton,
-} from './controls';
+import { PlayButton, ProgressBar, VolumeControl, FullscreenButton, MuteButton, SettingsButton } from './controls';
 import type { GestureHandlerProps, VideoSource } from '../types';
 import { VideoSurface } from './core';
 import type { ReactVideoProps } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideo } from '../providers';
 import { Menu } from './menu';
+import { TimeDisplay, LoadingSpinner } from './display';
 
 /**
  * Props for the VideoPlayer component.

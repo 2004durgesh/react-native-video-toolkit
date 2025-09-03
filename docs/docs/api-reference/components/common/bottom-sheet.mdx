@@ -15,7 +15,8 @@ It supports **gestures (swipe down to close)**, **backdrop press-to-dismiss**, a
 ## Usage
 
 ```tsx
-import { BottomSheet } from 'react-native-media-toolkit';
+import { BottomSheet } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
 
 function SettingsSheet({ visible, onClose }) {
   return (
@@ -44,19 +45,37 @@ function SettingsSheet({ visible, onClose }) {
 ### Simple Bottom Sheet
 
 ```tsx
-<BottomSheet visible={open} onClose={() => setOpen(false)}>
-  <Text style={{ color: 'white' }}>Hello from the sheet!</Text>
-</BottomSheet>
+import { BottomSheet } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
+import { useState } from 'react';
+
+function SimpleBottomSheet() {
+  const [open, setOpen] = useState(false);
+  return (
+    <BottomSheet visible={open} onClose={() => setOpen(false)}>
+      <Text style={{ color: 'white' }}>Hello from the sheet!</Text>
+    </BottomSheet>
+  );
+}
 ```
 
 ### With Custom Handle
 
 ```tsx
-<BottomSheet visible={open} onClose={() => setOpen(false)} showHandle={true}>
-  <View style={{ padding: 20 }}>
-    <Text>Settings</Text>
-  </View>
-</BottomSheet>
+import { BottomSheet } from 'react-native-video-toolkit';
+import { View, Text } from 'react-native';
+import { useState } from 'react';
+
+function CustomHandleBottomSheet() {
+  const [open, setOpen] = useState(false);
+  return (
+    <BottomSheet visible={open} onClose={() => setOpen(false)} showHandle={true}>
+      <View style={{ padding: 20 }}>
+        <Text>Settings</Text>
+      </View>
+    </BottomSheet>
+  );
+}
 ```
 
 ---

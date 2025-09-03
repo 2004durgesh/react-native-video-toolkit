@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { useProgress } from '../../../hooks';
-import { useVideo } from '../../../providers';
+import { useProgress } from '../../hooks';
+import { useVideo } from '../../providers';
 
 export interface TimeDisplayProps {
   type?: 'current' | 'duration' | 'both';

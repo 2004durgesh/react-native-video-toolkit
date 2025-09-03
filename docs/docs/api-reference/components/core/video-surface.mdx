@@ -13,7 +13,7 @@ It integrates the video element with the toolkit's context and hooks, so playbac
 ## Usage
 
 ```tsx
-import { VideoSurface } from 'react-native-media-toolkit';
+import { VideoSurface } from 'react-native-video-toolkit';
 
 export function CustomSurfaceExample() {
   return (
@@ -32,11 +32,11 @@ export function CustomSurfaceExample() {
 
 All props from [`react-native-video`](https://github.com/react-native-video/react-native-video#props) are supported.
 
-| Prop      | Type                   | Required | Default | Description                                                 |
-| --------- | ---------------------- | -------- | ------- | ----------------------------------------------------------- |
-| `source`  | `VideoSource`          | Yes      | –       | Video source (`uri`, local file, or require).               |
-| `style`   | `StyleProp<ViewStyle>` | No       | –       | Additional style applied to the `<Video>` surface.          |
-| `...rest` | `ReactVideoProps`      | No       | –       | Any extra props are passed through to `react-native-video`. |
+| Prop      | Type                   | Required | Default | Description                                                   |
+| --------- | ---------------------- | -------- | ------- | ------------------------------------------------------------- |
+| `source`  | `VideoSource`          | Yes      | –       | Video source (`uri`, local file, or require).                 |
+| `style`   | `StyleProp<ViewStyle>` | No       | –       | Additional style applied to the `<Video>` surface.            |
+| `...rest` | `ReactVideoProps`      | No       | –       | Any other props from `react-native-video` are passed through. |
 
 ---
 

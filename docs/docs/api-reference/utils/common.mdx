@@ -5,7 +5,7 @@ sidebar_position: 3
 
 # Common Utils
 
-This document provides an overview of the common utility functions available in the `react-native-media-toolkit`.
+This document provides an overview of the common utility functions available in the `react-native-video-toolkit`.
 
 ## `combineHandlers`
 
@@ -18,16 +18,19 @@ You can use `combineHandlers` to merge your custom `onPress` handler with the on
 ### Usage
 
 ```tsx
-import { combineHandlers } from 'react-native-media-toolkit';
+import { combineHandlers } from 'react-native-video-toolkit';
 
-const handleClick = combineHandlers(onClick1, onClick2);
+const handleClick = combineHandlers(
+  () => {},
+  () => {}
+);
 ```
 
 ### Parameters
 
-| Parameter  | Type                           | Description                            |
-| ---------- | ------------------------------ | -------------------------------------- |
-| `handlers` | `((...args: any[]) => void)[]` | An array of event handlers to combine. |
+| Parameter  | Type                           | Required | Default | Description                            |
+| ---------- | ------------------------------ | -------- | ------- | -------------------------------------- |
+| `handlers` | `((...args: any[]) => void)[]` | Yes      | –       | An array of event handlers to combine. |
 
 ### Returns
 
@@ -38,7 +41,7 @@ const handleClick = combineHandlers(onClick1, onClick2);
 ### Example
 
 ```tsx
-import { combineHandlers } from 'react-native-media-toolkit';
+import { combineHandlers } from 'react-native-video-toolkit';
 
 const onClick1 = () => console.log('click1');
 const onClick2 = () => console.log('click2');
@@ -53,7 +56,7 @@ A utility function that removes duplicate tracks from an array of tracks.
 ### Usage
 
 ```tsx
-import { dedupeTracks } from 'react-native-media-toolkit';
+import { dedupeTracks } from 'react-native-video-toolkit';
 
 const tracks = [
   { language: 'en', title: 'English' },
@@ -66,10 +69,10 @@ const dedupedTracks = dedupeTracks(tracks, ['language', 'title']);
 
 ### Parameters
 
-| Parameter | Type       | Description                           |
-| --------- | ---------- | ------------------------------------- |
-| `tracks`  | `any[]`    | The array of tracks to dedupe.        |
-| `keys`    | `string[]` | The keys to use for comparing tracks. |
+| Parameter | Type       | Required | Default | Description                           |
+| --------- | ---------- | -------- | ------- | ------------------------------------- |
+| `tracks`  | `any[]`    | Yes      | –       | The array of tracks to dedupe.        |
+| `keys`    | `string[]` | Yes      | –       | The keys to use for comparing tracks. |
 
 ### Returns
 
@@ -80,7 +83,7 @@ const dedupedTracks = dedupeTracks(tracks, ['language', 'title']);
 ### Example
 
 ```tsx
-import { dedupeTracks } from 'react-native-media-toolkit';
+import { dedupeTracks } from 'react-native-video-toolkit';
 
 const tracks = [
   { language: 'en', title: 'English' },
@@ -89,7 +92,10 @@ const tracks = [
 ];
 
 const dedupedTracks = dedupeTracks(tracks, ['language', 'title']);
-console.log(dedupedTracks);
+// dedupedTracks will be [
+//   { language: 'en', title: 'English' },
+//   { language: 'fr', title: 'French' },
+// ]
 ```
 
 ## `hexToRgba`
@@ -99,17 +105,17 @@ A utility function that converts a hex color to an rgba color.
 ### Usage
 
 ```tsx
-import { hexToRgba } from 'react-native-media-toolkit';
+import { hexToRgba } from 'react-native-video-toolkit';
 
 const rgbaColor = hexToRgba('#FF0000', 0.5);
 ```
 
 ### Parameters
 
-| Parameter | Type     | Description               |
-| --------- | -------- | ------------------------- |
-| `hex`     | `string` | The hex color to convert. |
-| `alpha`   | `number` | The alpha value to apply. |
+| Parameter | Type     | Required | Default | Description               |
+| --------- | -------- | -------- | ------- | ------------------------- |
+| `hex`     | `string` | Yes      | –       | The hex color to convert. |
+| `alpha`   | `number` | Yes      | –       | The alpha value to apply. |
 
 ### Returns
 
@@ -120,8 +126,8 @@ const rgbaColor = hexToRgba('#FF0000', 0.5);
 ### Example
 
 ```tsx
-import { hexToRgba } from 'react-native-media-toolkit';
+import { hexToRgba } from 'react-native-video-toolkit';
 
 const rgbaColor = hexToRgba('#FF0000', 0.5);
-console.log(rgbaColor);
+// rgbaColor will be 'rgba(255, 0, 0, 0.5)'
 ```

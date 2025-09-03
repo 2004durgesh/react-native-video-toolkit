@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'LoadingSpinner'
-sidebar_position: 6
+sidebar_position: 4
 ---
 
 # LoadingSpinner
@@ -13,7 +13,7 @@ It automatically hides when buffering is not active. The spinner can be customiz
 ## Usage
 
 ```tsx
-import { LoadingSpinner } from 'react-native-media-toolkit';
+import { LoadingSpinner } from 'react-native-video-toolkit';
 
 const MyLoadingSpinner = () => {
   return <LoadingSpinner />;
@@ -59,54 +59,14 @@ const MyLoadingSpinner = () => {
 Place inside your `VideoPlayer` layout to show buffering status automatically:
 
 ```tsx
-import { VideoPlayer, LoadingSpinner } from 'react-native-media-toolkit';
+import { VideoPlayer, LoadingSpinner } from 'react-native-video-toolkit';
 
 const MyVideoPlayer = () => {
   return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <VideoPlayer.Controls>
         <LoadingSpinner size="large" color="cyan" />
-      </Controls>
-    </VideoPlayer>
-  );
-};
-```
-
----
-
-## Examples
-
-### Default Spinner
-
-```tsx
-<LoadingSpinner />
-```
-
-### Small White Spinner
-
-```tsx
-<LoadingSpinner size="small" color="#fff" />
-```
-
-### Custom Positioned Spinner
-
-```tsx
-<LoadingSpinner style={{ top: 100, left: 100 }} />
-```
-
-### Integration Example
-
-Place inside your `VideoPlayer` layout to show buffering status automatically:
-
-```tsx
-import { VideoPlayer, LoadingSpinner } from 'react-native-media-toolkit';
-
-const MyVideoPlayer = () => {
-  return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
-        <LoadingSpinner size="large" color="cyan" />
-      </Controls>
+      </VideoPlayer.Controls>
     </VideoPlayer>
   );
 };

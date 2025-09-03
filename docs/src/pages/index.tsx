@@ -47,7 +47,7 @@ function VisualDemo() {
 
 function CodeExample() {
   const CodeBlock = `
-import { VideoPlayer } from 'react-native-media-toolkit';
+import { VideoPlayer } from 'react-native-video-toolkit';
 
 const MyPlayer = () => (
   <VideoPlayer source={{ uri: "..." }}>

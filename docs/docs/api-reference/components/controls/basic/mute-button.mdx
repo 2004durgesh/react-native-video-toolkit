@@ -14,7 +14,8 @@ Custom icons can also be provided via `renderMuteIcon` and `renderUnmuteIcon`.
 ## Usage
 
 ```tsx
-import { MuteButton } from 'react-native-media-toolkit';
+import { MuteButton } from 'react-native-video-toolkit';
+import React from 'react';
 
 const MyMuteButton = () => {
   return <MuteButton />;
@@ -40,19 +41,25 @@ const MyMuteButton = () => {
 ### Default MuteButton
 
 ```tsx
-<MuteButton />
+import { MuteButton } from 'react-native-video-toolkit';
+
+<MuteButton />;
 ```
 
 ### Customized Icon Size & Color
 
 ```tsx
-<MuteButton size={32} color="red" />
+import { MuteButton } from 'react-native-video-toolkit';
+
+<MuteButton size={32} color="red" />;
 ```
 
 ### With Custom Icons
 
 ```tsx
+import { MuteButton } from 'react-native-video-toolkit';
 import { Bell, BellOff } from 'lucide-react-native';
+import React from 'react';
 
 <MuteButton renderMuteIcon={() => <BellOff />} renderUnmuteIcon={() => <Bell />} />;
 ```
@@ -64,56 +71,14 @@ import { Bell, BellOff } from 'lucide-react-native';
 Place inside your `VideoPlayer` layout:
 
 ```tsx
-import { VideoPlayer, MuteButton } from 'react-native-media-toolkit';
+import { VideoPlayer, MuteButton } from 'react-native-video-toolkit';
 
 const MyVideoPlayer = () => {
   return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <VideoPlayer.Controls>
         <MuteButton size={28} color="white" />
-      </Controls>
-    </VideoPlayer>
-  );
-};
-```
-
----
-
-## Examples
-
-### Default MuteButton
-
-```tsx
-<MuteButton />
-```
-
-### Customized Icon Size & Color
-
-```tsx
-<MuteButton size={32} color="red" />
-```
-
-### With Custom Icons
-
-```tsx
-import { Bell, BellOff } from 'lucide-react-native';
-
-<MuteButton renderMuteIcon={() => <BellOff />} renderUnmuteIcon={() => <Bell />} />;
-```
-
-### Integration Example
-
-Place inside your `VideoPlayer` layout:
-
-```tsx
-import { VideoPlayer, MuteButton } from 'react-native-media-toolkit';
-
-const MyVideoPlayer = () => {
-  return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
-        <MuteButton size={28} color="white" />
-      </Controls>
+      </VideoPlayer.Controls>
     </VideoPlayer>
   );
 };

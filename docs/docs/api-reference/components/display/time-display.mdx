@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'TimeDisplay'
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # TimeDisplay
@@ -11,7 +11,7 @@ It can be configured to show only the current time, only the duration, or both.
 ## Usage
 
 ```tsx
-import { TimeDisplay } from 'react-native-media-toolkit';
+import { TimeDisplay } from 'react-native-video-toolkit';
 
 const MyTimeDisplay = () => {
   return <TimeDisplay />;
@@ -58,54 +58,14 @@ const MyTimeDisplay = () => {
 `TimeDisplay` is typically used inside the `VideoPlayer` as part of your controls:
 
 ```tsx
-import { VideoPlayer, TimeDisplay } from 'react-native-media-toolkit';
+import { VideoPlayer, TimeDisplay } from 'react-native-video-toolkit';
 
 const MyVideoPlayer = () => {
   return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <VideoPlayer.Controls>
         <TimeDisplay type="both" fontSize={16} />
-      </Controls>
-    </VideoPlayer>
-  );
-};
-```
-
----
-
-## Examples
-
-### Show Current Time Only
-
-```tsx
-<TimeDisplay type="current" /> // e.g. "0:15"
-```
-
-### Show Duration Only
-
-```tsx
-<TimeDisplay type="duration" /> // e.g. "3:45"
-```
-
-### Show Both Current Time and Duration
-
-```tsx
-<TimeDisplay type="both" /> // e.g. "0:15 / 3:45"
-```
-
-### Integration Example
-
-`TimeDisplay` is typically used inside the `VideoPlayer` as part of your controls:
-
-```tsx
-import { VideoPlayer, TimeDisplay } from 'react-native-media-toolkit';
-
-const MyVideoPlayer = () => {
-  return (
-    <VideoPlayer source={videoSource}>
-      <Controls>
-        <TimeDisplay type="both" fontSize={16} />
-      </Controls>
+      </VideoPlayer.Controls>
     </VideoPlayer>
   );
 };

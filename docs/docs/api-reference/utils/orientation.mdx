@@ -5,7 +5,7 @@ sidebar_position: 2
 
 # Orientation Utilities
 
-This document provides an overview of the orientation-related utility functions available in the `react-native-media-toolkit`.
+This document provides an overview of the orientation-related utility functions available in the `react-native-video-toolkit`.
 
 ## `shouldRotate`
 
@@ -14,18 +14,18 @@ Determines if the screen should rotate to landscape based on the provided dimens
 ### Usage
 
 ```tsx
-import { shouldRotate } from 'react-native-media-toolkit';
+import { shouldRotate } from 'react-native-video-toolkit';
 
 const canRotate = shouldRotate(1920, 1080);
 ```
 
 ### Parameters
 
-| Parameter | Type             | Default | Description                                   |
-| --------- | ---------------- | ------- | --------------------------------------------- |
-| `width`   | `number`         |         | The width of the screen.                      |
-| `height`  | `number`         |         | The height of the screen.                     |
-| `config`  | `RotationConfig` | `{}`    | Configuration options for rotation detection. |
+| Parameter | Type             | Required | Default | Description                                   |
+| --------- | ---------------- | -------- | ------- | --------------------------------------------- |
+| `width`   | `number`         | Yes      | –       | The width of the screen.                      |
+| `height`  | `number`         | Yes      | –       | The height of the screen.                     |
+| `config`  | `RotationConfig` | No       | `{}`    | Configuration options for rotation detection. |
 
 ### Returns
 
@@ -36,7 +36,7 @@ const canRotate = shouldRotate(1920, 1080);
 ### Example
 
 ```tsx
-import { shouldRotate } from 'react-native-media-toolkit';
+import { shouldRotate } from 'react-native-video-toolkit';
 
 const config = {
   threshold: 1.5,
@@ -53,7 +53,7 @@ Detects the type of the device based on the screen dimensions.
 ### Usage
 
 ```tsx
-import { detectDeviceType } from 'react-native-media-toolkit';
+import { detectDeviceType } from 'react-native-video-toolkit';
 
 const deviceType = detectDeviceType();
 ```
@@ -67,10 +67,10 @@ const deviceType = detectDeviceType();
 ### Example
 
 ```tsx
-import { detectDeviceType } from 'react-native-media-toolkit';
+import { detectDeviceType } from 'react-native-video-toolkit';
 
 const deviceType = detectDeviceType();
-console.log(deviceType);
+// deviceType will be 'phone', 'tablet', etc.
 ```
 
 ## `getOptimalConfig`
@@ -80,7 +80,7 @@ Returns the optimal rotation configuration for the current platform and device.
 ### Usage
 
 ```tsx
-import { getOptimalConfig } from 'react-native-media-toolkit';
+import { getOptimalConfig } from 'react-native-video-toolkit';
 
 const config = getOptimalConfig();
 ```
@@ -94,10 +94,10 @@ const config = getOptimalConfig();
 ### Example
 
 ```tsx
-import { getOptimalConfig } from 'react-native-media-toolkit';
+import { getOptimalConfig } from 'react-native-video-toolkit';
 
 const config = getOptimalConfig();
-console.log(config);
+// config will be { threshold: 1.5, minWidth: 768 }
 ```
 
 ## `useShouldRotate`
@@ -107,7 +107,7 @@ A hook that returns a boolean indicating whether the screen should rotate to lan
 ### Usage
 
 ```tsx
-import { useShouldRotate } from 'react-native-media-toolkit';
+import { useShouldRotate } from 'react-native-video-toolkit';
 
 const shouldRotate = useShouldRotate();
 ```
@@ -121,11 +121,12 @@ const shouldRotate = useShouldRotate();
 ### Example
 
 ```tsx
-import { useShouldRotate } from 'react-native-media-toolkit';
+import { useShouldRotate } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
 
 const MyComponent = () => {
   const shouldRotate = useShouldRotate();
-  return <p>{shouldRotate ? 'Rotate' : 'Do not rotate'}</p>;
+  return <Text>{shouldRotate ? 'Rotate' : 'Do not rotate'}</Text>;
 };
 ```
 
@@ -136,17 +137,17 @@ Returns the configuration for the video controls based on the screen orientation
 ### Usage
 
 ```tsx
-import { getVideoControlsConfig } from 'react-native-media-toolkit';
+import { getVideoControlsConfig } from 'react-native-video-toolkit';
 
 const config = getVideoControlsConfig(true, 'web');
 ```
 
 ### Parameters
 
-| Parameter     | Type      | Default | Description                                            |
-| ------------- | --------- | ------- | ------------------------------------------------------ |
-| `isLandscape` | `boolean` |         | Whether the screen is in landscape mode.               |
-| `platform`    | `string`  |         | The current platform (`'web'`, `'mobile'`, or `'tv'`). |
+| Parameter     | Type      | Required | Default | Description                                            |
+| ------------- | --------- | -------- | ------- | ------------------------------------------------------ |
+| `isLandscape` | `boolean` | Yes      | –       | Whether the screen is in landscape mode.               |
+| `platform`    | `string`  | Yes      | –       | The current platform (`'web'`, `'mobile'`, or `'tv'`). |
 
 ### Returns
 
@@ -157,10 +158,10 @@ const config = getVideoControlsConfig(true, 'web');
 ### Example
 
 ```tsx
-import { getVideoControlsConfig } from 'react-native-media-toolkit';
+import { getVideoControlsConfig } from 'react-native-video-toolkit';
 
 const config = getVideoControlsConfig(true, 'web');
-console.log(config);
+// config will be { showFullscreen: false, showSeekBar: true, ... }
 ```
 
 ## `PlatformUtils`
@@ -170,7 +171,7 @@ An object containing utility functions for platform detection.
 ### Usage
 
 ```tsx
-import { PlatformUtils } from 'react-native-media-toolkit';
+import { PlatformUtils } from 'react-native-video-toolkit';
 
 const isWeb = PlatformUtils.isWeb();
 ```
@@ -191,8 +192,8 @@ const isWeb = PlatformUtils.isWeb();
 ### Example
 
 ```tsx
-import { PlatformUtils } from 'react-native-media-toolkit';
+import { PlatformUtils } from 'react-native-video-toolkit';
 
 const isWeb = PlatformUtils.isWeb();
-console.log(isWeb);
+// isWeb will be true if the platform is web
 ```

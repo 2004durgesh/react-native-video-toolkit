@@ -5,12 +5,35 @@ sidebar_position: 1
 
 # Provider Hooks
 
-### `useVideo()`
+## `useVideo()`
 
 A hook to access the current video player state and dispatch actions to control the player. It provides access to the video player's state, a dispatch function to send actions, and a helper function to set the theme.
 
+### Usage
+
 ```tsx
 import { useVideo } from 'react-native-video-toolkit';
+
+const MyComponent = () => {
+  const { state, dispatch, setTheme } = useVideo();
+  // ...
+};
+```
+
+### Returns
+
+| Value      | Type                              | Description                                                                        |
+| ---------- | --------------------------------- | ---------------------------------------------------------------------------------- |
+| `state`    | `VideoState`                      | An object containing the current state of the video player.                        |
+| `dispatch` | `(action: VideoAction) => void`   | A function that allows you to dispatch actions to update the video player's state. |
+| `setTheme` | `(theme: Partial<Theme>) => void` | A function that allows you to update the theme of the video player.                |
+
+### Example
+
+```tsx
+import { useVideo } from 'react-native-video-toolkit';
+import { View, Text, Button } from 'react-native';
+import React from 'react';
 
 const MyComponent = () => {
   const { state, dispatch, setTheme } = useVideo();
