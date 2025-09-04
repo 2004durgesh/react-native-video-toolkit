@@ -1,7 +1,5 @@
 <h1 align="centre">react-native-video-toolkit</h1>
 
-
-
 My **first ever real OSS project** 😭. Be kind, I’m still figuring this out.<br>
 A flexible and customizable video player UI toolkit for React Native, designed for a great mobile viewing experience (and maybe TV one day… if I survive).
 
@@ -21,7 +19,13 @@ A flexible and customizable video player UI toolkit for React Native, designed f
   <img src="https://img.shields.io/discord/1387063063223599265?color=7289da&label=discord&logo=discord&logoColor=7289d" alt="discord" />
 </a>  
 
----
+--- 
+
+## 📱 Demo
+
+https://github.com/2004durgesh/react-native-video-toolkit/assets/example-mobile.mp4
+
+--- 
 
 ## ✨ Features
 
@@ -32,7 +36,19 @@ A flexible and customizable video player UI toolkit for React Native, designed f
 * **Rich Component Library** – Controls like `PlayButton`, `ProgressBar`, `TimeDisplay`, `FullscreenButton`, `MuteButton`, and more.
 * **Hooks-based API** – Access player state and control playback, settings, and gestures.
 
----
+--- 
+
+## ✅ Platform Compatibility
+
+| Platform       | Tested | 
+| -------------- | :----: |
+| Android        |   ✅   |
+| iOS            |    ❌  |
+| Android TV     |   ✅   |
+| Apple TV       |   ❌   |
+| Web            |   ✅   |
+
+--- 
 
 ## 🗺️ Roadmap
 
@@ -44,7 +60,7 @@ A flexible and customizable video player UI toolkit for React Native, designed f
 * [ ] Picture-in-Picture (PiP) mode
 * [ ] More advanced layouts (YouTube/Netflix-style)
 
----
+--- 
 
 ## 📦 Installation
 
@@ -54,7 +70,7 @@ npm install react-native-video-toolkit
 yarn add react-native-video-toolkit
 ```
 
----
+--- 
 
 ## 🚀 Usage
 
@@ -75,7 +91,7 @@ const App = () => {
 For more docs:
 👉 [Documentation website](https://2004durgesh.github.io/react-native-video-toolkit/).
 
----
+--- 
 
 ## 🐛 Issues
 
@@ -83,22 +99,22 @@ Yes, there are bugs. Probably lots.
 👉 [Open an issue](https://github.com/2004durgesh/react-native-video-toolkit/issues).
 It makes the project look active, so actually… thanks in advance.
 
----
+--- 
 
 ## 🤝 Contributing
 
 Wanna help? Please? 🙏
 Check the [contributing guide](CONTRIBUTING.md). I’ll try to review your PR before I spiral into existential dread.
 
----
+--- 
 
 ## 📜 License
 
 MIT – because lawyers are scary.
 
----
+--- 
 
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)\
-Thanks to [wuxnz](https://github.com/wuxnz) for motivation (and maybe trauma)\
+Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+Thanks to [wuxnz](https://github.com/wuxnz) for motivation (and maybe trauma)
 
 Made with ❤️, caffeine, and way too many Chrome tabs by [Durgesh](https://github.com/2004durgesh)

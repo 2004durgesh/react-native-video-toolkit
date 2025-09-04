@@ -6,6 +6,7 @@ import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Heading from '@theme/Heading';
 import styles from './index.module.css';
+const ExampleVideo = require('../../../assets/example-tv.mp4').default;
 
 function HomepageHero() {
   const { siteConfig } = useDocusaurusContext();
@@ -38,7 +39,7 @@ function VisualDemo() {
             This is a placeholder for the animated GIF or video.
             Replace 'video-placeholder.mp4' with the actual media file in the 'static/img' directory.
           */}
-          <video className={styles.demoVideo} autoPlay loop muted playsInline src="/img/video-placeholder.mp4" />
+          <video className={styles.demoVideo} autoPlay loop muted playsInline src={ExampleVideo} />
         </div>
       </div>
     </section>
@@ -86,7 +87,7 @@ export default function Home(): React.ReactElement {
       <main>
         <VisualDemo />
         <HomepageFeatures />
-        <CodeExample />
+        {/* <CodeExample /> */}
       </main>
     </Layout>
   );
