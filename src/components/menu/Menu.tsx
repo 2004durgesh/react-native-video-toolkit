@@ -60,7 +60,7 @@ interface MenuItemProps extends PressableProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  value?: unknown;
+  value?: string;
   autoClose?: boolean;
   navigateTo?: string;
 }
@@ -81,16 +81,16 @@ interface MenuGroupProps extends ViewProps {
 
 interface MenuRadioGroupProps extends ViewProps {
   children: ReactNode;
-  value: unknown;
-  onValueChange: (newValue: unknown) => void;
+  value: string;
+  onValueChange: (newValue: string) => void;
   style?: StyleProp<ViewStyle>;
 }
 
 interface MenuRadioItemProps extends PressableProps {
   children: ReactNode;
-  value: unknown;
-  selectedValue?: unknown;
-  onSelect?: (newValue: unknown) => void;
+  value: string;
+  selectedValue?: string;
+  onSelect?: (newValue: string) => void;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
@@ -427,70 +427,6 @@ export const Menu = {
       <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
         {children}
       </AnimatedView>
-    );
-  },
-
-  /**
-   * RadioGroup component for managing radio selection states.
-   */
-  RadioGroup: ({ children, value, onValueChange, style, ...props }: MenuRadioGroupProps): React.ReactElement => {
-    return (
-      <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
-        {React.Children.map(children, (child) => {
-          if (React.isValidElement(child)) {
-            return React.cloneElement(child as React.ReactElement<MenuRadioItemProps>, {
-              selectedValue: value,
-              onSelect: onValueChange,
-            });
-          }
-          return child;
-        })}
-      </AnimatedView>
-    );
-  },
-
-  /**
-   * RadioItem component with selection animation.
-   */
-  RadioItem: ({
-    children,
-    value,
-    selectedValue,
-    onSelect,
-    style,
-    textStyle,
-    ...props
-  }: MenuRadioItemProps): React.ReactElement => {
-    const isSelected = value === selectedValue;
-    const { state } = useVideo();
-    const { theme } = state;
-    const indicatorScale = useSharedValue(isSelected ? 1 : 0);
-
-    useEffect(() => {
-      indicatorScale.value = withTiming(isSelected ? 1 : 0, {
-        duration: 200,
-      });
-    }, [isSelected, indicatorScale]);
-
-    const indicatorAnimatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: indicatorScale.value }],
-    }));
-
-    const handlePress = (): void => {
-      if (onSelect) {
-        onSelect(value);
-      }
-    };
-
-    return (
-      <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} {...props}>
-        <View style={styles.radioItem}>
-          <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
-          <AnimatedView style={indicatorAnimatedStyle}>
-            <Text style={[styles.radioIndicator, { color: theme.colors.primary }]}>{isSelected ? '✓' : ' '}</Text>
-          </AnimatedView>
-        </View>
-      </Menu.Item>
     );
   },
 

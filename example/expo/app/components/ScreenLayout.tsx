@@ -64,7 +64,7 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
   const samples: Sample[] = [
     {
       type: 'mp4',
-      uri: 'https://live-hls-abr-cdn.livepush.io/vod/bigbuckbunnyclip.mp4',
+      uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     },
     {
       type: 'hls',

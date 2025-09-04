@@ -123,7 +123,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   const isFullscreen = state.fullscreen;
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      width: isFullscreen ? state.dimensions.width : state.dimensions.width,
+      // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
       height: isFullscreen ? state.dimensions.height : undefined,
       aspectRatio: isFullscreen ? undefined : 16 / 9,
       backgroundColor: 'black',
@@ -157,6 +157,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
         progressUpdateInterval={500}
         onLayout={handleLayout}
         viewType={ViewType.TEXTURE}
+        subtitleStyle={{ paddingBottom: 50, fontSize: 20, opacity: 0.8 }}
         {...nativeProps}
       />
     </View>

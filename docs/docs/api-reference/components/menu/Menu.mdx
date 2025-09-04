@@ -9,7 +9,7 @@ The `Menu` component provides a **settings/navigation system** for the video pla
 It uses the [`BottomSheet`](../common/bottom-sheet.mdx) as the container and supports:
 
 - Nested sub-menus with smooth slide animations.
-- Radio groups, checkboxes, and interactive items.
+- Checkboxes and interactive items.
 - Fully customizable headers and content areas.
 - Automatic integration with the player's theme.
 
@@ -28,16 +28,16 @@ export function Example() {
       <Menu.Content>
         <Menu.SubContent viewId="root">
           <Menu.Label>Playback</Menu.Label>
-          <Menu.Item navigateTo="playback-speed">Speed</Menu.Item>
           <Menu.Item navigateTo="quality">Quality</Menu.Item>
         </Menu.SubContent>
 
-        <Menu.SubContent viewId="playback-speed">
-          <Menu.RadioGroup value="1x" onValueChange={console.log}>
-            <Menu.RadioItem value="0.5x">0.5x</Menu.RadioItem>
-            <Menu.RadioItem value="1x">Normal</Menu.RadioItem>
-            <Menu.RadioItem value="1.5x">1.5x</Menu.RadioItem>
-          </Menu.RadioGroup>
+        <Menu.SubContent viewId="quality">
+          <Menu.CheckboxItem checked={true} onCheckedChange={console.log}>
+            1080p
+          </Menu.CheckboxItem>
+          <Menu.CheckboxItem checked={false} onCheckedChange={console.log}>
+            720p
+          </Menu.CheckboxItem>
         </Menu.SubContent>
       </Menu.Content>
     </Menu.Root>
@@ -147,28 +147,6 @@ Simple wrapper for grouping related items.
 | Prop       | Type        | Required | Description         |
 | ---------- | ----------- | -------- | ------------------- |
 | `children` | `ReactNode` | Yes      | The items to group. |
-
----
-
-### `Menu.RadioGroup`
-
-Manages selection state across `Menu.RadioItem`s.
-
-| Prop            | Type                      | Default | Required | Description                      |
-| --------------- | ------------------------- | ------- | -------- | -------------------------------- |
-| `value`         | `any`                     |         | Yes      | Current selected value.          |
-| `onValueChange` | `(newValue: any) => void` |         | Yes      | Callback when selection changes. |
-
----
-
-### `Menu.RadioItem`
-
-Selectable option inside a `RadioGroup`.
-
-| Prop       | Type        | Default | Required | Description       |
-| ---------- | ----------- | ------- | -------- | ----------------- |
-| `value`    | `any`       |         | Yes      | The item's value. |
-| `children` | `ReactNode` |         | Yes      | Displayed text.   |
 
 ---
 

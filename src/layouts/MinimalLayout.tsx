@@ -67,18 +67,22 @@ export const MinimalLayout = () => {
                   </Menu.SubContent>
                   <Menu.SubContent viewId="audio">
                     {audioTracks.length > 0 ? (
-                      <Menu.RadioGroup value={audioTrack} onValueChange={(value) => console.log(value)}>
-                        <ScrollView style={{ maxHeight: '100%' }}>
-                          {audioTracks.map((track) => (
-                            <Menu.RadioItem
-                              onSelect={() => setAudioTrack(track)}
-                              key={track.index}
-                              value={track.language}>
-                              {track.title}
-                            </Menu.RadioItem>
-                          ))}
-                        </ScrollView>
-                      </Menu.RadioGroup>
+                      <ScrollView style={{ maxHeight: '100%' }}>
+                        {audioTracks.map((track) => (
+                          <Menu.CheckboxItem
+                            key={track.index}
+                            checked={audioTrack?.index === track.index}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setAudioTrack(track);
+                              } else {
+                                setAudioTrack(null);
+                              }
+                            }}>
+                            {track.title ?? track.language}
+                          </Menu.CheckboxItem>
+                        ))}
+                      </ScrollView>
                     ) : (
                       <View style={{ padding: 10 }}>
                         <Subtitle text="No audio tracks available" />
@@ -87,16 +91,22 @@ export const MinimalLayout = () => {
                   </Menu.SubContent>
                   <Menu.SubContent viewId="video">
                     {videoTracks.length > 0 ? (
-                      <Menu.RadioGroup value={videoTrack} onValueChange={(value) => console.log(value)}>
-                        <ScrollView style={{ maxHeight: '100%' }}>
-                          {videoTracks.map((track) => (
-                            <Menu.RadioItem
-                              onSelect={() => setVideoTrack(track)}
-                              key={`${track.index}`}
-                              value={`${track.height}`}>{`${track.height}p`}</Menu.RadioItem>
-                          ))}
-                        </ScrollView>
-                      </Menu.RadioGroup>
+                      <ScrollView style={{ maxHeight: '100%' }}>
+                        {videoTracks.map((track) => (
+                          <Menu.CheckboxItem
+                            key={track.index}
+                            checked={videoTrack?.index === track.index}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setVideoTrack(track);
+                              } else {
+                                setVideoTrack(null);
+                              }
+                            }}>
+                            {track.height}p
+                          </Menu.CheckboxItem>
+                        ))}
+                      </ScrollView>
                     ) : (
                       <View style={{ padding: 10 }}>
                         <Subtitle text="No video tracks available" />
@@ -105,13 +115,22 @@ export const MinimalLayout = () => {
                   </Menu.SubContent>
                   <Menu.SubContent viewId="captions">
                     {textTracks.length > 0 ? (
-                      <Menu.RadioGroup value={textTrack} onValueChange={(value) => console.log(value)}>
+                      <ScrollView style={{ maxHeight: '100%' }}>
                         {textTracks.map((track) => (
-                          <Menu.RadioItem onSelect={() => setTextTrack(track)} key={track.index} value={track.language}>
-                            {track.title}
-                          </Menu.RadioItem>
+                          <Menu.CheckboxItem
+                            key={track.index}
+                            checked={textTrack?.index === track.index}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setTextTrack(track);
+                              } else {
+                                setTextTrack(null);
+                              }
+                            }}>
+                            {track.title ?? track.language}
+                          </Menu.CheckboxItem>
                         ))}
-                      </Menu.RadioGroup>
+                      </ScrollView>
                     ) : (
                       <View style={{ padding: 10 }}>
                         <Subtitle text="No captions available" />
