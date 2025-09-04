@@ -95,10 +95,7 @@ export interface UseOrientationResult {
  * await orientation.handleEnterFullscreen();
  * ```
  */
-export const useOrientation = (
-  customConfig?: RotationConfig,
-  enableLogging: boolean = __DEV__
-): UseOrientationResult => {
+export const useOrientation = (customConfig?: RotationConfig): UseOrientationResult => {
   // Device and platform detection
   const deviceType = useMemo(() => detectDeviceType(), []);
   const rotationConfig = useMemo(() => customConfig || getOptimalConfig(), [customConfig]);
@@ -130,84 +127,61 @@ export const useOrientation = (
   const [orientationLocked, setOrientationLocked] = useState(false);
 
   // Debug logging
-  useEffect(() => {
-    if (enableLogging) {
-      console.log('[useOrientation] Initialized:', {
-        deviceType,
-        shouldAutoRotate,
-        platformCapabilities,
-        rotationConfig,
-      });
-    }
-  }, [deviceType, shouldAutoRotate, platformCapabilities, rotationConfig, enableLogging]);
+  // useEffect(() => {
+  //     console.log('[useOrientation] Initialized:', {
+  //       deviceType,
+  //       shouldAutoRotate,
+  //       platformCapabilities,
+  //       rotationConfig,
+  //     });
+  // }, [deviceType, shouldAutoRotate, platformCapabilities, rotationConfig, enableLogging]);
 
   /**
    * Safely lock orientation to landscape
    */
   const lockToLandscape = useCallback(async (): Promise<boolean> => {
     if (!platformCapabilities.canControlOrientation) {
-      if (enableLogging) {
-        console.log('[useOrientation] Cannot control orientation on this platform');
-      }
       return false;
     }
 
     try {
       if (RNOrientationDirector.isLockableOrientation(Orientation.landscape)) {
-        await RNOrientationDirector.lockTo(Orientation.landscape);
+        RNOrientationDirector.lockTo(Orientation.landscape);
         setOrientationLocked(true);
-        if (enableLogging) {
-          console.log('[useOrientation] Successfully locked to landscape');
-        }
         return true;
       } else {
-        if (enableLogging) {
-          console.warn('[useOrientation] Landscape orientation is not lockable');
-        }
         return false;
       }
     } catch (error) {
-      if (enableLogging) {
-        console.error('[useOrientation] Failed to lock to landscape:', error);
-      }
+      console.error('[useOrientation] Failed to lock to landscape:', error);
       setOrientationLocked(false);
       return false;
     }
-  }, [platformCapabilities.canControlOrientation, enableLogging]);
+  }, [platformCapabilities.canControlOrientation]);
 
   /**
    * Safely lock orientation to portrait
    */
   const lockToPortrait = useCallback(async (): Promise<boolean> => {
     if (!platformCapabilities.canControlOrientation) {
-      if (enableLogging) {
-        console.log('[useOrientation] Cannot control orientation on this platform');
-      }
       return false;
     }
 
     try {
       if (RNOrientationDirector.isLockableOrientation(Orientation.portrait)) {
-        await RNOrientationDirector.lockTo(Orientation.portrait);
+        RNOrientationDirector.lockTo(Orientation.portrait);
         setOrientationLocked(true);
-        if (enableLogging) {
-          console.log('[useOrientation] Successfully locked to portrait');
-        }
         return true;
       } else {
-        if (enableLogging) {
-          console.warn('[useOrientation] Portrait orientation is not lockable');
-        }
+        console.warn('[useOrientation] Portrait orientation is not lockable');
         return false;
       }
     } catch (error) {
-      if (enableLogging) {
-        console.error('[useOrientation] Failed to lock to portrait:', error);
-      }
+      console.error('[useOrientation] Failed to lock to portrait:', error);
       setOrientationLocked(false);
       return false;
     }
-  }, [platformCapabilities.canControlOrientation, enableLogging]);
+  }, [platformCapabilities.canControlOrientation]);
 
   /**
    * Safely unlock orientation
@@ -220,26 +194,18 @@ export const useOrientation = (
     try {
       // Check if unlock method exists, otherwise fall back to portrait lock
       if (typeof RNOrientationDirector.unlock === 'function') {
-        await RNOrientationDirector.unlock();
-        if (enableLogging) {
-          console.log('[useOrientation] Successfully unlocked orientation');
-        }
+        RNOrientationDirector.unlock();
       } else {
         // Fallback: lock to portrait as "unlocked" state
         await lockToPortrait();
-        if (enableLogging) {
-          console.log('[useOrientation] Fallback: locked to portrait as unlocked state');
-        }
       }
       setOrientationLocked(false);
       return true;
     } catch (error) {
-      if (enableLogging) {
-        console.error('[useOrientation] Failed to unlock orientation:', error);
-      }
+      console.error('[useOrientation] Failed to unlock orientation:', error);
       return false;
     }
-  }, [platformCapabilities.canControlOrientation, orientationLocked, lockToPortrait, enableLogging]);
+  }, [platformCapabilities.canControlOrientation, orientationLocked, lockToPortrait]);
 
   /**
    * Get optimal fullscreen orientation strategy
@@ -312,16 +278,10 @@ export const useOrientation = (
     const strategy = getFullscreenStrategy();
 
     if (strategy.shouldRotate && strategy.orientation) {
-      const success = await lockToLandscape();
-      if (enableLogging) {
-        console.log(`[useOrientation] Fullscreen entry - ${strategy.reason}. Success: ${success}`);
-      }
+      await lockToLandscape();
     } else {
-      if (enableLogging) {
-        console.log(`[useOrientation] Fullscreen entry - No rotation: ${strategy.reason}`);
-      }
     }
-  }, [getFullscreenStrategy, lockToLandscape, enableLogging]);
+  }, [getFullscreenStrategy, lockToLandscape]);
 
   /**
    * Handle orientation when exiting fullscreen
@@ -336,35 +296,17 @@ export const useOrientation = (
       if (deviceType === 'phone') {
         // Phones typically return to portrait
         await lockToPortrait();
-        if (enableLogging) {
-          console.log('[useOrientation] Fullscreen exit - Restored to portrait for phone');
-        }
       } else if (deviceType === 'tablet' || deviceType === 'foldable') {
         // Tablets and foldables: try to unlock or fall back to portrait
-        const unlocked = await unlockOrientation();
-        if (enableLogging) {
-          console.log(`[useOrientation] Fullscreen exit - Unlock attempt for ${deviceType}. Success: ${unlocked}`);
-        }
+        await unlockOrientation();
       } else {
         // Default: restore to portrait
         await lockToPortrait();
-        if (enableLogging) {
-          console.log('[useOrientation] Fullscreen exit - Restored to portrait (default)');
-        }
       }
     } catch (error) {
-      if (enableLogging) {
-        console.error('[useOrientation] Failed to handle fullscreen exit:', error);
-      }
+      console.error('[useOrientation] Failed to handle fullscreen exit:', error);
     }
-  }, [
-    orientationLocked,
-    platformCapabilities.canControlOrientation,
-    deviceType,
-    lockToPortrait,
-    unlockOrientation,
-    enableLogging,
-  ]);
+  }, [orientationLocked, platformCapabilities.canControlOrientation, deviceType, lockToPortrait, unlockOrientation]);
 
   // Cleanup effect
   useEffect(() => {
@@ -372,13 +314,11 @@ export const useOrientation = (
       // Clean up orientation lock when component unmounts
       if (orientationLocked && platformCapabilities.canControlOrientation) {
         handleExitFullscreen().catch((error) => {
-          if (enableLogging) {
-            console.warn('[useOrientation] Cleanup failed:', error);
-          }
+          console.warn('[useOrientation] Cleanup failed:', error);
         });
       }
     };
-  }, [orientationLocked, platformCapabilities.canControlOrientation, handleExitFullscreen, enableLogging]);
+  }, [orientationLocked, platformCapabilities.canControlOrientation, handleExitFullscreen]);
 
   return {
     // Device and platform information

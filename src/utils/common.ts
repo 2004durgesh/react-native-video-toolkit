@@ -1,3 +1,5 @@
+import type { AudioTrack, VideoTrack, TextTrack } from 'react-native-video';
+
 export const combineHandlers =
   <T extends (...args: any[]) => void>(...handlers: (T | undefined)[]) =>
   (...args: Parameters<T>) => {
@@ -8,22 +10,46 @@ export const combineHandlers =
     });
   };
 
-type Track = Record<string, any>;
+/**
+ * Deduplicates video tracks:
+ * - Groups by width, height, codecs.
+ * - Keeps the highest bitrate in each group.
+ */
+export function dedupeVideoTracks<T extends VideoTrack>(tracks: T[]): T[] {
+  const map = new Map<string, T>();
+
+  for (const track of tracks) {
+    const signature = `${track.width}|${track.height}|${track.codecs}`;
+    const existing = map.get(signature);
+
+    if (!existing || track.bitrate! > existing.bitrate!) {
+      map.set(signature, track);
+    }
+  }
+
+  return Array.from(map.values());
+}
 
 /**
- * Deduplicates a list of tracks based on specified unique keys.
- * Keeps the first occurrence and removes the rest.
+ * Deduplicates audio/text tracks:
+ * - Groups by language.
+ * - Keeps the first occurrence of each language.
+ * - Filters out tracks with null/undefined language.
  */
-export function dedupeTracks<T extends Track>(tracks: T[], keys: (keyof T)[]): T[] {
+export function dedupeLanguageTracks<T extends AudioTrack | TextTrack>(tracks: T[]): T[] {
   const seen = new Set<string>();
-  return tracks.filter((track) => {
-    const signature = keys.map((k) => String(track[k])).join('|');
-    if (seen.has(signature)) {
-      return false;
+  const result: T[] = [];
+
+  for (const track of tracks) {
+    if (!track.language) continue;
+
+    if (!seen.has(`${track.language}|${track.title}`)) {
+      seen.add(`${track.language}|${track.title}`);
+      result.push(track);
     }
-    seen.add(signature);
-    return true;
-  });
+  }
+
+  return result;
 }
 
 /**

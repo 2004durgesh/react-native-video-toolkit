@@ -8,6 +8,11 @@ sidebar_position: 1
 The `Menu` component provides a **settings/navigation system** for the video player.  
 It uses the [`BottomSheet`](../common/bottom-sheet.mdx) as the container and supports:
 
+- Nested sub-menus with smooth slide animations.
+- Radio groups, checkboxes, and interactive items.
+- Fully customizable headers and content areas.
+- Automatic integration with the player's theme.
+
 ---
 
 ## Usage
@@ -57,14 +62,23 @@ Wraps all menu components and manages the navigation stack.
 ### `Menu.Trigger`
 
 Button that opens the menu.
-:::info
 
-Internally uses [`SettingsButton`](../controls/advanced/settings-button.mdx).
+| Prop       | Type                  | Required | Description                           |
+| ---------- | --------------------- | -------- | ------------------------------------- |
+| `...props` | `SettingsButtonProps` | No       | Props passed to the `SettingsButton`. |
 
-:::
+---
 
-| Prop | Type | Default | Required | Description |
-| ---- | ---- | ------- | -------- | ----------- |
+### `Menu.Header`
+
+Header for the menu, with back/close buttons and a title.
+
+| Prop              | Type        | Default | Required | Description                                |
+| ----------------- | ----------- | ------- | -------- | ------------------------------------------ |
+| `title`           | `string`    | –       | No       | Title of the current view.                 |
+| `showBackButton`  | `boolean`   | `true`  | No       | Show the back button.                      |
+| `showCloseButton` | `boolean`   | `true`  | No       | Show the close button.                     |
+| `...props`        | `ViewProps` | –       | No       | Additional props for the header container. |
 
 ---
 
@@ -110,8 +124,9 @@ Basic clickable row. Can either close the menu or navigate to a sub-view.
 
 Non-interactive label for section headers.
 
-| Prop | Type | Default | Required | Description |
-| ---- | ---- | ------- | -------- | ----------- |
+| Prop       | Type        | Required | Description     |
+| ---------- | ----------- | -------- | --------------- |
+| `children` | `ReactNode` | Yes      | The label text. |
 
 ---
 
@@ -119,8 +134,9 @@ Non-interactive label for section headers.
 
 Divider line between items.
 
-| Prop | Type | Default | Required | Description |
-| ---- | ---- | ------- | -------- | ----------- |
+| Prop    | Type        | Required | Description                |
+| ------- | ----------- | -------- | -------------------------- |
+| `style` | `ViewStyle` | No       | Custom style for the line. |
 
 ---
 
@@ -128,8 +144,9 @@ Divider line between items.
 
 Simple wrapper for grouping related items.
 
-| Prop | Type | Default | Required | Description |
-| ---- | ---- | ------- | -------- | ----------- |
+| Prop       | Type        | Required | Description         |
+| ---------- | ----------- | -------- | ------------------- |
+| `children` | `ReactNode` | Yes      | The items to group. |
 
 ---
 
@@ -153,12 +170,6 @@ Selectable option inside a `RadioGroup`.
 | `value`    | `any`       |         | Yes      | The item's value. |
 | `children` | `ReactNode` |         | Yes      | Displayed text.   |
 
-:::tip
-
-Shows ✓ checkmark if selected.
-
-:::
-
 ---
 
 ### `Menu.CheckboxItem`
@@ -177,15 +188,25 @@ If `checked` is not provided, it manages its own state.
 ### `Menu.Close`
 
 Button that closes the menu manually.
-Defaults to rendering `"Close"` as the label.
 
-| Prop | Type | Default | Required | Description |
-| ---- | ---- | ------- | -------- | ----------- |
+| Prop       | Type             | Required | Description                      |
+| ---------- | ---------------- | -------- | -------------------------------- |
+| `...props` | `PressableProps` | No       | Props passed to the `Pressable`. |
+
+---
+
+### `Menu.Back`
+
+Button that navigates back in the menu stack.
+
+| Prop       | Type             | Required | Description                      |
+| ---------- | ---------------- | -------- | -------------------------------- |
+| `...props` | `PressableProps` | No       | Props passed to the `Pressable`. |
 
 ---
 
 ## Styling
 
 - Colors, background, and borders adapt automatically to `theme` from `useVideo()`.
-- Default item height: `48px`
-- Default text size: `16px`
+- Animations are handled by `react-native-reanimated`.
+- You can pass `style` and `textStyle` props to most components for customization.

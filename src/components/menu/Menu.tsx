@@ -9,25 +9,123 @@ import {
   type PressableProps,
   type ViewProps,
   type TextProps,
+  type StyleProp,
 } from 'react-native';
-import { BottomSheet, type BottomSheetProps } from '../common';
+import { BaseIconButton, BottomSheet, type BottomSheetProps } from '../common';
 import { useVideo } from '../../providers';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+  FadeIn,
+  FadeOut,
+  SlideInRight,
+  SlideOutLeft,
+  type AnimatedStyle,
+  type SharedValue,
+} from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
 import { SettingsButton, type SettingsButtonProps } from '../controls';
+import { ChevronLeft, X } from 'lucide-react-native';
 
 interface MenuContextType {
   closeSettings: () => void;
   openSettings: () => void;
   isSettingsMenuVisible: boolean;
-  navigationStack: string[]; // Array of view IDs (e.g., ['root', 'playback'])
+  navigationStack: string[];
   navigateTo: (viewId: string) => void;
+  goBack: () => void;
   currentView: string;
+}
+
+interface MenuRootProps {
+  children: ReactNode;
+  initialView?: string;
+}
+
+interface MenuContentProps extends Partial<BottomSheetProps> {
+  children: ReactNode;
+  sheetStyle?: StyleProp<ViewStyle>;
+  header?: (currentView: string) => ReactNode;
+}
+
+interface MenuSubContentProps {
+  viewId: string;
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+interface MenuItemProps extends PressableProps {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  value?: unknown;
+  autoClose?: boolean;
+  navigateTo?: string;
+}
+
+interface MenuLabelProps extends TextProps {
+  children: ReactNode;
+  style?: StyleProp<TextStyle>;
+}
+
+interface MenuSeparatorProps extends ViewProps {
+  style?: StyleProp<ViewStyle>;
+}
+
+interface MenuGroupProps extends ViewProps {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+interface MenuRadioGroupProps extends ViewProps {
+  children: ReactNode;
+  value: unknown;
+  onValueChange: (newValue: unknown) => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+interface MenuRadioItemProps extends PressableProps {
+  children: ReactNode;
+  value: unknown;
+  selectedValue?: unknown;
+  onSelect?: (newValue: unknown) => void;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+}
+
+interface MenuCheckboxItemProps extends PressableProps {
+  children: ReactNode;
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+}
+
+interface MenuCloseProps extends PressableProps {
+  children?: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+interface MenuBackProps extends PressableProps {
+  children?: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+interface MenuHeaderProps extends ViewProps {
+  children?: ReactNode;
+  title?: string;
+  showBackButton?: boolean;
+  showCloseButton?: boolean;
+  style?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
 }
 
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 export const MenuProvider = MenuContext.Provider;
-const useMenuContext = () => {
+
+const useMenuContext = (): MenuContextType => {
   const context = useContext(MenuContext);
   if (!context) {
     throw new Error('Menu components must be used within a Menu.Root');
@@ -35,28 +133,55 @@ const useMenuContext = () => {
   return context;
 };
 
+// Animated components
+const AnimatedView = Animated.createAnimatedComponent(View);
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+// Custom hook for slide animations
+const useSlideAnimation = (
+  isVisible: boolean,
+  direction: 'left' | 'right' = 'right'
+): {
+  animatedStyle: AnimatedStyle<ViewStyle>;
+  opacity: SharedValue<number>;
+} => {
+  const translateX = useSharedValue(direction === 'right' ? 300 : -300);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (isVisible) {
+      translateX.value = withTiming(0, {
+        duration: 300,
+      });
+      opacity.value = withTiming(1, { duration: 250 });
+    } else {
+      translateX.value = withTiming(direction === 'right' ? 300 : -300, { duration: 200 });
+      opacity.value = withTiming(0, { duration: 200 });
+    }
+  }, [isVisible, translateX, opacity, direction]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+    opacity: opacity.value,
+  }));
+
+  return { animatedStyle, opacity };
+};
+
 export const Menu = {
   /**
    * Root component with navigation stack for sub-menus.
    */
-  /**
-   * Root component with navigation stack for sub-menus.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The child components to render within the menu.
-   * @param {string} [props.initialView='root'] - The initial view ID to display when the menu opens.
-   * @returns {React.ReactElement} The root menu component.
-   */
-  Root: ({ children, initialView = 'root' }: { children: ReactNode; initialView?: string }): React.ReactElement => {
+  Root: ({ children, initialView = 'root' }: MenuRootProps): React.ReactElement => {
     const { openSettings, closeSettings, isSettingsMenuVisible } = useSettings();
     const [navigationStack, setNavigationStack] = useState<string[]>([initialView]);
-    const currentView = navigationStack[navigationStack.length - 1]!;
+    const currentView = navigationStack[navigationStack.length - 1] || initialView;
 
-    const navigateTo = (viewId: string) => {
+    const navigateTo = (viewId: string): void => {
       setNavigationStack((prev) => [...prev, viewId]);
     };
 
-    const goBack = () => {
+    const goBack = (): void => {
       if (navigationStack.length > 1) {
         setNavigationStack((prev) => prev.slice(0, -1));
       } else {
@@ -78,6 +203,7 @@ export const Menu = {
           isSettingsMenuVisible,
           navigationStack,
           navigateTo,
+          goBack,
           currentView,
         }}>
         {children}
@@ -87,48 +213,59 @@ export const Menu = {
 
   /**
    * Trigger to open the menu.
-   * @note handles its own press events internally.
-   *
-   * @param {SettingsButtonProps} props - The props for the component.
-   * @returns {React.ReactElement} The menu trigger component.
    */
-  Trigger: ({ ...props }: SettingsButtonProps): React.ReactElement => {
+  Trigger: (props: SettingsButtonProps): React.ReactElement => {
     return <SettingsButton {...props} />;
   },
 
   /**
-   * Content wrapper for the BottomSheet. Renders children based on current view.
-   * Supports fade animation on view change.
+   * Header component for menu navigation and titles.
    */
-  /**
-   * Content wrapper for the BottomSheet. Renders children based on current view.
-   * Supports fade animation on view change.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The content to be rendered inside the menu content.
-   * @param {ViewStyle} [props.sheetStyle] - Optional style for the sheet container.
-   * @param {(currentView: string) => ReactNode} [props.header] - Optional custom header renderer function.
-   * @returns {React.ReactElement} The menu content component.
-   */
-  Content: ({
+  Header: ({
     children,
-    sheetStyle,
-    header,
+    title,
+    showBackButton = true,
+    showCloseButton = true,
+    style,
+    titleStyle,
     ...props
-  }: {
-    children: ReactNode;
-    sheetStyle?: ViewStyle;
-    header?: (currentView: string) => ReactNode; // Optional custom header
-  } & Partial<BottomSheetProps>): React.ReactElement => {
-    const { isSettingsMenuVisible, closeSettings, currentView, navigationStack } = useMenuContext();
-    const menuContext = useMenuContext(); // Capture the full context value here
+  }: MenuHeaderProps): React.ReactElement => {
+    const { currentView, goBack, navigationStack } = useMenuContext();
+    const { state } = useVideo();
+    const { theme } = state;
+
+    const displayTitle = title || (currentView === 'root' ? 'Settings' : currentView);
+    const shouldShowBackButton = showBackButton && (navigationStack.length > 1 || currentView !== 'root');
+
+    return (
+      <AnimatedView
+        style={[styles.header, { borderBottomColor: theme.colors.border || '#ccc' }, style]}
+        entering={SlideInRight.duration(300)}
+        {...props}>
+        {shouldShowBackButton && <Menu.Back />}
+        {children || <Text style={[styles.headerTitle, { color: theme.colors.text }, titleStyle]}>{displayTitle}</Text>}
+        {showCloseButton && <Menu.Close />}
+      </AnimatedView>
+    );
+  },
+
+  /**
+   * Content wrapper for the BottomSheet with enhanced animations.
+   */
+  Content: ({ children, sheetStyle, header, ...props }: MenuContentProps): React.ReactElement => {
+    const { isSettingsMenuVisible, closeSettings, currentView } = useMenuContext();
+    const menuContext = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
     const opacity = useSharedValue(0);
 
     useEffect(() => {
-      opacity.value = withTiming(1, { duration: 200 });
-    }, [currentView, opacity]);
+      if (isSettingsMenuVisible) {
+        opacity.value = withTiming(1, { duration: 300 });
+      } else {
+        opacity.value = withTiming(0, { duration: 200 });
+      }
+    }, [currentView, opacity, isSettingsMenuVisible]);
 
     const animatedStyle = useAnimatedStyle(() => ({
       opacity: opacity.value,
@@ -136,106 +273,100 @@ export const Menu = {
 
     return (
       <BottomSheet visible={isSettingsMenuVisible} onClose={closeSettings} {...props}>
-        <View style={[styles.content, { backgroundColor: theme.colors.background }, sheetStyle]}>
+        <AnimatedView
+          style={[styles.content, { backgroundColor: theme.colors.background }, sheetStyle]}
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(200)}>
           <MenuProvider value={menuContext}>
-            {/* Re-provide the captured context */}
-            {header ? (
-              header(currentView)
-            ) : (
-              <View style={styles.header}>
-                <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
-                  {currentView === 'root' ? 'Settings' : currentView}
-                </Text>
-              </View>
-            )}
-            <Animated.View style={[styles.contentBody, animatedStyle]}>{children}</Animated.View>
+            {header ? header(currentView) : <Menu.Header />}
+            <AnimatedView style={[styles.contentBody, animatedStyle]}>{children}</AnimatedView>
           </MenuProvider>
-        </View>
+        </AnimatedView>
       </BottomSheet>
     );
   },
 
   /**
-   * SubContent: Conditionally renders content for a specific view ID.
-   * Use multiple of these inside Content for different sub-menus.
+   * SubContent: Conditionally renders content for a specific view ID with slide animation.
    */
-  /**
-   * SubContent: Conditionally renders content for a specific view ID.
-   * Use multiple of these inside Content for different sub-menus.
-   *
-   * @param {object} props - The props for the component.
-   * @param {string} props.viewId - The ID of the view this sub-content belongs to.
-   * @param {ReactNode} props.children - The content to be rendered inside the sub-content.
-   * @param {ViewStyle} [props.style] - Optional style for the sub-content container.
-   * @returns {React.ReactElement | null} The menu sub-content component or null if not the current view.
-   */
-  SubContent: ({
-    viewId,
-    children,
-    style,
-  }: {
-    viewId: string;
-    children: ReactNode;
-    style?: ViewStyle;
-  }): React.ReactElement | null => {
-    const { currentView } = useMenuContext();
-    if (currentView !== viewId) return null;
-    return <View style={[styles.subContent, style]}>{children}</View>;
+  SubContent: ({ viewId, children, style }: MenuSubContentProps): React.ReactElement | null => {
+    const { currentView, navigationStack } = useMenuContext();
+    const isVisible = currentView === viewId;
+    const wasNavigatedTo = navigationStack.length > 1 && currentView === viewId;
+
+    const { animatedStyle } = useSlideAnimation(isVisible, wasNavigatedTo ? 'right' : 'left');
+
+    if (!isVisible) return null;
+
+    return (
+      <AnimatedView
+        style={[styles.subContent, style, animatedStyle]}
+        entering={SlideInRight.duration(300)}
+        exiting={SlideOutLeft.duration(200)}>
+        {children}
+      </AnimatedView>
+    );
   },
 
   /**
-   * Item: Now supports navigating to sub-views if `navigateTo` prop is provided.
-   */
-  /**
-   * Item: Now supports navigating to sub-views if `navigateTo` prop is provided.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The content to be rendered inside the menu item.
-   * @param {(value?: any) => void} [props.onPress] - Callback function invoked when the item is pressed.
-   * @param {boolean} [props.disabled=false] - If true, the item is not pressable.
-   * @param {ViewStyle} [props.style] - Optional style for the item container.
-   * @param {TextStyle} [props.textStyle] - Optional style for the item text.
-   * @param {any} [props.value] - An optional value associated with the item, passed to `onPress`.
-   * @param {boolean} [props.autoClose=true] - If true, the menu will close after pressing the item (unless `navigateTo` is set).
-   * @param {string} [props.navigateTo] - The view ID to navigate to on press, if provided.
-   * @returns {React.ReactElement} The menu item component.
+   * Item: Enhanced with spring animation on press.
    */
   Item: ({
     children,
     onPress,
-    disabled = false,
     style,
     textStyle,
     value,
     autoClose = true,
     navigateTo: navTo,
     ...props
-  }: {
-    children: ReactNode;
-    onPress?: (value?: any) => void;
-    disabled?: boolean;
-    style?: ViewStyle;
-    textStyle?: TextStyle;
-    value?: any;
-    autoClose?: boolean;
-    navigateTo?: string; // View ID to navigate to on press
-  } & PressableProps): React.ReactElement => {
+  }: MenuItemProps): React.ReactElement => {
     const { closeSettings, navigateTo: ctxNavigate } = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
+    const scale = useSharedValue(1);
 
-    const handlePress = () => {
-      if (disabled) return;
-      onPress?.(value);
+    const handlePressIn = (): void => {
+      scale.value = withTiming(0.95, {
+        duration: 100,
+      });
+    };
+
+    const handlePressOut = (): void => {
+      scale.value = withTiming(1, {
+        duration: 100,
+      });
+    };
+
+    const handlePress = (): void => {
+      scale.value = withTiming(
+        1.02,
+        {
+          duration: 50,
+        },
+        () => {
+          scale.value = withTiming(1, {
+            duration: 100,
+          });
+        }
+      );
+
+      if (onPress) {
+        // @ts-ignore
+        runOnJS(onPress)(value);
+      }
       if (navTo) {
-        ctxNavigate(navTo);
+        runOnJS(ctxNavigate)(navTo);
       } else if (autoClose) {
-        closeSettings();
+        runOnJS(closeSettings)();
       }
     };
 
-    // Helper function to render children safely
-    const renderChildren = () => {
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+    }));
+
+    const renderChildren = (): ReactNode => {
       if (typeof children === 'string') {
         return <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>;
       }
@@ -243,141 +374,83 @@ export const Menu = {
     };
 
     return (
-      <Pressable
+      <AnimatedPressable
         onPress={handlePress}
-        style={[styles.item, { backgroundColor: theme.colors.background, opacity: disabled ? 0.5 : 1 }, style]}
-        disabled={disabled}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[styles.item, { backgroundColor: theme.colors.background }, style, animatedStyle]}
+        entering={FadeIn.delay(100).duration(200)}
         {...props}>
         {renderChildren()}
-      </Pressable>
+      </AnimatedPressable>
     );
   },
 
   /**
-   * Label component for section headers in the menu.
+   * Label component for section headers.
    */
-  /**
-   * Label component for section headers in the menu.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The content to be rendered inside the label.
-   * @param {TextStyle} [props.style] - Optional style for the label text.
-   * @returns {React.ReactElement} The menu label component.
-   */
-  Label: ({
-    children,
-    style,
-    ...props
-  }: { children: ReactNode; style?: TextStyle } & TextProps): React.ReactElement => {
+  Label: ({ children, style, ...props }: MenuLabelProps): React.ReactElement => {
     const { state } = useVideo();
     const { theme } = state;
 
     return (
-      <Text style={[styles.label, { color: theme.colors.text }, style]} {...props}>
+      <Animated.Text
+        style={[styles.label, { color: theme.colors.text }, style]}
+        entering={FadeIn.delay(150).duration(250)}
+        {...props}>
         {children}
-      </Text>
+      </Animated.Text>
     );
   },
 
   /**
-   * Separator component for dividing menu sections.
+   * Separator component with fade animation.
    */
-  /**
-   * Separator component for dividing menu sections.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ViewStyle} [props.style] - Optional style for the separator.
-   * @returns {React.ReactElement} The menu separator component.
-   */
-  Separator: ({ style, ...props }: { style?: ViewStyle } & ViewProps): React.ReactElement => {
+  Separator: ({ style, ...props }: MenuSeparatorProps): React.ReactElement => {
     const { state } = useVideo();
     const { theme } = state;
 
-    return <View style={[styles.separator, { backgroundColor: theme.colors.border || '#ccc' }, style]} {...props} />;
+    return (
+      <AnimatedView
+        style={[styles.separator, { backgroundColor: theme.colors.border || '#ccc' }, style]}
+        entering={FadeIn.delay(100).duration(200)}
+        {...props}
+      />
+    );
   },
 
   /**
-   * Group component for grouping related items (e.g., radio groups).
-   * This is a simple wrapper; for radio behavior, use RadioGroup below.
+   * Group component with staggered children animation.
    */
-  /**
-   * Group component for grouping related items (e.g., radio groups).
-   * This is a simple wrapper; for radio behavior, use RadioGroup below.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The content to be rendered inside the group.
-   * @param {ViewStyle} [props.style] - Optional style for the group container.
-   * @returns {React.ReactElement} The menu group component.
-   */
-  Group: ({
-    children,
-    style,
-    ...props
-  }: { children: ReactNode; style?: ViewStyle } & ViewProps): React.ReactElement => {
+  Group: ({ children, style, ...props }: MenuGroupProps): React.ReactElement => {
     return (
-      <View style={[styles.group, style]} {...props}>
+      <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
         {children}
-      </View>
+      </AnimatedView>
     );
   },
 
   /**
    * RadioGroup component for managing radio selection states.
-   * Use with RadioItem for selectable options like playback speeds.
    */
-  /**
-   * RadioGroup component for managing radio selection states.
-   * Use with RadioItem for selectable options like playback speeds.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The RadioItem components to render within the group.
-   * @param {any} props.value - The currently selected value in the radio group.
-   * @param {(newValue: any) => void} props.onValueChange - Callback function invoked when the selected value changes.
-   * @param {ViewStyle} [props.style] - Optional style for the radio group container.
-   * @returns {React.ReactElement} The menu radio group component.
-   */
-  RadioGroup: ({
-    children,
-    value,
-    onValueChange,
-    style,
-    ...props
-  }: {
-    children: ReactNode;
-    value: any;
-    onValueChange: (newValue: any) => void;
-    style?: ViewStyle;
-  } & ViewProps): React.ReactElement => {
+  RadioGroup: ({ children, value, onValueChange, style, ...props }: MenuRadioGroupProps): React.ReactElement => {
     return (
-      <View style={[styles.group, style]} {...props}>
-        {React.Children.map(children, (child) =>
-          React.isValidElement(child)
-            ? React.cloneElement(child as React.ReactElement<{ selectedValue?: any; onSelect?: (v: any) => void }>, {
-                selectedValue: value,
-                onSelect: onValueChange,
-              })
-            : child
-        )}
-      </View>
+      <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child as React.ReactElement<MenuRadioItemProps>, {
+              selectedValue: value,
+              onSelect: onValueChange,
+            });
+          }
+          return child;
+        })}
+      </AnimatedView>
     );
   },
 
   /**
-   * RadioItem component for use within RadioGroup.
-   * Displays a check or indicator when selected.
-   */
-  /**
-   * RadioItem component for use within RadioGroup.
-   * Displays a check or indicator when selected.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The content to be rendered inside the radio item.
-   * @param {any} props.value - The value of this radio item.
-   * @param {any} [props.selectedValue] - The currently selected value from the parent RadioGroup.
-   * @param {(newValue: any) => void} [props.onSelect] - Callback function invoked when this item is selected.
-   * @param {ViewStyle} [props.style] - Optional style for the radio item container.
-   * @param {TextStyle} [props.textStyle] - Optional style for the radio item text.
-   * @returns {React.ReactElement} The menu radio item component.
+   * RadioItem component with selection animation.
    */
   RadioItem: ({
     children,
@@ -387,48 +460,42 @@ export const Menu = {
     style,
     textStyle,
     ...props
-  }: {
-    children: ReactNode;
-    value: any;
-    selectedValue?: any;
-    onSelect?: (newValue: any) => void;
-    style?: ViewStyle;
-    textStyle?: TextStyle;
-  } & PressableProps): React.ReactElement => {
+  }: MenuRadioItemProps): React.ReactElement => {
     const isSelected = value === selectedValue;
     const { state } = useVideo();
     const { theme } = state;
+    const indicatorScale = useSharedValue(isSelected ? 1 : 0);
 
-    const handlePress = () => {
-      onSelect?.(value);
+    useEffect(() => {
+      indicatorScale.value = withTiming(isSelected ? 1 : 0, {
+        duration: 200,
+      });
+    }, [isSelected, indicatorScale]);
+
+    const indicatorAnimatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: indicatorScale.value }],
+    }));
+
+    const handlePress = (): void => {
+      if (onSelect) {
+        onSelect(value);
+      }
     };
 
     return (
-      // @ts-ignore
       <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} {...props}>
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
-          {isSelected && <Text style={[styles.radioIndicator, { color: theme.colors.primary }]}>✓</Text>}
+          <AnimatedView style={indicatorAnimatedStyle}>
+            <Text style={[styles.radioIndicator, { color: theme.colors.primary }]}>{isSelected ? '✓' : ' '}</Text>
+          </AnimatedView>
         </View>
       </Menu.Item>
     );
   },
 
   /**
-   * CheckboxItem component for toggleable options.
-   * Manages its own checked state unless controlled.
-   */
-  /**
-   * CheckboxItem component for toggleable options.
-   * Manages its own checked state unless controlled.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} props.children - The content to be rendered inside the checkbox item.
-   * @param {boolean} [props.checked] - Controls the checked state of the checkbox (controlled component).
-   * @param {(checked: boolean) => void} [props.onCheckedChange] - Callback function invoked when the checked state changes.
-   * @param {ViewStyle} [props.style] - Optional style for the checkbox item container.
-   * @param {TextStyle} [props.textStyle] - Optional style for the checkbox item text.
-   * @returns {React.ReactElement} The menu checkbox item component.
+   * CheckboxItem component with toggle animation.
    */
   CheckboxItem: ({
     children,
@@ -437,30 +504,38 @@ export const Menu = {
     style,
     textStyle,
     ...props
-  }: {
-    children: ReactNode;
-    checked?: boolean;
-    onCheckedChange?: (checked: boolean) => void;
-    style?: ViewStyle;
-    textStyle?: TextStyle;
-  } & PressableProps): React.ReactElement => {
+  }: MenuCheckboxItemProps): React.ReactElement => {
     const [internalChecked, setInternalChecked] = useState(checked ?? false);
     const isChecked = checked !== undefined ? checked : internalChecked;
     const { state } = useVideo();
     const { theme } = state;
+    const checkScale = useSharedValue(isChecked ? 1 : 0);
 
-    const handlePress = () => {
+    useEffect(() => {
+      checkScale.value = withTiming(isChecked ? 1 : 0, {
+        duration: 150,
+      });
+    }, [isChecked, checkScale]);
+
+    const checkAnimatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: checkScale.value }],
+    }));
+
+    const handlePress = (): void => {
       const newChecked = !isChecked;
       setInternalChecked(newChecked);
-      onCheckedChange?.(newChecked);
+      if (onCheckedChange) {
+        onCheckedChange(newChecked);
+      }
     };
 
     return (
-      // @ts-ignore
       <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} {...props}>
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
-          <Text style={[styles.radioIndicator, { color: theme.colors.primary }]}>{isChecked ? '✓' : ' '}</Text>
+          <AnimatedView style={checkAnimatedStyle}>
+            <Text style={[styles.radioIndicator, { color: theme.colors.primary }]}>{isChecked ? '✓' : ' '}</Text>
+          </AnimatedView>
         </View>
       </Menu.Item>
     );
@@ -469,26 +544,33 @@ export const Menu = {
   /**
    * Close component: a button to manually close the menu.
    */
-  /**
-   * Close component: a button to manually close the menu.
-   *
-   * @param {object} props - The props for the component.
-   * @param {ReactNode} [props.children='Close'] - The content to be rendered inside the close button.
-   * @param {ViewStyle} [props.style] - Optional style for the close button container.
-   * @returns {React.ReactElement} The menu close button component.
-   */
-  Close: ({
-    children = 'Close',
-    style,
-    ...props
-  }: { children?: ReactNode; style?: ViewStyle } & PressableProps): React.ReactElement => {
+  Close: ({ children, style, ...props }: MenuCloseProps): React.ReactElement => {
     const { closeSettings } = useMenuContext();
 
     return (
-      // @ts-ignore
-      <Menu.Item onPress={closeSettings} style={style} {...props}>
-        {children}
-      </Menu.Item>
+      <>
+        {children || <BaseIconButton onPress={closeSettings} {...props} IconComponent={X} style={style} {...props} />}
+      </>
+    );
+  },
+  /**
+   * Back component: a button to go back in the navigation stack.
+   */
+  Back: ({ children, style, ...props }: MenuBackProps): React.ReactElement => {
+    const { goBack, navigationStack } = useMenuContext();
+    const canGoBack = navigationStack.length > 1;
+    return (
+      <>
+        {children || (
+          <BaseIconButton
+            onPress={() => goBack()}
+            style={style}
+            disabled={!canGoBack}
+            {...props}
+            IconComponent={ChevronLeft}
+          />
+        )}
+      </>
     );
   },
 };
@@ -503,7 +585,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 0, // Padding already in BottomSheet
+    padding: 0,
   },
   item: {
     paddingVertical: 12,
@@ -538,16 +620,19 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
-    textAlign: 'center',
+    textTransform: 'capitalize',
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
   contentBody: {
     flex: 1,

@@ -11,7 +11,7 @@ import { Dimensions, Platform, View, type StyleProp, type ViewStyle } from 'reac
 import type { VideoSource } from '../../types';
 import { useVideo } from '../../providers';
 import { usePlayback, useVolume, useProgress, useBuffering, useControlsVisibility, useSettings } from '../../hooks';
-import { combineHandlers, dedupeTracks } from '../../utils';
+import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks } from '../../utils';
 
 /**
  * Props for the VideoSurface component.
@@ -44,7 +44,17 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   const { setBuffering } = useBuffering();
   const { showControls } = useControlsVisibility();
   const { playbackRate } = state;
-  const { videoTrack, audioTrack, textTrack, getVideoTracks, getAudioTracks, getTextTracks } = useSettings();
+  const {
+    videoTrack,
+    audioTrack,
+    textTrack,
+    getVideoTracks,
+    getAudioTracks,
+    getTextTracks,
+    setAudioTrack,
+    setTextTrack,
+    setVideoTrack,
+  } = useSettings();
 
   // Set the ref in the store once it's created
   useEffect(() => {
@@ -75,9 +85,25 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   const handleLoad = (data: OnLoadData) => {
     setDuration(data.duration);
     setBuffering(false);
-    getAudioTracks(dedupeTracks(data.audioTracks, ['language', 'title', 'type']));
-    getTextTracks(dedupeTracks(data.textTracks, ['language', 'title', 'type']));
-    getVideoTracks(dedupeTracks(data.videoTracks, ['width', 'height', 'bitrate', 'codecs']));
+    const dedupedAudioTracks = dedupeLanguageTracks(data.audioTracks);
+    const dedupedTextTracks = dedupeLanguageTracks(data.textTracks);
+    const dedupedVideoTracks = dedupeVideoTracks(data.videoTracks);
+    getAudioTracks(dedupedAudioTracks);
+    getTextTracks(dedupedTextTracks);
+    getVideoTracks(dedupedVideoTracks);
+    // Select the first track by default if none is selected
+    if (!audioTrack && dedupedAudioTracks.length > 0) {
+      setAudioTrack(dedupedAudioTracks[0]!);
+    }
+    // Select the first track by default if none is selected
+    if (!textTrack && dedupedTextTracks.length > 0) {
+      setTextTrack(dedupedTextTracks[0]!);
+    }
+    // Select the track that matches the natural size, or the first one if none match
+    if (!videoTrack && dedupedVideoTracks.length > 0) {
+      const naturalSizeIndex = dedupedVideoTracks.findIndex((t) => t.height === data.naturalSize.height);
+      setVideoTrack(dedupedVideoTracks[naturalSizeIndex !== -1 ? naturalSizeIndex : 0]!);
+    }
   };
   const handleProgress = (data: any) => {
     setCurrentTime(data.currentTime);
@@ -97,7 +123,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   const isFullscreen = state.fullscreen;
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      width: isFullscreen ? state.dimensions.width : '100%',
+      width: isFullscreen ? state.dimensions.width : state.dimensions.width,
       height: isFullscreen ? state.dimensions.height : undefined,
       aspectRatio: isFullscreen ? undefined : 16 / 9,
       backgroundColor: 'black',
@@ -121,7 +147,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
         volume={muted ? 0 : volume}
         rate={playbackRate}
         selectedVideoTrack={{ type: SelectedVideoTrackType.RESOLUTION, value: videoTrack?.height }}
-        selectedAudioTrack={{ type: SelectedTrackType.LANGUAGE, value: audioTrack?.language }}
+        selectedAudioTrack={{ type: SelectedTrackType.INDEX, value: audioTrack?.index }}
         selectedTextTrack={{ type: SelectedTrackType.INDEX, value: textTrack?.index }}
         onLoad={combineHandlers(handleLoad, userOnLoad)}
         onProgress={combineHandlers(handleProgress, userOnProgress)}

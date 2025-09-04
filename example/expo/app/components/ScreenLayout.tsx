@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Button } from 'react-native';
-import { VideoPlayer, VideoProvider, useFullscreen, type VideoSource } from '../../../../src';
+import {
+  VideoPlayer,
+  VideoProvider,
+  useFullscreen,
+  type VideoSource,
+  useSettings,
+  useSettingsContext,
+} from '../../../../src';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -71,7 +78,8 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
     { type: 'asset-vertical', uri: require('../../assets/vertical.mp4') },
   ];
   const { fullscreen } = useFullscreen();
-  const [uri, setUri] = useState<string>(samples[3]?.uri!);
+  const { state } = useSettingsContext();
+  const [uri, setUri] = useState<string>(samples[1]?.uri!);
   const videoSource: VideoSource = {
     uri,
     textTracks: [
@@ -97,19 +105,20 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
           onLoadStart(e) {
             console.log('Video Load Started!', e);
           },
-          onVideoTracks(e) {
-            console.log('video tracks changed', e);
-          },
-          onTextTracks(e) {
-            console.log('text tracks changed', e);
-          },
-          onAudioTracks(e) {
-            console.log('audio tracks changed', e);
-          },
+          // onVideoTracks(e) {
+          //   console.log('video tracks changed', e);
+          // },
+          // onTextTracks(e) {
+          //   console.log('text tracks changed', e);
+          // },
+          // onAudioTracks(e) {
+          //   console.log('audio tracks changed', e);
+          // },
         }}>
         {layout}
       </VideoPlayer>
       {!fullscreen && <SampleSelector samples={samples} currentUri={uri} onSelect={setUri} />}
+      <Button title="settings state" onPress={() => console.log(state)} />
     </>
   );
 };

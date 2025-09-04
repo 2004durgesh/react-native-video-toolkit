@@ -1,9 +1,9 @@
 import React from 'react';
-import { type TouchableWithoutFeedbackProps, View } from 'react-native';
+import { type PressableProps, View } from 'react-native';
 import { useVideo } from '../../providers';
 import Ripple from 'react-native-material-ripple';
 
-interface BaseIconButtonProps extends TouchableWithoutFeedbackProps {
+interface BaseIconButtonProps extends PressableProps {
   IconComponent: React.ElementType;
   size?: number;
   color?: string;

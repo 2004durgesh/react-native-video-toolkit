@@ -44,7 +44,7 @@ All props from [`react-native-video`](https://github.com/react-native-video/reac
 
 These events are **already handled internally** and connected to the global store:
 
-- **`onLoad`** → sets duration + clears buffering
+- **`onLoad`** → sets duration, clears buffering, deduplicates tracks, and selects the first available track by default.
 - **`onProgress`** → updates current time
 - **`onBuffer`** → updates buffering state
 - **`onError`** → dispatches an error message into state

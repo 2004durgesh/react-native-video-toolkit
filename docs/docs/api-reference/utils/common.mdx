@@ -49,54 +49,65 @@ const onClick2 = () => console.log('click2');
 const handleClick = combineHandlers(onClick1, onClick2);
 ```
 
-## `dedupeTracks`
+## `dedupeVideoTracks`
 
-A utility function that removes duplicate tracks from an array of tracks.
+Deduplicates video tracks by grouping them by `width`, `height`, and `codecs`, keeping only the track with the highest `bitrate` in each group.
 
 ### Usage
 
 ```tsx
-import { dedupeTracks } from 'react-native-video-toolkit';
+import { dedupeVideoTracks } from 'react-native-video-toolkit';
 
-const tracks = [
-  { language: 'en', title: 'English' },
-  { language: 'en', title: 'English' },
-  { language: 'fr', title: 'French' },
+const videoTracks = [
+  { width: 1280, height: 720, codecs: 'avc1.4d401f', bitrate: 2000000 },
+  { width: 1280, height: 720, codecs: 'avc1.4d401f', bitrate: 1500000 },
+  { width: 1920, height: 1080, codecs: 'avc1.640028', bitrate: 5000000 },
 ];
 
-const dedupedTracks = dedupeTracks(tracks, ['language', 'title']);
+const dedupedTracks = dedupeVideoTracks(videoTracks);
 ```
 
 ### Parameters
 
-| Parameter | Type       | Required | Default | Description                           |
-| --------- | ---------- | -------- | ------- | ------------------------------------- |
-| `tracks`  | `any[]`    | Yes      | –       | The array of tracks to dedupe.        |
-| `keys`    | `string[]` | Yes      | –       | The keys to use for comparing tracks. |
+| Parameter | Type      | Required | Description                |
+| --------- | --------- | -------- | -------------------------- |
+| `tracks`  | `Track[]` | Yes      | The array of video tracks. |
 
 ### Returns
 
-| Type    | Description                  |
-| ------- | ---------------------------- |
-| `any[]` | The array of deduped tracks. |
+| Type      | Description                                 |
+| --------- | ------------------------------------------- |
+| `Track[]` | An array of unique, highest-bitrate tracks. |
 
-### Example
+## `dedupeLanguageTracks`
+
+Deduplicates audio or text tracks by `language` and `title`, removing duplicates and filtering out tracks with an undefined language.
+
+### Usage
 
 ```tsx
-import { dedupeTracks } from 'react-native-video-toolkit';
+import { dedupeLanguageTracks } from 'react-native-video-toolkit';
 
-const tracks = [
-  { language: 'en', title: 'English' },
-  { language: 'en', title: 'English' },
-  { language: 'fr', title: 'French' },
+const audioTracks = [
+  { language: 'en', title: 'English Stereo' },
+  { language: 'en', title: 'English 5.1' },
+  { language: 'fr', title: 'Français' },
 ];
 
-const dedupedTracks = dedupeTracks(tracks, ['language', 'title']);
-// dedupedTracks will be [
-//   { language: 'en', title: 'English' },
-//   { language: 'fr', title: 'French' },
-// ]
+const dedupedTracks = dedupeLanguageTracks(audioTracks);
 ```
+
+### Parameters
+
+| Parameter | Type      | Required | Description                        |
+| --------- | --------- | -------- | ---------------------------------- |
+| `tracks`  | `Track[]` | Yes      | The array of audio or text tracks. |
+
+### Returns
+
+| Type      | Description                                       |
+| --------- | ------------------------------------------------- |
+| `Track[]` | An array of unique tracks, one for each language. |
 
 ## `hexToRgba`
 
