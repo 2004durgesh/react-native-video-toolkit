@@ -2,4 +2,20 @@
 
 set -e
 
-yarn typecheck && yarn prettier --write . && yarn lint --fix . && git add .
+# Ensure README.md is restored if script exits
+trap 'test -f README.mdx && mv README.mdx README.md' EXIT
+
+yarn prepare
+yarn typecheck
+
+# rename README.md to README.mdx before formatting
+mv README.md README.mdx
+
+yarn prettier --write .
+
+# rename back to README.md after formatting
+mv README.mdx README.md
+
+yarn lint --fix .
+
+git add .
