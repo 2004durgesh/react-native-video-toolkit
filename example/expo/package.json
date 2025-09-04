@@ -11,7 +11,9 @@
     "web": "expo start --web",
     "web:export": "expo export -p web",
     "prebuild": "EXPO_TV=0 expo prebuild",
-    "prebuild:tv": "EXPO_TV=1 expo prebuild"
+    "prebuild:tv": "EXPO_TV=1 expo prebuild",
+    "build:android": "react-native build-android --extra-params \"--no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a\"",
+    "build:ios": "react-native build-ios --scheme VideotoolkitExample --mode Debug --extra-params \"-sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO\""
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",

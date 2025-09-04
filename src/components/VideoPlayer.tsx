@@ -6,7 +6,6 @@ import { VideoSurface } from './core';
 import type { ReactVideoProps } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideo } from '../providers';
-import { Menu } from './menu';
 import { TimeDisplay, LoadingSpinner } from './display';
 
 /**
@@ -108,7 +107,6 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
   MuteButton,
   LoadingSpinner,
   SettingsButton,
-  Menu,
 });
 
 const styles = StyleSheet.create({

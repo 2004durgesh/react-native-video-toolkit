@@ -103,13 +103,13 @@ jobs:
           path: |
             ~/.gradle/wrapper
             ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('example/bare/android/gradle/wrapper/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('example/expo/android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
       - name: Make Gradle wrapper executable
         if: env.turbo_cache_hit != 1
-        run: chmod +x example/bare/android/gradlew
+        run: chmod +x example/expo/android/gradlew
 
       - name: Build example for Android
         env:
@@ -151,14 +151,14 @@ jobs:
   #       with:
   #         path: |
   #           **/ios/Pods
-  #         key: ${{ runner.os }}-cocoapods-${{ hashFiles('example/bare/ios/Podfile.lock') }}
+  #         key: ${{ runner.os }}-cocoapods-${{ hashFiles('example/expo/ios/Podfile.lock') }}
   #         restore-keys: |
   #           ${{ runner.os }}-cocoapods-
 
   #     - name: Install cocoapods
   #       if: env.turbo_cache_hit != 1 && steps.cocoapods-cache.outputs.cache-hit != 'true'
   #       run: |
-  #         cd example/bare/ios
+  #         cd example/expo/ios
   #         pod install
   #       env:
   #         NO_FLIPPER: 1
