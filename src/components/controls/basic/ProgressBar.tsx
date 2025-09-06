@@ -56,6 +56,7 @@ export const ProgressBar = ({ height = 4, thumbWidth = 12, style }: ProgressBarP
           maximumTrackTintColor: trackBg,
           bubbleBackgroundColor: progressBg,
         }}
+        renderBubble={() => null}
         thumbWidth={thumbWidth}
         containerStyle={{
           height,

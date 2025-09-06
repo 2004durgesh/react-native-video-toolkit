@@ -2,7 +2,6 @@ import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useVolume } from '../../../hooks';
 import { Volume2, VolumeX } from 'lucide-react-native';
 import { BaseIconButton } from '../../../components/common/BaseIconButton';
-import { GestureDetector } from 'react-native-gesture-handler';
 
 export interface MuteButtonProps {
   size?: number;
@@ -25,20 +24,19 @@ export const MuteButton = ({
   renderMuteIcon,
   renderUnmuteIcon,
 }: MuteButtonProps): React.ReactElement => {
-  const { muted, toggleMute, muteTapGesture } = useVolume();
+  const { muted, toggleMute } = useVolume();
 
   const MuteIcon = renderMuteIcon || VolumeX;
   const UnmuteIcon = renderUnmuteIcon || Volume2;
 
   return (
-    <GestureDetector gesture={muteTapGesture}>
-      <BaseIconButton
-        IconComponent={muted ? MuteIcon : UnmuteIcon}
-        size={size}
-        color={color}
-        style={[styles.muteButton, style]}
-      />
-    </GestureDetector>
+    <BaseIconButton
+      IconComponent={muted ? MuteIcon : UnmuteIcon}
+      size={size}
+      color={color}
+      style={[styles.muteButton, style]}
+      onTap={toggleMute}
+    />
   );
 };
 

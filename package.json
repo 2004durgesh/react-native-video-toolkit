@@ -39,9 +39,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace react-native-video-toolkit-expo-example",
-    "example:expo": "yarn workspace react-native-video-toolkit-expo-example",
-    "example:bare": "yarn workspace react-native-video-toolkit-bare-example",
+    "example": "yarn workspace react-native-video-toolkit-example",
     "docs": "yarn workspace docs",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -117,16 +115,14 @@
     "react-native-video": ">=6.0.0"
   },
   "workspaces": [
-    "example/expo",
-    "example/bare",
+    "example/",
     "docs/"
   ],
   "packageManager": "yarn@3.6.1",
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
-      "<rootDir>/example/expo/node_modules",
-      "<rootDir>/example/bare/node_modules",
+      "<rootDir>/example/node_modules",
       "<rootDir>/docs/node_modules",
       "<rootDir>/lib/"
     ]

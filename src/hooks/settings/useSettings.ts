@@ -1,8 +1,6 @@
 import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
 import { useSettingsContext } from '../../providers';
-import { useCallback, useMemo } from 'react';
-import { Gesture } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import { useCallback } from 'react';
 
 /**
  * A hook for managing video settings like videoTrack, audio tracks, and texts.
@@ -105,18 +103,6 @@ export const useSettings = () => {
     [dispatch]
   );
 
-  const settingsTapGesture = useMemo(
-    () =>
-      Gesture.Tap()
-        .maxDuration(250)
-        .numberOfTaps(1)
-        .onEnd(() => {
-          'worklet';
-          runOnJS(toggleSettingsMenu)();
-        }),
-    [toggleSettingsMenu]
-  );
-
   return {
     videoTrack: state.videoTrack,
     videoTracks: state.videoTracks,
@@ -134,6 +120,5 @@ export const useSettings = () => {
     openSettings,
     closeSettings,
     toggleSettingsMenu,
-    settingsTapGesture,
   };
 };

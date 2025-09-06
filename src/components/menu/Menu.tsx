@@ -484,9 +484,7 @@ export const Menu = {
     const { closeSettings } = useMenuContext();
 
     return (
-      <>
-        {children || <BaseIconButton onPress={closeSettings} {...props} IconComponent={X} style={style} {...props} />}
-      </>
+      <>{children || <BaseIconButton onTap={closeSettings} {...props} IconComponent={X} style={style} {...props} />}</>
     );
   },
   /**
@@ -499,7 +497,7 @@ export const Menu = {
       <>
         {children || (
           <BaseIconButton
-            onPress={() => goBack()}
+            onTap={() => goBack()}
             style={style}
             disabled={!canGoBack}
             {...props}

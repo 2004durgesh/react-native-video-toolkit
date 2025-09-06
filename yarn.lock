@@ -3522,13 +3522,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/json-file@npm:^10.0.3":
-  version: 10.0.3
-  resolution: "@expo/json-file@npm:10.0.3"
+"@expo/json-file@npm:^10.0.6":
+  version: 10.0.6
+  resolution: "@expo/json-file@npm:10.0.6"
   dependencies:
     "@babel/code-frame": ~7.10.4
     json5: ^2.2.3
-  checksum: ccae65a818aa0f9b66365e1973269e4b9dbe00e6f152e413c8bd788f4437d8b17b74a04e1cbdaa60b73e8f7c5fc61b78a64184837a58047c2791913ec9a3ae47
+  checksum: 9fb9a2ddcb41384fd805bfdb823c592d9932bc5c8b93bd3ffa0831566892a1c3c480e26b6b114c6f96a971988895bf7b5bbcc6539c40668bdbe93fb84eb01124
   languageName: node
   linkType: hard
 
@@ -3579,26 +3579,26 @@ __metadata:
   linkType: hard
 
 "@expo/osascript@npm:^2.2.5":
-  version: 2.3.3
-  resolution: "@expo/osascript@npm:2.3.3"
+  version: 2.3.6
+  resolution: "@expo/osascript@npm:2.3.6"
   dependencies:
     "@expo/spawn-async": ^1.7.2
     exec-async: ^2.2.0
-  checksum: e6080611317aa09eb78219454b5bf087525af705686c317d5c7fd073fbbbba54fe910e8b527da5eaef3e3f486d68576ca49224bd4b55419b378933e2be41b2a7
+  checksum: ad187d5a669fb3ff183359370cf341fc60f41be4a5b95e79bbd90f618890a9bc1ae62ac0462d49786c916fd1429692013dd8bb3cb7b15f28d60922e1c669cd1d
   languageName: node
   linkType: hard
 
 "@expo/package-manager@npm:^1.8.6":
-  version: 1.9.3
-  resolution: "@expo/package-manager@npm:1.9.3"
+  version: 1.9.6
+  resolution: "@expo/package-manager@npm:1.9.6"
   dependencies:
-    "@expo/json-file": ^10.0.3
+    "@expo/json-file": ^10.0.6
     "@expo/spawn-async": ^1.7.2
     chalk: ^4.0.0
     npm-package-arg: ^11.0.0
     ora: ^3.4.0
     resolve-workspace-root: ^2.0.0
-  checksum: 53555f20eed81f038448f8a366ccf396fb15cf3cf7f60b925b32036a4898e77e2862961f2b9055265b9cfed4a83c1f0c08bff8b9c481bd15782c9c9bc25eb51f
+  checksum: 36ef232b943aa56acadaf6947073cffa1c534abc113abfd3b8613cae6e990541eaf44c56ecae11cb1d79957b626ab8e78a0f025a48f7a489727e32385a4b6bd7
   languageName: node
   linkType: hard
 
@@ -3632,9 +3632,9 @@ __metadata:
   linkType: hard
 
 "@expo/schema-utils@npm:^0.1.0":
-  version: 0.1.3
-  resolution: "@expo/schema-utils@npm:0.1.3"
-  checksum: 456963e6f0fe8f4be72d2a71f8a1fdf8efbff2c1340286d96a01d5e9c87b19cbb0617548801a4c3d71bc02d71d08749d9b56f49db88aeb72bad45d5c8c819391
+  version: 0.1.6
+  resolution: "@expo/schema-utils@npm:0.1.6"
+  checksum: 7535356fab40eaff4665604bc345dcb97f5daab4ed3702b5adf8304654ea890eabab3adcaef54e817642663dd3f2a5a73f338799da1ee61f85c8666552a257a6
   languageName: node
   linkType: hard
 
@@ -5011,10 +5011,10 @@ __metadata:
   linkType: hard
 
 "@react-navigation/bottom-tabs@npm:^7.3.10":
-  version: 7.4.6
-  resolution: "@react-navigation/bottom-tabs@npm:7.4.6"
+  version: 7.4.7
+  resolution: "@react-navigation/bottom-tabs@npm:7.4.7"
   dependencies:
-    "@react-navigation/elements": ^2.6.3
+    "@react-navigation/elements": ^2.6.4
     color: ^4.2.3
   peerDependencies:
     "@react-navigation/native": ^7.1.17
@@ -5022,7 +5022,7 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: ">= 4.0.0"
     react-native-screens: ">= 4.0.0"
-  checksum: 42f6bf8d043a227c2c5cca8e68fd7b6d3870bef269d415a09003fae210b8e53eab1f80fe013c401e2ccb48d360e3afb8cff72642e8c5f952f1aea433300a783c
+  checksum: 9ff291b086b00d4f656d67fd29b084c7d801c68e8db41c3b18192076d9593e6d4c9d4d28d1bde12be71c0499b6af83331cbe348549c15ff5fa5f8daf42c6bae3
   languageName: node
   linkType: hard
 
@@ -5043,9 +5043,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/elements@npm:^2.6.3":
-  version: 2.6.3
-  resolution: "@react-navigation/elements@npm:2.6.3"
+"@react-navigation/elements@npm:^2.6.4":
+  version: 2.6.4
+  resolution: "@react-navigation/elements@npm:2.6.4"
   dependencies:
     color: ^4.2.3
     use-latest-callback: ^0.2.4
@@ -5059,15 +5059,15 @@ __metadata:
   peerDependenciesMeta:
     "@react-native-masked-view/masked-view":
       optional: true
-  checksum: e676f1dfed37eca5275d982e2a060ba224ae5c495b6204c6753b34d90b32227093a945ce11ed82c16001dadbcade49474047188c6df9533c61f88dd5dd038c3f
+  checksum: 5ebcf77ca85755efbc35983a32caf6f82371bd8ca7ba705deb4317c250a9a9c1898765d02fe2373adfb2aae852666ac54f07b9185bf1a91fbfe185920ac9c46d
   languageName: node
   linkType: hard
 
 "@react-navigation/native-stack@npm:^7.3.10":
-  version: 7.3.25
-  resolution: "@react-navigation/native-stack@npm:7.3.25"
+  version: 7.3.26
+  resolution: "@react-navigation/native-stack@npm:7.3.26"
   dependencies:
-    "@react-navigation/elements": ^2.6.3
+    "@react-navigation/elements": ^2.6.4
     warn-once: ^0.1.1
   peerDependencies:
     "@react-navigation/native": ^7.1.17
@@ -5075,7 +5075,7 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: ">= 4.0.0"
     react-native-screens: ">= 4.0.0"
-  checksum: d1fa49c524767e7aafb6ac189a59519f3251235964973e1cb7902798f02f28af674adcfd1ebec7495dfc2876e18727bf4af59647694bab07abf03bb798d78a59
+  checksum: 81146d65c73f731bb40a5df35aa31047077869e9ace2131f6f061795e965892be16dd82bae6c8c7510eee772afe0e1c1374a526663b0e0f0c578effff0c5ef8b
   languageName: node
   linkType: hard
 
@@ -19103,9 +19103,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-video-toolkit-expo-example@workspace:example/expo":
+"react-native-video-toolkit-example@workspace:example":
   version: 0.0.0-use.local
-  resolution: "react-native-video-toolkit-expo-example@workspace:example/expo"
+  resolution: "react-native-video-toolkit-example@workspace:example"
   dependencies:
     "@babel/core": ^7.20.0
     "@expo/metro-runtime": ~5.0.4

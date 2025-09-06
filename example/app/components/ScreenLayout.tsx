@@ -7,7 +7,7 @@ import {
   type VideoSource,
   useSettings,
   useSettingsContext,
-} from '../../../../src';
+} from '../../../src';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -74,8 +74,8 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
       type: 'dash',
       uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd',
     },
-    { type: 'asset', uri: require('../../../../assets/test.mp4') },
-    { type: 'asset-vertical', uri: require('../../../../assets/vertical.mp4') },
+    { type: 'asset', uri: require('../../../assets/test.mp4') },
+    { type: 'asset-vertical', uri: require('../../../assets/vertical.mp4') },
   ];
   const { fullscreen } = useFullscreen();
   const { state } = useSettingsContext();

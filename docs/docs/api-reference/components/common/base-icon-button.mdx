@@ -1,76 +1,28 @@
 ---
 sidebar_label: 'BaseIconButton'
-sidebar_position: 2
+sidebar_position: 1
 ---
 
 # BaseIconButton
 
-`BaseIconButton` is a **low-level utility component** used to create touchable icon buttons in the video player.  
-It provides a consistent ripple effect, theming integration, and standard spacing, making it the base for other controls like `PlayButton`, `MuteButton`, and `SettingsButton`.
+`BaseIconButton` is a foundational component for creating interactive icon buttons within the video player. It wraps an `IconComponent` with a ripple effect provided by `react-native-material-ripple`, and integrates with the player's theme for consistent sizing and coloring.
 
-**Features:**
-
-- Built on [`react-native-material-ripple`](https://github.com/n4kz/react-native-material-ripple) for touch feedback.
-- Integrates with the **theme system** (`useVideo`) for colors & sizes.
-- Provides **consistent padding (10px)** around icons.
-- Serves as the **base layer** for all other control buttons.
-
----
-
-## Usage
+### Usage
 
 ```tsx
 import { BaseIconButton } from 'react-native-video-toolkit';
-import { Heart } from 'lucide-react-native';
+import { PlayIcon } from './assets/PlayIcon';
 
-const MyButton = () => {
-  return <BaseIconButton IconComponent={Heart} size={28} color="#f00" onPress={() => console.log('Pressed')} />;
+export const Player = () => {
+  return <BaseIconButton IconComponent={PlayIcon} onTap={() => console.log('Tapped!')} />;
 };
 ```
 
----
+### Props
 
-## Props
-
-| Prop            | Type                | Required | Default              | Description                                                               |
-| --------------- | ------------------- | -------- | -------------------- | ------------------------------------------------------------------------- |
-| `IconComponent` | `React.ElementType` | Yes      | –                    | The icon component to render (e.g. from `lucide-react-native` or custom). |
-| `size`          | `number`            | No       | `theme.iconSizes.md` | Size of the icon.                                                         |
-| `color`         | `string`            | No       | `theme.colors.text`  | Color of the icon.                                                        |
-| `...props`      | `PressableProps`    | No       | –                    | Any other props from `react-native-material-ripple` are passed through.   |
-
----
-
-## Examples
-
-### Default Icon Button
-
-```tsx
-<BaseIconButton IconComponent={Heart} />
-```
-
-### Customized Ripple Button
-
-```tsx
-<BaseIconButton
-  IconComponent={Heart}
-  size={32}
-  color="purple"
-  rippleCentered
-  rippleDuration={800}
-  onPress={() => console.log('Liked!')}
-/>
-```
-
----
-
-:::warning
-
-This is a **building block** — you typically won't use it directly. Instead, use higher-level controls like:
-
-- [`PlayButton`](../controls/basic/play-button.mdx)
-- [`MuteButton`](../controls/basic/mute-button.mdx)
-- [`FullscreenButton`](../controls/basic/fullscreen-button.mdx)
-- [`SettingsButton`](../controls/advanced/settings-button.mdx)
-
-:::
+| Prop            | Type                | Default              | Description                                     |
+| --------------- | ------------------- | -------------------- | ----------------------------------------------- |
+| `IconComponent` | `React.ElementType` | `required`           | The icon component to render.                   |
+| `size`          | `number`            | `theme.iconSizes.md` | The size of the icon.                           |
+| `color`         | `string`            | `theme.colors.text`  | The color of the icon.                          |
+| `onTap`         | `() => void`        | `required`           | The function to call when the button is tapped. |

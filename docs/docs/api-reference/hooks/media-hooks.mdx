@@ -112,11 +112,10 @@ export const MyComponent = () => {
 
 ### Returns
 
-| Value                  | Type            | Description                                                                                                                                                             |
-| ---------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fullscreen`           | `boolean`       | A boolean indicating whether the video player is currently in fullscreen mode.                                                                                          |
-| `toggleFullscreen`     | `() => void`    | A function that toggles the fullscreen mode. This function also handles screen orientation locking if `enableScreenRotation` is true in `VideoPlayerConfig`.            |
-| `fullscreenTapGesture` | `Gesture.Tap()` | A `Gesture.Tap()` object configured for single taps to toggle fullscreen. Executes `toggleFullscreen` when tapped. This can be used with a `GestureDetector` component. |
+| Value              | Type         | Description                                                                                                                                                  |
+| ------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `fullscreen`       | `boolean`    | A boolean indicating whether the video player is currently in fullscreen mode.                                                                               |
+| `toggleFullscreen` | `() => void` | A function that toggles the fullscreen mode. This function also handles screen orientation locking if `enableScreenRotation` is true in `VideoPlayerConfig`. |
 
 :::note
 [`<VideoPlayer.FullscreenButton/>`](../components/controls/basic/fullscreen-button.mdx) uses this hook to provide a button for toggling fullscreen mode.
@@ -131,20 +130,12 @@ This hooks calls the useOrientation hook internally to manage screen orientation
 
 ```tsx
 import { useFullscreen } from 'react-native-video-toolkit';
-import { GestureDetector } from 'react-native-gesture-handler';
 import React from 'react';
 
-// Placeholder for FullscreenIcon, replace with actual import if available
-const FullscreenIcon = () => <></>;
-
 const MyFullscreenButton = () => {
-  const { fullscreen, toggleFullscreen, fullscreenTapGesture } = useFullscreen();
+  const { fullscreen, toggleFullscreen } = useFullscreen();
 
-  return (
-    <GestureDetector gesture={fullscreenTapGesture}>
-      <FullscreenIcon />
-    </GestureDetector>
-  );
+  return <BaseIconButton IconComponent={FullscreenIcon} onTap={toggleFullscreen} />;
 };
 
 export default MyFullscreenButton;
@@ -167,12 +158,11 @@ export const MyComponent = () => {
 
 ### Returns
 
-| Value             | Type                           | Description                                                                                                                    |
-| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `isPlaying`       | `boolean`                      | A boolean indicating whether the video is currently playing.                                                                   |
-| `togglePlayPause` | `() => void`                   | A function that toggles the video between playing and paused states.                                                           |
-| `setPlaying`      | `(isPlaying: boolean) => void` | A function that directly sets the playing state of the video.                                                                  |
-| `playTapGesture`  | `Gesture.Tap()`                | A `Gesture.Tap()` object configured for single taps to toggle play/pause. This can be used with a `GestureDetector` component. |
+| Value             | Type                           | Description                                                          |
+| ----------------- | ------------------------------ | -------------------------------------------------------------------- |
+| `isPlaying`       | `boolean`                      | A boolean indicating whether the video is currently playing.         |
+| `togglePlayPause` | `() => void`                   | A function that toggles the video between playing and paused states. |
+| `setPlaying`      | `(isPlaying: boolean) => void` | A function that directly sets the playing state of the video.        |
 
 :::note
 [`<VideoPlayer.PlayPauseButton/>`](../components/controls/basic/play-button.mdx) uses this hook to provide a button for toggling playback.
@@ -183,20 +173,12 @@ Handles tap gestures for toggling play/pause state.
 
 ```tsx
 import { usePlayback } from 'react-native-video-toolkit';
-import { GestureDetector } from 'react-native-gesture-handler';
 import React from 'react';
 
-// Placeholder for PlayPauseIcon, replace with actual import if available
-const PlayPauseIcon = () => <></>;
-
 const MyPlayPauseButton = () => {
-  const { isPlaying, togglePlayPause, playTapGesture } = usePlayback();
+  const { isPlaying, togglePlayPause } = usePlayback();
 
-  return (
-    <GestureDetector gesture={playTapGesture}>
-      <PlayPauseIcon />
-    </GestureDetector>
-  );
+  return <BaseIconButton IconComponent={PlayPauseIcon} onTap={togglePlayPause} />;
 };
 
 export default MyPlayPauseButton;

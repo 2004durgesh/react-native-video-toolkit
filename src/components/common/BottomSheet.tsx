@@ -157,7 +157,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     return {
       borderRadius: isTV ? 12 : 16, // Slightly less rounded for TV
       padding: isTV ? 24 : isTablet ? 20 : 16, // More padding for TV/tablet
-      marginBottom: isTV ? 16 : 8, // More bottom margin for TV
+      marginBottom: isTV ? 16 : 18, // More bottom margin for TV
       handleHeight: isTV ? 6 : 4, // Thicker handle for TV visibility
       handleWidth: isTV ? 60 : 40, // Wider handle for TV
     };
@@ -168,7 +168,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
   return (
     <Portal name="sheet-portal">
       <Animated.View style={[styles.container, { backgroundColor: theme.colors.overlay }, backdropAnimatedStyle]}>
-        <Pressable style={{ height: SCREEN_HEIGHT, width: SCREEN_WIDTH }} onPress={onClose} />
+        <Pressable style={{ ...StyleSheet.absoluteFillObject }} onPress={onClose} />
         <Animated.View
           style={[
             styles.sheetContainer,
@@ -226,17 +226,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     overflow: 'hidden',
-    // Platform-specific values will be applied inline
   },
   handleContainer: {
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -8, // Adjust to position above padding if needed
+    marginTop: -8,
   },
   handle: {
     backgroundColor: '#ccc',
     borderRadius: 2,
-    // Width and height will be applied inline based on platform
   },
 });

@@ -2,7 +2,6 @@ import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { usePlayback } from '../../../hooks';
 import { Pause, Play } from 'lucide-react-native';
 import { BaseIconButton } from '../../../components/common/BaseIconButton';
-import { GestureDetector } from 'react-native-gesture-handler';
 
 export interface PlayButtonProps {
   size?: number;
@@ -25,19 +24,18 @@ export const PlayButton = ({
   renderPlayIcon,
   renderPauseIcon,
 }: PlayButtonProps): React.ReactElement => {
-  const { isPlaying, togglePlayPause, playTapGesture } = usePlayback();
+  const { isPlaying, togglePlayPause } = usePlayback();
   const PlayIcon = renderPlayIcon || Play;
   const PauseIcon = renderPauseIcon || Pause;
 
   return (
-    <GestureDetector gesture={playTapGesture}>
-      <BaseIconButton
-        IconComponent={isPlaying ? PauseIcon : PlayIcon}
-        size={size}
-        color={color}
-        style={[styles.playButton, style]}
-      />
-    </GestureDetector>
+    <BaseIconButton
+      IconComponent={isPlaying ? PauseIcon : PlayIcon}
+      size={size}
+      color={color}
+      style={[styles.playButton, style]}
+      onTap={togglePlayPause}
+    />
   );
 };
 

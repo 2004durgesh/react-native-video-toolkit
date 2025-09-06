@@ -48,116 +48,138 @@ export const MinimalLayout = () => {
     [state.theme.colors.overlay]
   );
   return (
-    <Animated.View style={[styles.baseStyle, animatedStyle]} pointerEvents="box-none">
-      <VideoPlayer.Controls>
-        <View style={[layoutStyles.column, { justifyContent: 'space-between', height: '100%', paddingHorizontal: 15 }]}>
-          <View style={layoutStyles.topControls}>
-            <View>
-              <Title text="Minimal Title" />
-              <Subtitle text="Minimal Subtitle" />
-            </View>
-            <View>
-              <Menu.Root>
-                <Menu.Trigger />
-                <Menu.Content>
-                  <Menu.SubContent viewId="root">
-                    <Menu.Item navigateTo="audio">Audio</Menu.Item>
-                    <Menu.Item navigateTo="video">Video</Menu.Item>
-                    <Menu.Item navigateTo="captions">Captions</Menu.Item>
-                  </Menu.SubContent>
-                  <Menu.SubContent viewId="audio">
-                    {audioTracks.length > 0 ? (
-                      <ScrollView style={{ maxHeight: '100%' }}>
-                        {audioTracks.map((track) => (
-                          <Menu.CheckboxItem
-                            key={track.index}
-                            checked={audioTrack?.index === track.index}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setAudioTrack(track);
-                              } else {
-                                setAudioTrack(null);
-                              }
-                            }}>
-                            {track.title ?? track.language}
-                          </Menu.CheckboxItem>
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <View style={{ padding: 10 }}>
-                        <Subtitle text="No audio tracks available" />
-                      </View>
-                    )}
-                  </Menu.SubContent>
-                  <Menu.SubContent viewId="video">
-                    {videoTracks.length > 0 ? (
-                      <ScrollView style={{ maxHeight: '100%' }}>
-                        {videoTracks.map((track) => (
-                          <Menu.CheckboxItem
-                            key={track.index}
-                            checked={videoTrack?.index === track.index}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setVideoTrack(track);
-                              } else {
-                                setVideoTrack(null);
-                              }
-                            }}>
-                            {track.height}p
-                          </Menu.CheckboxItem>
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <View style={{ padding: 10 }}>
-                        <Subtitle text="No video tracks available" />
-                      </View>
-                    )}
-                  </Menu.SubContent>
-                  <Menu.SubContent viewId="captions">
-                    {textTracks.length > 0 ? (
-                      <ScrollView style={{ maxHeight: '100%' }}>
-                        {textTracks.map((track) => (
-                          <Menu.CheckboxItem
-                            key={track.index}
-                            checked={textTrack?.index === track.index}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setTextTrack(track);
-                              } else {
-                                setTextTrack(null);
-                              }
-                            }}>
-                            {track.title ?? track.language}
-                          </Menu.CheckboxItem>
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <View style={{ padding: 10 }}>
-                        <Subtitle text="No captions available" />
-                      </View>
-                    )}
-                  </Menu.SubContent>
-                </Menu.Content>
-              </Menu.Root>
-            </View>
-          </View>
-          <View style={layoutStyles.centerControls}>
-            {!buffering ? <VideoPlayer.PlayButton /> : <VideoPlayer.LoadingSpinner />}
-          </View>
-          <View style={[layoutStyles.bottomControls]}>
-            <VideoPlayer.ProgressBar />
-            <View style={layoutStyles.row}>
-              <VideoPlayer.TimeDisplay />
-              <View style={layoutStyles.spacer} />
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      <Animated.View style={[styles.baseStyle, animatedStyle]} pointerEvents="box-none">
+        <VideoPlayer.Controls>
+          <View
+            style={[layoutStyles.column, { justifyContent: 'space-between', height: '100%', paddingHorizontal: 15 }]}>
+            <View style={layoutStyles.topControls}>
+              <View>
+                <Title text="Minimal Title" />
+                <Subtitle text="Minimal Subtitle" />
+              </View>
               <View style={[layoutStyles.row]}>
-                <VideoPlayer.FullscreenButton />
-                <VideoPlayer.MuteButton style={{ marginLeft: 10 }} />
+                <View>
+                  {/* <GestureDetector
+                    >
+                    <ChevronDown color={state.theme.colors.primary} size={24} />
+                  </Gesture> */}
+                </View>
+                <View>
+                  <Menu.Root>
+                    <Menu.Trigger />
+                    <Menu.Content>
+                      <Menu.SubContent viewId="root">
+                        <Menu.Item navigateTo="audio">Audio</Menu.Item>
+                        <Menu.Item navigateTo="video">Video</Menu.Item>
+                        <Menu.Item navigateTo="captions">Captions</Menu.Item>
+                      </Menu.SubContent>
+                      <Menu.SubContent viewId="audio">
+                        {audioTracks.length > 0 ? (
+                          <ScrollView style={{ maxHeight: '100%' }}>
+                            {audioTracks.map((track) => (
+                              <Menu.CheckboxItem
+                                key={track.index}
+                                checked={audioTrack?.index === track.index}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setAudioTrack(track);
+                                  } else {
+                                    setAudioTrack(null);
+                                  }
+                                }}>
+                                {track.title ?? track.language}
+                              </Menu.CheckboxItem>
+                            ))}
+                          </ScrollView>
+                        ) : (
+                          <View style={{ padding: 10 }}>
+                            <Subtitle text="No audio tracks available" />
+                          </View>
+                        )}
+                      </Menu.SubContent>
+                      <Menu.SubContent viewId="video">
+                        {videoTracks.length > 0 ? (
+                          <ScrollView style={{ maxHeight: '100%' }}>
+                            {videoTracks.map((track) => (
+                              <Menu.CheckboxItem
+                                key={track.index}
+                                checked={videoTrack?.index === track.index}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setVideoTrack(track);
+                                  } else {
+                                    setVideoTrack(null);
+                                  }
+                                }}>
+                                {track.height}p
+                              </Menu.CheckboxItem>
+                            ))}
+                          </ScrollView>
+                        ) : (
+                          <View style={{ padding: 10 }}>
+                            <Subtitle text="No video tracks available" />
+                          </View>
+                        )}
+                      </Menu.SubContent>
+                      <Menu.SubContent viewId="captions">
+                        {textTracks.length > 0 ? (
+                          <ScrollView style={{ maxHeight: '100%' }}>
+                            {textTracks.map((track) => (
+                              <Menu.CheckboxItem
+                                key={track.index}
+                                checked={textTrack?.index === track.index}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setTextTrack(track);
+                                  } else {
+                                    setTextTrack(null);
+                                  }
+                                }}>
+                                {track.title ?? track.language}
+                              </Menu.CheckboxItem>
+                            ))}
+                          </ScrollView>
+                        ) : (
+                          <View style={{ padding: 10 }}>
+                            <Subtitle text="No captions available" />
+                          </View>
+                        )}
+                      </Menu.SubContent>
+                    </Menu.Content>
+                  </Menu.Root>
+                </View>
+              </View>
+            </View>
+            <View style={layoutStyles.centerControls}>{!buffering ? <VideoPlayer.PlayButton /> : null}</View>
+            <View style={[layoutStyles.bottomControls]}>
+              <VideoPlayer.ProgressBar />
+              <View style={layoutStyles.row}>
+                <VideoPlayer.TimeDisplay />
+                <View style={layoutStyles.spacer} />
+                <View style={[layoutStyles.row]}>
+                  <VideoPlayer.FullscreenButton />
+                  <VideoPlayer.MuteButton style={{ marginLeft: 10 }} />
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      </VideoPlayer.Controls>
-    </Animated.View>
+        </VideoPlayer.Controls>
+      </Animated.View>
+      {/* This is separate because, even tho after the autioHideDelay hides the controls the spinner should be visible when buffering */}
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        {buffering && <VideoPlayer.LoadingSpinner />}
+      </View>
+    </View>
   );
 };
 

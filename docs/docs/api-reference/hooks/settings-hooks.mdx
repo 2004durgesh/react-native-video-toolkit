@@ -22,25 +22,24 @@ export const MyComponent = () => {
 
 ### Returns
 
-| Value                   | Type                                          | Description                                                                                                                 |
-| ----------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `videoTrack`            | `VideoTrack \| null`                          | The current video quality setting.                                                                                          |
-| `videoTracks`           | `VideoTrack[]`                                | The list of available video qualities.                                                                                      |
-| `setVideoTrack`         | `(newVideoTrack: VideoTrack \| null) => void` | A function to set the video quality.                                                                                        |
-| `getVideoTracks`        | `(videoTracks: VideoTrack[]) => void`         | A function to get the available video qualities.                                                                            |
-| `audioTrack`            | `AudioTrack \| null`                          | The current audio track setting.                                                                                            |
-| `audioTracks`           | `AudioTrack[]`                                | The list of available audio tracks.                                                                                         |
-| `setAudioTrack`         | `(newAudioTrack: AudioTrack \| null) => void` | A function to set the audio track.                                                                                          |
-| `getAudioTracks`        | `(audioTracks: AudioTrack[]) => void`         | A function to get the available audio tracks.                                                                               |
-| `textTrack`             | `TextTrack \| null`                           | The current subtitle track setting.                                                                                         |
-| `textTracks`            | `TextTrack[]`                                 | The list of available subtitle tracks.                                                                                      |
-| `setTextTrack`          | `(newTextTrack: TextTrack \| null) => void`   | A function to set the subtitle track.                                                                                       |
-| `getTextTracks`         | `(textTracks: TextTrack[]) => void`           | A function to get the available subtitle tracks.                                                                            |
-| `isSettingsMenuVisible` | `boolean`                                     | A boolean indicating whether the settings menu is currently visible.                                                        |
-| `openSettings`          | `() => void`                                  | A function to explicitly open the settings menu.                                                                            |
-| `closeSettings`         | `() => void`                                  | A function to explicitly close the settings menu.                                                                           |
-| `toggleSettingsMenu`    | `() => void`                                  | A function to toggle the visibility of the settings menu.                                                                   |
-| `settingsTapGesture`    | `Gesture.Tap()`                               | A gesture object for handling single taps to toggle the settings menu. This can be used with a `GestureDetector` component. |
+| Value                   | Type                                          | Description                                                          |
+| ----------------------- | --------------------------------------------- | -------------------------------------------------------------------- |
+| `videoTrack`            | `VideoTrack \| null`                          | The current video quality setting.                                   |
+| `videoTracks`           | `VideoTrack[]`                                | The list of available video qualities.                               |
+| `setVideoTrack`         | `(newVideoTrack: VideoTrack \| null) => void` | A function to set the video quality.                                 |
+| `getVideoTracks`        | `(videoTracks: VideoTrack[]) => void`         | A function to get the available video qualities.                     |
+| `audioTrack`            | `AudioTrack \| null`                          | The current audio track setting.                                     |
+| `audioTracks`           | `AudioTrack[]`                                | The list of available audio tracks.                                  |
+| `setAudioTrack`         | `(newAudioTrack: AudioTrack \| null) => void` | A function to set the audio track.                                   |
+| `getAudioTracks`        | `(audioTracks: AudioTrack[]) => void`         | A function to get the available audio tracks.                        |
+| `textTrack`             | `TextTrack \| null`                           | The current subtitle track setting.                                  |
+| `textTracks`            | `TextTrack[]`                                 | The list of available subtitle tracks.                               |
+| `setTextTrack`          | `(newTextTrack: TextTrack \| null) => void`   | A function to set the subtitle track.                                |
+| `getTextTracks`         | `(textTracks: TextTrack[]) => void`           | A function to get the available subtitle tracks.                     |
+| `isSettingsMenuVisible` | `boolean`                                     | A boolean indicating whether the settings menu is currently visible. |
+| `openSettings`          | `() => void`                                  | A function to explicitly open the settings menu.                     |
+| `closeSettings`         | `() => void`                                  | A function to explicitly close the settings menu.                    |
+| `toggleSettingsMenu`    | `() => void`                                  | A function to toggle the visibility of the settings menu.            |
 
 ### Example
 
@@ -51,7 +50,7 @@ import React from 'react';
 import { View, Button } from 'react-native';
 
 const MySettingsButton = () => {
-  const { isSettingsMenuVisible, toggleSettingsMenu, settingsTapGesture, setVideoTrack, videoTracks } = useSettings();
+  const { openSettings } = useSettings();
 
   const handleQualityChange = () => {
     // Example: set quality to the first available track
@@ -60,11 +59,7 @@ const MySettingsButton = () => {
     }
   };
 
-  return (
-    <GestureDetector gesture={settingsTapGesture}>
-      <GearIcon />
-    </GestureDetector>
-  );
+  return <BaseIconButton IconComponent={SettingsIcon} onTap={openSettings} />;
 };
 
 export default MySettingsButton;

@@ -1,7 +1,12 @@
-<h1 align="centre">react-native-video-toolkit</h1>
+<div align="center">
+  <h1>react-native-video-toolkit</h1>
+  <img src="./assets/icon.png" width="100" height="100" alt="react-native-video-toolkit logo" />
+</div>
 
 My **first ever real OSS project** 😭. Be kind, I’m still figuring this out.<br>
 A flexible and customizable video player UI toolkit for React Native, designed for a great mobile viewing experience (and maybe TV one day… if I survive).
+
+👉 Full Documentation: [https://2004durgesh.github.io/react-native-video-toolkit/](https://2004durgesh.github.io/react-native-video-toolkit/)
 
 <a href="https://www.npmjs.com/package/react-native-video-toolkit">
   <img src="https://img.shields.io/npm/v/react-native-video-toolkit" alt="npm version" />
@@ -27,6 +32,20 @@ A flexible and customizable video player UI toolkit for React Native, designed f
     alt="discord"
   />
 </a>
+
+---
+
+## 📑 Table of Contents
+
+- [📱 Demo](#-demo)
+- [✨ Features](#-features)
+- [✅ Platform Compatibility](#-platform-compatibility)
+- [🗺️ Roadmap](#-roadmap)
+- [📦 Installation](#-installation)
+- [🚀 Usage](#-usage)
+- [🐛 Issues](#-issues)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
 
 ---
 
@@ -68,7 +87,12 @@ A flexible and customizable video player UI toolkit for React Native, designed f
 - [x] Core Player component
 - [x] Customizable controls
 - [x] Theming support
-- [x] Layout presets (`DefaultLayout`, `MinimalLayout`)
+- [x] Gesture handling
+- [x] Settings menu
+- [x] Layout presets (`MinimalLayout`)
+- [x] Fullscreen support
+- [x] Landscape mode support
+- [ ] Layout presets (`DefaultLayout`)
 - [ ] TV support (D-pad navigation)
 - [ ] Picture-in-Picture (PiP) mode
 - [ ] More advanced layouts (YouTube/Netflix-style)

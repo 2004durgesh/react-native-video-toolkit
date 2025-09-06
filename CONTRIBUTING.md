@@ -19,39 +19,28 @@ yarn
 
 > Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development.
 
+The [example app](/example/) demonstrates usage of the library. You need to run it to test any changes you make.
 
+It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
 
-### Example Apps
-
-We have two example apps in the `example/` directory:
-
--   **`bare`**: A standard React Native app. Use this example for testing changes to the native modules (Android/iOS).
--   **`expo`**: An Expo app. Use this example for testing UI, cross-platform behavior, and web compatibility.
-
-You can run the example apps using the following commands from the root directory:
+You can use various commands from the root directory to work with the project.
 
 To start the packager:
 
 ```sh
-yarn example:expo start
+yarn example start
 ```
 
 To run the example app on Android:
 
 ```sh
-yarn example:expo android
+yarn example android
 ```
 
 To run the example app on iOS:
 
 ```sh
-yarn example:expo ios
-```
-
-To run the example app on Web (for Expo):
-
-```sh
-yarn example:expo web
+yarn example ios
 ```
 
 To confirm that the app is running with the new architecture, you can check the Metro logs for a message like this:
@@ -62,17 +51,11 @@ Running "VideoToolkitExample" with {"fabric":true,"initialProps":{"concurrentRoo
 
 Note the `"fabric":true` and `"concurrentRoot":true` properties.
 
-### Native Code
-
-This project contains native modules for Android (Kotlin) and iOS (Objective-C). If you make changes to the native code, you will need to run the `codegen` script to update the generated code:
+To run the example app on Web:
 
 ```sh
-yarn codegen
+yarn example web
 ```
-
-After running `codegen`, you will need to rebuild the example app to see your changes.
-
-### Linting and tests
 
 Make sure your code passes TypeScript and ESLint. Run the following to verify:
 
@@ -106,6 +89,14 @@ We follow the [conventional commits specification](https://www.conventionalcommi
 
 Our pre-commit hooks verify that your commit message matches this format when committing.
 
+### Linting and tests
+
+[ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [TypeScript](https://www.typescriptlang.org/)
+
+We use [TypeScript](https://www.typescriptlang.org/) for type checking, [ESLint](https://eslint.org/) with [Prettier](https://prettier.io/) for linting and formatting the code, and [Jest](https://jestjs.io/) for testing.
+
+Our pre-commit hooks verify that the linter and tests pass when committing.
+
 ### Publishing to npm
 
 We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
@@ -124,9 +115,9 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn typecheck`: type-check files with TypeScript.
 - `yarn lint`: lint files with ESLint.
 - `yarn test`: run unit tests with Jest.
-- `yarn example:expo start`: start the Metro server for the example app.
-- `yarn example:expo android`: run the example app on Android.
-- `yarn example:expo ios`: run the example app on iOS.
+- `yarn example start`: start the Metro server for the example app.
+- `yarn example android`: run the example app on Android.
+- `yarn example ios`: run the example app on iOS.
 
 ### Sending a pull request
 
@@ -140,12 +131,10 @@ When you're sending a pull request:
 - Follow the pull request template when opening a pull request.
 - For pull requests that change the API or implementation, discuss with maintainers first by opening an issue.
 
-
 ## Documentation Style Guide
 
 This guide defines the **rules and structure** for writing documentation in this project.
 Follow these strictly so all docs stay **consistent, easy to read, and developer-friendly**.
-
 
 ### 1. File Naming
 
@@ -165,8 +154,8 @@ sidebar_position: <number>
 ---
 ```
 
-*   `sidebar_label` → Match the component/hook name exactly.
-*   `sidebar_position` → Controls ordering in the sidebar.
+- `sidebar_label` → Match the component/hook name exactly.
+- `sidebar_position` → Controls ordering in the sidebar.
 
 ### 3. Heading Order
 
@@ -181,9 +170,9 @@ Always follow this heading order:
 
 ### 4. Usage Section
 
-*   Always provide a **minimal code snippet** showing import + usage.
-*   Use **TypeScript syntax highlighting**.
-*   Keep it runnable (no pseudo code unless necessary).
+- Always provide a **minimal code snippet** showing import + usage.
+- Use **TypeScript syntax highlighting**.
+- Keep it runnable (no pseudo code unless necessary).
 
 Example:
 
@@ -197,10 +186,10 @@ export const Player = () => {
 
 ### 5. Props / Returns Tables
 
-*   Always use a **Markdown table**.
-*   Columns: **Property | Type | Default | Description**
-*   Order: required props first, optional props later.
-*   If hook → use **Returns** table instead of Props.
+- Always use a **Markdown table**.
+- Columns: **Property | Type | Default | Description**
+- Order: required props first, optional props later.
+- If hook → use **Returns** table instead of Props.
 
 Example (Component Props):
 
@@ -220,9 +209,9 @@ Example (Hook Returns):
 
 ### 6. Example Section
 
-*   Must include **at least one full example**.
-*   Prefer a **realistic UI snippet** over barebones.
-*   Use React functional components with hooks.
+- Must include **at least one full example**.
+- Prefer a **realistic UI snippet** over barebones.
+- Use React functional components with hooks.
 
 Example:
 
@@ -230,7 +219,7 @@ Example:
 import { VideoPlayer } from 'react-native-video-toolkit';
 
 export const Example = () => (
-  <VideoPlayer source={{ uri: "https://example.com/video.mp4" }}>
+  <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
     <VideoPlayer.Controls>
       <VideoPlayer.PlayButton />
       <VideoPlayer.ProgressBar />
@@ -241,11 +230,11 @@ export const Example = () => (
 
 ### 7. General Rules
 
-*   Always use **TypeScript type annotations** in examples.
-*   Keep **props descriptions human-readable**, not just type hints.
-*   Never leave props undocumented.
-*   Prefer **short, active voice sentences**.
-*   Keep code examples **copy-paste runnable**.
+- Always use **TypeScript type annotations** in examples.
+- Keep **props descriptions human-readable**, not just type hints.
+- Never leave props undocumented.
+- Prefer **short, active voice sentences**.
+- Keep code examples **copy-paste runnable**.
 
 ## JSDoc/TypeDoc Standards
 
@@ -267,18 +256,18 @@ Follow these exactly to maintain **consistency** across the entire codebase.
 
 **DO:**
 
--   **One line summary** followed by **empty line**
--   **Short, clear descriptions** (no unnecessary details)
--   **Consistent parameter formatting**: `@param {Type} paramName - Description.`
--   **Always end descriptions with a period**
--   **Use active voice**: "Toggles fullscreen" not "This function toggles fullscreen"
+- **One line summary** followed by **empty line**
+- **Short, clear descriptions** (no unnecessary details)
+- **Consistent parameter formatting**: `@param {Type} paramName - Description.`
+- **Always end descriptions with a period**
+- **Use active voice**: "Toggles fullscreen" not "This function toggles fullscreen"
 
 **DON'T:**
 
--   Long, verbose descriptions that repeat the obvious
--   Multiple paragraphs unless absolutely necessary
--   Redundant type information (TypeScript handles this)
--   Passive voice or wordy explanations
+- Long, verbose descriptions that repeat the obvious
+- Multiple paragraphs unless absolutely necessary
+- Redundant type information (TypeScript handles this)
+- Passive voice or wordy explanations
 
 ### 2. React Components
 
@@ -304,10 +293,10 @@ export const Component = ({ size, color, onPress }: ComponentProps): React.React
 
 **Key Rules:**
 
--   Props interface **always above** the component
--   JSDoc **directly above** the component export
--   Generic props parameter: `@param {ComponentProps} props - The props for the component.`
--   Return type: `@returns {React.ReactElement} The [component name] component.`
+- Props interface **always above** the component
+- JSDoc **directly above** the component export
+- Generic props parameter: `@param {ComponentProps} props - The props for the component.`
+- Return type: `@returns {React.ReactElement} The [component name] component.`
 
 ### 3. Custom Hooks
 
@@ -329,10 +318,10 @@ export const useHookName = () => {
 
 **Key Rules:**
 
--   Start with: "A hook for [purpose]"
--   Use **bullet points** for return object properties
--   **No `<!-- Import failed: returns - ENOENT: no such file or directory, access 'C:\Users\Durgesh\OneDrive\Documents\Desktop\react-native-video-toolkit\returns' -->` tag** - just describe the returned object
--   Keep property descriptions **short and action-oriented**
+- Start with: "A hook for [purpose]"
+- Use **bullet points** for return object properties
+- **No `<!-- Import failed: returns - ENOENT: no such file or directory, access 'C:\Users\Durgesh\OneDrive\Documents\Desktop\react-native-video-toolkit\returns' -->` tag** - just describe the returned object
+- Keep property descriptions **short and action-oriented**
 
 ### 4. Utility Functions
 
@@ -347,20 +336,16 @@ export const useHookName = () => {
  * @param {number} aspectRatio - The video aspect ratio.
  * @returns {Dimensions} The calculated optimal dimensions.
  */
-export const calculateDimensions = (
-  screenWidth: number,
-  screenHeight: number,
-  aspectRatio: number
-): Dimensions => {
+export const calculateDimensions = (screenWidth: number, screenHeight: number, aspectRatio: number): Dimensions => {
   // Implementation
 };
 ```
 
 **Key Rules:**
 
--   **Active voice** for function purpose
--   **Each parameter** gets its own `@param` line
--   **Clear return description** with `@returns`
+- **Active voice** for function purpose
+- **Each parameter** gets its own `@param` line
+- **Clear return description** with `@returns`
 
 ### 5. Internal Functions/Methods
 
@@ -384,9 +369,9 @@ const updateControlsVisibility = () => {
 
 **Key Rules:**
 
--   **One line only** for internal functions
--   **No `<!-- Import failed: param/@returns - ENOENT: no such file or directory, access 'C:\Users\Durgesh\OneDrive\Documents\Desktop\react-native-video-toolkit\param\@returns' -->`** unless the function is complex
--   **Start with action verb**: "Handles", "Updates", "Calculates", etc.
+- **One line only** for internal functions
+- **No `<!-- Import failed: param/@returns - ENOENT: no such file or directory, access 'C:\Users\Durgesh\OneDrive\Documents\Desktop\react-native-video-toolkit\param\@returns' -->`** unless the function is complex
+- **Start with action verb**: "Handles", "Updates", "Calculates", etc.
 
 ### 6. Enforcement Rules
 
