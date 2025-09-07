@@ -1,36 +1,83 @@
 ---
-sidebar_label: 'Layouts'
-sidebar_position: 2
+sidebar_label: Layout
+sidebar_position: 1
 ---
 
-# Layouts
+# DefaultLayout
 
-Pre-built layouts to quickly set up a video player UI.
+`DefaultLayout` is a pre-built layout that provides a standard, modern video player interface. It includes a comprehensive set of controls suitable for most use cases.
 
-## `DefaultLayout`
-
-A comprehensive layout with standard controls.
-
-### Usage
+## Usage
 
 ```tsx
 import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
 
-<VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
-  <DefaultLayout />
-</VideoPlayer>;
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <DefaultLayout title="My Video" subtitle="An example video" />
+    </VideoPlayer>
+  );
+};
 ```
 
-## `MinimalLayout`
+---
 
-A minimalist layout with essential controls.
+## Props
 
-### Usage
+| Prop       | Type     | Required | Default | Description                  |
+| ---------- | -------- | -------- | ------- | ---------------------------- |
+| `title`    | `string` | No       | –       | The title of the video.      |
+| `subtitle` | `string` | No       | –       | The subtitle or description. |
+
+---
+
+## Example
+
+### Basic Usage
+
+This example shows how to use `DefaultLayout` to create a fully-featured video player.
 
 ```tsx
-import { VideoPlayer, MinimalLayout } from 'react-native-video-toolkit';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
 
-<VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
-  <MinimalLayout />
-</VideoPlayer>;
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <VideoPlayer
+        source={{
+          uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        }}>
+        <DefaultLayout title="Big Buck Bunny" subtitle="A classic short film" />
+      </VideoPlayer>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 ```
+
+---
+
+:::info
+
+The `DefaultLayout` includes the following controls:
+
+- [`PlayButton`](./components/controls/play-button.mdx)
+- [`ProgressBar`](./components/controls/progress-bar.mdx)
+- [`TimeDisplay`](./components/controls/time-display.mdx)
+- [`FullscreenButton`](./components/controls/fullscreen-button.mdx)
+- [`MuteButton`](./components/controls/mute-button.mdx)
+- [`SubtitleToggleButton`](./components/controls/subtitle-toggle-button.mdx)
+- [`SettingsButton`](./components/controls/settings-button.mdx)
+
+:::

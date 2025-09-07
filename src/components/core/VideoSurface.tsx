@@ -89,7 +89,12 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
     const dedupedTextTracks = dedupeLanguageTracks(data.textTracks);
     const dedupedVideoTracks = dedupeVideoTracks(data.videoTracks);
     getAudioTracks(dedupedAudioTracks);
-    getTextTracks(dedupedTextTracks);
+    // Add an "Off" option for text tracks
+    getTextTracks(
+      [...dedupedTextTracks, { index: -1, title: 'Off', language: 'off', type: 'disabled' }].sort(
+        (a, b) => a.index - b.index
+      )
+    );
     getVideoTracks(dedupedVideoTracks);
     // Select the first track by default if none is selected
     if (!audioTrack && dedupedAudioTracks.length > 0) {

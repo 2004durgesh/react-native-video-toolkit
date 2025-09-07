@@ -228,9 +228,5 @@ export const useVideo = () => {
     throw new Error('useVideo must be used within a VideoProvider');
   }
 
-  const setTheme = (theme: Partial<Theme>) => {
-    context.dispatch({ type: 'SET_THEME', payload: theme });
-  };
-
-  return { ...context, setTheme };
+  return { ...context };
 };

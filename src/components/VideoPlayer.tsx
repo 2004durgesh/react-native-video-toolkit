@@ -1,6 +1,14 @@
 import React, { type FC, type ReactNode, useMemo } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle, Platform } from 'react-native';
-import { PlayButton, ProgressBar, VolumeControl, FullscreenButton, MuteButton, SettingsButton } from './controls';
+import {
+  PlayButton,
+  ProgressBar,
+  VolumeControl,
+  FullscreenButton,
+  MuteButton,
+  SettingsButton,
+  SubtitleToggleButton,
+} from './controls';
 import type { GestureHandlerProps, VideoSource } from '../types';
 import { VideoSurface } from './core';
 import type { ReactVideoProps } from 'react-native-video';
@@ -107,6 +115,7 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
   MuteButton,
   LoadingSpinner,
   SettingsButton,
+  SubtitleToggleButton,
 });
 
 const styles = StyleSheet.create({

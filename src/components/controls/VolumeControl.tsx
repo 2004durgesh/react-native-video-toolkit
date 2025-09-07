@@ -1,6 +1,6 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
-import { useVolume } from '../../../hooks';
-import { useVideo } from '../../../providers';
+import { useVolume } from '../../hooks';
+import { useVideo } from '../../providers';
 import { useSharedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
 

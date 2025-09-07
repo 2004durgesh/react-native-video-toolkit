@@ -15,18 +15,17 @@ A hook to access the current video player state and dispatch actions to control 
 import { useVideo } from 'react-native-video-toolkit';
 
 const MyComponent = () => {
-  const { state, dispatch, setTheme } = useVideo();
+  const { state, dispatch } = useVideo();
   // ...
 };
 ```
 
 ### Returns
 
-| Value      | Type                              | Description                                                                        |
-| ---------- | --------------------------------- | ---------------------------------------------------------------------------------- |
-| `state`    | `VideoState`                      | An object containing the current state of the video player.                        |
-| `dispatch` | `(action: VideoAction) => void`   | A function that allows you to dispatch actions to update the video player's state. |
-| `setTheme` | `(theme: Partial<Theme>) => void` | A function that allows you to update the theme of the video player.                |
+| Value      | Type                            | Description                                                                        |
+| ---------- | ------------------------------- | ---------------------------------------------------------------------------------- |
+| `state`    | `VideoState`                    | An object containing the current state of the video player.                        |
+| `dispatch` | `(action: VideoAction) => void` | A function that allows you to dispatch actions to update the video player's state. |
 
 ### Example
 
@@ -36,7 +35,7 @@ import { View, Text, Button } from 'react-native';
 import React from 'react';
 
 const MyComponent = () => {
-  const { state, dispatch, setTheme } = useVideo();
+  const { state, dispatch } = useVideo();
 
   // Example: Toggle play/pause
   const handlePlayPause = () => {
@@ -46,11 +45,6 @@ const MyComponent = () => {
   // Example: Seek to a specific time
   const handleSeek = (time: number) => {
     dispatch({ type: 'SEEK', payload: time });
-  };
-
-  // Example: Change theme
-  const handleThemeChange = () => {
-    setTheme({ colors: { primary: 'red' } });
   };
 
   return (

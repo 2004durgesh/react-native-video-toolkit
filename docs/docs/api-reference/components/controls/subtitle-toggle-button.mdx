@@ -1,0 +1,67 @@
+---
+sidebar_label: SubtitleToggleButton
+sidebar_position: 8
+---
+
+# SubtitleToggleButton
+
+`SubtitleToggleButton` is a control component that toggles subtitles (captions) on and off. It automatically detects available text tracks and cycles through them.
+
+## Usage
+
+```tsx
+import { SubtitleToggleButton } from 'react-native-video-toolkit';
+import React from 'react';
+
+const MySubtitleButton = () => {
+  return <SubtitleToggleButton />;
+};
+```
+
+---
+
+## Props
+
+This component does not accept any props.
+
+---
+
+## Example
+
+### Default SubtitleToggleButton
+
+```tsx
+import { SubtitleToggleButton } from 'react-native-video-toolkit';
+
+<SubtitleToggleButton />;
+```
+
+---
+
+## Integration Example
+
+Typically used within a `VideoPlayer`:
+
+```tsx
+import { VideoPlayer, SubtitleToggleButton } from 'react-native-video-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <VideoPlayer.Controls>
+        <SubtitleToggleButton />
+      </VideoPlayer.Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
+:::info
+
+- The button automatically manages subtitle state using `useSettings` hook.
+- When turned on, it resumes the last selected subtitle track.
+- If no subtitles are available, the button will not be rendered.
+
+:::

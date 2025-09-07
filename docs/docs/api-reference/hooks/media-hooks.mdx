@@ -118,7 +118,7 @@ export const MyComponent = () => {
 | `toggleFullscreen` | `() => void` | A function that toggles the fullscreen mode. This function also handles screen orientation locking if `enableScreenRotation` is true in `VideoPlayerConfig`. |
 
 :::note
-[`<VideoPlayer.FullscreenButton/>`](../components/controls/basic/fullscreen-button.mdx) uses this hook to provide a button for toggling fullscreen mode.
+[`<VideoPlayer.FullscreenButton/>`](../components/controls/fullscreen-button.mdx) uses this hook to provide a button for toggling fullscreen mode.
 Handles tap gestures for toggling fullscreen mode.
 :::
 
@@ -165,7 +165,7 @@ export const MyComponent = () => {
 | `setPlaying`      | `(isPlaying: boolean) => void` | A function that directly sets the playing state of the video.        |
 
 :::note
-[`<VideoPlayer.PlayPauseButton/>`](../components/controls/basic/play-button.mdx) uses this hook to provide a button for toggling playback.
+[`<VideoPlayer.PlayPauseButton/>`](../components/controls/play-button.mdx) uses this hook to provide a button for toggling playback.
 Handles tap gestures for toggling play/pause state.
 :::
 
@@ -211,7 +211,7 @@ export const MyComponent = () => {
 
 :::note
 
-- [`<VideoPlayer.ProgressBar/>`](../components/controls/basic/progress-bar.mdx) uses this hook to display and control video progress.
+- [`<VideoPlayer.ProgressBar/>`](../components/controls/progress-bar.mdx) uses this hook to display and control video progress.
 - [`<VideoPlayer.TimeDisplay/>`](../components/display/time-display.mdx) uses this hook to show the current time and duration.
   :::
 
@@ -262,16 +262,15 @@ export const MyComponent = () => {
 
 ### Returns
 
-| Value            | Type                       | Description                                                                                                                                                 |
-| ---------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `volume`         | `number`                   | The current volume level of the video, a number between 0 and 1.                                                                                            |
-| `muted`          | `boolean`                  | A boolean indicating whether the video is currently muted.                                                                                                  |
-| `setVolume`      | `(volume: number) => void` | A function that sets the video's volume to a specific level (0 to 1).                                                                                       |
-| `toggleMute`     | `() => void`               | A function that toggles the mute state of the video.                                                                                                        |
-| `muteTapGesture` | `Gesture.Tap()`            | A `Gesture.Tap()` object configured for single taps to toggle mute. Executes `toggleMute` when tapped. This can be used with a `GestureDetector` component. |
+| Value        | Type                       | Description                                                           |
+| ------------ | -------------------------- | --------------------------------------------------------------------- |
+| `volume`     | `number`                   | The current volume level of the video, a number between 0 and 1.      |
+| `muted`      | `boolean`                  | A boolean indicating whether the video is currently muted.            |
+| `setVolume`  | `(volume: number) => void` | A function that sets the video's volume to a specific level (0 to 1). |
+| `toggleMute` | `() => void`               | A function that toggles the mute state of the video.                  |
 
 :::note
-[`<VideoPlayer.MuteButton/>`](../components/controls/basic/mute-button.mdx) uses this hook to provide a button for toggling mute.
+[`<VideoPlayer.MuteButton/>`](../components/controls/mute-button.mdx) uses this hook to provide a button for toggling mute.
 :::
 
 ### Example
@@ -279,21 +278,15 @@ export const MyComponent = () => {
 ```tsx
 import { useVolume } from 'react-native-video-toolkit';
 import Slider from '@react-native-community/slider'; // Example slider component
-import { GestureDetector } from 'react-native-gesture-handler';
 import { View } from 'react-native'; // Assuming View is from react-native
 import React from 'react';
 
-// Placeholder for MuteIcon, replace with actual import if available
-const MuteIcon = () => <></>;
-
 const MyVolumeControl = () => {
-  const { volume, muted, setVolume, toggleMute, muteTapGesture } = useVolume();
+  const { volume, muted, setVolume, toggleMute } = useVolume();
 
   return (
     <View>
-      <GestureDetector gesture={muteTapGesture}>
-        <MuteIcon />
-      </GestureDetector>
+      <BaseIconButton IconComponent={MuteIcon} onTap={toggleMute} />;
       <Slider minimumValue={0} maximumValue={1} value={volume} onSlidingComplete={setVolume} disabled={muted} />
     </View>
   );

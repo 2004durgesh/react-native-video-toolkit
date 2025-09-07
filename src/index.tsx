@@ -16,7 +16,7 @@ if (Platform.OS === 'web') {
 export { NativeVideoToolkit };
 
 // Export Layouts components
-export { DefaultLayout, MinimalLayout } from './layouts';
+export { DefaultLayout } from './layouts';
 
 // Core components
 export { VideoSurface } from './components/core';

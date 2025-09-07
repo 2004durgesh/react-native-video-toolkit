@@ -28,6 +28,7 @@ import Animated, {
 import { useSettings } from '../../hooks';
 import { SettingsButton, type SettingsButtonProps } from '../controls';
 import { ChevronLeft, X } from 'lucide-react-native';
+import { Title } from '../display';
 
 interface MenuContextType {
   closeSettings: () => void;
@@ -77,22 +78,6 @@ interface MenuSeparatorProps extends ViewProps {
 interface MenuGroupProps extends ViewProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
-}
-
-interface MenuRadioGroupProps extends ViewProps {
-  children: ReactNode;
-  value: string;
-  onValueChange: (newValue: string) => void;
-  style?: StyleProp<ViewStyle>;
-}
-
-interface MenuRadioItemProps extends PressableProps {
-  children: ReactNode;
-  value: string;
-  selectedValue?: string;
-  onSelect?: (newValue: string) => void;
-  style?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
 }
 
 interface MenuCheckboxItemProps extends PressableProps {
@@ -243,7 +228,9 @@ export const Menu = {
         entering={SlideInRight.duration(300)}
         {...props}>
         {shouldShowBackButton && <Menu.Back />}
-        {children || <Text style={[styles.headerTitle, { color: theme.colors.text }, titleStyle]}>{displayTitle}</Text>}
+        {children || (
+          <Title text={displayTitle} style={[styles.headerTitle, { color: theme.colors.text }, titleStyle]} />
+        )}
         {showCloseButton && <Menu.Close />}
       </AnimatedView>
     );
@@ -358,7 +345,13 @@ export const Menu = {
       if (navTo) {
         runOnJS(ctxNavigate)(navTo);
       } else if (autoClose) {
-        runOnJS(closeSettings)();
+        runOnJS((fn: () => void) => {
+          fn();
+        })(() => {
+          setTimeout(() => {
+            closeSettings();
+          }, 350);
+        });
       }
     };
 
@@ -470,7 +463,7 @@ export const Menu = {
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
           <AnimatedView style={checkAnimatedStyle}>
-            <Text style={[styles.radioIndicator, { color: theme.colors.primary }]}>{isChecked ? '✓' : ' '}</Text>
+            <Text style={[styles.radioIndicator, { color: theme.colors.text }]}>{isChecked ? '✓' : ' '}</Text>
           </AnimatedView>
         </View>
       </Menu.Item>

@@ -50,9 +50,9 @@ const SampleSelector: React.FC<SampleSelectorProps> = ({ samples, currentUri, on
       <Link href="/" asChild>
         <Button title="Minimal" />
       </Link>
-      <Link href="/default" asChild>
+      {/* <Link href="/default" asChild>
         <Button title="Default" />
-      </Link>
+      </Link> */}
       <Link href="/custom" asChild>
         <Button title="Custom" />
       </Link>
