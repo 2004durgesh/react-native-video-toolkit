@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0-rc.2 (2025-09-08)
+
+* docs: restructure providers and enable react native components in docs ([3242cb5](https://github.com/2004durgesh/react-native-video-toolkit/commit/3242cb5))
+* docs(refactor): improve documentation structure and clarity ([e001fee](https://github.com/2004durgesh/react-native-video-toolkit/commit/e001fee))
+* feat(player): overhaul layouts and controls ([06ec0c7](https://github.com/2004durgesh/react-native-video-toolkit/commit/06ec0c7))
+* refactor: enhance pre-commit script and update readme with new demo assets ([c4e576c](https://github.com/2004durgesh/react-native-video-toolkit/commit/c4e576c))
+* refactor: improve components, hooks, and track handling ([a1f8b2d](https://github.com/2004durgesh/react-native-video-toolkit/commit/a1f8b2d))
+* refactor: remove bare example, remove radio from menu, fix video width ([c9b2373](https://github.com/2004durgesh/react-native-video-toolkit/commit/c9b2373))
+* refactor: update ci to use expo example, add docs guidelines, remove menu from video-player ([ffe2bb7](https://github.com/2004durgesh/react-native-video-toolkit/commit/ffe2bb7))
+* refactor(gestures): unify tap handling and simplify example app ([eb77097](https://github.com/2004durgesh/react-native-video-toolkit/commit/eb77097))
+* chore: assets for readme and docs site ([17b4c97](https://github.com/2004durgesh/react-native-video-toolkit/commit/17b4c97))
+
 ## 0.2.0-rc.1 (2025-09-03)
 
 * docs: complete overhaul of documentation ([c18c04c](https://github.com/2004durgesh/react-native-video-toolkit/commit/c18c04c))
