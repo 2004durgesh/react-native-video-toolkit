@@ -31,7 +31,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
     setAudioTrack,
   } = useSettings();
   const { setOpacity } = useControlsVisibility();
-  // console.log({videoTracks, textTracks, audioTracks});
+  //  console.log({videoTracks, textTracks, audioTracks});
 
   useEffect(() => {
     setOpacity(opacity);
@@ -45,7 +45,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
     [state.theme.colors.overlay]
   );
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+    <>
       <Animated.View style={[styles.baseStyle, animatedStyle]} pointerEvents="box-none">
         <VideoPlayer.Controls>
           <View
@@ -175,20 +175,14 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
           </View>
         </VideoPlayer.Controls>
       </Animated.View>
-      {/* This is separate because, even tho after the autioHideDelay hides the controls the spinner should be visible when buffering */}
-      <View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        {buffering && <VideoPlayer.LoadingSpinner />}
-      </View>
-    </View>
+      {/* This is separate because, even tho after the autioHideDelay hides the controls the spinner should be visible when buffering  */}
+      {buffering && (
+        //baseStyle works :)
+        <View style={styles.baseStyle} pointerEvents="none">
+          <VideoPlayer.LoadingSpinner />
+        </View>
+      )}
+    </>
   );
 };
 

@@ -5,7 +5,7 @@ import { defaultTheme } from '../themes';
 import { type LayoutRectangle, Dimensions } from 'react-native';
 import { ThemeProvider } from './ThemeProvider';
 import { SettingsProvider } from './SettingsProvider';
-import { PortalHost } from '@rn-primitives/portal';
+import { PortalHost, PortalProvider } from './PortalProvider';
 /**
  * Default configuration for the video player.
  */
@@ -207,14 +207,16 @@ export const VideoProvider: React.FC<{
   }, [config, theme]);
 
   return (
-    <VideoContext.Provider value={{ state, dispatch }}>
-      <ThemeProvider theme={state.theme}>
-        <SettingsProvider>
-          {children}
-          <PortalHost />
-        </SettingsProvider>
-      </ThemeProvider>
-    </VideoContext.Provider>
+    <PortalProvider>
+      <VideoContext.Provider value={{ state, dispatch }}>
+        <ThemeProvider theme={state.theme}>
+          <SettingsProvider>
+            {children}
+            <PortalHost />
+          </SettingsProvider>
+        </ThemeProvider>
+      </VideoContext.Provider>
+    </PortalProvider>
   );
 };
 

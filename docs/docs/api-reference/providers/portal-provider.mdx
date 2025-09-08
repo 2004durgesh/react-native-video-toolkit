@@ -1,0 +1,80 @@
+---
+sidebar_label: PortalProvider
+sidebar_position: 4
+---
+
+# PortalProvider
+
+The `PortalProvider` is a component that allows you to render elements into a different part of the React component tree. This is useful for cases where you need to display a component on top of all other content, such as a modal or a toast notification.
+
+## Usage
+
+To use the `PortalProvider`, you need to wrap your application with it. This is usually done in the root component of your application.
+
+```tsx
+import { PortalProvider } from 'react-native-video-toolkit';
+
+export const App = () => <PortalProvider>{/* Your application content */}</PortalProvider>;
+```
+
+## PortalHost
+
+The `PortalHost` component is used to specify where the portal content should be rendered. You can have multiple `PortalHost` components in your application, each with a unique name.
+
+### Props
+
+| Prop   | Type     | Default                                | Description                  |
+| ------ | -------- | -------------------------------------- | ---------------------------- |
+| `name` | `string` | `INTERNAL_PRIMITIVE_DEFAULT_HOST_NAME` | The name of the portal host. |
+
+## Portal
+
+The `Portal` component is used to render content into a `PortalHost`. You can specify the `hostName` to render the content in a specific `PortalHost`.
+
+### Props
+
+| Prop       | Type        | Default                                | Description                          |
+| ---------- | ----------- | -------------------------------------- | ------------------------------------ |
+| `name`     | `string`    | `required`                             | The name of the portal.              |
+| `hostName` | `string`    | `INTERNAL_PRIMITIVE_DEFAULT_HOST_NAME` | The name of the portal host.         |
+| `children` | `ReactNode` | `required`                             | The content to render in the portal. |
+
+## Example
+
+```tsx
+import { PortalProvider, PortalHost, Portal } from 'react-native-video-toolkit';
+import { View, Text, Button } from 'react-native';
+
+export const Example = () => {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <PortalProvider>
+      <View>
+        <Button title="Show Modal" onPress={() => setShowModal(true)} />
+        {showModal && (
+          <Portal name="modal">
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <View style={{ backgroundColor: 'white', padding: 20 }}>
+                <Text>This is a modal!</Text>
+                <Button title="Hide Modal" onPress={() => setShowModal(false)} />
+              </View>
+            </View>
+          </Portal>
+        )}
+      </View>
+      <PortalHost name="modal" />
+    </PortalProvider>
+  );
+};
+```

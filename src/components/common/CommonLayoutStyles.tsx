@@ -12,5 +12,4 @@ export const CommonLayoutStyles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
   column: { flexDirection: 'column' },
   spacer: { flex: 1 },
-  bottomMinimal: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingBottom: 8 },
 });

@@ -14,6 +14,7 @@ if (Platform.OS === 'web') {
   NativeVideoToolkit = require('./NativeVideoToolkit').default;
 }
 export { NativeVideoToolkit };
+// export { default as NativeVideoToolkit } from './NativeVideoToolkit';
 
 // Export Layouts components
 export { DefaultLayout } from './layouts';

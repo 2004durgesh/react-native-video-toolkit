@@ -10,8 +10,7 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useVideo } from '../../providers';
-import { Portal } from '@rn-primitives/portal';
+import { useVideo, Portal } from '../../providers';
 import { detectDeviceType, getOptimalConfig, PlatformUtils } from '../../utils/orientation';
 
 export interface BottomSheetProps {

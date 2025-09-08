@@ -41,40 +41,10 @@ Here's a full example demonstrating basic usage of the `VideoPlayer` component. 
 If using `react-native-safe-area-context`, add `edges={['top']}` (mainly in Expo). If you are using `SafeAreaView` from `react-native`, no extra steps are needed. This prevents the video content from being obscured by device notches or status bars.
 :::
 
-```tsx
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { VideoPlayer, DefaultLayout, VideoProvider, defaultTheme } from 'react-native-video-toolkit';
-import { SafeAreaView } from 'react-native-safe-area-context'; // Import SafeAreaView from react-native-safe-area-context
-function App(): React.ReactElement {
-  const videoSource = {
-    uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  };
+import GettingStartedMdx from '!!raw-loader!@site/src/components/examples/getting-started';
+import GettingStarted from '@site/src/components/examples/getting-started';
+import ExampleWrapper from '@site/src/components/ExampleWrapper';
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <VideoProvider theme={defaultTheme}>
-        <View style={styles.videoContainer}>
-          <VideoPlayer source={videoSource}>
-            <DefaultLayout />
-          </VideoPlayer>
-        </View>
-      </VideoProvider>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  videoContainer: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#000',
-  },
-});
-
-export default App;
-```
+<ExampleWrapper codeExample={GettingStartedMdx}>
+  <GettingStarted />
+</ExampleWrapper>

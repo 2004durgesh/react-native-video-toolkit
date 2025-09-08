@@ -1,9 +1,11 @@
+/* eslint-disable unused-imports/no-unused-imports */
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+const path = require('path');
+const webpack = require('webpack');
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
-
 const config: Config = {
   title: 'React Native Video Toolkit',
   tagline:
@@ -67,6 +69,70 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
+  plugins: [
+    ...[process.env.NODE_ENV === 'production' && '@docusaurus/plugin-debug'].filter(Boolean),
+    '@docusaurus/theme-live-codeblock',
+    [
+      '@gorhom/docusaurus-react-native-plugin',
+      {
+        alias: {
+          'react-native-video-toolkit': path.resolve(__dirname, '../src'),
+        },
+      },
+    ],
+
+    async function reanimatedDocusaurusPlugin(context, options) {
+      return {
+        name: 'react-native-reanimated/docusaurus-plugin',
+        configureWebpack(config, isServer, utils) {
+          const processMock = !isServer ? { process: { env: {} } } : {};
+
+          const raf = require('raf');
+          raf.polyfill();
+
+          return {
+            mergeStrategy: {
+              'resolve.extensions': 'prepend',
+            },
+            plugins: [
+              new webpack.DefinePlugin({
+                ...processMock,
+                __DEV__: 'false',
+              }),
+            ],
+            module: {
+              rules: [
+                {
+                  test: /\.txt$/,
+                  type: 'asset/source',
+                },
+                {
+                  test: /\.tsx?$/,
+                  use: 'babel-loader',
+                },
+                {
+                  test: /\.js$/,
+                  use: 'babel-loader',
+                },
+                // Rule to exclude the regular NativeVideoToolkit.ts in favor of .web.ts
+                {
+                  test: /NativeVideoToolkit\.ts$/,
+                  exclude: /NativeVideoToolkit\.web\.ts$/,
+                  use: 'null-loader', // This will ignore the file
+                },
+              ],
+            },
+            resolve: {
+              alias: {
+                'react-native$': 'react-native-web',
+              },
+              extensions: ['.web.ts', '.web.tsx', '.web.js', '.web.jsx', '.ts', '.tsx', '.js', '.jsx', '.json'],
+            },
+          };
+        },
+      };
+    },
+  ],
 
   themeConfig: {
     // Replace with your project's social card
@@ -75,6 +141,9 @@ const config: Config = {
       defaultMode: 'dark',
       disableSwitch: true,
       respectPrefersColorScheme: false,
+    },
+    liveCodeBlock: {
+      playgroundPosition: 'bottom',
     },
     navbar: {
       title: 'React Native Media Toolkit',

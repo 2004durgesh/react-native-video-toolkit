@@ -68,10 +68,10 @@ export default defineConfig([
       'jest.config.*',
 
       // Configuration Files
-      '*.config.*',
+      '**/*.config.*',
       'metro.config.js',
       'babel.config.js',
-      'tscconfig.json',
+      'tsconfig.json',
       'app.json',
       'expo-env.d.ts',
       '.env*',

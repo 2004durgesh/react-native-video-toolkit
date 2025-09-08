@@ -1,0 +1,35 @@
+---
+sidebar_label: ThemeProvider
+sidebar_position: 2
+---
+
+# ThemeProvider
+
+The `ThemeProvider` is a component that provides a theme to all its children. It uses the React Context API to make the theme available to all components in the component tree.
+
+## Usage
+
+To use the `ThemeProvider`, you need to wrap your component with it and provide a theme object. This is usually done in the root component of your application.
+
+```tsx
+import { ThemeProvider, defaultTheme } from 'react-native-video-toolkit';
+
+export const App = () => <ThemeProvider theme={defaultTheme}>{/* Your application content */}</ThemeProvider>;
+```
+
+## Props
+
+| Prop       | Type        | Default    | Description             |
+| :--------- | :---------- | :--------- | :---------------------- |
+| `theme`    | `Theme`     | `required` | The theme object.       |
+| `children` | `ReactNode` | `required` | The children to render. |
+
+## useTheme
+
+The `useTheme` hook provides access to the theme object.
+
+### Returns
+
+| Value   | Type    | Description       |
+| :------ | :------ | :---------------- |
+| `theme` | `Theme` | The theme object. |
