@@ -1,0 +1,60 @@
+---
+title: 'SettingsButton'
+description: "A control component that opens the video player's settings menu"
+---
+
+## Usage
+
+```tsx
+import { SettingsButton } from 'react-native-video-toolkit';
+import React from 'react';
+
+const MySettings = () => {
+  return <SettingsButton />;
+};
+```
+
+---
+
+## Props
+
+| Prop                | Type                    | Required | Default                | Description                                   |
+| ------------------- | ----------------------- | -------- | ---------------------- | --------------------------------------------- |
+| `size`              | `number`                | No       | –                      | Size of the icon.                             |
+| `color`             | `string`                | No       | –                      | Color of the icon.                            |
+| `style`             | `StyleProp<ViewStyle>`  | No       | –                      | Optional styles for the button container.     |
+| `renderSettingIcon` | `() => React.ReactNode` | No       | Gear icon (`Settings`) | Custom render function for the settings icon. |
+
+---
+
+## Examples
+
+### Default Settings Button
+
+```tsx
+import { SettingsButton } from 'react-native-video-toolkit';
+
+<SettingsButton size={28} color="#fff" />;
+```
+
+### Custom Icon
+
+```tsx
+import { SettingsButton } from 'react-native-video-toolkit';
+import { Sliders } from 'lucide-react-native';
+import React from 'react';
+
+<SettingsButton renderSettingIcon={() => <Sliders />} />;
+```
+
+---
+
+<Callout type="info">
+
+- Works seamlessly inside control bars alongside `PlayButton`, `MuteButton`, and `FullscreenButton`.
+- Typically used to open menus for:
+  - Video quality selection
+  - Subtitle / text track management
+  - Playback speed adjustment
+
+</Callout>

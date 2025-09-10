@@ -115,7 +115,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
       closeThreshold: isTV ? SHEET_HEIGHT / 2 : SHEET_HEIGHT / 3,
       velocityThreshold: isTV ? 300 : isTablet ? 500 : 600,
       // TV users might not have precise gesture control
-      gestureEnabled: !isTV || PlatformUtils.isBrowser(), // Enable on web TV platforms
+      gestureEnabled: !isTV, // Enable on web TV platforms
     };
   }, [SHEET_HEIGHT]);
 
@@ -141,13 +141,19 @@ export const BottomSheet: FC<BottomSheetProps> = ({
       }
     });
 
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
+  const sheetAnimatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ translateY: translateY.value }],
+    }),
+    [translateY]
+  );
 
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateY.value, [0, SHEET_HEIGHT], [1, 0], Extrapolation.CLAMP),
-  }));
+  const backdropAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: interpolate(translateY.value, [0, SHEET_HEIGHT], [1, 0], Extrapolation.CLAMP),
+    }),
+    [translateY, SHEET_HEIGHT]
+  );
   // Platform-specific styling
   const platformStyles = useMemo(() => {
     const isTV = PlatformUtils.isTV();

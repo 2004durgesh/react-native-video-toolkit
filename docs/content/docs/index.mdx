@@ -1,0 +1,64 @@
+---
+title: Documentation
+description: Welcome to React Native Video Toolkit documentation
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Documentation
+
+Welcome to React Native Video Toolkit documentation! This comprehensive guide will help you build powerful video players in your React Native applications.
+
+<Callout type="info">
+  React Native Video Toolkit is built for React Native 0.76+ with new architecture support (Fabric + TurboModules).
+</Callout>
+
+## Get Started
+
+<Cards>
+  <Card
+    title="Getting Started"
+    description="Learn how to install and set up React Native Video Toolkit in your project"
+    href="/docs/getting-started"
+  />
+  <Card
+    title="Customization"
+    description="Discover how to customize components, themes, and layouts"
+    href="/docs/customization"
+  />
+  <Card
+    title="API Reference"
+    description="Explore the complete API documentation for all components and hooks"
+    href="/docs/api-reference"
+  />
+</Cards>
+
+## Features
+
+- 🎮 **Gesture Controls**: Built-in gesture handling for tap, double-tap, pinch, and swipe
+- 🎨 **Customizable UI**: Fully customizable components with theming support
+- ⚡ **Modern Architecture**: Built for React Native 0.76+ with Fabric and TurboModules
+- 🏗️ **Compound Components**: Flexible component composition pattern
+- 🎯 **TypeScript**: Full TypeScript support with comprehensive type definitions
+- 📱 **Cross-Platform**: Works on both iOS and Android
+
+## Quick Example
+
+```tsx
+import { VideoPlayer } from 'react-native-video-toolkit';
+
+function MyVideoPlayer() {
+  return (
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} style={{ width: '100%', height: 200 }}>
+      <VideoPlayer.Controls />
+    </VideoPlayer>
+  );
+}
+```
+
+## Need Help?
+
+- Check the [Getting Started](/docs/getting-started) guide for installation instructions
+- Browse the [API Reference](/docs/api-reference) for detailed component documentation
+- Explore [Customization](/docs/customization) options for advanced usage

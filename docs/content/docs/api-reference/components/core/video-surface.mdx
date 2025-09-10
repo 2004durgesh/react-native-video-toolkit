@@ -1,0 +1,70 @@
+---
+title: 'VideoSurface'
+description: A thin wrapper around react-native-video that integrates with the toolkit's context and hooks.
+---
+
+## Usage
+
+```tsx
+import { VideoSurface } from 'react-native-video-toolkit';
+
+export function CustomSurfaceExample() {
+  return (
+    <VideoSurface
+      source={{ uri: 'https://example.com/video.mp4' }}
+      resizeMode="cover"
+      onEnd={() => console.log('Playback finished')}
+    />
+  );
+}
+```
+
+---
+
+## Props
+
+All props from [`react-native-video`](https://github.com/react-native-video/react-native-video#props) are supported.
+
+| Prop      | Type                   | Required | Default | Description                                                   |
+| --------- | ---------------------- | -------- | ------- | ------------------------------------------------------------- |
+| `source`  | `VideoSource`          | Yes      | –       | Video source (`uri`, local file, or require).                 |
+| `style`   | `StyleProp<ViewStyle>` | No       | –       | Additional style applied to the `<Video>` surface.            |
+| `...rest` | `ReactVideoProps`      | No       | –       | Any other props from `react-native-video` are passed through. |
+
+---
+
+<Callout type="info">
+**Events**
+
+These events are **already handled internally** and connected to the global store:
+
+- **`onLoad`** → sets duration, clears buffering, deduplicates tracks, and selects the first available track by default.
+- **`onProgress`** → updates current time
+- **`onBuffer`** → updates buffering state
+- **`onError`** → dispatches an error message into state
+- **`onEnd`** → stops playback, seeks to `0`, and shows controls
+- **`onLayout`** → updates player layout in state
+
+You can override these if needed, but by default they keep your UI in sync.
+
+</Callout>
+
+---
+
+<Callout type="info">
+**Layout & Fullscreen**
+
+- Automatically adapts when `fullscreen` is toggled in the global store.
+- Uses a `16:9` aspect ratio by default in normal mode.
+- In fullscreen, expands to `Dimensions.get('window')`.
+
+</Callout>
+
+---
+
+<Callout type="warn">
+
+- Typically, you **don't use `VideoSurface` directly** — it's already included inside `VideoPlayer`.
+- Import it only if you want to **replace or deeply customize** the rendering of the video element (e.g., special resize modes, advanced performance tuning).
+
+</Callout>

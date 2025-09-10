@@ -1,0 +1,89 @@
+---
+title: 'FullscreenButton'
+description: 'A control component that toggles fullscreen mode for the video player'
+---
+
+## Usage
+
+```tsx
+import { FullscreenButton } from 'react-native-video-toolkit';
+import React from 'react';
+
+const MyFullscreenButton = () => {
+  return <FullscreenButton />;
+};
+```
+
+---
+
+## Props
+
+| Prop              | Type                    | Required | Default                                 | Description                                      |
+| ----------------- | ----------------------- | -------- | --------------------------------------- | ------------------------------------------------ |
+| `size`            | `number`                | No       | –                                       | Size of the icon.                                |
+| `color`           | `string`                | No       | –                                       | Color of the icon.                               |
+| `style`           | `StyleProp<ViewStyle>`  | No       | –                                       | Optional styles applied to the button container. |
+| `renderEnterIcon` | `() => React.ReactNode` | No       | `Maximize` (from `lucide-react-native`) | Custom renderer for the "enter fullscreen" icon. |
+| `renderExitIcon`  | `() => React.ReactNode` | No       | `Minimize` (from `lucide-react-native`) | Custom renderer for the "exit fullscreen" icon.  |
+
+---
+
+## Examples
+
+<Tabs items={['Default', 'Custom Icons', 'Integration']}>
+<Tab value="Default">
+
+### Default Fullscreen Button
+
+```tsx
+import { FullscreenButton } from 'react-native-video-toolkit';
+
+<FullscreenButton size={24} color="white" />;
+```
+
+</Tab>
+<Tab value="Custom Icons">
+
+### Custom Icons
+
+```tsx
+import { FullscreenButton } from 'react-native-video-toolkit';
+import { ArrowsOut, ArrowsIn } from 'phosphor-react-native';
+import React from 'react';
+
+<FullscreenButton
+  renderEnterIcon={() => <ArrowsOut size={24} color="white" />}
+  renderExitIcon={() => <ArrowsIn size={24} color="white" />}
+/>;
+```
+
+</Tab>
+<Tab value="Integration">
+
+### Integration Example
+
+Typically used within a `VideoPlayer`:
+
+```tsx
+import { VideoPlayer, FullscreenButton } from 'react-native-video-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <VideoPlayer.Controls>
+        <FullscreenButton size={28} color="white" />
+      </VideoPlayer.Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+</Tab>
+</Tabs>
+
+---
+
+<Callout type="info">
+  - Handles **tap gestures** internally using `useFullscreen` and `GestureDetector`, so you don't need to wire gestures
+  yourself. - Works seamlessly with both **custom layouts** and **pre-built control sets**.
+</Callout>

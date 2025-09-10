@@ -145,10 +145,13 @@ const useSlideAnimation = (
     }
   }, [isVisible, translateX, opacity, direction]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-    opacity: opacity.value,
-  }));
+  const animatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ translateX: translateX.value }],
+      opacity: opacity.value,
+    }),
+    [translateX, opacity]
+  );
 
   return { animatedStyle, opacity };
 };
@@ -254,9 +257,12 @@ export const Menu = {
       }
     }, [currentView, opacity, isSettingsMenuVisible]);
 
-    const animatedStyle = useAnimatedStyle(() => ({
-      opacity: opacity.value,
-    }));
+    const animatedStyle = useAnimatedStyle(
+      () => ({
+        opacity: opacity.value,
+      }),
+      [opacity]
+    );
 
     return (
       <BottomSheet visible={isSettingsMenuVisible} onClose={closeSettings} {...props}>
@@ -355,9 +361,12 @@ export const Menu = {
       }
     };
 
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: scale.value }],
-    }));
+    const animatedStyle = useAnimatedStyle(
+      () => ({
+        transform: [{ scale: scale.value }],
+      }),
+      [scale]
+    );
 
     const renderChildren = (): ReactNode => {
       if (typeof children === 'string') {
@@ -446,9 +455,12 @@ export const Menu = {
       });
     }, [isChecked, checkScale]);
 
-    const checkAnimatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: checkScale.value }],
-    }));
+    const checkAnimatedStyle = useAnimatedStyle(
+      () => ({
+        transform: [{ scale: checkScale.value }],
+      }),
+      [checkScale]
+    );
 
     const handlePress = (): void => {
       const newChecked = !isChecked;

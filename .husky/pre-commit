@@ -5,8 +5,7 @@ set -e
 # Ensure README.md is restored if script exits
 trap 'test -f README.mdx && mv README.mdx README.md' EXIT
 
-yarn prepare
-yarn typecheck
+yarn concurrently 'yarn prepare' 'yarn typecheck' 'yarn docs build'
 
 # rename README.md to README.mdx before formatting
 mv README.md README.mdx

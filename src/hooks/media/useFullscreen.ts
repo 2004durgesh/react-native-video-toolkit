@@ -1,5 +1,6 @@
 import { useVideo } from '../../providers';
 import { useCallback } from 'react';
+import { Platform } from 'react-native';
 import { useControlsVisibility } from './useControlsVisibility';
 import { NativeVideoToolkit } from '../../NativeVideoToolkit';
 import { useOrientation } from './useOrientation';
@@ -28,7 +29,7 @@ export const useFullscreen = () => {
       showControls();
 
       // Use orientation hook's smart rotation
-      if (state.config.enableScreenRotation) {
+      if (Platform.OS !== 'web' && state.config.enableScreenRotation) {
         await orientation.lockToLandscape();
       }
 
@@ -36,7 +37,7 @@ export const useFullscreen = () => {
       state.config.onEnterFullscreen?.();
     } else {
       // Exiting fullscreen
-      if (state.config.enableScreenRotation) {
+      if (Platform.OS !== 'web' && state.config.enableScreenRotation) {
         await orientation.unlockOrientation();
       }
 

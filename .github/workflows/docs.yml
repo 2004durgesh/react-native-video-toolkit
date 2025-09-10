@@ -80,43 +80,43 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-docs-
 
-      # Lint/validate docs before building (optional but recommended)
-      - name: Validate Docusaurus config
+      # Validate Next.js config
+      - name: Validate Next.js config
         working-directory: ./docs
         run: |
-          if [ -f "docusaurus.config.js" ]; then
-            node -e "require('./docusaurus.config.js')"
-          elif [ -f "docusaurus.config.ts" ]; then
-            echo "TypeScript config detected - ensure it compiles"
+          if [ -f "next.config.mjs" ]; then
+            node -e "import('./next.config.mjs').then(() => console.log('Next.js config is valid'))"
+          elif [ -f "next.config.js" ]; then
+            node -e "require('./next.config.js'); console.log('Next.js config is valid')"
           fi
 
-      - name: Build Docusaurus
+      - name: Build Next.js
         working-directory: ./docs
         run: yarn build
         env:
           NODE_ENV: production
-          # Add any environment variables your docs might need
-          # DOCUSAURUS_BASE_URL: ${{ github.event.repository.name }}
+          # Next.js specific environment variables
+          NEXT_TELEMETRY_DISABLED: 1
 
       # Verify build output exists
       - name: Verify build output
         run: |
-          if [ ! -d "./docs/build" ]; then
-            echo "Error: Build directory not found"
+          if [ ! -d "./docs/out" ]; then
+            echo "Error: Build output directory 'out' not found"
             exit 1
           fi
-          if [ ! -f "./docs/build/index.html" ]; then
+          if [ ! -f "./docs/out/index.html" ]; then
             echo "Error: index.html not found in build output"
             exit 1
           fi
           echo "Build output size:"
-          du -sh ./docs/build
+          du -sh ./docs/out
 
       - name: Upload Build Artifact
         if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs/build
+          path: ./docs/out
           retention-days: 1
 
   deploy:
@@ -152,7 +152,7 @@ jobs:
           
           # Basic HTTP check
           if curl -f -s "$SITE_URL" > /dev/null; then
-            echo "✅ Site is accessible"
+            echo "✅ Site is accessible at $SITE_URL"
           else
             echo "❌ Site is not accessible"
             exit 1

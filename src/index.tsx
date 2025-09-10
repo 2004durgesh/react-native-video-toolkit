@@ -1,3 +1,5 @@
+'use client';
+
 // Main VideoPlayer component and compound components
 export { VideoPlayer } from './components/VideoPlayer';
 // Export the VideoToolkit module with platform-specific resolution
@@ -22,18 +24,11 @@ export { DefaultLayout } from './layouts';
 // Core components
 export { VideoSurface } from './components/core';
 
-// Basic controls and their types
-export * from './components/controls';
+export * from './components';
 export * from './gestures';
-
-// Store and Providers
-export { useVideo, VideoProvider, useTheme, ThemeProvider, useSettingsContext, SettingsProvider } from './providers';
-
-// Types
-export type * from './types';
-
-//Hooks
 export * from './hooks';
-
-//Themes
+export * from './layouts';
+export * from './providers';
 export * from './themes';
+export * from './types';
+export * from './utils';

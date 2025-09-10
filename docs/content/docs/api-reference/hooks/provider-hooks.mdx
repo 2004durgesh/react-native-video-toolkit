@@ -1,0 +1,55 @@
+---
+title: 'Provider Hooks'
+---
+
+## `useVideo()`
+
+A hook to access the current video player state and dispatch actions to control the player. It provides access to the video player's state, a dispatch function to send actions, and a helper function to set the theme.
+
+### Usage
+
+```tsx
+import { useVideo } from 'react-native-video-toolkit';
+
+const MyComponent = () => {
+  const { state, dispatch } = useVideo();
+  // ...
+};
+```
+
+### Returns
+
+| Value      | Type                            | Description                                                                        |
+| ---------- | ------------------------------- | ---------------------------------------------------------------------------------- |
+| `state`    | `VideoState`                    | An object containing the current state of the video player.                        |
+| `dispatch` | `(action: VideoAction) => void` | A function that allows you to dispatch actions to update the video player's state. |
+
+### Example
+
+```tsx
+import { useVideo } from 'react-native-video-toolkit';
+import { View, Text, Button } from 'react-native';
+import React from 'react';
+
+const MyComponent = () => {
+  const { state, dispatch } = useVideo();
+
+  // Example: Toggle play/pause
+  const handlePlayPause = () => {
+    dispatch({ type: 'TOGGLE_PLAY_PAUSE' });
+  };
+
+  // Example: Seek to a specific time
+  const handleSeek = (time: number) => {
+    dispatch({ type: 'SEEK', payload: time });
+  };
+
+  return (
+    <View>
+      <Text>Current Time: {state.currentTime}</Text>
+      <Button onPress={handlePlayPause} title={state.isPlaying ? 'Pause' : 'Play'} />
+      <Button onPress={handleThemeChange} title="Change Theme" />
+    </View>
+  );
+};
+```

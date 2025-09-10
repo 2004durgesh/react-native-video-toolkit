@@ -1,0 +1,141 @@
+---
+title: Common
+description: Common utility functions for combining event handlers and other helper utilities.
+---
+
+## `combineHandlers`
+
+A utility function that combines multiple event handlers into a single function. It's particularly useful when you want to attach multiple callbacks to a single event without creating a new function inline.
+
+<Callout type="info">
+  You can use `combineHandlers` to merge your custom `onPress` handler with the one provided by a component. This is
+  useful when you want to extend the functionality of a component without losing its original behavior.
+</Callout>
+
+### Usage
+
+```tsx
+import { combineHandlers } from 'react-native-video-toolkit';
+
+const handleClick = combineHandlers(
+  () => {},
+  () => {}
+);
+```
+
+### Parameters
+
+| Parameter  | Type                           | Required | Default | Description                            |
+| ---------- | ------------------------------ | -------- | ------- | -------------------------------------- |
+| `handlers` | `((...args: any[]) => void)[]` | Yes      | –       | An array of event handlers to combine. |
+
+### Returns
+
+| Type                       | Description                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------- |
+| `(...args: any[]) => void` | A single function that calls all the provided handlers in the order they were passed. |
+
+### Example
+
+```tsx
+import { combineHandlers } from 'react-native-video-toolkit';
+
+const onClick1 = () => console.log('click1');
+const onClick2 = () => console.log('click2');
+
+const handleClick = combineHandlers(onClick1, onClick2);
+```
+
+## `dedupeVideoTracks`
+
+Deduplicates video tracks by grouping them by `width`, `height`, and `codecs`, keeping only the track with the highest `bitrate` in each group.
+
+### Usage
+
+```tsx
+import { dedupeVideoTracks } from 'react-native-video-toolkit';
+
+const videoTracks = [
+  { width: 1280, height: 720, codecs: 'avc1.4d401f', bitrate: 2000000 },
+  { width: 1280, height: 720, codecs: 'avc1.4d401f', bitrate: 1500000 },
+  { width: 1920, height: 1080, codecs: 'avc1.640028', bitrate: 5000000 },
+];
+
+const dedupedTracks = dedupeVideoTracks(videoTracks);
+```
+
+### Parameters
+
+| Parameter | Type      | Required | Description                |
+| --------- | --------- | -------- | -------------------------- |
+| `tracks`  | `Track[]` | Yes      | The array of video tracks. |
+
+### Returns
+
+| Type      | Description                                 |
+| --------- | ------------------------------------------- |
+| `Track[]` | An array of unique, highest-bitrate tracks. |
+
+## `dedupeLanguageTracks`
+
+Deduplicates audio or text tracks by `language` and `title`, removing duplicates and filtering out tracks with an undefined language.
+
+### Usage
+
+```tsx
+import { dedupeLanguageTracks } from 'react-native-video-toolkit';
+
+const audioTracks = [
+  { language: 'en', title: 'English Stereo' },
+  { language: 'en', title: 'English 5.1' },
+  { language: 'fr', title: 'Français' },
+];
+
+const dedupedTracks = dedupeLanguageTracks(audioTracks);
+```
+
+### Parameters
+
+| Parameter | Type      | Required | Description                        |
+| --------- | --------- | -------- | ---------------------------------- |
+| `tracks`  | `Track[]` | Yes      | The array of audio or text tracks. |
+
+### Returns
+
+| Type      | Description                                       |
+| --------- | ------------------------------------------------- |
+| `Track[]` | An array of unique tracks, one for each language. |
+
+## `hexToRgba`
+
+A utility function that converts a hex color to an rgba color.
+
+### Usage
+
+```tsx
+import { hexToRgba } from 'react-native-video-toolkit';
+
+const rgbaColor = hexToRgba('#FF0000', 0.5);
+```
+
+### Parameters
+
+| Parameter | Type     | Required | Default | Description               |
+| --------- | -------- | -------- | ------- | ------------------------- |
+| `hex`     | `string` | Yes      | –       | The hex color to convert. |
+| `alpha`   | `number` | Yes      | –       | The alpha value to apply. |
+
+### Returns
+
+| Type     | Description            |
+| -------- | ---------------------- |
+| `string` | The rgba color string. |
+
+### Example
+
+```tsx
+import { hexToRgba } from 'react-native-video-toolkit';
+
+const rgbaColor = hexToRgba('#FF0000', 0.5);
+// rgbaColor will be 'rgba(255, 0, 0, 0.5)'
+```

@@ -1,0 +1,40 @@
+---
+title: 'Gestures Types'
+description: Types related to player gestures including double-tap, pan gestures, and gesture handler interfaces.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## `UseDoubleTapGestureProps`
+
+The `UseDoubleTapGestureProps` interface defines the props for the `useDoubleTapGesture` hook.
+
+| Property                | Type                   | Required | Default     | Description                                                       |
+| ----------------------- | ---------------------- | -------- | ----------- | ----------------------------------------------------------------- |
+| `videoRef`              | `React.RefObject<any>` | Yes      | `null`      | A ref to the video player component.                              |
+| `doubleTapSeekInterval` | `number`               | No       | `10`        | The number of seconds to seek forward or backward on double-tap.  |
+| `onDoubleTapSeekStart`  | `() => void`           | No       | `undefined` | A callback function that is called when a double-tap seek starts. |
+| `onDoubleTapSeekEnd`    | `() => void`           | No       | `undefined` | A callback function that is called when a double-tap seek ends.   |
+
+## `UsePanGestureProps`
+
+The `UsePanGestureProps` interface defines the props for the `usePanGesture` hook.
+
+| Property              | Type                                                             | Required | Default     | Description                                                                                                 |
+| --------------------- | ---------------------------------------------------------------- | -------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `onLeftVerticalPan`   | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a vertical pan gesture is detected on the left side of the screen.  |
+| `onRightVerticalPan`  | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a vertical pan gesture is detected on the right side of the screen. |
+| `onGlobalVerticalPan` | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a vertical pan gesture is detected anywhere on the screen.          |
+
+<Callout type="warn">
+  If you use the `onGlobalVerticalPan` prop, it will override the `onLeftVerticalPan` and `onRightVerticalPan` props.
+  You should use either the global pan handler or the side-specific pan handlers, but not both.
+</Callout>
+
+## `GestureHandlerProps`
+
+The `GestureHandlerProps` interface defines the props for the `GestureHandler` component. It extends `UseDoubleTapGestureProps` and `UsePanGestureProps`.
+
+| Property   | Type              | Required | Default | Description                    |
+| ---------- | ----------------- | -------- | ------- | ------------------------------ |
+| `children` | `React.ReactNode` | Yes      | –       | The children of the component. |

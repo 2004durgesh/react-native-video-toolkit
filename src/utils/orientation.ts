@@ -6,14 +6,14 @@ export interface RotationConfig {
   minHeight?: number;
   excludeSquare?: boolean;
   considerSafeArea?: boolean;
-  platform?: 'mobile' | 'web' | 'tv' | 'auto';
+  platform?: 'mobile' | 'tv' | 'auto';
 }
 
-export type DeviceType = 'phone' | 'tablet' | 'foldable' | 'tv' | 'desktop' | 'unknown';
+export type DeviceType = 'phone' | 'tablet' | 'foldable' | 'tv' | 'unknown';
 
 /**
- * Universal screen rotation detection for React Native across all platforms.
- * Supports mobile, web, and TV platforms with platform-specific optimizations.
+ * Universal screen rotation detection for React Native across mobile and TV platforms.
+ * Supports mobile and TV platforms with platform-specific optimizations.
  *
  * @description Determines whether the screen should rotate to landscape orientation based on
  * various conditions and platform-specific logic. The function considers aspect ratio,
@@ -31,17 +31,6 @@ export type DeviceType = 'phone' | 'tablet' | 'foldable' | 'tv' | 'desktop' | 'u
  * - Phone: aspectRatio > 1.3, minWidth: 300px, excludes squares
  * - Tablet: aspectRatio > 1.1, minWidth: 600px, allows squares
  * - Foldable: aspectRatio > 1.2, minWidth: 400px, excludes squares
- *
- * ### Web Platform:
- * - **Basic Condition**: `aspectRatio > threshold` (default threshold: 1.2)
- * - **Minimum Width**: Must meet `minWidth` requirement (default: 768px for tablet/desktop)
- * - **Square Tolerance**: More lenient square detection (±0.05) due to browser resizing
- * - **Responsive Breakpoints**: Different thresholds for phone/tablet/desktop sizes
- *
- * **Device-Specific Web Thresholds:**
- * - Phone (360px+): aspectRatio > 1.3, excludes squares
- * - Tablet (768px+): aspectRatio > 1.2, allows squares
- * - Desktop (1024px+): aspectRatio > 1.1, allows squares
  *
  * ### TV Platform:
  * - **Basic Condition**: `aspectRatio >= threshold` (default threshold: 1.3)
@@ -142,8 +131,6 @@ export function shouldRotate(width?: number, height?: number, config: RotationCo
   switch (detectedPlatform) {
     case 'tv':
       return handleTVRotation(finalWidth, finalHeight, config);
-    case 'web':
-      return handleWebRotation(finalWidth, finalHeight, config);
     case 'mobile':
     default:
       return handleMobileRotation(finalWidth, finalHeight, config);
@@ -153,13 +140,9 @@ export function shouldRotate(width?: number, height?: number, config: RotationCo
 /**
  * Detect current platform
  */
-function detectPlatform(): 'mobile' | 'web' | 'tv' {
+function detectPlatform(): 'mobile' | 'tv' {
   if (Platform.isTV) {
     return 'tv';
-  }
-
-  if (Platform.OS === 'web') {
-    return 'web';
   }
 
   return 'mobile';
@@ -169,16 +152,6 @@ function detectPlatform(): 'mobile' | 'web' | 'tv' {
  * Get dimensions based on platform
  */
 function getDimensions(considerSafeArea: boolean, platform: string) {
-  if (platform === 'web') {
-    // For React Native Web, use window dimensions if available
-    if (typeof window !== 'undefined') {
-      return {
-        width: window.innerWidth || window.screen.width,
-        height: window.innerHeight || window.screen.height,
-      };
-    }
-  }
-
   // For TV and mobile, use React Native Dimensions
   const dimensionType = considerSafeArea ? 'window' : 'screen';
   return Dimensions.get(dimensionType);
@@ -216,56 +189,6 @@ function handleTVRotation(width: number, height: number, config: RotationConfig)
   // Most modern TVs are 16:9 (1.78) or wider
   // Old 4:3 TVs (1.33) should be considered "portrait-like" for UI layout
   return aspectRatio >= threshold;
-}
-
-/**
- * Handle web-specific rotation logic
- *
- * @description Web rotation logic considers browser viewport dimensions and responsive
- * design breakpoints. More lenient than mobile due to browser resizing capabilities.
- *
- * **Web Rotation Conditions:**
- * 1. **Minimum Width Check**: width >= minWidth (default 768px for tablet threshold)
- * 2. **Aspect Ratio Check**: aspectRatio > threshold (default 1.2)
- * 3. **Square Detection**: If excludeSquare=false, allows square viewports (±0.05 tolerance)
- *
- * **Responsive Breakpoints:**
- * - Mobile web (< 768px): Often excluded from rotation
- * - Tablet web (768px - 1023px): aspectRatio > 1.2
- * - Desktop web (1024px+): aspectRatio > 1.1, more permissive
- *
- * **Browser Considerations:**
- * - Viewport can be resized dynamically
- * - User may prefer specific orientations
- * - DevTools can simulate mobile viewports
- * - Multi-window setups affect available space
- *
- * **Example Scenarios:**
- * - 1200x800 browser → aspectRatio 1.5 > 1.2 → true
- * - 600x400 mobile → width 600 < 768 → false
- * - 1000x1000 square → excluded if excludeSquare=true → false
- *
- * @param width Browser viewport width in pixels
- * @param height Browser viewport height in pixels
- * @param config Web-specific configuration (threshold: 1.2, minWidth: 768)
- * @returns boolean - true if web viewport should use landscape layout
- */
-function handleWebRotation(width: number, height: number, config: RotationConfig): boolean {
-  const { threshold = 1.2, minWidth = 768, excludeSquare = false } = config;
-
-  const aspectRatio = width / height;
-
-  // Check minimum width (tablets/desktop threshold)
-  if (width < minWidth) {
-    return false;
-  }
-
-  // Web browsers can be resized, so be more lenient with square detection
-  if (excludeSquare && Math.abs(aspectRatio - 1) < 0.05) {
-    return false;
-  }
-
-  return aspectRatio > threshold;
 }
 
 /**
@@ -377,17 +300,6 @@ export function detectDeviceType(): DeviceType {
     return 'tv';
   }
 
-  if (platform === 'web') {
-    // Web device detection based on screen size
-    if (minDimension >= 1024) {
-      return 'desktop';
-    } else if (minDimension >= 768) {
-      return 'tablet';
-    } else {
-      return 'phone';
-    }
-  }
-
   // Mobile device detection
   if (minDimension >= 600) {
     return 'tablet';
@@ -461,23 +373,6 @@ export const PLATFORM_CONFIGS = {
       minWidth: 400,
       excludeSquare: true,
       considerSafeArea: true,
-    },
-  },
-  web: {
-    phone: {
-      threshold: 1.3,
-      minWidth: 360,
-      excludeSquare: true,
-    },
-    tablet: {
-      threshold: 1.2,
-      minWidth: 768,
-      excludeSquare: false,
-    },
-    desktop: {
-      threshold: 1.1,
-      minWidth: 1024,
-      excludeSquare: false,
     },
   },
   tv: {
@@ -628,19 +523,6 @@ export function useShouldRotate(config: RotationConfig = {}) {
       return;
     }
 
-    if (platform === 'web' && typeof window !== 'undefined') {
-      // Web resize listener
-      const handleResize = () => {
-        setDimensions({
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-
     // Mobile orientation change listener
     const subscription = Dimensions.addEventListener('change', ({ screen, window }) => {
       const newDimensions = config.considerSafeArea ? window : screen;
@@ -681,14 +563,6 @@ export function getVideoControlsConfig(isLandscape: boolean, platform?: string) 
         focusable: true,
       };
 
-    case 'web':
-      return {
-        ...baseConfig,
-        showMouseHover: true,
-        keyboardNavigable: true,
-        showTooltips: true,
-      };
-
     default: // mobile
       return {
         ...baseConfig,
@@ -709,13 +583,6 @@ export const PlatformUtils = {
   // TV-specific
   isTVOS: () => Platform.OS === 'ios' && Platform.isTV,
   isAndroidTV: () => Platform.OS === 'android' && Platform.isTV,
-
-  // Web-specific
-  isBrowser: () => typeof window !== 'undefined',
-  isDesktop: () => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth >= 1024;
-  },
 
   // Mobile-specific
   isTablet: () => {

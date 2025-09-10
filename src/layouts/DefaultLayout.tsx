@@ -46,7 +46,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
   );
   return (
     <>
-      <Animated.View style={[styles.baseStyle, animatedStyle]} pointerEvents="box-none">
+      <Animated.View style={[styles.baseStyle, animatedStyle, { pointerEvents: 'box-none' }]}>
         <VideoPlayer.Controls>
           <View
             style={[layoutStyles.column, { justifyContent: 'space-between', height: '100%', paddingHorizontal: 15 }]}>
@@ -178,7 +178,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
       {/* This is separate because, even tho after the autioHideDelay hides the controls the spinner should be visible when buffering  */}
       {buffering && (
         //baseStyle works :)
-        <View style={styles.baseStyle} pointerEvents="none">
+        <View style={[styles.baseStyle, { pointerEvents: 'none' }]}>
           <VideoPlayer.LoadingSpinner />
         </View>
       )}

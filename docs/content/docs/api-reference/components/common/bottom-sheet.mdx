@@ -1,0 +1,85 @@
+---
+title: 'BottomSheet'
+description: The BottomSheet component that provides an animated modal-like interface sliding up from the bottom of the screen, with gesture support and theming integration.
+---
+
+## Usage
+
+```tsx
+import { BottomSheet } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
+
+function SettingsSheet({ visible, onClose }) {
+  return (
+    <BottomSheet visible={visible} onClose={onClose}>
+      <Text style={{ color: 'white' }}>Settings Panel</Text>
+    </BottomSheet>
+  );
+}
+```
+
+---
+
+## Props
+
+| Prop         | Type         | Required | Default | Description                                                |
+| ------------ | ------------ | -------- | ------- | ---------------------------------------------------------- |
+| `visible`    | `boolean`    | Yes      | –       | Controls the visibility of the bottom sheet.               |
+| `onClose`    | `() => void` | No       | –       | Callback fired when sheet is dismissed (swipe or tap).     |
+| `children`   | `ReactNode`  | Yes      | –       | Content to render inside the sheet.                        |
+| `showHandle` | `boolean`    | No       | `true`  | Shows a drag handle for better UX with scrollable content. |
+
+---
+
+## Examples
+
+### Simple Bottom Sheet
+
+```tsx
+import { BottomSheet } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
+import { useState } from 'react';
+
+function SimpleBottomSheet() {
+  const [open, setOpen] = useState(false);
+  return (
+    <BottomSheet visible={open} onClose={() => setOpen(false)}>
+      <Text style={{ color: 'white' }}>Hello from the sheet!</Text>
+    </BottomSheet>
+  );
+}
+```
+
+### With Custom Handle
+
+```tsx
+import { BottomSheet } from 'react-native-video-toolkit';
+import { View, Text } from 'react-native';
+import { useState } from 'react';
+
+function CustomHandleBottomSheet() {
+  const [open, setOpen] = useState(false);
+  return (
+    <BottomSheet visible={open} onClose={() => setOpen(false)} showHandle={true}>
+      <View style={{ padding: 20 }}>
+        <Text>Settings</Text>
+      </View>
+    </BottomSheet>
+  );
+}
+```
+
+---
+
+<Callout type="warn">
+
+If you pass scrollable content (e.g. `FlatList`, `ScrollView`), keep `showHandle={true}` for a better gesture experience.
+
+</Callout>
+
+<Callout type="info">
+
+- Uses `withTiming` for smooth open/close animations.
+- Dismissal threshold is based on **drag distance (>⅓ of sheet)** or **velocity (>600)**.
+
+</Callout>

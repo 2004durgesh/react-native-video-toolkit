@@ -1,0 +1,393 @@
+---
+title: 'Media Hooks'
+description: Hooks for managing media state, buffering, playback controls, and video properties.
+---
+
+## `useBuffering()`
+
+A hook to check and control the video's buffering state.
+
+### Usage
+
+```tsx
+import { useBuffering } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { buffering } = useBuffering();
+  // ...
+};
+```
+
+### Returns
+
+| Value          | Type                             | Description                                                                                                                                          |
+| -------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `buffering`    | `boolean`                        | A boolean indicating whether the video is currently buffering (`true`) or not (`false`).                                                             |
+| `setBuffering` | `(isBuffering: boolean) => void` | A function that allows you to manually set the buffering state. This is primarily used internally but can be useful for custom buffering indicators. |
+
+[`<VideoPlayer.LoadingSpinner />`](../components/display/loading-spinner.mdx) uses this hook to display a loading spinner when the video is buffering.
+
+### Example
+
+```tsx
+import { useBuffering } from 'react-native-video-toolkit';
+import { ActivityIndicator } from 'react-native';
+
+const MyBufferingIndicator = () => {
+  const { buffering } = useBuffering();
+
+  if (buffering) {
+    return <ActivityIndicator size="large" color="#fff" />;
+  }
+  return null;
+};
+
+export default MyBufferingIndicator;
+```
+
+## `useControlsVisibility()`
+
+A hook for managing the visibility of the video player controls, including functions to show, hide, or toggle them.
+
+### Usage
+
+```tsx
+import { useControlsVisibility } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { showControls, hideControls } = useControlsVisibility();
+  // ...
+};
+```
+
+### Returns
+
+| Value            | Type                                     | Description                                                                                                        |
+| ---------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `showControls`   | `() => void`                             | A function that makes the video controls visible.                                                                  |
+| `hideControls`   | `() => void`                             | A function that hides the video controls.                                                                          |
+| `toggleControls` | `() => void`                             | A function that toggles the visibility of the controls (shows if hidden, hides if visible).                        |
+| `setOpacity`     | `(opacity: SharedValue<number>) => void` | A function that sets the shared value for the controls' opacity. This is primarily used internally for animations. |
+
+### Example
+
+```tsx
+import { useControlsVisibility } from 'react-native-video-toolkit';
+import { View, Button } from 'react-native';
+import React from 'react';
+
+const MyCustomControl = () => {
+  const { showControls, hideControls, toggleControls } = useControlsVisibility();
+
+  return (
+    <View>
+      <Button title="Show" onPress={showControls} />
+      <Button title="Hide" onPress={hideControls} />
+      <Button title="Toggle" onPress={toggleControls} />
+    </View>
+  );
+};
+
+export default MyCustomControl;
+```
+
+## `useFullscreen()`
+
+A hook for managing the video player's fullscreen mode.
+
+### Usage
+
+```tsx
+import { useFullscreen } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { fullscreen, toggleFullscreen } = useFullscreen();
+  // ...
+};
+```
+
+### Returns
+
+| Value              | Type         | Description                                                                                                                                                  |
+| ------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `fullscreen`       | `boolean`    | A boolean indicating whether the video player is currently in fullscreen mode.                                                                               |
+| `toggleFullscreen` | `() => void` | A function that toggles the fullscreen mode. This function also handles screen orientation locking if `enableScreenRotation` is true in `VideoPlayerConfig`. |
+
+[`<VideoPlayer.FullscreenButton />`](../components/controls/fullscreen-button.mdx) uses this hook to provide a button for toggling fullscreen mode.
+Handles tap gestures for toggling fullscreen mode.
+
+<Callout type="warn">
+  This hooks calls the useOrientation hook internally to manage screen orientation when entering/exiting fullscreen
+  mode. If you are also using the useOrientation hook in your component, ensure that both hooks are configured
+  consistently to avoid conflicts.
+</Callout>
+
+### Example
+
+```tsx
+import { useFullscreen } from 'react-native-video-toolkit';
+import React from 'react';
+
+const MyFullscreenButton = () => {
+  const { fullscreen, toggleFullscreen } = useFullscreen();
+
+  return <BaseIconButton IconComponent={FullscreenIcon} onTap={toggleFullscreen} />;
+};
+
+export default MyFullscreenButton;
+```
+
+## `usePlayback()`
+
+A hook for controlling the video's playback state (play, pause).
+
+### Usage
+
+```tsx
+import { usePlayback } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { isPlaying, togglePlayPause } = usePlayback();
+  // ...
+};
+```
+
+### Returns
+
+| Value             | Type                           | Description                                                          |
+| ----------------- | ------------------------------ | -------------------------------------------------------------------- |
+| `isPlaying`       | `boolean`                      | A boolean indicating whether the video is currently playing.         |
+| `togglePlayPause` | `() => void`                   | A function that toggles the video between playing and paused states. |
+| `setPlaying`      | `(isPlaying: boolean) => void` | A function that directly sets the playing state of the video.        |
+
+[`<VideoPlayer.PlayPauseButton />`](../components/controls/play-button.mdx) uses this hook to provide a button for toggling playback. Handles tap
+gestures for toggling play/pause state.
+
+### Example
+
+```tsx
+import { usePlayback } from 'react-native-video-toolkit';
+import React from 'react';
+
+const MyPlayPauseButton = () => {
+  const { isPlaying, togglePlayPause } = usePlayback();
+
+  return <BaseIconButton IconComponent={PlayPauseIcon} onTap={togglePlayPause} />;
+};
+
+export default MyPlayPauseButton;
+```
+
+## `useProgress()`
+
+A hook for accessing and controlling the video's current playback time and duration.
+
+### Usage
+
+```tsx
+import { useProgress } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { currentTime, duration, seek } = useProgress();
+  // ...
+};
+```
+
+### Returns
+
+| Value            | Type                         | Description                                                                      |
+| ---------------- | ---------------------------- | -------------------------------------------------------------------------------- |
+| `currentTime`    | `number`                     | The current playback time of the video in seconds.                               |
+| `duration`       | `number`                     | The total duration of the video in seconds.                                      |
+| `seek`           | `(time: number) => void`     | A function that seeks the video to a specific time in seconds.                   |
+| `setCurrentTime` | `(time: number) => void`     | A function that manually sets the current time state. Primarily used internally. |
+| `setDuration`    | `(duration: number) => void` | A function that manually sets the duration state. Primarily used internally.     |
+
+- [`<VideoPlayer.ProgressBar />`](../components/controls/progress-bar.mdx) uses this hook to display and
+  control video progress.
+- [`<VideoPlayer.TimeDisplay /> `](../components/display/time-display.mdx) uses this hook to show the current
+  time and duration.
+
+### Example
+
+```tsx
+import { useProgress } from 'react-native-video-toolkit';
+import Slider from '@react-native-community/slider';
+import { View, Text } from 'react-native';
+import React from 'react';
+
+const MyProgressBar = () => {
+  const { currentTime, duration, seek } = useProgress();
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
+  return (
+    <View>
+      <Text>
+        {formatTime(currentTime)} / {formatTime(duration)}
+      </Text>
+      <Slider minimumValue={0} maximumValue={1} value={currentTime} onSlidingComplete={seek} />
+    </View>
+  );
+};
+
+export default MyProgressBar;
+```
+
+## `useVolume()`
+
+A hook for managing the video's volume and mute state.
+
+### Usage
+
+```tsx
+import { useVolume } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { volume, muted, toggleMute } = useVolume();
+  // ...
+};
+```
+
+### Returns
+
+| Value        | Type                       | Description                                                           |
+| ------------ | -------------------------- | --------------------------------------------------------------------- |
+| `volume`     | `number`                   | The current volume level of the video, a number between 0 and 1.      |
+| `muted`      | `boolean`                  | A boolean indicating whether the video is currently muted.            |
+| `setVolume`  | `(volume: number) => void` | A function that sets the video's volume to a specific level (0 to 1). |
+| `toggleMute` | `() => void`               | A function that toggles the mute state of the video.                  |
+
+[`<VideoPlayer.MuteButton />`](../components/controls/mute-button.mdx) uses this hook to provide a button for toggling mute.
+
+### Example
+
+```tsx
+import { useVolume } from 'react-native-video-toolkit';
+import Slider from '@react-native-community/slider'; // Example slider component
+import { View } from 'react-native'; // Assuming View is from react-native
+import React from 'react';
+
+const MyVolumeControl = () => {
+  const { volume, muted, setVolume, toggleMute } = useVolume();
+
+  return (
+    <View>
+      <BaseIconButton IconComponent={MuteIcon} onTap={toggleMute} />;
+      <Slider minimumValue={0} maximumValue={1} value={volume} onSlidingComplete={setVolume} disabled={muted} />
+    </View>
+  );
+};
+
+export default MyVolumeControl;
+```
+
+## `useOrientation()`
+
+A comprehensive hook for handling device orientation and rotation logic.
+
+### Usage
+
+```tsx
+import { useOrientation } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const orientation = useOrientation();
+
+  return (
+    <View>
+      <Text>Device Type: {orientation.deviceType}</Text>
+      <Text>Should Auto Rotate: {orientation.shouldAutoRotate ? 'Yes' : 'No'}</Text>
+    </View>
+  );
+};
+```
+
+### Parameters
+
+| Parameter      | Type             | Default     | Description                                                          |
+| -------------- | ---------------- | ----------- | -------------------------------------------------------------------- |
+| `customConfig` | `RotationConfig` | `undefined` | Optional custom rotation configuration to override default behavior. |
+
+### Returns
+
+| Value                   | Type                        | Description                                                                                           |
+| ----------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `deviceType`            | `DeviceType`                | The detected type of the device (e.g., 'phone', 'tablet', 'tv', 'foldable').                          |
+| `platformCapabilities`  | `OrientationCapabilities`   | An object detailing the platform's capabilities regarding orientation control and fullscreen support. |
+| `shouldAutoRotate`      | `boolean`                   | Indicates if the device should automatically rotate based on content and configuration.               |
+| `isLandscapeOptimal`    | `boolean`                   | True if landscape orientation is considered optimal for the current content/device.                   |
+| `rotationConfig`        | `RotationConfig`            | The active rotation configuration, including any custom overrides.                                    |
+| `controlsConfig`        | `object`                    | Configuration related to video controls based on orientation.                                         |
+| `orientationLocked`     | `boolean`                   | True if the device's orientation is currently locked.                                                 |
+| `lockToLandscape`       | `() => Promise<boolean>`    | Asynchronously locks the device orientation to landscape. Returns true on success.                    |
+| `lockToPortrait`        | `() => Promise<boolean>`    | Asynchronously locks the device orientation to portrait. Returns true on success.                     |
+| `unlockOrientation`     | `() => Promise<boolean>`    | Asynchronously unlocks the device orientation. Returns true on success.                               |
+| `getFullscreenStrategy` | `() => OrientationStrategy` | Returns an object describing the optimal orientation strategy for fullscreen mode.                    |
+| `handleEnterFullscreen` | `() => Promise<void>`       | Handles orientation changes specifically for entering fullscreen mode.                                |
+| `handleExitFullscreen`  | `() => Promise<void>`       | Handles orientation changes specifically for exiting fullscreen mode.                                 |
+
+### Example
+
+```tsx
+import React, { useState } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import { useOrientation } from 'react-native-video-toolkit';
+
+const OrientationDemo = () => {
+  const orientation = useOrientation();
+  const [message, setMessage] = useState('');
+
+  const handleToggleLock = async () => {
+    if (orientation.orientationLocked) {
+      const success = await orientation.unlockOrientation();
+      setMessage(success ? 'Orientation unlocked.' : 'Failed to unlock orientation.');
+    } else {
+      const success = await orientation.lockToLandscape();
+      setMessage(success ? 'Orientation locked to landscape.' : 'Failed to lock to landscape.');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Orientation Hook Demo</Text>
+      <Text>Device Type: {orientation.deviceType}</Text>
+      <Text>Orientation Locked: {orientation.orientationLocked ? 'Yes' : 'No'}</Text>
+      <Text>Should Auto Rotate: {orientation.shouldAutoRotate ? 'Yes' : 'No'}</Text>
+      <Text>Message: {message}</Text>
+
+      <View style={styles.buttonContainer}>
+        <Button
+          title={orientation.orientationLocked ? 'Unlock Orientation' : 'Lock to Landscape'}
+          onPress={handleToggleLock}
+        />
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+    gap: 10,
+  },
+});
+
+export default OrientationDemo;
+```

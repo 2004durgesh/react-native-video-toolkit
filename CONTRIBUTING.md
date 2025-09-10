@@ -133,42 +133,58 @@ When you're sending a pull request:
 
 ## Documentation Style Guide
 
-This guide defines the **rules and structure** for writing documentation in this project.
+This guide defines the **rules and structure** for writing documentation in this project using **Fumadocs**.
 Follow these strictly so all docs stay **consistent, easy to read, and developer-friendly**.
 
 ### 1. File Naming
 
-- Use **lowercase-with-dashes** for doc file names.
+- Use **lowercase-with-dashes** for doc file names with `.mdx` extension.
   Example:
-  - `use-playback.md`
-  - `video-player.md`
+  - `use-playback.mdx`
+  - `video-player.mdx`
+  - `utils/common.mdx`
+  - `orientation.mdx`
 
 ### 2. Frontmatter
 
 Every doc must start with a YAML frontmatter block:
 
-```md
+```yaml
 ---
-sidebar_label: ComponentOrHookName
-sidebar_position: <number>
+title: Component or Hook Name
+description: Brief description of what this component/hook does
 ---
 ```
 
-- `sidebar_label` → Match the component/hook name exactly.
-- `sidebar_position` → Controls ordering in the sidebar.
+- `title` → The display name of the component/hook/module.
+- `description` → Brief description for SEO and navigation.
 
-### 3. Heading Order
+### 3. File Structure
+
+Docs are organized in the `docs/content/docs/` directory:
+
+```
+docs/content/docs/
+├── index.mdx                    # Main documentation page
+├── getting-started.mdx          # Installation and basic usage
+├── customization.mdx           # Theming and customization
+└── api-reference/              # API documentation
+    ├── components/
+    ├── hooks/
+    └── utils/
+```
+
+### 4. Heading Order
 
 Always follow this heading order:
 
 1.  `# Title` → The name of the component/hook/module.
-2.  `## Subtitle` → for example "useSettings()" or "PlayButton".
-3.  `### Usage` → First thing shown should be how to use it.
-4.  `### Props` (for components) **OR** `## Returns` (for hooks).
-5.  `### Example` → At least one full usage example.
-6.  `### Notes` (optional) → Caveats, edge cases, or advanced tips.
+2.  `## Usage` → First thing shown should be how to use it.
+3.  `## Props` (for components) **OR** `## Returns` (for hooks).
+4.  `## Examples` → At least one full usage example.
+5.  `## Notes` (optional) → Caveats, edge cases, or advanced tips.
 
-### 4. Usage Section
+### 5. Usage Section
 
 - Always provide a **minimal code snippet** showing import + usage.
 - Use **TypeScript syntax highlighting**.
@@ -184,7 +200,102 @@ export const Player = () => {
 };
 ```
 
-### 5. Props / Returns Tables
+### 6. Fumadocs Components
+
+Use these Fumadocs-specific components for better UX:
+
+#### Callouts
+
+Use callouts for important information:
+
+```mdx
+import { Callout } from "fumadocs-ui/components/callout";
+
+<Callout type="info">
+  This is an informational callout.
+</Callout>
+
+<Callout type="warning">
+  This is a warning callout.
+</Callout>
+
+<Callout type="error">
+  This is an error/danger callout.
+</Callout>
+```
+
+Available types: `info`, `warning`, `error`, `note`
+
+#### Cards
+
+Use cards for navigation or feature highlights:
+
+```mdx
+import { Card, Cards } from "fumadocs-ui/components/card";
+
+<Cards>
+  <Card
+    title="Getting Started"
+    description="Learn how to install and set up the library"
+    href="/docs/getting-started"
+  />
+  <Card
+    title="API Reference"
+    description="Explore all components and hooks"
+    href="/docs/api-reference"
+  />
+</Cards>
+```
+
+#### Code Blocks
+
+Use enhanced code blocks with titles and highlighting:
+
+````mdx
+```tsx title="VideoPlayer.tsx"
+import { VideoPlayer } from 'react-native-video-toolkit';
+
+export const Example = () => (
+  <VideoPlayer source={{ uri: "video.mp4" }} />
+);
+```
+````
+
+#### Tabs
+
+Use tabs for platform-specific content:
+
+```mdx
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+
+<Tabs items={['React Native', 'Expo']}>
+<Tab value="React Native">
+Content for React Native
+</Tab>
+<Tab value="Expo">
+Content for Expo
+</Tab>
+</Tabs>
+```
+
+### 7. Imports
+
+Always include necessary imports at the top of your MDX files:
+
+```mdx
+---
+title: Your Title
+description: Your description
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+
+# Your Content
+```
+
+### 8. Props / Returns Tables
 
 - Always use a **Markdown table**.
 - Columns: **Property | Type | Default | Description**
@@ -207,7 +318,7 @@ Example (Hook Returns):
 | `togglePlayPause` | `() => void`     | Toggles playback.                 |
 | `seek`            | `(time: number)` | Jumps to a given time in seconds. |
 
-### 6. Example Section
+### 9. Examples Section
 
 - Must include **at least one full example**.
 - Prefer a **realistic UI snippet** over barebones.
@@ -228,13 +339,14 @@ export const Example = () => (
 );
 ```
 
-### 7. General Rules
+### 10. General Rules
 
 - Always use **TypeScript type annotations** in examples.
 - Keep **props descriptions human-readable**, not just type hints.
 - Never leave props undocumented.
 - Prefer **short, active voice sentences**.
 - Keep code examples **copy-paste runnable**.
+- **VERY IMPORTANT**: Use Fumadocs callouts instead of admonitions: `<Callout type="info">`, `<Callout type="warning">`, `<Callout type="error">`
 
 ## JSDoc/TypeDoc Standards
 

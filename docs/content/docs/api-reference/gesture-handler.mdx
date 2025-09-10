@@ -1,0 +1,223 @@
+---
+title: GestureHandler
+description: Handle single-tap, double-tap, and pan gestures for video player interactions with visual feedback through animated ripple effects and seek indicators.
+---
+
+<Callout type="info">
+**Key Features**
+
+- **Single Tap**: Toggle controls visibility
+- **Double Tap**: Seek forward/backward with visual feedback
+- **Pan Gestures**: Volume and brightness control through vertical swipes
+- **Smart Composition**: Automatically combines gestures based on enabled features
+- **Visual Feedback**: Animated ripple effects and seek time indicators
+
+</Callout>
+
+<Callout type="warn">
+**Important Usage**
+
+**DO NOT** wrap `VideoPlayer` with `GestureHandler` directly! This would create **two gesture handlers** and cause conflicts. Instead, use the `gestureProps` prop on `VideoPlayer` to configure gesture behavior.
+
+</Callout>
+
+When making a true custome player from scratch, you can use `GestureHandler` to wrap [`VideoSurface`](./components/core/video-surface.mdx) and your custom controls.
+
+---
+
+### Usage
+
+To configure gesture behavior for the `VideoPlayer`, use the `gestureProps` prop. This allows you to customize double-tap seek intervals, pan gesture callbacks, and more, without directly interacting with the `GestureHandler` component.
+
+For detailed information on available props and examples, refer to the [Props](#props) and [Example](#example) sections below.
+
+---
+
+## Internal Integration (In VideoPlayer)
+
+```tsx
+const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, gestureProps }: VideoPlayerProps) => {
+  // this is the root of all the things :)
+  const { state } = useVideo();
+
+  // For web fullscreen, we need to adjust overflow to ensure controls are visible
+  const innerViewStyle = useMemo(() => {
+    const baseStyle = {
+      overflow: 'hidden' as const,
+    };
+
+    if (Platform.OS === 'web') {
+      return {
+        ...baseStyle,
+        flex: 1,
+        position: 'relative' as const,
+        ...(state.fullscreen && { overflow: 'visible' as const }),
+      };
+    }
+
+    return baseStyle;
+  }, [state.fullscreen]);
+
+  return (
+    <View
+      {...(Platform.OS === 'web' && { 'data-videotoolkit': 'container' })}
+      style={[
+        {
+          position: 'relative',
+          height: state.fullscreen ? state.videoLayout.width : state.videoLayout.height,
+          ...(Platform.OS === 'web' && {
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+          }),
+        },
+        containerStyle,
+      ]}>
+      <GestureHandler {...gestureProps}>
+        <View style={innerViewStyle}>
+          <VideoSurface {...videoProps} source={source} />
+          {children}
+        </View>
+      </GestureHandler>
+    </View>
+  );
+};
+```
+
+---
+
+## Props
+
+These props are passed through the [`gestureProps`](./types/gestures.mdx#gesturehandlerprops) prop on `VideoPlayer`:
+
+<Callout type="info">
+**Gesture Composition**
+
+The `GestureHandler` automatically composes gestures based on your app's configuration:
+
+- **All Enabled**: `Gesture.Exclusive(doubleTap, singleTap, pan)`
+- **Double-tap Only**: `Gesture.Exclusive(doubleTap, singleTap)`
+- **Pan Only**: `Gesture.Exclusive(pan, singleTap)`
+- **Single-tap Only**: `singleTap`
+
+Enable/disable gestures via the `VideoProvider` config: `enableDoubleTapGestures` and `enablePanGestures`.
+
+</Callout>
+
+---
+
+## Example
+
+### Basic Implementation
+
+```tsx
+import React from 'react';
+import { VideoPlayer } from 'react-native-video-toolkit';
+
+const BasicGesturePlayer = () => {
+  return (
+    <VideoPlayer
+      source={{ uri: 'https://example.com/video.mp4' }}
+      gestureProps={{
+        doubleTapSeekInterval: 10,
+      }}>
+      <VideoPlayer.Controls>
+        <VideoPlayer.PlayButton />
+        <VideoPlayer.ProgressBar />
+        <VideoPlayer.TimeDisplay />
+        <VideoPlayer.FullscreenButton />
+      </VideoPlayer.Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+### Advanced Implementation with Volume & Brightness Control
+
+```tsx
+import React, { useState } from 'react';
+import { View, Text } from 'react-native';
+import { VideoPlayer } from 'react-native-video-toolkit';
+import SystemSetting from 'react-native-system-setting';
+
+const AdvancedGesturePlayer = () => {
+  const [volume, setVolume] = useState(0.5);
+  const [brightness, setBrightness] = useState(0.5);
+
+  const handleLeftPan = (event) => {
+    // Left side controls brightness
+    const delta = -event.translationY / 300; // Convert gesture to brightness change
+    const newBrightness = Math.max(0, Math.min(1, brightness + delta));
+    setBrightness(newBrightness);
+    SystemSetting.setBrightness(newBrightness);
+  };
+
+  const handleRightPan = (event) => {
+    // Right side controls volume
+    const delta = -event.translationY / 300; // Convert gesture to volume change
+    const newVolume = Math.max(0, Math.min(1, volume + delta));
+    setVolume(newVolume);
+    SystemSetting.setVolume(newVolume);
+  };
+
+  return (
+    <VideoPlayer
+      source={{ uri: 'https://example.com/video.mp4' }}
+      gestureProps={{
+        doubleTapSeekInterval: 15,
+        onDoubleTapSeekStart: () => console.log('Seeking...'),
+        onDoubleTapSeekEnd: () => console.log('Seek complete'),
+        onLeftVerticalPan: handleLeftPan,
+        onRightVerticalPan: handleRightPan,
+      }}>
+      <VideoPlayer.Controls>
+        <VideoPlayer.PlayButton />
+        <VideoPlayer.ProgressBar />
+        <VideoPlayer.TimeDisplay />
+        <VideoPlayer.VolumeControl />
+        <VideoPlayer.FullscreenButton />
+      </VideoPlayer.Controls>
+
+      {/* Visual feedback overlays */}
+      <View style={{ position: 'absolute', top: 20, left: 20 }}>
+        <Text style={{ color: 'white' }}>Brightness: {Math.round(brightness * 100)}%</Text>
+      </View>
+      <View style={{ position: 'absolute', top: 20, right: 20 }}>
+        <Text style={{ color: 'white' }}>Volume: {Math.round(volume * 100)}%</Text>
+      </View>
+    </VideoPlayer>
+  );
+};
+```
+
+### Visual Feedback Components
+
+The `GestureHandler` includes built-in visual feedback components that are automatically rendered:
+
+### SeekText
+
+Shows the seek time during double-tap gestures (e.g., "+10s", "-10s").
+
+### OverlayedView
+
+Provides animated ripple effects on the left and right sides of the screen during double-tap gestures.
+
+---
+
+## Notes
+
+- **Underlying Component**: `GestureHandler` is automatically integrated into `VideoPlayer` - use `gestureProps` instead of wrapping manually
+- **Performance**: The component uses `Gesture.Exclusive()` to prevent conflicts between gesture types
+- **Platform Support**: Works on iOS, Android, and Web (with react-native-gesture-handler web support)
+- **Customization**: For advanced customization, consider using the individual gesture hooks directly
+- **Screen Zones**: Double-tap gestures are divided into left (backward) and right (forward) screen halves
+- **Visual Feedback**: Ripple animations automatically adjust their height based on fullscreen mode (50% height in fullscreen, 100% in normal mode)
+
+<Callout type="info">
+**Related Components**
+
+- [Individual Gesture Hooks](./hooks/gesture-hooks.mdx) - For manual gesture composition
+- [VideoPlayer](./components/video-player.mdx) - The root video player component
+- [VideoProvider](./providers/video-provider.mdx) - For gesture configuration
+
+</Callout>

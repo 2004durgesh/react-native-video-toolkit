@@ -1,0 +1,87 @@
+---
+title: API Reference
+description: Complete API documentation for React Native Video Toolkit components, hooks, providers, and utilities
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# API Reference
+
+Welcome to the complete API documentation for React Native Video Toolkit. This library provides a comprehensive set of components, hooks, providers, and utilities for building powerful video players in React Native applications.
+
+<Callout type="info">
+  All components are built with TypeScript and support the new React Native architecture (Fabric + TurboModules).
+</Callout>
+
+## Overview
+
+<Cards>
+  <Card
+    title="Components"
+    description="Ready-to-use video player components including controls, displays, and UI elements"
+    href="/docs/api-reference/components"
+  />
+  <Card
+    title="Hooks"
+    description="React hooks for managing video state, gestures, and player functionality"
+    href="/docs/api-reference/hooks"
+  />
+  <Card
+    title="Providers"
+    description="Context providers for video state, theming, settings, and portals"
+    href="/docs/api-reference/providers"
+  />
+  <Card
+    title="Types"
+    description="TypeScript type definitions for all library interfaces and props"
+    href="/docs/api-reference/types"
+  />
+  <Card
+    title="Utils"
+    description="Utility functions for common video player operations and helpers"
+    href="/docs/api-reference/utils"
+  />
+  <Card
+    title="Gesture Handler"
+    description="Advanced gesture handling system for interactive video controls"
+    href="/docs/api-reference/gesture-handler"
+  />
+  <Card
+    title="Layouts"
+    description="Pre-built layout configurations for common video player designs"
+    href="/docs/api-reference/layouts"
+  />
+</Cards>
+
+## Quick Start
+
+The main entry point for the library is the `VideoPlayer` component:
+
+```tsx
+import { VideoPlayer } from 'react-native-video-toolkit';
+
+function MyVideoPlayer() {
+  return (
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} style={{ width: '100%', height: 200 }}>
+      <VideoPlayer.Controls />
+    </VideoPlayer>
+  );
+}
+```
+
+## Architecture
+
+The library is organized into several key areas:
+
+- **Core Components**: Essential video functionality (`VideoSurface`, `VideoPlayer`)
+- **Control Components**: Interactive controls (`PlayButton`, `ProgressBar`, `VolumeControl`)
+- **Display Components**: Visual elements (`TimeDisplay`, `Title`, `LoadingSpinner`)
+- **Layout Components**: Structural containers and positioning
+- **Provider System**: State management and theming
+- **Hook System**: Reusable logic and state management
+- **Gesture System**: Touch and gesture handling
+
+<Callout type="warn">
+  This library requires React Native 0.76+ and works best with the new architecture enabled.
+</Callout>

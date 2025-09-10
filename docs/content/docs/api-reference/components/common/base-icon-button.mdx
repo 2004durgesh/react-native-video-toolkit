@@ -1,0 +1,24 @@
+---
+title: 'BaseIconButton'
+description: The BaseIconButton component that provides a customizable icon button with ripple effect and theming support.
+---
+
+### Usage
+
+```tsx
+import { BaseIconButton } from 'react-native-video-toolkit';
+import { PlayIcon } from './assets/PlayIcon';
+
+export const Player = () => {
+  return <BaseIconButton IconComponent={PlayIcon} onTap={() => console.log('Tapped!')} />;
+};
+```
+
+### Props
+
+| Prop            | Type                | Default              | Description                                     |
+| --------------- | ------------------- | -------------------- | ----------------------------------------------- |
+| `IconComponent` | `React.ElementType` | `required`           | The icon component to render.                   |
+| `size`          | `number`            | `theme.iconSizes.md` | The size of the icon.                           |
+| `color`         | `string`            | `theme.colors.text`  | The color of the icon.                          |
+| `onTap`         | `() => void`        | `required`           | The function to call when the button is tapped. |

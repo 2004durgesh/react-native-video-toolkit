@@ -1,0 +1,74 @@
+---
+title: 'TimeDisplay'
+description: A control component that displays the current playback time and/or total duration of the video.
+---
+
+```tsx
+import { TimeDisplay } from 'react-native-video-toolkit';
+
+const MyTimeDisplay = () => {
+  return <TimeDisplay />;
+};
+```
+
+---
+
+## Props
+
+| Prop       | Type                                | Required | Default             | Description                                                  |
+| ---------- | ----------------------------------- | -------- | ------------------- | ------------------------------------------------------------ |
+| `type`     | `'current' \| 'duration' \| 'both'` | No       | `'both'`            | What time information to display.                            |
+| `fontSize` | `number`                            | No       | `14`                | Font size of the time text.                                  |
+| `color`    | `string`                            | No       | `theme.colors.text` | Text color. Falls back to the current theme if not provided. |
+| `style`    | `StyleProp<ViewStyle>`              | No       | –                   | Custom style for the container.                              |
+
+---
+
+## Examples
+
+### Show Current Time Only
+
+```tsx
+<TimeDisplay type="current" /> // e.g. "0:15"
+```
+
+### Show Duration Only
+
+```tsx
+<TimeDisplay type="duration" /> // e.g. "3:45"
+```
+
+### Show Both Current Time and Duration
+
+```tsx
+<TimeDisplay type="both" /> // e.g. "0:15 / 3:45"
+```
+
+---
+
+## Integration Example
+
+`TimeDisplay` is typically used inside the `VideoPlayer` as part of your controls:
+
+```tsx
+import { VideoPlayer, TimeDisplay } from 'react-native-video-toolkit';
+
+const MyVideoPlayer = () => {
+  return (
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <VideoPlayer.Controls>
+        <TimeDisplay type="both" fontSize={16} />
+      </VideoPlayer.Controls>
+    </VideoPlayer>
+  );
+};
+```
+
+---
+
+<Callout type="info">
+
+- If you don't pass a `color`, `TimeDisplay` automatically uses `theme.colors.text` from the current video context.
+- Works seamlessly with custom layouts and pre-built controls.
+
+</Callout>

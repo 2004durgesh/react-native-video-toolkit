@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useEffect, useState } from 'react';
-import RNOrientationDirector, { Orientation } from 'react-native-orientation-director';
+import { RNOrientationDirector, Orientation } from '../../NativeOrientation';
 import {
   detectDeviceType,
   getOptimalConfig,
@@ -16,7 +16,6 @@ export interface OrientationCapabilities {
   hasOrientationAPI: boolean;
   isTV: boolean;
   isMobile: boolean;
-  isWeb: boolean;
 }
 
 export interface OrientationStrategy {
@@ -72,10 +71,8 @@ export interface UseOrientationResult {
  * - **Tablets**: Conditional rotation based on content and current orientation
  * - **Foldables**: Adaptive behavior for different folded states
  * - **TV**: No rotation (always landscape)
- * - **Web**: User-controlled orientation (no forced rotation)
  *
  * @param customConfig Optional custom rotation configuration
- * @param enableLogging Whether to enable debug logging (default: __DEV__)
  * @returns Comprehensive orientation management interface
  *
  * @example
@@ -108,7 +105,6 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
       hasOrientationAPI: !PlatformUtils.isWeb() || (typeof screen !== 'undefined' && 'orientation' in screen),
       isTV: PlatformUtils.isTV(),
       isMobile: PlatformUtils.isMobile(),
-      isWeb: PlatformUtils.isWeb(),
     }),
     []
   );
@@ -126,15 +122,15 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
   // Orientation state
   const [orientationLocked, setOrientationLocked] = useState(false);
 
-  // Debug logging
-  // useEffect(() => {
-  //     console.log('[useOrientation] Initialized:', {
-  //       deviceType,
-  //       shouldAutoRotate,
-  //       platformCapabilities,
-  //       rotationConfig,
-  //     });
-  // }, [deviceType, shouldAutoRotate, platformCapabilities, rotationConfig, enableLogging]);
+  //   // Debug logging
+  //   // useEffect(() => {
+  //   //     console.log('[useOrientation] Initialized:', {
+  //   //       deviceType,
+  //   //       shouldAutoRotate,
+  //   //       platformCapabilities,
+  //   //       rotationConfig,
+  //   //     });
+  //   // }, [deviceType, shouldAutoRotate, platformCapabilities, rotationConfig, enableLogging]);
 
   /**
    * Safely lock orientation to landscape
@@ -216,15 +212,6 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
       return { shouldRotate: false, orientation: null, reason: 'TV platform' };
     }
 
-    // Web: Let browser/user handle orientation
-    if (platformCapabilities.isWeb) {
-      return {
-        shouldRotate: false,
-        orientation: null,
-        reason: 'Web platform - user controlled',
-      };
-    }
-
     // Mobile: Smart orientation detection
     if (platformCapabilities.canControlOrientation) {
       // Check if current screen dimensions benefit from landscape
@@ -279,7 +266,6 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
 
     if (strategy.shouldRotate && strategy.orientation) {
       await lockToLandscape();
-    } else {
     }
   }, [getFullscreenStrategy, lockToLandscape]);
 

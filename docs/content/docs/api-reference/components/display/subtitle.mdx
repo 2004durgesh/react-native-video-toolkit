@@ -1,0 +1,35 @@
+---
+title: 'Subtitle'
+description: A secondary text component for displaying subtitles, descriptions, or supporting information within the video player UI.
+---
+
+## Usage
+
+```tsx
+import { Subtitle } from 'react-native-video-toolkit';
+
+export function Example() {
+  return <Subtitle text="Tap to adjust playback speed" />;
+}
+```
+
+---
+
+## Props
+
+| Prop    | Type                   | Required | Default | Description                                              |
+| ------- | ---------------------- | -------- | ------- | -------------------------------------------------------- |
+| `text`  | `string`               | Yes      | –       | The string to display.                                   |
+| `style` | `StyleProp<TextStyle>` | No       | –       | Optional override styles (merged with theme + defaults). |
+
+---
+
+<Callout type="info">
+**When to Use**
+
+- Use `Subtitle` for **secondary information** under a `Title`, such as:
+  - Episode numbers
+  - Season numbers/series titles
+  - Short descriptions or hints
+
+</Callout>

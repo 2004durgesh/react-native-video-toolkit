@@ -79,6 +79,10 @@ export default defineConfig([
       // Documentation and Info
       'README.md',
       '*.md',
+      'docs/.next',
+      'docs/.source',
+      'next.env.d.ts',
+      'docs/out',
 
       // Media and Assets
       'assets/',

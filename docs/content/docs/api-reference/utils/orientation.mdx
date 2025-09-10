@@ -1,0 +1,195 @@
+---
+title: Orientation
+description: Utility functions and hooks for handling screen orientation and device type detection in React Native applications.
+---
+
+## `shouldRotate`
+
+Determines if the screen should rotate to landscape based on the provided dimensions and configuration.
+
+### Usage
+
+```tsx
+import { shouldRotate } from 'react-native-video-toolkit';
+
+const canRotate = shouldRotate(1920, 1080);
+```
+
+### Parameters
+
+| Parameter | Type             | Required | Default | Description                                   |
+| --------- | ---------------- | -------- | ------- | --------------------------------------------- |
+| `width`   | `number`         | Yes      | –       | The width of the screen.                      |
+| `height`  | `number`         | Yes      | –       | The height of the screen.                     |
+| `config`  | `RotationConfig` | No       | `{}`    | Configuration options for rotation detection. |
+
+### Returns
+
+| Type      | Description                                            |
+| --------- | ------------------------------------------------------ |
+| `boolean` | `true` if the screen should rotate, `false` otherwise. |
+
+### Example
+
+```tsx
+import { shouldRotate } from 'react-native-video-toolkit';
+
+const config = {
+  threshold: 1.5,
+  minWidth: 768,
+};
+
+const canRotate = shouldRotate(1920, 1080, config);
+```
+
+## `detectDeviceType`
+
+Detects the type of the device based on the screen dimensions.
+
+### Usage
+
+```tsx
+import { detectDeviceType } from 'react-native-video-toolkit';
+
+const deviceType = detectDeviceType();
+```
+
+### Returns
+
+| Type         | Description                                                                                        |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| `DeviceType` | The type of the device (`'phone'`, `'tablet'`, `'foldable'`, `'tv'`, `'desktop'`, or `'unknown'`). |
+
+### Example
+
+```tsx
+import { detectDeviceType } from 'react-native-video-toolkit';
+
+const deviceType = detectDeviceType();
+// deviceType will be 'phone', 'tablet', etc.
+```
+
+## `getOptimalConfig`
+
+Returns the optimal rotation configuration for the current platform and device.
+
+### Usage
+
+```tsx
+import { getOptimalConfig } from 'react-native-video-toolkit';
+
+const config = getOptimalConfig();
+```
+
+### Returns
+
+| Type             | Description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `RotationConfig` | The optimal rotation configuration for the current device. |
+
+### Example
+
+```tsx
+import { getOptimalConfig } from 'react-native-video-toolkit';
+
+const config = getOptimalConfig();
+// config will be { threshold: 1.5, minWidth: 768 }
+```
+
+## `useShouldRotate`
+
+A hook that returns a boolean indicating whether the screen should rotate to landscape.
+
+### Usage
+
+```tsx
+import { useShouldRotate } from 'react-native-video-toolkit';
+
+const shouldRotate = useShouldRotate();
+```
+
+### Returns
+
+| Type      | Description                                            |
+| --------- | ------------------------------------------------------ |
+| `boolean` | `true` if the screen should rotate, `false` otherwise. |
+
+### Example
+
+```tsx
+import { useShouldRotate } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
+
+const MyComponent = () => {
+  const shouldRotate = useShouldRotate();
+  return <Text>{shouldRotate ? 'Rotate' : 'Do not rotate'}</Text>;
+};
+```
+
+## `getVideoControlsConfig`
+
+Returns the configuration for the video controls based on the screen orientation and platform.
+
+### Usage
+
+```tsx
+import { getVideoControlsConfig } from 'react-native-video-toolkit';
+
+const config = getVideoControlsConfig(true, 'web');
+```
+
+### Parameters
+
+| Parameter     | Type      | Required | Default | Description                                            |
+| ------------- | --------- | -------- | ------- | ------------------------------------------------------ |
+| `isLandscape` | `boolean` | Yes      | –       | Whether the screen is in landscape mode.               |
+| `platform`    | `string`  | Yes      | –       | The current platform (`'web'`, `'mobile'`, or `'tv'`). |
+
+### Returns
+
+| Type     | Description                               |
+| -------- | ----------------------------------------- |
+| `object` | The configuration for the video controls. |
+
+### Example
+
+```tsx
+import { getVideoControlsConfig } from 'react-native-video-toolkit';
+
+const config = getVideoControlsConfig(true, 'web');
+// config will be { showFullscreen: false, showSeekBar: true, ... }
+```
+
+## `PlatformUtils`
+
+An object containing utility functions for platform detection.
+
+### Usage
+
+```tsx
+import { PlatformUtils } from 'react-native-video-toolkit';
+
+const isWeb = PlatformUtils.isWeb();
+```
+
+### Properties
+
+| Property      | Type            | Description                                         |
+| ------------- | --------------- | --------------------------------------------------- |
+| `isTV`        | `() => boolean` | Returns `true` if the platform is a TV.             |
+| `isWeb`       | `() => boolean` | Returns `true` if the platform is the web.          |
+| `isMobile`    | `() => boolean` | Returns `true` if the platform is mobile.           |
+| `isTVOS`      | `() => boolean` | Returns `true` if the platform is tvOS.             |
+| `isAndroidTV` | `() => boolean` | Returns `true` if the platform is Android TV.       |
+| `isBrowser`   | `() => boolean` | Returns `true` if the code is running in a browser. |
+| `isDesktop`   | `() => boolean` | Returns `true` if the device is a desktop.          |
+| `isTablet`    | `() => boolean` | Returns `true` if the device is a tablet.           |
+
+### Example
+
+```tsx
+import { PlatformUtils } from 'react-native-video-toolkit';
+
+const isWeb = PlatformUtils.isWeb();
+// isWeb will be true if the platform is web
+```

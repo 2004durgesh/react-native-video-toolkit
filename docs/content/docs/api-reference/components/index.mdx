@@ -1,0 +1,74 @@
+---
+title: Components
+description: Complete guide to all React Native Video Toolkit components
+index: true
+---
+
+<Callout type="info">
+  All components support TypeScript and are built with the React Native new architecture in mind.
+</Callout>
+
+## Component Categories
+
+<Cards>
+  <Card
+    title="Video Player"
+    description="The main video player component that serves as the container for all other components"
+    href="/docs/api-reference/components/video-player"
+  />
+  <Card
+    title="Core Components"
+    description="Essential components for video functionality like VideoSurface"
+    href="/docs/api-reference/components/core"
+  />
+  <Card
+    title="Control Components"
+    description="Interactive controls like play buttons, progress bars, and volume controls"
+    href="/docs/api-reference/components/controls"
+  />
+  <Card
+    title="Display Components"
+    description="Visual elements like time displays, titles, and loading spinners"
+    href="/docs/api-reference/components/display"
+  />
+  <Card
+    title="Common Components"
+    description="Shared components like base buttons and bottom sheets"
+    href="/docs/api-reference/components/common"
+  />
+  <Card
+    title="Menu Components"
+    description="Menu systems and overlays for settings and options"
+    href="/docs/api-reference/components/menu"
+  />
+</Cards>
+
+## Quick Start
+
+The main entry point is the `VideoPlayer` component:
+
+```tsx
+import { VideoPlayer } from 'react-native-video-toolkit';
+
+function BasicPlayer() {
+  return (
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} style={{ width: '100%', height: 200 }}>
+      <VideoPlayer.Controls />
+    </VideoPlayer>
+  );
+}
+```
+
+## Component Architecture
+
+The library follows a compound component pattern where the `VideoPlayer` serves as the main container, and all other components can be composed within it:
+
+- **VideoPlayer**: Main container and state provider
+- **VideoPlayer.Controls**: Pre-built control set
+- **Individual Controls**: Granular control components
+- **Display Elements**: Visual feedback components
+- **Layout Components**: Structural containers
+
+<Callout type="warn">
+  Components should be used within a `VideoProvider` context, which is automatically provided by `VideoPlayer`.
+</Callout>

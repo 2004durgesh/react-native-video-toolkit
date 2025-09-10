@@ -256,7 +256,16 @@ export const useDoubleTapGesture = ({
         { scale: rippleScale.value },
       ],
     };
-  });
+  }, [
+    backwardRippleRef,
+    activeDirection,
+    backwardBoxWidth,
+    backwardBoxHeight,
+    backwardTranslateX,
+    backwardTranslateY,
+    rippleOpacity,
+    rippleScale,
+  ]);
 
   const forwardAnimatedRipple = useAnimatedStyle(() => {
     if (activeDirection.value !== 'forward') {
@@ -290,13 +299,25 @@ export const useDoubleTapGesture = ({
         { scale: rippleScale.value },
       ],
     };
-  });
+  }, [
+    forwardRippleRef,
+    activeDirection,
+    forwardBoxWidth,
+    forwardBoxHeight,
+    forwardTranslateX,
+    forwardTranslateY,
+    rippleOpacity,
+    rippleScale,
+  ]);
 
   const createDirectionalStyle = (opacityValue: SharedValue<number>) =>
-    useAnimatedStyle(() => ({
-      opacity: opacityValue.value,
-      transform: [{ scale: scaleValue.value }],
-    }));
+    useAnimatedStyle(
+      () => ({
+        opacity: opacityValue.value,
+        transform: [{ scale: scaleValue.value }],
+      }),
+      [opacityValue, scaleValue]
+    );
 
   const forwardAnimatedStyle = createDirectionalStyle(forwardOpacity);
   const backwardAnimatedStyle = createDirectionalStyle(backwardOpacity);

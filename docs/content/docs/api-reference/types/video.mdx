@@ -1,0 +1,55 @@
+---
+title: 'Video Types'
+description: Types related to the video player including video source, state, and configuration interfaces.
+---
+
+## `VideoSource`
+
+The `VideoSource` interface defines the source of the video to be played. Extends the source prop from `react-native-video` to include all the properties available in source prop of `react-native-video`.
+
+| Property  | Type                     | Required | Default | Description                                            |
+| --------- | ------------------------ | -------- | ------- | ------------------------------------------------------ |
+| `uri`     | `string`                 | Yes      | –       | The URI of the video.                                  |
+| `type`    | `string`                 | No       | –       | The type of the video.                                 |
+| `headers` | `Record<string, string>` | No       | –       | The headers to be sent with the request for the video. |
+
+<Callout type="note">
+  The `uri` is the only required property. The `type` and `headers` are optional and can be used to provide more
+  information about the video source.
+</Callout>
+
+## `VideoState`
+
+The `VideoState` interface represents the current state of the video player.
+
+| Property       | Type      | Required | Default | Description                                   |
+| -------------- | --------- | -------- | ------- | --------------------------------------------- |
+| `isPlaying`    | `boolean` | Yes      | `false` | Whether the video is currently playing.       |
+| `currentTime`  | `number`  | Yes      | `0`     | The current playback time of the video.       |
+| `duration`     | `number`  | Yes      | `0`     | The total duration of the video.              |
+| `buffering`    | `boolean` | Yes      | `false` | Whether the video is currently buffering.     |
+| `muted`        | `boolean` | Yes      | `false` | Whether the video is currently muted.         |
+| `volume`       | `number`  | Yes      | `1`     | The current volume of the video.              |
+| `playbackRate` | `number`  | Yes      | `1`     | The current playback rate of the video.       |
+| `fullscreen`   | `boolean` | Yes      | `false` | Whether the video is currently in fullscreen. |
+| `error`        | `string`  | Yes      | `null`  | The current error, if any.                    |
+
+## `VideoPlayerConfig`
+
+The `VideoPlayerConfig` interface allows you to configure the behavior of the video player.
+
+| Property                  | Type         | Required | Default                  | Description                                                                 |
+| ------------------------- | ------------ | -------- | ------------------------ | --------------------------------------------------------------------------- |
+| `autoHideControls`        | `boolean`    | No       | `true`                   | If `true`, the controls will automatically hide after a certain delay.      |
+| `autoPlay`                | `boolean`    | No       | `true`                   | If `true`, the video will start playing automatically.                      |
+| `autoHideDelay`           | `number`     | No       | `5000`                   | The delay in milliseconds before the controls are hidden.                   |
+| `enableDoubleTapGestures` | `boolean`    | No       | `true`                   | If `true`, the user can double-tap to seek forward or backward.             |
+| `enableFullscreen`        | `boolean`    | No       | `true`                   | If `true`, the user can enter and exit fullscreen mode.                     |
+| `enableVolumeControl`     | `boolean`    | No       | `true`                   | If `true`, the user can control the volume of the video.                    |
+| `enablePanGestures`       | `boolean`    | No       | `true`                   | If `true`, the user can use pan gestures to control volume and brightness.  |
+| `enableScreenRotation`    | `boolean`    | No       | `true`                   | If `true`, the screen will rotate automatically when the device is rotated. |
+| `playbackRates`           | `number[]`   | No       | `[0.5, 1, 1.25, 1.5, 2]` | An array of playback rates to be displayed in the settings menu.            |
+| `onEnterFullscreen`       | `() => void` | No       | `undefined`              | A callback function that is called when the player enters fullscreen mode.  |
+| `onExitFullscreen`        | `() => void` | No       | `undefined`              | A callback function that is called when the player exits fullscreen mode.   |
+| `onHideControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are hidden.            |
+| `onShowControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are shown.             |

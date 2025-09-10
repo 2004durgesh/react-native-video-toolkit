@@ -54,7 +54,7 @@ jobs:
 
       - name: Build example for Web
         run: |
-          yarn example:expo web:export
+          yarn example web:export
 
 
   build-android:

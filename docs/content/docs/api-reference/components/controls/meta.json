@@ -1,0 +1,12 @@
+{
+  "title": "Controls",
+  "pages": [
+    "play-button",
+    "mute-button",
+    "volume-control",
+    "progress-bar",
+    "fullscreen-button",
+    "settings-button",
+    "subtitle-toggle-button"
+  ]
+}
