@@ -102,6 +102,7 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
     () => ({
       canControlOrientation: !PlatformUtils.isWeb() && !PlatformUtils.isTV(),
       supportsFullscreen: true,
+      // @ts-ignore
       hasOrientationAPI: !PlatformUtils.isWeb() || (typeof screen !== 'undefined' && 'orientation' in screen),
       isTV: PlatformUtils.isTV(),
       isMobile: PlatformUtils.isMobile(),

@@ -11,7 +11,7 @@ import {
   LoadingSpinner,
   useVideo,
   VideoProvider,
-} from '../../src';
+} from 'react-native-video-toolkit';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

@@ -26,5 +26,5 @@
     "target": "ESNext",
     "verbatimModuleSyntax": true
   },
-  "exclude": ["node_modules", "docs", "build", "dist", "example", "e2e", "**/node_modules/*"]
+  "exclude": ["node_modules", "docs", "build", "dist", "e2e", "**/node_modules/*"]
 }
