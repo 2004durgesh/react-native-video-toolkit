@@ -87,10 +87,9 @@ A flexible and customizable video player UI toolkit for React Native, designed f
 - [x] Theming support
 - [x] Gesture handling
 - [x] Settings menu
-- [x] Layout presets (`MinimalLayout`)
+- [x] Layout presets (`DefaultLayout`)
 - [x] Fullscreen support
 - [x] Landscape mode support
-- [ ] Layout presets (`DefaultLayout`)
 - [ ] TV support (D-pad navigation)
 - [ ] Picture-in-Picture (PiP) mode
 - [ ] More advanced layouts (YouTube/Netflix-style)
