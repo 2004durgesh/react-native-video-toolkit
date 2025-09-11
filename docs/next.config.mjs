@@ -1,6 +1,5 @@
 import { createMDX } from 'fumadocs-mdx/next';
 import { createRequire } from 'module';
-import webpack from 'webpack';
 
 const require = createRequire(import.meta.url);
 const withMDX = createMDX({
@@ -11,10 +10,6 @@ const withMDX = createMDX({
 const config = {
   reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
-  output: 'export',
-  trailingSlash: true,
-  basePath: process.env.NODE_ENV === 'production' ? '/react-native-video-toolkit' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/react-native-video-toolkit/' : '',
   images: {
     unoptimized: true,
   },
