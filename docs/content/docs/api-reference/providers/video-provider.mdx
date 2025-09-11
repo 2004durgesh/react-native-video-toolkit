@@ -25,24 +25,25 @@ export const VideoPlayerComponent = () => <VideoProvider>{/* Your video player c
 
 The `VideoProvider` manages the following state:
 
-| State             | Type                                                        | Description                               |                                        |
-| ----------------- | ----------------------------------------------------------- | ----------------------------------------- | -------------------------------------- |
-| `isPlaying`       | `boolean`                                                   | Whether the video is playing.             |                                        |
-| `currentTime`     | `number`                                                    | The current time of the video in seconds. |                                        |
-| `duration`        | `number`                                                    | The duration of the video in seconds.     |                                        |
-| `buffering`       | `boolean`                                                   | Whether the video is buffering.           |                                        |
-| `muted`           | `boolean`                                                   | Whether the video is muted.               |                                        |
-| `volume`          | `number`                                                    | The volume of the video.                  |                                        |
-| `playbackRate`    | `number`                                                    | The playback rate of the video.           |                                        |
-| `fullscreen`      | `boolean`                                                   | Whether the video is in fullscreen mode.  |                                        |
-| `error`           | `string  `                                                  | `null`                                    | An error message, if any.              |
-| `config`          | [`VideoPlayerConfig`](../types/video.mdx#videoplayerconfig) | The configuration for the video player.   |                                        |
-| `theme`           | [`Theme`](../types/theme.mdx)                               | The theme for the video player.           |                                        |
-| `videoRef`        | `React.RefObject<any>`                                      | `null`                                    | A ref to the video component.          |
-| `controlsOpacity` | `SharedValue<number>  `                                     | `null`                                    | The opacity of the controls.           |
-| `hideTimeoutRef`  | `NodeJS.Timeout`                                            | `null`                                    | A timeout ref for hiding the controls. |
-| `videoLayout`     | `LayoutRectangle`                                           | The layout of the video component.        |                                        |
-| `dimensions`      | `{ width: number; height: number }`                         | The dimensions of the screen.             |                                        |
+| State                | Type                                                        | Description                                          |                                             |
+| -------------------- | ----------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------- |
+| `isPlaying`          | `boolean`                                                   | Whether the video is playing.                        |                                             |
+| `currentTime`        | `number`                                                    | The current time of the video in seconds.            |                                             |
+| `duration`           | `number`                                                    | The duration of the video in seconds.                |                                             |
+| `buffering`          | `boolean`                                                   | Whether the video is buffering.                      |                                             |
+| `muted`              | `boolean`                                                   | Whether the video is muted.                          |                                             |
+| `volume`             | `number`                                                    | The volume of the video.                             |                                             |
+| `playbackRate`       | `number`                                                    | The playback rate of the video.                      |                                             |
+| `fullscreen`         | `boolean`                                                   | Whether the video is in fullscreen mode.             |                                             |
+| `error`              | `string  `                                                  | `null`                                               | An error message, if any.                   |
+| `config`             | [`VideoPlayerConfig`](../types/video.mdx#videoplayerconfig) | The configuration for the video player.              |                                             |
+| `theme`              | [`Theme`](../types/theme.mdx)                               | The theme for the video player.                      |                                             |
+| `videoRef`           | `React.RefObject<any>`                                      | `null`                                               | A ref to the video component.               |
+| `controlsVisible`    | `boolean`                                                   | `true`                                               | Whether the controls are currently visible. |
+| `hideTimeoutRef`     | `NodeJS.Timeout`                                            | `null`                                               | A timeout ref for hiding the controls.      |
+| `videoWrapperLayout` | `LayoutRectangle`                                           | The layout of the view wrapping the video component. |                                             |
+| `videoLayout`        | `LayoutRectangle`                                           | The layout of the video component.                   |                                             |
+| `dimensions`         | `{ width: number; height: number }`                         | The dimensions of the screen.                        |                                             |
 
 ## Actions
 
@@ -52,7 +53,7 @@ The `VideoProvider` handles the following actions:
 | ---------------------- | ----------------------------------------------------------------- | ------------------------------------------------- | --------------------------------------- |
 | `INITIALIZE`           | `{ theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> }` | Initializes the provider with a theme and config. |                                         |
 | `SET_THEME`            | `Partial<Theme>`                                                  | Sets the theme.                                   |                                         |
-| `SET_CONTROLS_OPACITY` | `SharedValue<number>`                                             | Sets the opacity of the controls.                 |                                         |
+| `SET_CONTROLS_VISIBLE` | `boolean`                                                         | Sets the visible state of the controls.           |                                         |
 | `SET_VIDEO_REF`        | `React.RefObject<any>`                                            | Sets a ref to the video component.                |                                         |
 | `SHOW_CONTROLS`        |                                                                   | Shows the controls.                               |                                         |
 | `HIDE_CONTROLS`        |                                                                   | Hides the controls.                               |                                         |

@@ -1,5 +1,4 @@
 import React, { createContext, useReducer, useContext, useEffect } from 'react';
-import type { SharedValue } from 'react-native-reanimated';
 import type { VideoPlayerConfig, VideoState, Theme } from '../types';
 import { defaultTheme } from '../themes';
 import { type LayoutRectangle, Dimensions } from 'react-native';
@@ -39,9 +38,9 @@ interface VideoProviderState extends VideoState {
    */
   videoRef: React.RefObject<any> | null;
   /**
-   * The opacity of the controls.
+   * Whether the controls are visible.
    */
-  controlsOpacity: SharedValue<number> | null;
+  controlsVisible: boolean;
   /**
    * A timeout ref for hiding the controls.
    */
@@ -50,6 +49,10 @@ interface VideoProviderState extends VideoState {
    * The layout of the video component.
    */
   videoLayout: LayoutRectangle;
+  /**
+   * The layout of the video wrapper View.
+   */
+  videoWrapperLayout: LayoutRectangle;
   /**
    * The dimensions of the screen.
    */
@@ -63,10 +66,10 @@ interface VideoProviderState extends VideoState {
 type Action =
   | { type: 'INITIALIZE'; payload: { theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> } }
   | { type: 'SET_THEME'; payload: Partial<Theme> }
-  | { type: 'SET_CONTROLS_OPACITY'; payload: SharedValue<number> }
   | { type: 'SET_VIDEO_REF'; payload: React.RefObject<any> }
   | { type: 'SHOW_CONTROLS' }
   | { type: 'HIDE_CONTROLS' }
+  | { type: 'SET_CONTROLS_VISIBLE'; payload: boolean }
   | { type: 'SEEK'; payload: number }
   | { type: 'TOGGLE_PLAY_PAUSE' }
   | { type: 'SET_VOLUME'; payload: number }
@@ -79,6 +82,7 @@ type Action =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_HIDE_TIMEOUT'; payload: NodeJS.Timeout | null }
   | { type: 'SET_VIDEO_LAYOUT'; payload: LayoutRectangle }
+  | { type: 'SET_VIDEO_WRAPPER_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_DIMENSIONS'; payload: { width: number; height: number } };
 
 /**
@@ -98,9 +102,10 @@ const initialState: VideoProviderState = {
   config: defaultConfig,
   theme: defaultTheme,
   videoRef: null,
-  controlsOpacity: null,
+  controlsVisible: true,
   hideTimeoutRef: null,
   videoLayout: { x: 0, y: 0, width: 0, height: 0 },
+  videoWrapperLayout: { x: 0, y: 0, width: 0, height: 0 },
   dimensions: { width: Dimensions.get('window').width, height: Dimensions.get('window').height },
 };
 
@@ -151,8 +156,12 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
           animations: { ...defaultTheme.animations, ...action.payload.animations },
         },
       };
-    case 'SET_CONTROLS_OPACITY':
-      return { ...state, controlsOpacity: action.payload };
+    case 'SET_CONTROLS_VISIBLE':
+      return { ...state, controlsVisible: action.payload };
+    case 'SHOW_CONTROLS':
+      return { ...state, controlsVisible: true };
+    case 'HIDE_CONTROLS':
+      return { ...state, controlsVisible: false };
     case 'SET_VIDEO_REF':
       return { ...state, videoRef: action.payload };
     case 'SET_PLAYING':
@@ -177,6 +186,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return { ...state, hideTimeoutRef: action.payload };
     case 'SET_VIDEO_LAYOUT':
       return { ...state, videoLayout: action.payload };
+    case 'SET_VIDEO_WRAPPER_LAYOUT':
+      return { ...state, videoWrapperLayout: action.payload };
     case 'SET_DIMENSIONS':
       return { ...state, dimensions: action.payload };
 

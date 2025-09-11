@@ -1,5 +1,6 @@
 import { defineConfig, defineDocs, frontmatterSchema, metaSchema } from 'fumadocs-mdx/config';
 import { remarkDocGen } from 'fumadocs-docgen';
+import { fileGenerator } from '@/lib/file-generator';
 
 export const docs = defineDocs({
   docs: {
@@ -19,6 +20,6 @@ export default defineConfig({
       themes: { light: 'github-dark-default', dark: 'github-dark-default' },
       theme: 'github-dark-default',
     },
-    // remarkPlugins: [[remarkDocGen, { generators: [fileGenerator()] }]],
+    remarkPlugins: [[remarkDocGen, { generators: [fileGenerator()] }]],
   },
 });

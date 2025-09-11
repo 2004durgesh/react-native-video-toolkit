@@ -16,17 +16,8 @@ const fontMono = Geist_Mono({
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={cn(fontSans.variable, fontMono.variable)} suppressHydrationWarning>
-      <body
-        className="flex flex-col min-h-screen absolute inset-0 z-0"
-        style={{
-          backgroundImage: `
-       radial-gradient(circle at 25% 25%, #222222 0.5px, transparent 1px),
-       radial-gradient(circle at 75% 75%, #111111 0.5px, transparent 1px)
-     `,
-          backgroundSize: '10px 10px',
-          imageRendering: 'pixelated',
-        }}>
-        <RootProvider>{children}</RootProvider>
+      <body className="flex flex-col min-h-screen absolute inset-0 z-0">
+        <RootProvider theme={{ defaultTheme: 'dark' }}>{children}</RootProvider>
       </body>
     </html>
   );

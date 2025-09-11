@@ -4,6 +4,7 @@ import { useVideo } from '../../providers';
 import Ripple from 'react-native-material-ripple';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
+import { PlatformUtils } from '../../utils/orientation';
 
 interface BaseIconButtonProps extends PressableProps {
   IconComponent: React.ElementType;
@@ -32,7 +33,20 @@ export const BaseIconButton = ({
   } = useVideo();
 
   const iconColor = color || theme.colors.text;
-  const iconSize = size || theme.iconSizes.md;
+  let iconSize;
+
+  switch (true) {
+    case !!size:
+      iconSize = size;
+      break;
+    case PlatformUtils.isTV():
+    case PlatformUtils.isWeb():
+      iconSize = theme.iconSizes.md;
+      break;
+    default:
+      iconSize = theme.iconSizes.sm;
+  }
+
   const gesture = useMemo(
     () =>
       Gesture.Tap()

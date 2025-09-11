@@ -22,7 +22,6 @@ A flexible and customizable video player UI toolkit for React Native, designed f
 </a>
 
 <a href="https://react-native-video-toolkit-docs.vercel.app/">
-  {' '}
   <img src="https://deploy-badge.vercel.app/vercel/react-native-video-toolkit-docs?name=docs" alt="Docs Status" />
 </a>
 <a href="https://discord.gg/n7xVPxbG4R">

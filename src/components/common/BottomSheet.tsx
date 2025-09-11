@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, type FC, type ReactNode } from 'react';
-import { StyleSheet, View, Dimensions, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useVideo, Portal } from '../../providers';
-import { detectDeviceType, getOptimalConfig, PlatformUtils } from '../../utils/orientation';
+import { detectDeviceType, PlatformUtils } from '../../utils/orientation';
 
 export interface BottomSheetProps {
   visible: boolean;
@@ -19,51 +19,6 @@ export interface BottomSheetProps {
   children: ReactNode;
   showHandle?: boolean;
 }
-
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
-
-/**
- * Calculate responsive dimensions for the bottom sheet based on device type and orientation
- */
-const getResponsiveSheetDimensions = (fullscreen: boolean) => {
-  const deviceType = detectDeviceType();
-  const config = getOptimalConfig();
-  const isTV = PlatformUtils.isTV();
-  const isTablet = PlatformUtils.isTablet();
-
-  // Base dimensions
-  let sheetHeight: number;
-  let sheetWidth: number;
-
-  if (isTV) {
-    // TV-specific sizing - larger and centered
-    sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.7 : SCREEN_HEIGHT * 0.6;
-    sheetWidth = fullscreen ? SCREEN_WIDTH * 0.6 : SCREEN_WIDTH * 0.5;
-  } else if (isTablet) {
-    // Tablet sizing - more conservative than TV but larger than phone
-    sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.8 : SCREEN_HEIGHT * 0.55;
-    sheetWidth = fullscreen ? SCREEN_WIDTH * 0.7 : SCREEN_WIDTH * 0.8;
-  } else if (deviceType === 'foldable') {
-    // Foldable device - adapt to unique form factor
-    sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.75 : SCREEN_HEIGHT * 0.5;
-    sheetWidth = fullscreen ? SCREEN_WIDTH * 0.8 : SCREEN_WIDTH * 0.9;
-  } else {
-    // Phone/default - original mobile sizing
-    sheetHeight = fullscreen ? SCREEN_WIDTH * 0.85 : SCREEN_HEIGHT * 0.45;
-    sheetWidth = fullscreen ? SCREEN_HEIGHT * 0.75 : SCREEN_WIDTH * 0.9;
-  }
-
-  // Ensure minimum and maximum constraints
-  const minHeight = isTV ? 400 : isTablet ? 300 : 250;
-  const maxHeight = SCREEN_HEIGHT * 0.9;
-  const minWidth = isTV ? 600 : isTablet ? 400 : 300;
-  const maxWidth = SCREEN_WIDTH * 0.95;
-
-  return {
-    height: Math.max(minHeight, Math.min(maxHeight, sheetHeight)),
-    width: Math.max(minWidth, Math.min(maxWidth, sheetWidth)),
-  };
-};
 
 /**
  * `BottomSheet` is a responsive, cross-platform animated bottom sheet component.
@@ -88,8 +43,47 @@ export const BottomSheet: FC<BottomSheetProps> = ({
   const { state } = useVideo();
   const { theme, fullscreen } = state;
 
-  // Calculate responsive dimensions
-  const sheetDimensions = useMemo(() => getResponsiveSheetDimensions(fullscreen), [fullscreen]);
+  /**
+   * Calculate responsive dimensions for the bottom sheet based on device type and orientation
+   * Handles both videoLayout dimensions and window dimensions (for web/fallback cases)
+   */
+  const getResponsiveSheetDimensions = (fullscreen: boolean) => {
+    const deviceType = detectDeviceType();
+    const isTV = PlatformUtils.isTV();
+    const isTablet = PlatformUtils.isTablet();
+    const isWeb = PlatformUtils.isWeb();
+
+    let sheetHeight: number;
+    let sheetWidth: number;
+    const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = state.videoWrapperLayout;
+
+    // When using window dimensions (web or fallback) - use standard multipliers
+    if (isTV || isWeb) {
+      sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.75 : SCREEN_HEIGHT * 0.65;
+      sheetWidth = fullscreen ? SCREEN_WIDTH * 0.65 : SCREEN_WIDTH * 0.55;
+    } else if (isTablet) {
+      sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.85 : SCREEN_HEIGHT * 0.65;
+      sheetWidth = fullscreen ? SCREEN_WIDTH * 0.75 : SCREEN_WIDTH * 0.85;
+    } else if (deviceType === 'foldable') {
+      sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.8 : SCREEN_HEIGHT * 0.6;
+      sheetWidth = fullscreen ? SCREEN_WIDTH * 0.85 : SCREEN_WIDTH * 0.95;
+    } else {
+      // Phone/web with window dimensions
+      sheetHeight = fullscreen ? SCREEN_HEIGHT * 0.9 : SCREEN_HEIGHT * 1.5;
+      sheetWidth = fullscreen ? SCREEN_WIDTH * 0.8 : SCREEN_WIDTH * 0.95;
+    }
+
+    return {
+      height: sheetHeight,
+      width: sheetWidth,
+    };
+  };
+  // Calculate responsive dimensions based on videoLayout
+  const sheetDimensions = useMemo(
+    () => getResponsiveSheetDimensions(fullscreen),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fullscreen, state.videoWrapperLayout]
+  );
 
   const SHEET_HEIGHT = sheetDimensions.height;
   const SHEET_WIDTH = sheetDimensions.width;

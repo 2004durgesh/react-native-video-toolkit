@@ -161,5 +161,10 @@
 
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(circle at 25% 25%, var(--secondary) 0.5px, transparent 1px),
+      radial-gradient(circle at 75% 75%, var(--background) 0.5px, transparent 1px);
+    background-size: 10px 10px;
+    image-rendering: pixelated;
   }
 }

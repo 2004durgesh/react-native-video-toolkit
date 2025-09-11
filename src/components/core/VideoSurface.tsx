@@ -141,8 +141,13 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   );
 
   return (
-    // @ts-ignore
-    <View style={{ height: state.videoLayout.height, ...(Platform.OS === 'web' && { height: '100vh' }) }}>
+    <View
+      onLayout={(e) => {
+        const { layout } = e.nativeEvent;
+        dispatch({ type: 'SET_VIDEO_WRAPPER_LAYOUT', payload: layout });
+      }}
+      // @ts-ignore
+      style={{ height: state.videoLayout.height, ...(Platform.OS === 'web' && { height: '100vh' }) }}>
       <RNVideo
         ref={internalVideoRef}
         source={source}

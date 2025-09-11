@@ -1,1 +1,17 @@
-{ "pages": ["getting-started", "customization", "api-reference"] }
+{
+  "title": "React Native Reusables",
+  "description": "",
+  "icon": "Building2",
+  "root": true,
+  "pages": [
+    "---Getting started---",
+    "!getting-started",
+    "!customization",
+    "[BookOpen][Introduction](/docs/getting-started)",
+    "[FileSliders][Customization](/docs/customization)",
+    "------",
+    "---API Reference---",
+    ".../api-reference",
+    "------"
+  ]
+}

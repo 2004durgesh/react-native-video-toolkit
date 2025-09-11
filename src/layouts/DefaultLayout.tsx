@@ -1,7 +1,7 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useBuffering, useControlsVisibility, useSettings } from '../hooks';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { useEffect, type FC } from 'react';
+import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import { type FC } from 'react';
 import { useVideo } from '../providers';
 import { Menu, Subtitle, Title, CommonLayoutStyles as layoutStyles, VideoPlayer } from '../components';
 export interface DefaultLayoutProps {
@@ -15,9 +15,8 @@ export interface DefaultLayoutProps {
  * @param {DefaultLayoutProps} props - The props for the component.
  * @returns {React.ReactElement} The default layout component.
  */
-export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): React.ReactElement => {
+export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }: DefaultLayoutProps): React.ReactElement => {
   const { buffering } = useBuffering();
-  const opacity = useSharedValue(1);
   const { state } = useVideo();
   const {
     videoTracks,
@@ -30,27 +29,53 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
     setTextTrack,
     setAudioTrack,
   } = useSettings();
-  const { setOpacity } = useControlsVisibility();
-  //  console.log({videoTracks, textTracks, audioTracks});
+  const { controlsVisible } = useControlsVisibility();
 
-  useEffect(() => {
-    setOpacity(opacity);
-  }, [opacity, setOpacity]);
+  const topControlsAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(controlsVisible ? 1 : 0, { duration: 100, easing: Easing.bezierFn(0.25, 0.1, 0.25, 1) }),
+      transform: [
+        {
+          translateY: withTiming(controlsVisible ? 0 : -50, {
+            duration: 100,
+            easing: Easing.bezierFn(0.25, 0.1, 0.25, 1),
+          }),
+        },
+      ],
+    };
+  }, [controlsVisible]);
 
-  const animatedStyle = useAnimatedStyle(
-    () => ({
-      backgroundColor: state.theme.colors.overlay,
-      opacity: opacity.value,
-    }),
-    [state.theme.colors.overlay]
-  );
+  const bottomControlsAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(controlsVisible ? 1 : 0, { duration: 100, easing: Easing.bezierFn(0.25, 0.1, 0.25, 1) }),
+      transform: [
+        {
+          translateY: withTiming(controlsVisible ? 0 : 50, {
+            duration: 100,
+            easing: Easing.bezierFn(0.25, 0.1, 0.25, 1),
+          }),
+        },
+      ],
+    };
+  }, [controlsVisible]);
+
+  const centerControlsAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(controlsVisible || buffering ? 1 : 0, {
+        duration: 100,
+        easing: Easing.bezierFn(0.25, 0.1, 0.25, 1),
+      }),
+      // Keep position absolute and translate for centering
+    };
+  }, [controlsVisible, buffering]);
   return (
     <>
-      <Animated.View style={[styles.baseStyle, animatedStyle, { pointerEvents: 'box-none' }]}>
+      <Animated.View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
         <VideoPlayer.Controls>
           <View
             style={[layoutStyles.column, { justifyContent: 'space-between', height: '100%', paddingHorizontal: 15 }]}>
-            <View style={layoutStyles.topControls}>
+            <Animated.View
+              style={[layoutStyles.topControls, topControlsAnimatedStyle, { padding: state.fullscreen ? 20 : 10 }]}>
               <View>
                 {title && <Title text={title} />}
                 {subtitle && <Subtitle text={subtitle} />}
@@ -159,9 +184,16 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
                   </Menu.Root>
                 </View>
               </View>
-            </View>
-            <View style={layoutStyles.centerControls}>{!buffering ? <VideoPlayer.PlayButton /> : null}</View>
-            <View style={[layoutStyles.bottomControls]}>
+            </Animated.View>
+            <Animated.View style={[centerControlsAnimatedStyle, layoutStyles.centerControls]}>
+              {!buffering ? <VideoPlayer.PlayButton size={state.theme.iconSizes.md} /> : null}
+            </Animated.View>
+            <Animated.View
+              style={[
+                layoutStyles.bottomControls,
+                bottomControlsAnimatedStyle,
+                { padding: state.fullscreen ? 20 : 10 },
+              ]}>
               <VideoPlayer.ProgressBar />
               <View style={layoutStyles.row}>
                 <VideoPlayer.TimeDisplay />
@@ -171,13 +203,12 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }): Reac
                   <VideoPlayer.MuteButton style={{ marginLeft: 10 }} />
                 </View>
               </View>
-            </View>
+            </Animated.View>
           </View>
         </VideoPlayer.Controls>
       </Animated.View>
-      {/* This is separate because, even tho after the autioHideDelay hides the controls the spinner should be visible when buffering  */}
+      {/* Separate loading spinner that's always visible when buffering */}
       {buffering && (
-        //baseStyle works :)
         <View style={[styles.baseStyle, { pointerEvents: 'none' }]}>
           <VideoPlayer.LoadingSpinner />
         </View>
@@ -194,6 +225,5 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
 });

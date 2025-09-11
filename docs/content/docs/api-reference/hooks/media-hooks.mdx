@@ -62,12 +62,12 @@ export const MyComponent = () => {
 
 ### Returns
 
-| Value            | Type                                     | Description                                                                                                        |
-| ---------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `showControls`   | `() => void`                             | A function that makes the video controls visible.                                                                  |
-| `hideControls`   | `() => void`                             | A function that hides the video controls.                                                                          |
-| `toggleControls` | `() => void`                             | A function that toggles the visibility of the controls (shows if hidden, hides if visible).                        |
-| `setOpacity`     | `(opacity: SharedValue<number>) => void` | A function that sets the shared value for the controls' opacity. This is primarily used internally for animations. |
+| Value             | Type         | Description                                                                                           |
+| ----------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| `showControls`    | `() => void` | A function that makes the video controls visible.                                                     |
+| `hideControls`    | `() => void` | A function that hides the video controls.                                                             |
+| `toggleControls`  | `() => void` | A function that toggles the visibility of the controls (shows if hidden, hides if visible).           |
+| `controlsVisible` | `boolean`    | Whether the controls are currently visible. Use this for custom animations and conditional rendering. |
 
 ### Example
 

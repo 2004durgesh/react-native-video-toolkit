@@ -19,13 +19,12 @@ export function GettingStartedExample() {
           onHideControls() {
             console.log('controls hidden');
           },
-          autoPlay: false,
         }}>
-        <View style={styles.videoContainer}>
+        <View>
           <VideoPlayer
             videoProps={{
               onLoad(e) {
-                console.error('Video loaded', e);
+                console.log('Video loaded', e);
               },
             }}
             containerStyle={styles.videoPlayer}
@@ -44,14 +43,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     width: '100%',
   },
-  videoContainer: {
-    width: '100%',
-    height: 500,
-    backgroundColor: '#fff',
-  },
   videoPlayer: {
     width: '100%',
-    height: '100%',
+    // @ts-ignore
+    height: '100vh', // for web, take full height of the viewport, since the example is been rendered on web
   },
 });
 

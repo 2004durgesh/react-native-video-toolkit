@@ -3,20 +3,19 @@
 // Main VideoPlayer component and compound components
 export { VideoPlayer } from './components/VideoPlayer';
 // Export the VideoToolkit module with platform-specific resolution
-import { Platform } from 'react-native';
 
 // Platform-specific export
-let NativeVideoToolkit;
+// let NativeVideoToolkit;
 
-if (Platform.OS === 'web') {
-  // Dynamically import web implementation
-  NativeVideoToolkit = require('./NativeVideoToolkit.web').default;
-} else {
-  // Use native implementation for iOS/Android
-  NativeVideoToolkit = require('./NativeVideoToolkit').default;
-}
-export { NativeVideoToolkit };
-// export { default as NativeVideoToolkit } from './NativeVideoToolkit';
+// if (Platform.OS === 'web') {
+//   // Dynamically import web implementation
+//   NativeVideoToolkit = require('./NativeVideoToolkit.web').default;
+// } else {
+//   // Use native implementation for iOS/Android
+//   NativeVideoToolkit = require('./NativeVideoToolkit').default;
+// }
+// export { NativeVideoToolkit };
+export { default as NativeVideoToolkit } from './NativeVideoToolkit';
 
 // Export Layouts components
 export { DefaultLayout } from './layouts';

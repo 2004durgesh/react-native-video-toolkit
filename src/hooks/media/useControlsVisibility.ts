@@ -1,4 +1,3 @@
-import { withTiming, type SharedValue } from 'react-native-reanimated';
 import { useVideo } from '../../providers';
 import { useCallback } from 'react';
 
@@ -9,23 +8,19 @@ import { useCallback } from 'react';
  * - `showControls`: A function to show the controls.
  * - `hideControls`: A function to hide the controls.
  * - `toggleControls`: A function to toggle the visibility of the controls.
- * - `setOpacity`: A function to set the opacity of the controls.
+ * - `isControlsVisible`: Whether the controls are currently visible.
  */
 export const useControlsVisibility = () => {
   const { state, dispatch } = useVideo();
-  const { controlsOpacity, theme, config, isPlaying, hideTimeoutRef } = state;
+  const { controlsVisible, config, isPlaying, hideTimeoutRef } = state;
 
   /**
    * Hides the video controls.
    */
   const hideControls = useCallback(() => {
-    if (controlsOpacity) {
-      controlsOpacity.value = withTiming(0, {
-        duration: theme.animations.normal,
-      });
-    }
+    dispatch({ type: 'HIDE_CONTROLS' });
     state.config.onHideControls?.();
-  }, [controlsOpacity, theme, state.config]);
+  }, [dispatch, state.config]);
 
   /**
    * Shows the video controls.
@@ -35,50 +30,30 @@ export const useControlsVisibility = () => {
       clearTimeout(hideTimeoutRef);
     }
 
-    if (controlsOpacity) {
-      controlsOpacity.value = withTiming(1, {
-        duration: theme.animations.fast,
-      });
-    }
+    dispatch({ type: 'SHOW_CONTROLS' });
 
     if (config.autoHideControls && isPlaying) {
       const newTimeout = setTimeout(() => hideControls(), config.autoHideDelay);
       dispatch({ type: 'SET_HIDE_TIMEOUT', payload: newTimeout as unknown as NodeJS.Timeout });
     }
     state.config.onShowControls?.();
-  }, [hideTimeoutRef, controlsOpacity, theme, config, isPlaying, dispatch, hideControls, state.config]);
+  }, [hideTimeoutRef, config, isPlaying, dispatch, hideControls, state.config]);
 
   /**
    * Toggles the visibility of the video controls.
    */
   const toggleControls = useCallback(() => {
-    if (controlsOpacity) {
-      const isVisible = controlsOpacity.value > 0.5;
-      if (isVisible) {
-        hideControls();
-      } else {
-        showControls();
-      }
+    if (controlsVisible) {
+      hideControls();
     } else {
       showControls();
     }
-  }, [controlsOpacity, hideControls, showControls]);
-
-  /**
-   * Sets the opacity of the video controls.
-   * @param opacity - The opacity to set.
-   */
-  const setOpacity = useCallback(
-    (opacity: SharedValue<number>) => {
-      dispatch({ type: 'SET_CONTROLS_OPACITY', payload: opacity });
-    },
-    [dispatch]
-  );
+  }, [controlsVisible, hideControls, showControls]);
 
   return {
     showControls,
     hideControls,
     toggleControls,
-    setOpacity,
+    controlsVisible,
   };
 };

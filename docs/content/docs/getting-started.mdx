@@ -4,8 +4,8 @@ description: This guide will help you get started with installing and using the 
 ---
 
 import { PreviewCard } from '@/components/preview-card';
-import { Demo } from '@/components/examples/Demo';
-import { GettingStartedExample } from '@/components/examples/getting-started-example';
+// import { GettingStartedExample } from '@/components/examples/getting-started-example';
+import { GettingStartedExample } from '../../src/components/examples/getting-started-example';
 
 # Getting Started
 
@@ -56,14 +56,14 @@ Here's a full example demonstrating basic usage of the `VideoPlayer` component. 
     </div>
     <PreviewCard preview={<GettingStartedExample />} />
   </TabsContent>
-  {/* <TabsContent value="code">
+  <TabsContent value="code">
     ```json doc-gen:file
     {
-      "file": "./node_modules/@rnr/registry/src/examples/accordion.tsx",
+      "file": "./src/components/examples/getting-started-example.tsx",
       "codeblock": {
         "lang": "tsx"
       }
-    }  */}
-  {/* ```
-  </TabsContent> */}
+    }
+```
+  </TabsContent>
 </Tabs>

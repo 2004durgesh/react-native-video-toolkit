@@ -5,6 +5,7 @@ import { VideoProvider } from 'react-native-video-toolkit';
 export default function Layout({ children }: LayoutProps<'/docs'>) {
   return (
     <DocsLayout
+      themeSwitch={{ mode: 'light-dark' }}
       sidebar={{ className: '[&>div]:pt-3' }}
       nav={{
         title: (

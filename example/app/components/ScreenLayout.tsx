@@ -7,7 +7,8 @@ import {
   type VideoSource,
   useSettings,
   useSettingsContext,
-} from '../../../src';
+  useVideo,
+} from 'react-native-video-toolkit';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -79,6 +80,7 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
   ];
   const { fullscreen } = useFullscreen();
   const { state } = useSettingsContext();
+  const { state: videoState } = useVideo();
   const [uri, setUri] = useState<string>(samples[1]?.uri!);
   const videoSource: VideoSource = {
     uri,
@@ -100,7 +102,7 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
         containerStyle={styles.videoPlayer}
         videoProps={{
           onLoad(e) {
-            console.log('Video Loaded!', e);
+            console.log('Video Loaded!', e, { videoState });
           },
           onLoadStart(e) {
             console.log('Video Load Started!', e);
@@ -150,11 +152,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-  },
-  videoContainer: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#000',
   },
   videoPlayer: {
     backgroundColor: 'red',
