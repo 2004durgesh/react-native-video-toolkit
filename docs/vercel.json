@@ -4,7 +4,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "yarn install",
-  "ignoreCommand": "git log -1 --pretty=%B | grep -q '\\[skip vercel\\]'",
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet ./docs",
   "regions": ["iad1"],
   "functions": {
     "app/**/*.js": {

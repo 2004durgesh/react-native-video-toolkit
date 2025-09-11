@@ -6,7 +6,7 @@
 My **first ever real OSS project** 😭. Be kind, I’m still figuring this out.<br>
 A flexible and customizable video player UI toolkit for React Native, designed for a great mobile viewing experience (and maybe TV one day… if I survive).
 
-👉 Full Documentation: [https://2004durgesh.github.io/react-native-video-toolkit/](https://2004durgesh.github.io/react-native-video-toolkit/)
+👉 Full Documentation: [https://react-native-video-toolkit-docs.vercel.app/](https://react-native-video-toolkit-docs.vercel.app/)
 
 <a href="https://www.npmjs.com/package/react-native-video-toolkit">
   <img src="https://img.shields.io/npm/v/react-native-video-toolkit" alt="npm version" />
@@ -20,11 +20,10 @@ A flexible and customizable video player UI toolkit for React Native, designed f
     alt="CI Workflow Status"
   />
 </a>
-<a href="https://github.com/2004durgesh/react-native-video-toolkit/actions/workflows/docs.yml">
-  <img
-    src="https://img.shields.io/github/actions/workflow/status/2004durgesh/react-native-video-toolkit/docs.yml?label=docs"
-    alt="Docs Workflow Status"
-  />
+
+<a href="https://react-native-video-toolkit-docs.vercel.app/">
+  {' '}
+  <img src="https://deploy-badge.vercel.app/vercel/react-native-video-toolkit-docs?name=docs" alt="Docs Status" />
 </a>
 <a href="https://discord.gg/n7xVPxbG4R">
   <img
@@ -125,7 +124,7 @@ const App = () => {
 ```
 
 For more docs:
-👉 [Documentation website](https://2004durgesh.github.io/react-native-video-toolkit/).
+👉 [Documentation website](https://react-native-video-toolkit-docs.vercel.app/).
 
 ---
 
@@ -152,5 +151,6 @@ MIT – because lawyers are scary.
 
 Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
 Thanks to [wuxnz](https://github.com/wuxnz) for motivation (and maybe trauma)
+Thanks to [zach](https://github.com/founded-labs/react-native-reusables/tree/main/apps/docs) for the docs template
 
 Made with ❤️, caffeine, and way too many Chrome tabs by [Durgesh](https://github.com/2004durgesh)
