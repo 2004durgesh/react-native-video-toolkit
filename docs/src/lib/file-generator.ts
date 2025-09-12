@@ -58,5 +58,4 @@ export function fileGenerator(): DocGenerator {
 function fixImports(value: string) {
   return value
     .replaceAll("'use client';", '')
-    .replaceAll('@/registry/blocks/', '@/components/');
 }

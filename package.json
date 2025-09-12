@@ -44,7 +44,7 @@
     "test": "jest",
     "typecheck": "yarn workspaces foreach -A run typecheck",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "clean": "del-cli android/build lib \"example/android/.gradle\" \"example/android/build\" \"example/android/app/build\" \"example/ios/build\" \"example/ios/Pods\" build && yarn docs clean",
+    "clean": "del-cli android/build lib \"example/android/.gradle\" \"example/android/build\" \"example/android/app/build\" \"example/ios/build\" \"example/ios/Pods\" build",
     "prepare": "bob build",
     "codegen": "bob build && npx react-native codegen",
     "release": "release-it",

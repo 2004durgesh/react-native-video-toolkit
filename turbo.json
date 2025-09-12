@@ -31,6 +31,21 @@
         "!example/ios/Pods"
       ],
       "outputs": []
+    },
+    "build:docs": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "docs/src/**",
+        "docs/content/**",
+        "docs/public/**",
+        "docs/next.config.mjs",
+        "docs/package.json",
+        "docs/tsconfig.json",
+        "docs/tailwind.config.js",
+        "docs/postcss.config.mjs",
+        "docs/source.config.ts"
+      ],
+      "outputs": ["docs/.next/**", "docs/dist/**"]
     }
   }
 }

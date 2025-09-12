@@ -7,7 +7,16 @@ trap 'test -f README.mdx && mv README.mdx README.md' EXIT
 
 yarn clean 
 yarn prepare 
-yarn docs build 
+
+# Run docs build only if ./docs changed
+if ! git diff --quiet --cached -- ./docs; then
+  echo "Docs changed → running npx turbo run build:docs..."
+  yarn docs clean
+  yarn docs build:docs
+else
+  echo "Docs not changed → skipping docs build."
+fi
+
 yarn typecheck
 
 # rename README.md to README.mdx before formatting
