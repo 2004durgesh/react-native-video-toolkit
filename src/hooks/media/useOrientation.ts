@@ -8,7 +8,7 @@ import {
   getVideoControlsConfig,
   type RotationConfig,
   type DeviceType,
-} from '../../utils/orientation';
+} from '../../utils';
 
 export interface OrientationCapabilities {
   canControlOrientation: boolean;

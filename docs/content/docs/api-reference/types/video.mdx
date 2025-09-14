@@ -22,17 +22,18 @@ The `VideoSource` interface defines the source of the video to be played. Extend
 
 The `VideoState` interface represents the current state of the video player.
 
-| Property       | Type      | Required | Default | Description                                   |
-| -------------- | --------- | -------- | ------- | --------------------------------------------- |
-| `isPlaying`    | `boolean` | Yes      | `false` | Whether the video is currently playing.       |
-| `currentTime`  | `number`  | Yes      | `0`     | The current playback time of the video.       |
-| `duration`     | `number`  | Yes      | `0`     | The total duration of the video.              |
-| `buffering`    | `boolean` | Yes      | `false` | Whether the video is currently buffering.     |
-| `muted`        | `boolean` | Yes      | `false` | Whether the video is currently muted.         |
-| `volume`       | `number`  | Yes      | `1`     | The current volume of the video.              |
-| `playbackRate` | `number`  | Yes      | `1`     | The current playback rate of the video.       |
-| `fullscreen`   | `boolean` | Yes      | `false` | Whether the video is currently in fullscreen. |
-| `error`        | `string`  | Yes      | `null`  | The current error, if any.                    |
+| Property           | Type      | Required | Default | Description                                   |
+| ------------------ | --------- | -------- | ------- | --------------------------------------------- |
+| `isPlaying`        | `boolean` | Yes      | `false` | Whether the video is currently playing.       |
+| `currentTime`      | `number`  | Yes      | `0`     | The current playback time of the video.       |
+| `playableDuration` | `number`  | Yes      | `0`     | The playable duration of the video.           |
+| `duration`         | `number`  | Yes      | `0`     | The total duration of the video.              |
+| `buffering`        | `boolean` | Yes      | `false` | Whether the video is currently buffering.     |
+| `muted`            | `boolean` | Yes      | `false` | Whether the video is currently muted.         |
+| `volume`           | `number`  | Yes      | `1`     | The current volume of the video.              |
+| `playbackRate`     | `number`  | Yes      | `1`     | The current playback rate of the video.       |
+| `fullscreen`       | `boolean` | Yes      | `false` | Whether the video is currently in fullscreen. |
+| `error`            | `string`  | Yes      | `null`  | The current error, if any.                    |
 
 ## `VideoPlayerConfig`
 

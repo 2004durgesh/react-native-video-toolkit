@@ -3,6 +3,8 @@ import { useSharedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
 import { useProgress, useControlsVisibility } from '../../hooks';
 import { useVideo } from '../../providers';
+import { useEffect } from 'react';
+import { hexToRgba } from '../../utils';
 
 export interface ProgressBarProps {
   height?: number;
@@ -17,7 +19,7 @@ export interface ProgressBarProps {
  * @returns {React.ReactElement} - The progress bar component.
  */
 export const ProgressBar = ({ height = 4, thumbWidth = 12, style }: ProgressBarProps): React.ReactElement => {
-  const { currentTime, duration, seek } = useProgress();
+  const { currentTime, duration, seek, playableDuration } = useProgress();
   const { showControls } = useControlsVisibility();
   const {
     state: { theme },
@@ -27,13 +29,18 @@ export const ProgressBar = ({ height = 4, thumbWidth = 12, style }: ProgressBarP
   const progress = useSharedValue(currentTime);
   const min = useSharedValue(0);
   const max = useSharedValue(duration);
+  const cache = useSharedValue(playableDuration);
+  useEffect(() => {
+    progress.value = currentTime;
+  }, [currentTime, progress]);
 
-  // Update slider when state changes
-  progress.value = currentTime;
-  max.value = duration;
+  useEffect(() => {
+    cache.value = playableDuration;
+  }, [playableDuration, cache]);
 
-  const trackBg = theme.colors.secondary;
-  const progressBg = theme.colors.primary;
+  useEffect(() => {
+    max.value = duration;
+  }, [duration, max]);
 
   const handleSlidingStart = () => {
     showControls();
@@ -49,12 +56,14 @@ export const ProgressBar = ({ height = 4, thumbWidth = 12, style }: ProgressBarP
         progress={progress}
         minimumValue={min}
         maximumValue={max}
+        cache={cache}
         onSlidingStart={handleSlidingStart}
         onValueChange={handleValueChange}
         theme={{
-          minimumTrackTintColor: progressBg,
-          maximumTrackTintColor: trackBg,
-          bubbleBackgroundColor: progressBg,
+          minimumTrackTintColor: theme.colors.primary,
+          maximumTrackTintColor: theme.colors.background,
+          bubbleBackgroundColor: theme.colors.primary,
+          cacheTrackTintColor: hexToRgba(theme.colors.text, 0.7),
         }}
         renderBubble={() => null}
         thumbWidth={thumbWidth}

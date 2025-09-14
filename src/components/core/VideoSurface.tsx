@@ -4,6 +4,7 @@ import RNVideo, {
   SelectedVideoTrackType,
   ViewType,
   type OnLoadData,
+  type OnProgressData,
   type ReactVideoProps,
 } from 'react-native-video';
 import { useEffect, useMemo, useRef, type FC } from 'react';
@@ -40,7 +41,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   const { dispatch, state } = useVideo();
   const { isPlaying, setPlaying } = usePlayback();
   const { muted, volume } = useVolume();
-  const { setCurrentTime, setDuration, seek } = useProgress();
+  const { setCurrentTime, setDuration, seek, setPlayableDuration } = useProgress();
   const { setBuffering } = useBuffering();
   const { showControls } = useControlsVisibility();
   const { playbackRate } = state;
@@ -110,8 +111,9 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
       setVideoTrack(dedupedVideoTracks[naturalSizeIndex !== -1 ? naturalSizeIndex : 0]!);
     }
   };
-  const handleProgress = (data: any) => {
+  const handleProgress = (data: OnProgressData) => {
     setCurrentTime(data.currentTime);
+    setPlayableDuration(data.playableDuration);
   };
   const handleBuffer = (data: any) => setBuffering(data.isBuffering);
   const handleError = (error: any) =>

@@ -6,9 +6,11 @@ import { useCallback } from 'react';
  *
  * @returns An object with the following properties:
  * - `currentTime`: The current time of the video in seconds.
+ * - `playableDuration`: The playable duration of the video in seconds.
  * - `duration`: The duration of the video in seconds.
  * - `seek`: A function to seek to a specific time in the video.
  * - `setCurrentTime`: A function to set the current time of the video.
+ * - `setPlayableDuration`: A function to set the playable duration of the video.
  * - `setDuration`: A function to set the duration of the video.
  */
 export const useProgress = () => {
@@ -42,6 +44,18 @@ export const useProgress = () => {
   );
 
   /**
+   * Sets the playable duration of the video.
+   * @param playableDuration - The playable duration to set in seconds.
+   */
+
+  const setPlayableDuration = useCallback(
+    (playableDuration: number) => {
+      dispatch({ type: 'SET_PLAYABLE_DURATION', payload: playableDuration });
+    },
+    [dispatch]
+  );
+
+  /**
    * Sets the duration of the video.
    * @param duration - The duration to set in seconds.
    */
@@ -55,8 +69,10 @@ export const useProgress = () => {
   return {
     currentTime: state.currentTime,
     duration: state.duration,
+    playableDuration: state.playableDuration,
     seek,
     setCurrentTime,
     setDuration,
+    setPlayableDuration,
   };
 };

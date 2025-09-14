@@ -195,13 +195,15 @@ export const MyComponent = () => {
 
 ### Returns
 
-| Value            | Type                         | Description                                                                      |
-| ---------------- | ---------------------------- | -------------------------------------------------------------------------------- |
-| `currentTime`    | `number`                     | The current playback time of the video in seconds.                               |
-| `duration`       | `number`                     | The total duration of the video in seconds.                                      |
-| `seek`           | `(time: number) => void`     | A function that seeks the video to a specific time in seconds.                   |
-| `setCurrentTime` | `(time: number) => void`     | A function that manually sets the current time state. Primarily used internally. |
-| `setDuration`    | `(duration: number) => void` | A function that manually sets the duration state. Primarily used internally.     |
+| Value                 | Type                                 | Description                                                                           |
+| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------- |
+| `currentTime`         | `number`                             | The current playback time of the video in seconds.                                    |
+| `playableDuration`    | `number`                             | The playable duration of the video in seconds.                                        |
+| `duration`            | `number`                             | The total duration of the video in seconds.                                           |
+| `seek`                | `(time: number) => void`             | A function that seeks the video to a specific time in seconds.                        |
+| `setCurrentTime`      | `(time: number) => void`             | A function that manually sets the current time state. Primarily used internally.      |
+| `setPlayableDuration` | `(playableDuration: number) => void` | A function that manually sets the playable duration state. Primarily used internally. |
+| `setDuration`         | `(duration: number) => void`         | A function that manually sets the duration state. Primarily used internally.          |
 
 - [`<VideoPlayer.ProgressBar />`](../components/controls/progress-bar.mdx) uses this hook to display and
   control video progress.

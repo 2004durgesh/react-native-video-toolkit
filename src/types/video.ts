@@ -31,6 +31,10 @@ export interface VideoState {
    */
   currentTime: number;
   /**
+   * The playable duration of the video in seconds.
+   */
+  playableDuration: number;
+  /**
    * The duration of the video in seconds.
    */
   duration: number;

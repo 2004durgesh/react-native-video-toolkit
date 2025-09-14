@@ -123,7 +123,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-create-class-features-plugin@npm:^7.18.6, @babel/helper-create-class-features-plugin@npm:^7.27.1, @babel/helper-create-class-features-plugin@npm:^7.28.3":
+"@babel/helper-create-class-features-plugin@npm:^7.27.1, @babel/helper-create-class-features-plugin@npm:^7.28.3":
   version: 7.28.3
   resolution: "@babel/helper-create-class-features-plugin@npm:7.28.3"
   dependencies:
@@ -381,18 +381,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0
   checksum: c810e5d36030df6861ced35f0adbda7b4b41ac3e984422b32bee906564fd49374435f0a7a1a42eb0a9e6a5170c255f0ab31c163d5fc51fa5a816aa0420311029
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-proposal-class-properties@npm:^7.18.6":
-  version: 7.18.6
-  resolution: "@babel/plugin-proposal-class-properties@npm:7.18.6"
-  dependencies:
-    "@babel/helper-create-class-features-plugin": ^7.18.6
-    "@babel/helper-plugin-utils": ^7.18.6
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: 49a78a2773ec0db56e915d9797e44fd079ab8a9b2e1716e0df07c92532f2c65d76aeda9543883916b8e0ff13606afeffa67c5b93d05b607bc87653ad18a91422
   languageName: node
   linkType: hard
 
@@ -1264,7 +1252,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-runtime@npm:^7.24.7, @babel/plugin-transform-runtime@npm:^7.28.3":
+"@babel/plugin-transform-runtime@npm:^7.24.7":
   version: 7.28.3
   resolution: "@babel/plugin-transform-runtime@npm:7.28.3"
   dependencies:
@@ -1409,7 +1397,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-env@npm:^7.25.2, @babel/preset-env@npm:^7.28.3":
+"@babel/preset-env@npm:^7.25.2":
   version: 7.28.3
   resolution: "@babel/preset-env@npm:7.28.3"
   dependencies:
@@ -1515,7 +1503,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-react@npm:^7.22.15, @babel/preset-react@npm:^7.24.7, @babel/preset-react@npm:^7.27.1":
+"@babel/preset-react@npm:^7.22.15, @babel/preset-react@npm:^7.24.7":
   version: 7.27.1
   resolution: "@babel/preset-react@npm:7.27.1"
   dependencies:
@@ -1531,7 +1519,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-typescript@npm:^7.16.7, @babel/preset-typescript@npm:^7.23.0, @babel/preset-typescript@npm:^7.24.7, @babel/preset-typescript@npm:^7.27.1":
+"@babel/preset-typescript@npm:^7.16.7, @babel/preset-typescript@npm:^7.23.0, @babel/preset-typescript@npm:^7.24.7":
   version: 7.27.1
   resolution: "@babel/preset-typescript@npm:7.27.1"
   dependencies:
@@ -6722,18 +6710,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "babel-loader@npm:10.0.0"
-  dependencies:
-    find-up: ^5.0.0
-  peerDependencies:
-    "@babel/core": ^7.12.0
-    webpack: ">=5.61.0"
-  checksum: 8a9dbb8a93cd342832cc99f024f07a6fda67b29aa907fbc3087de17e7f7ff705cf17fa9aed9103b1de9dfff24427afe200ec99213d24f801a0b1f4fd94783f51
-  languageName: node
-  linkType: hard
-
 "babel-plugin-istanbul@npm:^6.1.1":
   version: 6.1.1
   resolution: "babel-plugin-istanbul@npm:6.1.1"
@@ -8562,11 +8538,6 @@ __metadata:
   resolution: "docs@workspace:docs"
   dependencies:
     "@babel/core": ^7.28.4
-    "@babel/plugin-proposal-class-properties": ^7.18.6
-    "@babel/plugin-transform-runtime": ^7.28.3
-    "@babel/preset-env": ^7.28.3
-    "@babel/preset-react": ^7.27.1
-    "@babel/preset-typescript": ^7.27.1
     "@radix-ui/react-avatar": ^1.1.10
     "@radix-ui/react-dialog": ^1.1.15
     "@radix-ui/react-separator": ^1.1.7
@@ -8577,7 +8548,6 @@ __metadata:
     "@types/node": 24.3.1
     "@types/react": ^19.1.12
     "@types/react-dom": ^19.1.9
-    babel-loader: ^10.0.0
     babel-plugin-module-resolver: ^5.0.2
     babel-plugin-react-native-web: ^0.21.1
     class-variance-authority: ^0.7.1
@@ -8599,8 +8569,8 @@ __metadata:
     react: ^19.1.1
     react-dom: ^19.1.1
     react-native: 0.79.5
+    react-native-awesome-slider: ^2.7.1
     react-native-gesture-handler: ^2.28.0
-    react-native-orientation-director: ^2.6.1
     react-native-reanimated: ^3.17.0
     react-native-svg: ^15.12.1
     react-native-video: ^6.16.1
@@ -16913,7 +16883,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-awesome-slider@npm:^2.9.0":
+"react-native-awesome-slider@npm:^2.7.1, react-native-awesome-slider@npm:^2.9.0":
   version: 2.9.0
   resolution: "react-native-awesome-slider@npm:2.9.0"
   peerDependencies:

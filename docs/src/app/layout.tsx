@@ -1,3 +1,4 @@
+import 'raf/polyfill';
 import '@/app/global.css';
 import { RootProvider } from 'fumadocs-ui/provider';
 import { Geist, Geist_Mono } from 'next/font/google';

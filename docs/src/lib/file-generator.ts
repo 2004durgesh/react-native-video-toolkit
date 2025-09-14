@@ -56,6 +56,5 @@ export function fileGenerator(): DocGenerator {
 }
 
 function fixImports(value: string) {
-  return value
-    .replaceAll("'use client';", '')
+  return value.replace(/^['"]use client['"];\s*|^['"]use client['"]\s*/m, '');
 }

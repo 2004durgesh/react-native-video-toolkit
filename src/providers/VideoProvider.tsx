@@ -77,6 +77,7 @@ type Action =
   | { type: 'TOGGLE_FULLSCREEN' }
   | { type: 'SET_PLAYING'; payload: boolean }
   | { type: 'SET_CURRENT_TIME'; payload: number }
+  | { type: 'SET_PLAYABLE_DURATION'; payload: number }
   | { type: 'SET_DURATION'; payload: number }
   | { type: 'SET_BUFFERING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
@@ -92,6 +93,7 @@ type Action =
 const initialState: VideoProviderState = {
   isPlaying: defaultConfig.autoPlay,
   currentTime: 0,
+  playableDuration: 0,
   duration: 0,
   buffering: false,
   muted: false,
@@ -168,6 +170,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return { ...state, isPlaying: action.payload };
     case 'SET_CURRENT_TIME':
       return { ...state, currentTime: action.payload };
+    case 'SET_PLAYABLE_DURATION':
+      return { ...state, playableDuration: action.payload };
     case 'SET_DURATION':
       return { ...state, duration: action.payload };
     case 'SET_BUFFERING':

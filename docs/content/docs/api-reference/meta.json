@@ -1,4 +1,4 @@
 {
   "title": "API Reference",
-  "pages": ["components", "hooks", "providers", "types", "utils", "gesture-handler", "layouts"]
+  "pages": ["layouts", "gesture-handler", "components", "hooks", "providers", "types", "utils"]
 }

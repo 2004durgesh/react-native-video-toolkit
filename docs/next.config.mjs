@@ -73,7 +73,7 @@ function withExpo(nextConfig) {
 
       config.resolve.alias = {
         ...(config.resolve.alias || {}),
-        'react-native': 'react-native-web', // Removed trailing $ to fix resolution
+        'react-native$': 'react-native-web',
         // Alias internal react-native modules to react-native-web
         'react-native/Libraries/EventEmitter/RCTDeviceEventEmitter$':
           'react-native-web/dist/vendor/react-native/NativeEventEmitter/RCTDeviceEventEmitter',
@@ -102,7 +102,7 @@ function withExpo(nextConfig) {
       // Node fallbacks (including process polyfill for RN libs)
       config.resolve.fallback = {
         ...(config.resolve.fallback || {}),
-        'react-native': 'react-native-web',
+        'react-native$': 'react-native-web',
         'process': require.resolve('process/browser'), // Polyfill process for client-side RN code
       };
 
@@ -114,31 +114,6 @@ function withExpo(nextConfig) {
       config.module.rules.push({
         test: /\.txt$/,
         type: 'asset/source',
-      });
-
-      // 🔹 Transpile RN deps
-      config.module.rules.push({
-        test: /\.(js|jsx|ts|tsx)$/,
-        include: [
-          /node_modules\/react-native/,
-          /node_modules\/react-native-gesture-handler/,
-          /node_modules\/react-native-reanimated/,
-          /node_modules\/react-native-video/,
-          /node_modules\/react-native-svg/,
-          /node_modules\/react-native-material-ripple/,
-          /node_modules\/react-native-awesome-slider/,
-        ],
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              ['@babel/preset-env', { targets: { node: 'current' } }],
-              ['@babel/preset-react', { runtime: 'automatic' }],
-              ['@babel/preset-typescript', { isTSX: true, allExtensions: true }],
-            ],
-            plugins: [['@babel/plugin-transform-runtime']],
-          },
-        },
       });
 
       // 🔹 Ignore NativeVideoToolkit.ts (prefer .web.ts)
