@@ -74,7 +74,7 @@ const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, ge
 
   return (
     <View
-      {...(Platform.OS === 'web' && { 'data-videotoolkit': 'container' })}
+      id="video-player"
       style={[
         {
           position: 'relative',

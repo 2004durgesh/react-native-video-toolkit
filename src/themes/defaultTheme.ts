@@ -16,23 +16,10 @@ export const defaultTheme: Theme = {
     success: '#60D288',
     border: '#3A3A3A',
   },
-  sizing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 40,
-  },
   iconSizes: {
-    sm: 18,
-    md: 28,
+    sm: 24,
+    md: 30,
     lg: 40,
-  },
-  borderRadius: 12,
-  fonts: {
-    regular: 'System',
-    medium: 'System',
-    bold: 'System',
   },
   fontSizes: {
     sm: 13,

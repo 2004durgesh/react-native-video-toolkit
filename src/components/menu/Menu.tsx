@@ -523,8 +523,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   content: {
-    flex: 1,
     padding: 0,
+    alignSelf: 'stretch',
   },
   item: {
     paddingVertical: 12,
@@ -561,7 +561,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
+    marginBottom: 4,
+    borderBottomWidth: 2,
   },
   headerTitle: {
     fontSize: 18,
@@ -574,10 +575,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   contentBody: {
-    flex: 1,
+    flexShrink: 1,
+    maxHeight: '100%',
   },
   subContent: {
-    flex: 1,
+    flexShrink: 1,
   },
 });
 

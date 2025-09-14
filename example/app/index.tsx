@@ -1,5 +1,5 @@
 import React from 'react';
-import { DefaultLayout, ThemeProvider, minimalTheme } from 'react-native-video-toolkit';
+import { DefaultLayout, ThemeProvider } from 'react-native-video-toolkit';
 import { ScreenLayout } from './components/ScreenLayout';
 import { Text } from 'react-native';
 

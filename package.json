@@ -64,7 +64,7 @@
   "bugs": {
     "url": "https://github.com/2004durgesh/react-native-video-toolkit/issues"
   },
-  "homepage": "https://2004durgesh.github.io/react-native-video-toolkit/",
+  "homepage": "https://react-native-video-toolkit-docs.vercel.app/",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

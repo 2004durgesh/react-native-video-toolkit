@@ -44,34 +44,12 @@ export interface Theme {
     border: string;
   };
   /**
-   * The sizing values used in the theme.
-   */
-  sizing: {
-    xs: number;
-    sm: number;
-    md: number;
-    lg: number;
-    xl: number;
-  };
-  /**
    * The icon sizes used in the theme.
    */
   iconSizes: {
     sm: number;
     md: number;
     lg: number;
-  };
-  /**
-   * The border radius used in the theme.
-   */
-  borderRadius: number;
-  /**
-   * The fonts used in the theme.
-   */
-  fonts: {
-    regular: string;
-    medium: string;
-    bold: string;
   };
   /**
    * The font sizes used in the theme.

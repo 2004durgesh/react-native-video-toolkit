@@ -174,7 +174,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
             sheetAnimatedStyle,
             {
               backgroundColor: theme.colors.background,
-              height: SHEET_HEIGHT,
+              maxHeight: SHEET_HEIGHT,
               width: SHEET_WIDTH,
               borderRadius: platformStyles.borderRadius,
               padding: platformStyles.padding,
