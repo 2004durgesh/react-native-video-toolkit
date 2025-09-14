@@ -7,6 +7,25 @@ import { Menu, Subtitle, Title, CommonLayoutStyles as layoutStyles, VideoPlayer 
 export interface DefaultLayoutProps {
   title?: string;
   subtitle?: string;
+  slots?: {
+    beforeSettingsButton?: React.ReactElement;
+    afterSettingsButton?: React.ReactElement;
+    beforeSubtitleToggleButton?: React.ReactElement;
+    afterSubtitleToggleButton?: React.ReactElement;
+    /**
+     * Here, before is above the progress bar and after is below the progress bar.
+     */
+    beforeProgressBar?: React.ReactElement;
+    afterProgressBar?: React.ReactElement;
+    beforeTimeDisplay?: React.ReactElement;
+    afterTimeDisplay?: React.ReactElement;
+    beforeMuteButton?: React.ReactElement;
+    afterMuteButton?: React.ReactElement;
+    beforeFullscreenButton?: React.ReactElement;
+    afterFullscreenButton?: React.ReactElement;
+    beforeCenterPlayButton?: React.ReactElement;
+    afterCenterPlayButton?: React.ReactElement;
+  };
 }
 
 /**
@@ -15,7 +34,11 @@ export interface DefaultLayoutProps {
  * @param {DefaultLayoutProps} props - The props for the component.
  * @returns {React.ReactElement} The default layout component.
  */
-export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }: DefaultLayoutProps): React.ReactElement => {
+export const DefaultLayout: FC<DefaultLayoutProps> = ({
+  title,
+  subtitle,
+  slots,
+}: DefaultLayoutProps): React.ReactElement => {
   const { buffering } = useBuffering();
   const { state } = useVideo();
   const {
@@ -81,10 +104,13 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }: Defau
                 {subtitle && <Subtitle text={subtitle} />}
               </View>
               <View style={[layoutStyles.row]}>
-                <View>
+                <View style={[layoutStyles.row]}>
+                  {slots?.beforeSubtitleToggleButton && slots.beforeSubtitleToggleButton}
                   <VideoPlayer.SubtitleToggleButton />
+                  {slots?.afterSubtitleToggleButton && slots.afterSubtitleToggleButton}
                 </View>
-                <View>
+                <View style={[layoutStyles.row]}>
+                  {slots?.beforeSettingsButton && slots.beforeSettingsButton}
                   <Menu.Root>
                     <Menu.Trigger />
                     <Menu.Content>
@@ -182,11 +208,18 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }: Defau
                       </Menu.SubContent>
                     </Menu.Content>
                   </Menu.Root>
+                  {slots?.afterSettingsButton && slots.afterSettingsButton}
                 </View>
               </View>
             </Animated.View>
             <Animated.View style={[centerControlsAnimatedStyle, layoutStyles.centerControls]}>
-              {!buffering ? <VideoPlayer.PlayButton size={state.theme.iconSizes.md} /> : null}
+              {!buffering ? (
+                <View style={layoutStyles.row}>
+                  {slots?.beforeCenterPlayButton && slots.beforeCenterPlayButton}
+                  <VideoPlayer.PlayButton size={state.theme.iconSizes.md} />
+                  {slots?.afterCenterPlayButton && slots.afterCenterPlayButton}
+                </View>
+              ) : null}
             </Animated.View>
             <Animated.View
               style={[
@@ -194,13 +227,29 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({ title, subtitle }: Defau
                 bottomControlsAnimatedStyle,
                 { padding: state.fullscreen ? 20 : 10 },
               ]}>
-              <VideoPlayer.ProgressBar />
+              <View style={[layoutStyles.column]}>
+                {slots?.beforeProgressBar && slots.beforeProgressBar}
+                <VideoPlayer.ProgressBar />
+                {slots?.afterProgressBar && slots.afterProgressBar}
+              </View>
               <View style={layoutStyles.row}>
-                <VideoPlayer.TimeDisplay />
+                <View style={layoutStyles.row}>
+                  {slots?.beforeTimeDisplay && slots.beforeTimeDisplay}
+                  <VideoPlayer.TimeDisplay />
+                  {slots?.afterTimeDisplay && slots.afterTimeDisplay}
+                </View>
                 <View style={layoutStyles.spacer} />
                 <View style={[layoutStyles.row]}>
-                  <VideoPlayer.FullscreenButton />
-                  <VideoPlayer.MuteButton style={{ marginLeft: 10 }} />
+                  <View style={[layoutStyles.row]}>
+                    {slots?.beforeFullscreenButton && slots.beforeFullscreenButton}
+                    <VideoPlayer.FullscreenButton />
+                    {slots?.afterFullscreenButton && slots.afterFullscreenButton}
+                  </View>
+                  <View style={[layoutStyles.row]}>
+                    {slots?.beforeMuteButton && slots.beforeMuteButton}
+                    <VideoPlayer.MuteButton />
+                    {slots?.afterMuteButton && slots.afterMuteButton}
+                  </View>
                 </View>
               </View>
             </Animated.View>
