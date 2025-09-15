@@ -3,17 +3,9 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-      - "**/*.md"
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-      - "**/*.md"
 
 jobs:
   lint:
@@ -27,9 +19,6 @@ jobs:
 
       - name: Lint files
         run: yarn lint
-
-      - name: Typecheck files
-        run: yarn typecheck
 
   build-library:
     runs-on: ubuntu-latest

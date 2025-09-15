@@ -4,7 +4,7 @@
 </div>
 
 My **first ever real OSS project** 😭. Be kind, I’m still figuring this out.<br>
-A flexible and customizable video player UI toolkit for React Native, designed for a great mobile viewing experience (and maybe TV one day… if I survive).
+A flexible and customizable video player UI toolkit for React Native.
 
 👉 Full Documentation: [https://react-native-video-toolkit-docs.vercel.app/](https://react-native-video-toolkit-docs.vercel.app/)
 
@@ -109,13 +109,12 @@ yarn add react-native-video-toolkit
 ## 🚀 Usage
 
 ```tsx
-import { VideoPlayer } from 'react-native-video-toolkit';
-import { MinimalLayout } from 'react-native-video-toolkit/layouts';
+import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
 
 const App = () => {
   return (
     <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
-      <MinimalLayout />
+      <DefaultLayout />
     </VideoPlayer>
   );
 };
