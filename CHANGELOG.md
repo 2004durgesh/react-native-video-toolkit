@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0 (2025-09-15)
+
+* feat(docs): migrate to fumadocs and enhance web compatibility ([c23f5fb](https://github.com/2004durgesh/react-native-video-toolkit/commit/c23f5fb))
+* feat(layout): enhance default-layout with customizable slots for better ui flexibility ([095857e](https://github.com/2004durgesh/react-native-video-toolkit/commit/095857e))
+* feat(progress): add playable duration and enhance progress bar ([7222441](https://github.com/2004durgesh/react-native-video-toolkit/commit/7222441))
+* feat(web): implement native fullscreen and refactor theme ([2b8f46b](https://github.com/2004durgesh/react-native-video-toolkit/commit/2b8f46b))
+* chore: update readme and vercel.json ([c91c0f9](https://github.com/2004durgesh/react-native-video-toolkit/commit/c91c0f9))
+* chore: update scripts, configs, and refactor imports [skip ci] ([669518f](https://github.com/2004durgesh/react-native-video-toolkit/commit/669518f))
+* chore(build): configure monorepo for docs build and deployment [skip ci] ([52f2bd0](https://github.com/2004durgesh/react-native-video-toolkit/commit/52f2bd0))
+* docs: add vercel configuration for deployment [skip vercel] ([824eca2](https://github.com/2004durgesh/react-native-video-toolkit/commit/824eca2))
+* docs: update readme [skip ci] ([f02720e](https://github.com/2004durgesh/react-native-video-toolkit/commit/f02720e))
+* feat(video, layout): improve video integration and streamline layouts ([3c25509](https://github.com/2004durgesh/react-native-video-toolkit/commit/3c25509))
+* refactor(docs): fallback to ssr ([74753a7](https://github.com/2004durgesh/react-native-video-toolkit/commit/74753a7))
+* refactor(gitignore): exclude docs/src/lib ([02b2fc1](https://github.com/2004durgesh/react-native-video-toolkit/commit/02b2fc1))
+
 ## 0.2.0-rc.2 (2025-09-08)
 
 * docs: restructure providers and enable react native components in docs ([3242cb5](https://github.com/2004durgesh/react-native-video-toolkit/commit/3242cb5))
