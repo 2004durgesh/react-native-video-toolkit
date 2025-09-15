@@ -49,6 +49,11 @@ A flexible and customizable video player UI toolkit for React Native.
 
 ## 📱 Demo
 
+> [!TIP]  
+> The demo app is available in the `example` folder.  
+> Clone the repo and run `yarn example start` inside the `example` directory to see the latest changes.  
+> You can also download the demo app from the [release builds](https://github.com/2004durgesh/react-native-video-toolkit/releases/latest).
+
 | Mode                          | Preview                                               |
 | ----------------------------- | ----------------------------------------------------- |
 | **Portrait**                  | <img src="./assets/mobile-portrait.png" height="300"> |
