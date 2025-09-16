@@ -66,7 +66,7 @@ A flexible and customizable video player UI toolkit for React Native.
 
 - **Fully Customizable UI** – Build your own video player experience with modular components.
 - **Theming Support** – Light, dark, or your own custom theme.
-- **Pre-built Layouts** – Includes `DefaultLayout` and `MinimalLayout` to get started quickly.
+- **Pre-built Layouts** – Includes `DefaultLayout` to get started quickly.
 - **Gesture Handling** – Tap, double-tap, and other common playback gestures.
 - **Rich Component Library** – Controls like `PlayButton`, `ProgressBar`, `TimeDisplay`, `FullscreenButton`, `MuteButton`, and more.
 - **Hooks-based API** – Access player state and control playback, settings, and gestures.

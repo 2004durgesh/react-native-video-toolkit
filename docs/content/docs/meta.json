@@ -1,13 +1,15 @@
 {
-  "title": "React Native Reusables",
+  "title": "React Native Video Toolkit",
   "description": "",
   "icon": "Building2",
   "root": true,
   "pages": [
     "---Getting started---",
-    "!getting-started",
+    "!introduction",
+    "!installation",
     "!customization",
-    "[BookOpen][Introduction](/docs/getting-started)",
+    "[BookOpen][Introduction](/docs/introduction)",
+    "[Package][Installation](/docs/installation)",
     "[FileSliders][Customization](/docs/customization)",
     "------",
     "---API Reference---",

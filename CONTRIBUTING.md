@@ -166,7 +166,7 @@ Docs are organized in the `docs/content/docs/` directory:
 ```
 docs/content/docs/
 ├── index.mdx                    # Main documentation page
-├── getting-started.mdx          # Installation and basic usage
+├── introduction.mdx          # Installation and basic usage
 ├── customization.mdx           # Theming and customization
 └── api-reference/              # API documentation
     ├── components/
@@ -237,7 +237,7 @@ import { Card, Cards } from "fumadocs-ui/components/card";
   <Card
     title="Getting Started"
     description="Learn how to install and set up the library"
-    href="/docs/getting-started"
+    href="/docs/introduction"
   />
   <Card
     title="API Reference"

@@ -1,0 +1,61 @@
+---
+title: Introduction
+description: A comprehensive video player toolkit for React Native applications with modern controls and gesture support.
+---
+
+import { GettingStartedExample } from '@/components/examples/introduction-example';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# React Native Video Toolkit
+
+React Native Video Toolkit is a powerful, feature-rich video player component built for React Native applications. It provides a modern, customizable video player with intuitive controls, gesture support, and a beautiful interface that works seamlessly across platforms.
+
+## Features
+
+- 🎥 **Modern Video Player** - Beautiful, customizable video player with modern controls
+- 🤏 **Gesture Support** - doubleTap gesture to seek, swipe controls, and touch interactions
+- 🎨 **Themeable** - Customizable themes and styling options
+- 📱 **Cross-Platform** - Works on Android with planned iOS support
+- ⚡ **Performance** - Built with React Native Reanimated for smooth animations
+- 🎵 **Audio Controls** - Volume control and audio management
+
+## Platform Support
+
+### Android
+
+Full support with all features available.
+
+### iOS
+
+<Callout type="error">
+  Due to lack of mac machine, I am unable to add TurboModules support for iOS. Contributions are welcome for iOS support
+  🙏
+</Callout>
+
+## Quick Example
+
+Here's a basic example demonstrating how to use the `VideoPlayer` component in your application:
+
+<Callout type="info">
+  If using `react-native-safe-area-context`, add `edges={['top']}` to prevent the video content from being obscured by
+  device notches or status bars.
+</Callout>
+
+<CodePreviewTabs preview={<GettingStartedExample />}>
+
+```json doc-gen:file
+{
+  "file": "./src/components/examples/introduction-example.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
+```
+
+</CodePreviewTabs>
+
+## Next Steps
+
+Ready to get started? Head over to the [Installation](/docs/installation) guide to add React Native Video Toolkit to your project.
+
+For more advanced examples and use cases, check out our [examples folder](https://github.com/2004durgesh/react-native-video-toolkit/tree/main/example) on GitHub.

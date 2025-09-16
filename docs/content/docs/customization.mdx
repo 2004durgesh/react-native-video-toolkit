@@ -3,10 +3,7 @@ title: Customization
 description: This section covers how to leverage its compound component pattern, theming system, and gesture controls.
 ---
 
-import { PreviewCard } from '@/components/preview-card';
 import { CustomizationExample } from '@/components/examples/customization-example';
-
-# Customization
 
 `react-native-video-toolkit` is designed for high customizability, allowing you to create unique video player experiences. This section covers how to leverage its **compound component pattern**, **theming system**, and **gesture controls**.
 
@@ -21,81 +18,18 @@ The `VideoPlayer` component uses a **compound component pattern**, meaning it ex
 
 ### Custom Player UI Example
 
-```tsx
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import {
-  VideoPlayer,
-  PlayButton,
-  ProgressBar,
-  TimeDisplay,
-  FullscreenButton,
-  MuteButton,
-  VolumeControl,
-  LoadingSpinner,
-} from 'react-native-video-toolkit';
+<CodePreviewTabs preview={<CustomizationExample />}>
 
-const CustomPlayerUI = () => {
-  return (
-    <VideoPlayer.Controls style={styles.controlsContainer}>
-      {/* Top controls */}
-      <View style={styles.topControls}>
-        <MuteButton />
-        <VolumeControl />
-        <View style={{ flex: 1 }} /> {/* Spacer */}
-        <FullscreenButton />
-      </View>
-
-      {/* Middle controls (e.g., loading spinner) */}
-      <View style={styles.middleControls}>
-        <LoadingSpinner />
-      </View>
-
-      {/* Bottom controls */}
-      <View style={styles.bottomControls}>
-        <PlayButton />
-        <TimeDisplay />
-        <ProgressBar />
-      </View>
-    </VideoPlayer.Controls>
-  );
-};
-
-const CustomPlayerExample = () => {
-  const videoSource = {
-    uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  };
-
-  return (
-    <VideoPlayer source={videoSource}>
-      <CustomPlayerUI />
-    </VideoPlayer>
-  );
-};
-
-const styles = StyleSheet.create({
-  controlsContainer: {
-    justifyContent: 'space-between',
-  },
-  topControls: {
-    flexDirection: 'row',
-    padding: 16,
-    alignItems: 'center',
-  },
-  middleControls: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bottomControls: {
-    flexDirection: 'row',
-    padding: 16,
-    alignItems: 'center',
-  },
-});
-
-export default CustomPlayerExample;
+```json doc-gen:file
+{
+  "file": "./src/components/examples/customization-example.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
 ```
+
+</CodePreviewTabs>
 
 ## Theming
 
@@ -172,7 +106,7 @@ You can also pass `gestureProps` to extend behavior. This prop accepts [`Gesture
 ### Gestures Example
 
 ```tsx
-import { VideoPlayer, MinimalLayout } from 'react-native-video-toolkit';
+import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
 import { StyleSheet } from 'react-native';
 
 <VideoPlayer
@@ -189,7 +123,7 @@ import { StyleSheet } from 'react-native';
       console.log('global pan', e);
     },
   }}>
-  <MinimalLayout />
+  <DefaultLayout />
 </VideoPlayer>;
 
 const styles = StyleSheet.create({

@@ -33,7 +33,7 @@ export default function HomePage() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Button asChild size="lg" className="min-w-32">
-              <Link href="/docs/getting-started">Get Started</Link>
+              <Link href="/docs/introduction">Get Started</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="min-w-32">
               <Link href="https://github.com/2004durgesh/react-native-video-toolkit" target="_blank">

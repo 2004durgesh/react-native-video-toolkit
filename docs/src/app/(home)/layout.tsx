@@ -23,7 +23,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
               size="sm"
               asChild
               className="hover:bg-fd-accent dark:hover:bg-fd-accent -ml-1.5 justify-start sm:ml-0 sm:justify-center">
-              <Link href="/docs/getting-started">Docs</Link>
+              <Link href="/docs/introduction">Docs</Link>
             </Button>
           ),
         },

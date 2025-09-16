@@ -84,9 +84,9 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [fullscreen, state.videoWrapperLayout]
   );
-
-  const SHEET_HEIGHT = sheetDimensions.height;
-  const SHEET_WIDTH = sheetDimensions.width;
+  // atleast 300 height and width
+  const SHEET_HEIGHT = sheetDimensions.height || 300;
+  const SHEET_WIDTH = sheetDimensions.width || 300;
 
   const translateY = useSharedValue(SHEET_HEIGHT);
   const context = useSharedValue({ y: 0 });

@@ -6,9 +6,8 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { TypeTable } from 'fumadocs-ui/components/type-table';
 import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
 import type { MDXComponents } from 'mdx/types';
-import { LoadingSpinner } from 'react-native-video-toolkit';
 import { cn } from './lib/utils';
-
+import { CodePreviewTabs } from './components/code-preview-tabs';
 // use this function to get MDX components, you will need it for rendering MDX
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -18,6 +17,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Cards,
     ...TabsComponents,
     CodeBlock,
+    CodePreviewTabs,
     pre: ({ ref: _ref, className, ...props }) => (
       <CodeBlock
         {...props}
@@ -31,7 +31,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Step,
     Steps,
     TypeTable,
-    LoadingSpinner,
     ...components,
   };
 }

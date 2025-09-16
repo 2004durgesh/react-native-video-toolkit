@@ -10,7 +10,7 @@ yarn prepare
 
 # Run docs build only if ./docs changed
 if ! git diff --quiet --cached -- ./docs; then
-  echo "Docs changed → running npx turbo run build:docs..."
+  echo "Docs changed → running build:docs..."
   yarn docs clean
   yarn docs build:docs
 else

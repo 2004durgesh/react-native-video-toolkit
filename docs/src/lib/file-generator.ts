@@ -56,5 +56,10 @@ export function fileGenerator(): DocGenerator {
 }
 
 function fixImports(value: string) {
-  return value.replace(/^['"]use client['"];\s*|^['"]use client['"]\s*/m, '');
+ return value
+  // remove "use client" at start
+  .replace(/^['"]use client['"];\s*|^['"]use client['"]\s*/m, '')
+  // remove "// @ts-ignore" lines
+  .replace(/^\s*\/\/\s*@ts-ignore.*\n?/gm, '');
+
 }

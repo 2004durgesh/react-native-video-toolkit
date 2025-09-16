@@ -17,7 +17,7 @@ export function PreviewCard({ preview }: PreviewCardProps) {
 
   return (
     <>
-      <div className="group/copy bg-card not-prose relative flex min-h-[450px] flex-col rounded-md border p-4">
+      <div className="group/copy bg-card not-prose relative flex min-h-[200px] flex-col rounded-md border p-4">
         <div className="flex flex-1 flex-col items-center justify-center">{preview}</div>
       </div>
       {/* <a

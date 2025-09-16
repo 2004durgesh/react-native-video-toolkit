@@ -1,0 +1,221 @@
+---
+title: Installation
+description: Step-by-step guide to install and configure React Native Video Toolkit in your project.
+---
+
+## Requirements
+
+<Callout type="info">
+  React Native Video Toolkit works with new architecture (Fabric + TurboModules) enabled projects. Ensure you're using
+  React Native 0.76 or higher.
+</Callout>
+
+## Installation Steps
+
+<Steps>
+
+<Step>
+
+### Install Dependencies
+
+Install the main library along with all required peer dependencies:
+
+```npm
+npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-svg lottie-react-native react-native-orientation-director
+```
+
+<Callout type="warning">
+  Make sure to install all dependencies as they are required for the library to function properly.
+</Callout>
+
+</Step>
+
+<Step>
+
+### Configure React Native Reanimated
+
+Add the Reanimated babel plugin to your `babel.config.js`:
+
+```js
+module.exports = {
+  presets: ['module:@react-native/babel-preset'],
+  plugins: [
+    'react-native-reanimated/plugin', // This should be the last plugin
+  ],
+};
+```
+
+<Callout type="info">The Reanimated plugin must be listed last in the plugins array.</Callout>
+
+</Step>
+
+<Step>
+
+### Configure React Native Gesture Handler
+
+Add the gesture handler configuration to your `index.js`, `App.js` , `_layout.tsx` or equivalent entry file:
+
+```tsx
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+const App = () => <GestureHandlerRootView style={{ flex: 1 }}>{/* Your app content */}</GestureHandlerRootView>;
+```
+
+</Step>
+
+<Step>
+
+### Wrap Your App
+
+Wrap your app with the required providers:
+
+```tsx
+import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { VideoProvider } from 'react-native-video-toolkit';
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <VideoProvider>{/* Your app content */}</VideoProvider>
+    </GestureHandlerRootView>
+  );
+}
+```
+
+</Step>
+
+<Step>
+### Update app.json for screen orientation
+If you're using Expo, add the following to your `app.json` or `app.config.js` to include the necessary plugin:
+
+```json
+{
+  "expo": {
+    "plugins": ["react-native-orientation-director"]
+  }
+}
+```
+
+<Callout type="info">
+  For bare React Native projects, follow the setup instructions in the
+  [react-native-orientation-director](https://github.com/gladiuscode/react-native-orientation-director?tab=readme-ov-file#bare)
+</Callout>
+
+</Step>
+
+<Step>
+### Configure react-native-video
+If you're using Expo, add the following to your `app.json` or `app.config.js` to include the necessary plugin:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      "react-native-video",
+      {
+        "enableNotificationControls": true,
+        "androidExtensions": {
+          "useExoplayerRtsp": false,
+          "useExoplayerSmoothStreaming": false,
+          "useExoplayerHls": false,
+          "useExoplayerDash": false
+        }
+      }
+    ]
+  }
+}
+```
+
+<Callout type="info">
+For bare React Native projects, follow the setup instructions in the [react-native-video](https://docs.thewidlarzgroup.com/react-native-video/docs/v6/installation)
+</Callout>
+</Step>
+
+<Step>
+
+### Install iOS Dependencies (iOS only)
+
+<Callout type="error">
+  iOS support is currently not available. We're looking for contributors to help add iOS TurboModules support.
+</Callout>
+
+If you plan to use this on iOS in the future, run:
+
+```bash
+cd ios && pod install
+```
+
+</Step>
+
+<Step>
+
+### Clean and Rebuild
+
+For Expo managed workflow, prebuild your app.
+
+```bash
+npx expo prebuild
+```
+
+After all this is done, clean your project and rebuild.
+
+```bash
+# For Android
+cd android && ./gradlew clean && cd ..
+npx react-native run-android
+
+# For iOS
+cd ios && xcodebuild clean && cd ..
+npx react-native run-ios
+```
+
+</Step>
+
+</Steps>
+
+## Verification
+
+To verify your installation is working correctly, try importing and using the VideoPlayer component:
+
+```tsx
+import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
+
+export default function TestVideo() {
+  return (
+    <VideoPlayer
+      source={{ uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}
+      style={{ width: '100%', height: 200 }}>
+      <DefaultLayout />
+    </VideoPlayer>
+  );
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Metro bundler errors after installation:**
+
+- Clear Metro cache: `npx react-native start --reset-cache`
+- Clear node modules: `rm -rf node_modules && npm install`
+
+**Android build errors:**
+
+- Ensure you have the latest Android build tools
+- Try cleaning the Android build: `cd android && ./gradlew clean`
+
+**Gesture handler not working:**
+
+- Make sure you've imported `react-native-gesture-handler` at the top of your entry file
+- Verify that `GestureHandlerRootView` wraps your entire app
+
+### Getting Help
+
+If you encounter issues:
+
+1. Check our [GitHub Issues](https://github.com/2004durgesh/react-native-video-toolkit/issues)
+2. Review the [examples](https://github.com/2004durgesh/react-native-video-toolkit/tree/main/example)
+3. Create a new issue with your specific problem

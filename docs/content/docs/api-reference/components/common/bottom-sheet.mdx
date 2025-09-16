@@ -3,20 +3,23 @@ title: 'BottomSheet'
 description: The BottomSheet component that provides an animated modal-like interface sliding up from the bottom of the screen, with gesture support and theming integration.
 ---
 
+import { BottomSheetExample } from '@/components/examples/bottom-sheet-example';
+
 ## Usage
 
-```tsx
-import { BottomSheet } from 'react-native-video-toolkit';
-import { Text } from 'react-native';
-
-function SettingsSheet({ visible, onClose }) {
-  return (
-    <BottomSheet visible={visible} onClose={onClose}>
-      <Text style={{ color: 'white' }}>Settings Panel</Text>
-    </BottomSheet>
-  );
+<CodePreviewTabs preview={<BottomSheetExample/>}>
+```json doc-gen:file
+{
+  "file": "./src/components/examples/bottom-sheet-example.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
 }
-```
+
+````
+
+</CodePreviewTabs>
+
 
 ---
 
@@ -48,7 +51,7 @@ function SimpleBottomSheet() {
     </BottomSheet>
   );
 }
-```
+````
 
 ### With Custom Handle
 

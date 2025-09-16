@@ -3,8 +3,6 @@ title: 'VideoPlayer'
 description: The root component of the toolkit that provides video playback, gesture handling, and a flexible API for composing custom control layouts.
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-
 # VideoPlayer
 
 The `VideoPlayer` is the **root component** of the toolkit.  
@@ -50,13 +48,13 @@ export default function App() {
 
 ## Props
 
-| Prop             | Type                   | Required | Default | Description                                                                                                             |
-| ---------------- | ---------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `source`         | `VideoSource`          | Yes      | –       | Video source (`uri`, local file, or require). Extends `react-native-video`.                                             |
-| `children`       | `ReactNode`            | No       | –       | Optional custom overlay or controls.                                                                                    |
-| `containerStyle` | `StyleProp<ViewStyle>` | No       | –       | Style applied to the root container.                                                                                    |
-| `videoProps`     | `ReactVideoProps`      | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player. |
-| `gestureProps`   | `GestureHandlerProps`  | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                      |
+| Prop             | Type                                                           | Required | Default | Description                                                                                                             |
+| ---------------- | -------------------------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `source`         | `VideoSource`                                                  | Yes      | –       | Video source (`uri`, local file, or require). Extends `react-native-video`.                                             |
+| `children`       | `ReactNode`                                                    | No       | –       | Optional custom overlay or controls.                                                                                    |
+| `containerStyle` | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the root container.                                                                                    |
+| `videoProps`     | `ReactVideoProps`                                              | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player. |
+| `gestureProps`   | [`GestureHandlerProps`](../types/gestures#gesturehandlerprops) | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                      |
 
 ---
 
