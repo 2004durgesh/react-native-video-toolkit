@@ -5,3 +5,4 @@ export { useOrientation } from './useOrientation';
 export { usePlayback } from './usePlayback';
 export { useProgress } from './useProgress';
 export { useVolume } from './useVolume';
+export { usePlaybackRate } from './usePlaybackRate';

@@ -1,8 +1,8 @@
-import { useDoubleTapGesture, usePanGesture, useSingleTapGesture } from '../hooks';
+import { useDoubleTapGesture, useLongPressGesture, usePanGesture, useSingleTapGesture } from '../hooks';
 import React, { type FC } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture, type ComposedGesture, type TapGesture } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { useVideo } from '../providers';
 import type { Component } from 'react';
 import type { GestureHandlerProps } from '../types';
@@ -40,13 +40,16 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   doubleTapSeekInterval = 10,
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
+  onSingleTap,
+  onLongPressStart,
+  onLongPressEnd,
   onLeftVerticalPan,
   onRightVerticalPan,
   onGlobalVerticalPan,
   children,
 }) => {
   const { state } = useVideo();
-  const { fullscreen, videoRef, config } = state;
+  const { fullscreen, videoRef, config, theme } = state;
   const {
     doubleTapGesture,
     isDoubleTap,
@@ -63,15 +66,16 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
     onDoubleTapSeekStart,
     onDoubleTapSeekEnd,
   });
-  const { singleTapGesture } = useSingleTapGesture();
+  const { singleTapGesture } = useSingleTapGesture({ onSingleTap });
+  const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture({ onLongPressStart, onLongPressEnd });
   const { verticalPanGesture } = usePanGesture({ onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan });
   let composedGesture: ComposedGesture | TapGesture;
   if (config.enableDoubleTapGestures && config.enablePanGestures) {
-    composedGesture = Gesture.Exclusive(doubleTapGesture, singleTapGesture, verticalPanGesture);
+    composedGesture = Gesture.Exclusive(doubleTapGesture, singleTapGesture, verticalPanGesture, longPressGesture);
   } else if (config.enableDoubleTapGestures) {
-    composedGesture = Gesture.Exclusive(doubleTapGesture, singleTapGesture);
+    composedGesture = Gesture.Exclusive(doubleTapGesture, singleTapGesture, longPressGesture);
   } else if (config.enablePanGestures) {
-    composedGesture = Gesture.Exclusive(verticalPanGesture, singleTapGesture);
+    composedGesture = Gesture.Exclusive(verticalPanGesture, singleTapGesture, longPressGesture);
   } else {
     composedGesture = singleTapGesture;
   }
@@ -79,6 +83,14 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   return (
     <GestureDetector gesture={composedGesture}>
       <View style={StyleSheet.absoluteFill}>
+        {isPlaybackRateIncreased && (
+          <Animated.View
+            entering={FadeInUp.duration(250)}
+            exiting={FadeOutDown.duration(200)}
+            style={[styles.badgeContainer]}>
+            <Text style={[styles.badgeText, { backgroundColor: theme.colors.overlay }]}>2x</Text>
+          </Animated.View>
+        )}
         <OverlayedView ref={backwardRippleRef} style={{ left: '-15%', height: FULLSCREEN_HEIGHT }}>
           <Animated.View style={backwardAnimatedRipple} />
           <Animated.View style={backwardAnimatedStyle}>
@@ -120,5 +132,19 @@ const styles = StyleSheet.create({
     borderRadius: '50%',
     transform: [{ scale: 1.5 }],
     // backgroundColor: 'red', //for debugging purposes
+  },
+  badgeContainer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    zIndex: 99,
+    top: '5%',
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    paddingHorizontal: 16,
+    textAlign: 'center',
+    borderRadius: 6,
   },
 });

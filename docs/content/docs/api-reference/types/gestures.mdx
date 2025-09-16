@@ -29,10 +29,27 @@ The `UsePanGestureProps` interface defines the props for the `usePanGesture` hoo
   You should use either the global pan handler or the side-specific pan handlers, but not both.
 </Callout>
 
+## `UseSingleTapGestureProps`
+
+The `UseSingleTapGestureProps` interface defines the props for the `useSingleTapGesture` hook.
+
+| Property      | Type                                                                  | Required | Default     | Description                                                                                       |
+| ------------- | --------------------------------------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| `onSingleTap` | `(e: GestureStateChangeEvent<TapGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a single tap gesture is performed anywhere on the screen. |
+
+## `UseLongPressGestureProps`
+
+The `UseLongPressGestureProps` interface defines the props for the `useLongPressGesture` hook.
+
+| Property           | Type                                                                  | Required | Default     | Description                                                          |
+| ------------------ | --------------------------------------------------------------------- | -------- | ----------- | -------------------------------------------------------------------- |
+| `onLongPressStart` | `(e: GestureTouchEvent) => void`                                      | No       | `undefined` | A callback function that is called when a long press gesture starts. |
+| `onLongPressEnd`   | `(e: GestureStateChangeEvent<TapGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a long press gesture ends.   |
+
 ## `GestureHandlerProps`
 
-The `GestureHandlerProps` interface defines the props for the `GestureHandler` component. It extends `UseDoubleTapGestureProps` and `UsePanGestureProps`.
+The `GestureHandlerProps` interface defines the props for the `GestureHandler` component. It extends `UseDoubleTapGestureProps`, `UsePanGestureProps`, `UseSingleTapGestureProps`, and `UseLongPressGestureProps`.
 
 | Property   | Type              | Required | Default | Description                    |
 | ---------- | ----------------- | -------- | ------- | ------------------------------ |
-| `children` | `React.ReactNode` | Yes      | –       | The children of the component. |
+| `children` | `React.ReactNode` | No       | –       | The children of the component. |

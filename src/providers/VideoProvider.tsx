@@ -65,7 +65,6 @@ interface VideoProviderState extends VideoState {
  */
 type Action =
   | { type: 'INITIALIZE'; payload: { theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> } }
-  | { type: 'SET_THEME'; payload: Partial<Theme> }
   | { type: 'SET_VIDEO_REF'; payload: React.RefObject<any> }
   | { type: 'SHOW_CONTROLS' }
   | { type: 'HIDE_CONTROLS' }
@@ -84,7 +83,8 @@ type Action =
   | { type: 'SET_HIDE_TIMEOUT'; payload: NodeJS.Timeout | null }
   | { type: 'SET_VIDEO_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_VIDEO_WRAPPER_LAYOUT'; payload: LayoutRectangle }
-  | { type: 'SET_DIMENSIONS'; payload: { width: number; height: number } };
+  | { type: 'SET_DIMENSIONS'; payload: { width: number; height: number } }
+  | { type: 'SET_PLAYBACK_RATE'; payload: number };
 
 /**
  * The initial state for the VideoProvider.
@@ -141,17 +141,6 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
         },
         config: { ...defaultConfig, ...action.payload.config },
       };
-    case 'SET_THEME':
-      return {
-        ...state,
-        theme: {
-          ...defaultTheme,
-          ...action.payload,
-          colors: { ...defaultTheme.colors, ...action.payload.colors },
-          fontSizes: { ...defaultTheme.fontSizes, ...action.payload.fontSizes },
-          animations: { ...defaultTheme.animations, ...action.payload.animations },
-        },
-      };
     case 'SET_CONTROLS_VISIBLE':
       return { ...state, controlsVisible: action.payload };
     case 'SHOW_CONTROLS':
@@ -188,6 +177,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return { ...state, videoWrapperLayout: action.payload };
     case 'SET_DIMENSIONS':
       return { ...state, dimensions: action.payload };
+    case 'SET_PLAYBACK_RATE':
+      return { ...state, playbackRate: action.payload };
 
     default:
       return state;

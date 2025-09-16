@@ -3,8 +3,10 @@ title: 'Gesture Hooks'
 description: Hooks for handling single tap, double tap, and pan gestures for video player interactions.
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
 <Callout type="info">
-  When using the `VideoPlayer` component, functions passed to [`gestureProps`](../../customization.mdx#gestures) are
+  When using the `VideoPlayer` component, functions passed to [`gestureProps`](../../customization#gestures) are
   automatically wired up to the corresponding gesture hooks internally. This means that when you use pre-built layouts,
   you only need to provide functions via `gestureProps` — you don't have to call the hooks yourself.
 </Callout>
@@ -28,6 +30,12 @@ export const Player = () => {
 };
 ```
 
+### Props
+
+| Prop         | Type                                             | Default     | Description                                                                                       |
+| ------------ | ------------------------------------------------ | ----------- | ------------------------------------------------------------------------------------------------- |
+| onSingleTap` | `(event: TapGestureHandlerEventPayload) => void` | `undefined` | A callback function that is called when a single tap gesture is performed anywhere on the screen. |
+
 ### Returns
 
 | Value              | Type            | Description                                                                                                                                       |
@@ -42,11 +50,93 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import { VideoPlayer } from 'react-native-video-toolkit';
 
 const MyVideoPlayer = () => {
-  const { singleTapGesture } = useSingleTapGesture();
+  const { singleTapGesture } = useSingleTapGesture({
+    onSingleTap: () => console.log('Single tap gesture performed'),
+  });
 
   return (
     <GestureDetector gesture={singleTapGesture}>
       <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+        <VideoPlayer.Controls>
+          <VideoPlayer.PlayButton />
+          <VideoPlayer.ProgressBar />
+        </VideoPlayer.Controls>
+      </VideoPlayer>
+    </GestureDetector>
+  );
+};
+```
+
+## `useLongPressGesture()`
+
+A hook for handling long press gestures to temporarily increase playback rate.
+
+### Usage
+
+```tsx
+import { useLongPressGesture } from 'react-native-video-toolkit';
+
+export const Player = () => {
+  const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture({
+    onLongPressStart: () => console.log('Long press started'),
+    onLongPressEnd: () => console.log('Long press ended'),
+  });
+
+  return (
+    <GestureDetector gesture={longPressGesture}>
+      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} />
+    </GestureDetector>
+  );
+};
+```
+
+### Props
+
+| Prop               | Type                                                                            | Default     | Description                                                          |
+| ------------------ | ------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------- |
+| `onLongPressStart` | `(event: GestureTouchEvent) => void`                                            | `undefined` | A callback function that is called when a long press gesture starts. |
+| `onLongPressEnd`   | `(event: GestureStateChangeEvent<LongPressGestureHandlerEventPayload>) => void` | `undefined` | A callback function that is called when a long press gesture ends.   |
+
+### Returns
+
+| Value                     | Type      | Description                             |
+| ------------------------- | --------- | --------------------------------------- |
+| `longPressGesture`        | `Gesture` | The gesture handler for long presses.   |
+| `isPlaybackRateIncreased` | `boolean` | Whether the playback rate is increased. |
+
+### Example
+
+```tsx
+import { useLongPressGesture } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
+import { VideoPlayer } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
+import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
+
+const MyVideoPlayer = () => {
+  const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture();
+
+  return (
+    <GestureDetector gesture={longPressGesture}>
+      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+        {isPlaybackRateIncreased && (
+          <Animated.View
+            entering={FadeInUp.duration(250)}
+            exiting={FadeOutDown.duration(200)}
+            style={{ alignItems: 'center', zIndex: 99, top: '5%' }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 16,
+                fontWeight: 'bold',
+                paddingHorizontal: 16,
+                textAlign: 'center',
+                borderRadius: 6,
+              }}>
+              2x
+            </Text>
+          </Animated.View>
+        )}
         <VideoPlayer.Controls>
           <VideoPlayer.PlayButton />
           <VideoPlayer.ProgressBar />

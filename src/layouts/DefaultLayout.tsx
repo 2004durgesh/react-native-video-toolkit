@@ -1,5 +1,5 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { useBuffering, useControlsVisibility, useSettings } from '../hooks';
+import { useBuffering, useControlsVisibility, useSettings, usePlaybackRate } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC } from 'react';
 import { useVideo } from '../providers';
@@ -53,7 +53,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
     setAudioTrack,
   } = useSettings();
   const { controlsVisible } = useControlsVisibility();
-
+  const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const topControlsAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(controlsVisible ? 1 : 0, { duration: 100, easing: Easing.bezierFn(0.25, 0.1, 0.25, 1) }),
@@ -133,6 +133,12 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                             <Subtitle text={textTrack ? (textTrack.title! ?? textTrack.language!) : 'Off'} />
                           </View>
                         </Menu.Item>
+                        <Menu.Item navigateTo="playbackRate">
+                          <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
+                            <Title text="Rate" />
+                            <Subtitle text={`${playbackRate}x`} />
+                          </View>
+                        </Menu.Item>
                       </Menu.SubContent>
                       <Menu.SubContent viewId="audio">
                         {audioTracks.length > 0 ? (
@@ -141,12 +147,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                               <Menu.CheckboxItem
                                 key={track.index}
                                 checked={audioTrack?.index === track.index}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setAudioTrack(track);
-                                  } else {
-                                    setAudioTrack(null);
-                                  }
+                                onCheckedChange={() => {
+                                  setAudioTrack(track);
                                 }}>
                                 {track.title ?? track.language}
                               </Menu.CheckboxItem>
@@ -165,12 +167,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                               <Menu.CheckboxItem
                                 key={track.index}
                                 checked={videoTrack?.index === track.index}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setVideoTrack(track);
-                                  } else {
-                                    setVideoTrack(null);
-                                  }
+                                onCheckedChange={() => {
+                                  setVideoTrack(track);
                                 }}>
                                 {track.height}p
                               </Menu.CheckboxItem>
@@ -189,12 +187,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                               <Menu.CheckboxItem
                                 key={track.index}
                                 checked={textTrack?.index === track.index}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setTextTrack(track);
-                                  } else {
-                                    setTextTrack(null);
-                                  }
+                                onCheckedChange={() => {
+                                  setTextTrack(track);
                                 }}>
                                 {track.title ?? track.language}
                               </Menu.CheckboxItem>
@@ -205,6 +199,22 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                             <Subtitle text="No captions available" />
                           </View>
                         )}
+                      </Menu.SubContent>
+                      <Menu.SubContent viewId="playbackRate">
+                        <ScrollView style={{ maxHeight: '100%' }}>
+                          {state.config.playbackRates.map((rate) => (
+                            <Menu.CheckboxItem
+                              key={rate}
+                              checked={playbackRate === rate}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setPlaybackRate(rate);
+                                }
+                              }}>
+                              {rate}x
+                            </Menu.CheckboxItem>
+                          ))}
+                        </ScrollView>
                       </Menu.SubContent>
                     </Menu.Content>
                   </Menu.Root>

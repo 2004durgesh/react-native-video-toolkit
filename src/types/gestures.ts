@@ -1,4 +1,10 @@
-import type { GestureUpdateEvent, PanGestureHandlerEventPayload } from 'react-native-gesture-handler';
+import type {
+  GestureStateChangeEvent,
+  GestureTouchEvent,
+  GestureUpdateEvent,
+  PanGestureHandlerEventPayload,
+  TapGestureHandlerEventPayload,
+} from 'react-native-gesture-handler';
 
 /**
  * Props for the useDoubleTapGesture hook.
@@ -41,9 +47,38 @@ export interface UsePanGestureProps {
 }
 
 /**
+ * Props for the useSingleTapGesture hook.
+ */
+export interface UseSingleTapGestureProps {
+  /**
+   * A callback function that is called when a single tap gesture is performed anywhere on the screen.
+   */
+  onSingleTap?: (e: GestureStateChangeEvent<TapGestureHandlerEventPayload>) => void;
+}
+
+/**
+ * Props for the useLongPressGesture hook.
+ */
+export interface UseLongPressGestureProps {
+  /**
+   * A callback function that is called when a long press gesture starts.
+   */
+  onLongPressStart?: (e: GestureTouchEvent) => void;
+
+  /**
+   * A callback function that is called when a long press gesture ends.
+   */
+  onLongPressEnd?: (e: GestureStateChangeEvent<TapGestureHandlerEventPayload>) => void;
+}
+
+/**
  * Props for the GestureHandler component.
  */
-export interface GestureHandlerProps extends Partial<UseDoubleTapGestureProps>, Partial<UsePanGestureProps> {
+export interface GestureHandlerProps
+  extends Partial<UseDoubleTapGestureProps>,
+    Partial<UsePanGestureProps>,
+    Partial<UseSingleTapGestureProps>,
+    Partial<UseLongPressGestureProps> {
   /**
    * The children to render inside the gesture handler.
    */

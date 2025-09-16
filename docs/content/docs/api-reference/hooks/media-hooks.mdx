@@ -178,6 +178,43 @@ const MyPlayPauseButton = () => {
 export default MyPlayPauseButton;
 ```
 
+## `usePlaybackRate()`
+
+A hook for controlling video playback rate.
+
+### Usage
+
+```tsx
+import { usePlaybackRate } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { playbackRate, setPlaybackRate } = usePlaybackRate();
+  // ...
+};
+```
+
+### Returns
+
+| Value             | Type                             | Description                                                 |
+| ----------------- | -------------------------------- | ----------------------------------------------------------- |
+| `playbackRate`    | `number`                         | A number indicating the current playback rate of the video. |
+| `setPlaybackRate` | `(playbackRate: number) => void` | A function to set the playback rate of the video.           |
+
+### Example
+
+```tsx
+import { usePlaybackRate } from 'react-native-video-toolkit';
+import { Button } from 'react-native';
+
+const MyPlaybackRateButton = () => {
+  const { playbackRate, setPlaybackRate } = usePlaybackRate();
+
+  return <Button title={`Set playback rate to 2x`} onPress={() => setPlaybackRate(2)} />;
+};
+
+export default MyPlaybackRateButton;
+```
+
 ## `useProgress()`
 
 A hook for accessing and controlling the video's current playback time and duration.

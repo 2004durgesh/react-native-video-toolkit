@@ -4,6 +4,7 @@ import RNVideo, {
   SelectedVideoTrackType,
   ViewType,
   type OnLoadData,
+  type OnPlaybackRateChangeData,
   type OnProgressData,
   type ReactVideoProps,
 } from 'react-native-video';
@@ -11,7 +12,15 @@ import { useEffect, useMemo, useRef, type FC } from 'react';
 import { Dimensions, Platform, View, type StyleProp, type ViewStyle } from 'react-native';
 import type { VideoSource } from '../../types';
 import { useVideo } from '../../providers';
-import { usePlayback, useVolume, useProgress, useBuffering, useControlsVisibility, useSettings } from '../../hooks';
+import {
+  usePlayback,
+  useVolume,
+  useProgress,
+  useBuffering,
+  useControlsVisibility,
+  useSettings,
+  usePlaybackRate,
+} from '../../hooks';
 import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks } from '../../utils';
 
 /**
@@ -44,7 +53,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   const { setCurrentTime, setDuration, seek, setPlayableDuration } = useProgress();
   const { setBuffering } = useBuffering();
   const { showControls } = useControlsVisibility();
-  const { playbackRate } = state;
+  const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const {
     videoTrack,
     audioTrack,
@@ -80,6 +89,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
     onError: userOnError,
     onEnd: userOnEnd,
     onLayout: userOnLayout,
+    onPlaybackRateChange: userOnPlaybackRateChange,
     ...nativeProps
   } = rest as Partial<ReactVideoProps>;
 
@@ -127,6 +137,9 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
     const { layout } = event.nativeEvent;
     dispatch({ type: 'SET_VIDEO_LAYOUT', payload: layout });
   };
+  const handlePlaybackRateChange = (data: OnPlaybackRateChangeData) => {
+    setPlaybackRate(data.playbackRate);
+  };
   const isFullscreen = state.fullscreen;
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
@@ -167,6 +180,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
         onBuffer={combineHandlers(handleBuffer, userOnBuffer)}
         onError={combineHandlers(handleError, userOnError)}
         onEnd={combineHandlers(handleEnd, userOnEnd)}
+        onPlaybackRateChange={combineHandlers(handlePlaybackRateChange, userOnPlaybackRateChange)}
         progressUpdateInterval={500}
         onLayout={handleLayout}
         viewType={ViewType.TEXTURE}

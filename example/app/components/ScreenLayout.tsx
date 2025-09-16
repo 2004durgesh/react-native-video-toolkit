@@ -100,6 +100,17 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
       <VideoPlayer
         source={videoSource}
         containerStyle={styles.videoPlayer}
+        gestureProps={{
+          onSingleTap(e) {
+            console.log('single tap', e);
+          },
+          onLongPressStart(e) {
+            console.log('long press start', e);
+          },
+          onLongPressEnd(e) {
+            console.log('long press end', e);
+          },
+        }}
         videoProps={{
           onLoad(e) {
             console.log('Video Loaded!', e, { videoState });
@@ -128,15 +139,7 @@ const Main = ({ layout }: { layout: React.ReactNode }) => {
 export const ScreenLayout = ({ layout }: { layout: React.ReactNode }) => {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'black' }}>
-      <VideoProvider
-        config={{
-          onHideControls() {
-            console.log('Controls hidden');
-          },
-          onShowControls() {
-            console.log('Controls shown');
-          },
-        }}>
+      <VideoProvider>
         <SafeAreaView edges={['top']}>
           <Main layout={layout} />
         </SafeAreaView>
