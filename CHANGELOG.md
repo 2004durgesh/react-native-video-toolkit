@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 (2025-09-16)
+
+* feat(example): add android release build configuration ([5412985](https://github.com/2004durgesh/react-native-video-toolkit/commit/5412985))
+* feat(gestures): add long press gesture and playback rate control ([708d8b1](https://github.com/2004durgesh/react-native-video-toolkit/commit/708d8b1))
+* docs: restructure and enhance documentation with interactive examples ([81b0565](https://github.com/2004durgesh/react-native-video-toolkit/commit/81b0565))
+* fix(ci): fix typecheck actions failing due to no docs build, update readme.md ([0735b4c](https://github.com/2004durgesh/react-native-video-toolkit/commit/0735b4c))
+
 ## 0.2.0 (2025-09-15)
 
 * feat(docs): migrate to fumadocs and enhance web compatibility ([c23f5fb](https://github.com/2004durgesh/react-native-video-toolkit/commit/c23f5fb))
