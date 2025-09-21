@@ -4,6 +4,7 @@ description: This section covers how to leverage its compound component pattern,
 ---
 
 import { CustomizationExample } from '@/components/examples/customization-example';
+import { ThemeSelectorExample } from '@/components/examples/theme-selector-example';
 
 `react-native-video-toolkit` is designed for high customizability, allowing you to create unique video player experiences. This section covers how to leverage its **compound component pattern**, **theming system**, and **gesture controls**.
 
@@ -36,37 +37,18 @@ The `VideoPlayer` component uses a **compound component pattern**, meaning it ex
 The library provides a flexible **theming system** to easily customize colors, fonts, sizing, and other visual elements.
 Custom themes should be of type [`Theme`](./api-reference/types/theme).
 
-### Theming Example
+<CodePreviewTabs preview={<ThemeSelectorExample />}>
 
-```tsx
-import React from 'react';
-import { VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
-
-const customTheme = {
-  colors: {
-    primary: '#ff6347', // Tomato red
-    secondary: '#4682b4', // Steel blue
-    accent: '#ffeb3b', // Bright yellow
-    background: 'rgba(0, 0, 0, 0.6)',
-    text: '#ffffff',
-  },
-  // other theme properties (sizing, fonts, etc.)
-};
-
-const ThemedPlayer = () => {
-  const videoSource = {
-    uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  };
-
-  return (
-    <VideoProvider theme={customTheme}>
-      <VideoPlayer source={videoSource}>{/* Your custom UI or a built-in layout */}</VideoPlayer>
-    </VideoProvider>
-  );
-};
-
-export default ThemedPlayer;
+```json doc-gen:file
+{
+  "file": "./src/components/examples/theme-selector-example.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
 ```
+
+</CodePreviewTabs>
 
 ## Configuration Options
 
