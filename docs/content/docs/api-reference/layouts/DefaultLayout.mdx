@@ -3,6 +3,9 @@ title: DefaultLayout
 description: The DefaultLayout component provides a ready-to-use, opinionated layout for the video player. It includes standard controls like a play/pause button, progress bar, time display, and settings menu, arranged in a familiar and intuitive way.
 ---
 
+import { BasicUsage } from '@/components/examples/default-layout/basic-usage';
+import { SlotsUsage } from '@/components/examples/default-layout/slots-usage';
+
 ## Usage
 
 You can use `DefaultLayout` by passing it as a child to the `VideoPlayer` component.
@@ -60,43 +63,35 @@ Here are the available slots:
 
 Here's a basic example of how to use the `DefaultLayout` with a title and subtitle.
 
-```tsx title="Player.tsx"
-import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
+<CodePreviewTabs preview={<BasicUsage />}>
 
-export const Player = () => {
-  return (
-    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
-      <DefaultLayout title="My Awesome Video" subtitle="An example of the DefaultLayout" />
-    </VideoPlayer>
-  );
-};
+```json doc-gen:file
+{
+  "file": "./src/components/examples/default-layout/basic-usage.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
 ```
+
+</CodePreviewTabs>
 
 ### Using Slots
 
 This example demonstrates how to use the `slots` prop to add a custom "Like" button next to the fullscreen button.
 
-```tsx title="PlayerWithCustomButton.tsx"
-import { VideoPlayer, DefaultLayout, BaseIconButton } from 'react-native-video-toolkit';
-import { Heart } from 'lucide-react-native';
+<CodePreviewTabs preview={<SlotsUsage />}>
 
-const LikeButton = () => (
-  <BaseIconButton IconComponent={Heart} onTap={() => console.log('Liked!')} size={24} color="white" />
-);
-
-export const PlayerWithCustomButton = () => {
-  return (
-    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
-      <DefaultLayout
-        title="My Awesome Video"
-        slots={{
-          beforeFullscreenButton: <LikeButton />,
-        }}
-      />
-    </VideoPlayer>
-  );
-};
+```json doc-gen:file
+{
+  "file": "./src/components/examples/default-layout/slots-usage.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
 ```
+
+</CodePreviewTabs>
 
 ---
 

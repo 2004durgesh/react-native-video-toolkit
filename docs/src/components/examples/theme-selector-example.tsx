@@ -74,14 +74,14 @@ export const ThemeSelectorExample = () => {
   const [selectedTheme, setSelectedTheme] = useState<ThemeKey>('default');
 
   const videoSource = {
-    uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    uri: '/test.mp4',
   };
 
   const currentTheme = themes[selectedTheme];
 
   return (
     // On native use <View style={styles.container}> instead of div
-    <div className="w-full flex-1 prose">
+    <View style={styles.container}>
       {/* Theme Selector */}
       <View style={styles.themeSelector}>
         {/* On native use <Text> instead of p */}
@@ -97,11 +97,11 @@ export const ThemeSelectorExample = () => {
 
       {/* Themed Video Player */}
       <VideoProvider theme={currentTheme}>
-        <VideoPlayer source={videoSource} containerStyle={styles.videoPlayer}>
+        <VideoPlayer source={videoSource} videoStyle={{ height: '50%' }} containerStyle={styles.videoPlayer}>
           <DefaultLayout title="Themed Player Demo" subtitle={`Using ${currentTheme.name} theme`} />
         </VideoPlayer>
       </VideoProvider>
-    </div>
+    </View>
   );
 };
 
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   themeSelector: {
-    paddingBottom: 16,
+    paddingBottom: 10,
   },
   selectorTitle: {
     fontSize: 16,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   videoPlayer: {
     width: '100%',
     // @ts-ignore
-    height: '100vh',
+    height: '50vh',
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: '#000',

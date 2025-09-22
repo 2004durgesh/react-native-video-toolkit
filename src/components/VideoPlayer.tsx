@@ -44,13 +44,24 @@ interface VideoPlayerProps {
    * Props to be passed to the GestureHandler component.
    */
   gestureProps?: GestureHandlerProps;
+  /**
+   * Props to style the video component itself.
+   */
+  videoStyle?: StyleProp<ViewStyle>;
 }
 
 /**
  * The root component for the video player.
  * This component is responsible for rendering the video and handling user gestures.
  */
-const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, gestureProps }: VideoPlayerProps) => {
+const VideoPlayerComponent = ({
+  source,
+  children,
+  containerStyle,
+  videoProps,
+  gestureProps,
+  videoStyle,
+}: VideoPlayerProps) => {
   // this is the root of all the things :)
   const { state } = useVideo();
 
@@ -85,7 +96,7 @@ const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, ge
       ]}>
       <GestureHandler {...gestureProps}>
         <View style={innerViewStyle}>
-          <VideoSurface {...videoProps} source={source} />
+          <VideoSurface {...videoProps} source={source} style={videoStyle} />
           {children}
         </View>
       </GestureHandler>

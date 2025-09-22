@@ -95,9 +95,9 @@ These props are passed through the [`gestureProps`](./types/gestures.mdx#gesture
 
 The `GestureHandler` automatically composes gestures based on your app's configuration:
 
-- **All Enabled**: `Gesture.Exclusive(doubleTap, singleTap, pan)`
-- **Double-tap Only**: `Gesture.Exclusive(doubleTap, singleTap)`
-- **Pan Only**: `Gesture.Exclusive(pan, singleTap)`
+- **All Enabled**: `Gesture.Exclusive(doubleTap, singleTap, pan,longPress)`
+- **Double-tap Only**: `Gesture.Exclusive(doubleTap, singleTap,longPress)`
+- **Pan Only**: `Gesture.Exclusive(pan, singleTap, longPress)`
 - **Single-tap Only**: `singleTap`
 
 Enable/disable gestures via the `VideoProvider` config: `enableDoubleTapGestures` and `enablePanGestures`.

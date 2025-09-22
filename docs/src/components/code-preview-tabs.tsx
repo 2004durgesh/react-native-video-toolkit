@@ -24,7 +24,7 @@ interface CodePreviewTabsProps {
  */
 export function CodePreviewTabs({ preview, children }: CodePreviewTabsProps) {
   return (
-    <Tabs defaultValue="preview">
+    <Tabs defaultValue="preview" className="prose">
       <TabsList>
         <TabsTrigger value="preview">preview</TabsTrigger>
         <TabsTrigger value="code">code</TabsTrigger>

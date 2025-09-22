@@ -45,7 +45,7 @@ export const CustomPlayerUI = () => {
 
 export const CustomizationExample = () => {
   const videoSource = {
-    uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    uri: '/test.mp4',
   };
 
   return (

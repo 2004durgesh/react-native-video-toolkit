@@ -55,6 +55,7 @@ export default function App() {
 | `containerStyle` | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the root container.                                                                                    |
 | `videoProps`     | `ReactVideoProps`                                              | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player. |
 | `gestureProps`   | [`GestureHandlerProps`](../types/gestures#gesturehandlerprops) | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                      |
+| `videoStyle`     | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the [video](./core/video-surface.mdx) component.                                                       |
 
 ---
 
@@ -63,7 +64,9 @@ export default function App() {
 ### Minimal Player
 
 ```tsx
-<VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} />
+<VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+  <DefaultLayout />
+</VideoPlayer>
 ```
 
 ### With Custom Controls

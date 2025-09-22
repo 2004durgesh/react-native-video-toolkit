@@ -3,35 +3,22 @@ title: 'Menu'
 description: A versatile menu component for building settings and navigation systems within the video player, supporting nested sub-menus, checkboxes, and custom headers.
 ---
 
+import { MenuExample } from '@/components/examples/menu/menu';
+
 ## Usage
 
-```tsx
-import { Menu } from 'react-native-video-toolkit';
+<CodePreviewTabs preview={<MenuExample />}>
 
-export function Example() {
-  return (
-    <Menu.Root>
-      <Menu.Trigger />
-
-      <Menu.Content>
-        <Menu.SubContent viewId="root">
-          <Menu.Label>Playback</Menu.Label>
-          <Menu.Item navigateTo="quality">Quality</Menu.Item>
-        </Menu.SubContent>
-
-        <Menu.SubContent viewId="quality">
-          <Menu.CheckboxItem checked={true} onCheckedChange={console.log}>
-            1080p
-          </Menu.CheckboxItem>
-          <Menu.CheckboxItem checked={false} onCheckedChange={console.log}>
-            720p
-          </Menu.CheckboxItem>
-        </Menu.SubContent>
-      </Menu.Content>
-    </Menu.Root>
-  );
+```json doc-gen:file
+{
+  "file": "./src/components/examples/menu/menu.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
 }
 ```
+
+</CodePreviewTabs>
 
 ---
 

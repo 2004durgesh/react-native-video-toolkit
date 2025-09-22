@@ -1,11 +1,19 @@
 name: CI
 on:
-  push:
+push:
     branches:
       - main
-  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+      - "**/*.md"
+pull_request:
     branches:
       - main
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+      - "**/*.md"
 
 jobs:
   lint:
