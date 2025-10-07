@@ -3,7 +3,7 @@
   <img src="./assets/icon.png" width="100" height="100" alt="react-native-video-toolkit logo" />
 </div>
 
-My **first ever real OSS project** 😭. Be kind, I’m still figuring this out.<br>
+My **first ever real OSS project** 😭. Be kind, I’m still figuring this out.
 A flexible and customizable video player UI toolkit for React Native.
 
 👉 Full Documentation: [https://react-native-video-toolkit-docs.vercel.app/](https://react-native-video-toolkit-docs.vercel.app/)
