@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 (2025-10-07)
+
+* feat(video): enable custom audio and video track support in player & surface ([c912a9d](https://github.com/2004durgesh/react-native-video-toolkit/commit/c912a9d))
+* fix(ci): correct indentation for push and pull_request triggers ([b190241](https://github.com/2004durgesh/react-native-video-toolkit/commit/b190241))
+* docs(customization): add theme selector example to showcase theming capabilities ([e04836e](https://github.com/2004durgesh/react-native-video-toolkit/commit/e04836e))
+* docs(examples): enhance video player component demos and usage ([ce20c13](https://github.com/2004durgesh/react-native-video-toolkit/commit/ce20c13))
+* refactor(example): refactor example app [skip ci] ([066e36f](https://github.com/2004durgesh/react-native-video-toolkit/commit/066e36f))
+
 ## 0.3.0 (2025-09-16)
 
 * feat(example): add android release build configuration ([5412985](https://github.com/2004durgesh/react-native-video-toolkit/commit/5412985))
