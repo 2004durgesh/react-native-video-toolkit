@@ -22,39 +22,6 @@ export default function PlayersScreen() {
             color="#34C759"
             onPress={() => router.push('/(tabs)/players/custom')}
           />
-          <DemoCard
-            title="Compound Components"
-            description="Flexible composition with individual components"
-            icon="layers-outline"
-            color="#FF9500"
-            onPress={() => router.push('/(tabs)/players/compound')}
-          />
-        </DemoSection>
-
-        <DemoSection title="📚 Setup & Documentation">
-          <DemoCard
-            title="Installation Guide"
-            description="Step-by-step installation and setup"
-            icon="download-outline"
-            color="#5856D6"
-            onPress={() => router.push('/(tabs)/players/installation')}
-          />
-          <DemoCard
-            title="Video Sources"
-            description="Different video formats and sources"
-            icon="videocam-outline"
-            color="#FF3B30"
-            onPress={() => router.push('/(tabs)/players/sources')}
-            disabled
-          />
-          <DemoCard
-            title="Performance Tips"
-            description="Optimization and best practices"
-            icon="speedometer-outline"
-            color="#AF52DE"
-            onPress={() => router.push('/(tabs)/players/performance')}
-            disabled
-          />
         </DemoSection>
       </ScrollView>
     </DemoScreen>

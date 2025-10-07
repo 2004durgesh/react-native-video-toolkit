@@ -50,6 +50,8 @@ The `VideoPlayerConfig` interface allows you to configure the behavior of the vi
 | `enablePanGestures`       | `boolean`    | No       | `true`                   | If `true`, the user can use pan gestures to control volume and brightness.  |
 | `enableScreenRotation`    | `boolean`    | No       | `true`                   | If `true`, the screen will rotate automatically when the device is rotated. |
 | `playbackRates`           | `number[]`   | No       | `[0.5, 1, 1.25, 1.5, 2]` | An array of playback rates to be displayed in the settings menu.            |
+| `useCustomAudioTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom audio tracks instead of auto-extracting from source.  |
+| `useCustomVideoTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom video tracks instead of auto-extracting from source.  |
 | `onEnterFullscreen`       | `() => void` | No       | `undefined`              | A callback function that is called when the player enters fullscreen mode.  |
 | `onExitFullscreen`        | `() => void` | No       | `undefined`              | A callback function that is called when the player exits fullscreen mode.   |
 | `onHideControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are hidden.            |

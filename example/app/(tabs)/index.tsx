@@ -64,50 +64,6 @@ export default function HomeScreen() {
           />
         </DemoSection>
 
-        {/* Platform Support */}
-        <DemoSection title="📱 Platform Support">
-          <View style={styles.platformCard}>
-            <View style={styles.platformRow}>
-              <View style={styles.platformItem}>
-                <Text style={styles.platformEmoji}>✅</Text>
-                <Text style={styles.platformText}>Android</Text>
-              </View>
-              <View style={styles.platformItem}>
-                <Text style={styles.platformEmoji}>⚠️</Text>
-                <Text style={styles.platformText}>iOS (Coming Soon)</Text>
-              </View>
-            </View>
-            <View style={styles.platformRow}>
-              <View style={styles.platformItem}>
-                <Text style={styles.platformEmoji}>🌐</Text>
-                <Text style={styles.platformText}>Web Support</Text>
-              </View>
-              <View style={styles.platformItem}>
-                <Text style={styles.platformEmoji}>📺</Text>
-                <Text style={styles.platformText}>TV Ready</Text>
-              </View>
-            </View>
-          </View>
-        </DemoSection>
-
-        {/* Getting Started */}
-        <DemoSection title="📚 Documentation">
-          <DemoCard
-            title="Installation Guide"
-            description="Step-by-step setup instructions"
-            icon="download-outline"
-            color="#5856D6"
-            onPress={() => router.push('/(tabs)/players/installation')}
-          />
-          <DemoCard
-            title="API Reference"
-            description="Complete component and props documentation"
-            icon="library-outline"
-            color="#007AFF"
-            onPress={() => router.push('/(tabs)/features/api')}
-          />
-        </DemoSection>
-
         <View style={styles.footer}>
           <Text style={styles.footerText}>Built with ❤️ for React Native developers</Text>
         </View>

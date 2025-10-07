@@ -71,7 +71,7 @@ export default function ControlsScreen() {
           </ControlDemo>
 
           <ControlDemo title="Volume Control" description="Adjustable volume slider">
-            <VideoPlayer.VolumeControl />
+            <VideoPlayer.VolumeControl style={{ height: 10 }} />
           </ControlDemo>
 
           <ControlDemo title="Mute Button" description="Toggle audio on/off">
@@ -93,39 +93,6 @@ export default function ControlsScreen() {
           <ControlDemo title="Loading Spinner" description="Indicates buffering state">
             <VideoPlayer.LoadingSpinner />
           </ControlDemo>
-        </View>
-
-        {/* Control Features */}
-        <View style={styles.featuresSection}>
-          <Text style={styles.sectionTitle}>✨ Control Features</Text>
-
-          <View style={styles.featureGrid}>
-            <View style={styles.featureItem}>
-              <Ionicons name="hand-right-outline" size={24} color="#34C759" />
-              <Text style={styles.featureTitle}>Touch Gestures</Text>
-              <Text style={styles.featureDescription}>
-                All controls support touch interactions with visual feedback
-              </Text>
-            </View>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="eye-outline" size={24} color="#007AFF" />
-              <Text style={styles.featureTitle}>Auto Hide</Text>
-              <Text style={styles.featureDescription}>Controls automatically hide after inactivity</Text>
-            </View>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="color-palette-outline" size={24} color="#AF52DE" />
-              <Text style={styles.featureTitle}>Themeable</Text>
-              <Text style={styles.featureDescription}>Customize colors, sizes, and styles</Text>
-            </View>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="resize-outline" size={24} color="#FF9500" />
-              <Text style={styles.featureTitle}>Responsive</Text>
-              <Text style={styles.featureDescription}>Adapts to different screen sizes and orientations</Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
     </DemoScreen>

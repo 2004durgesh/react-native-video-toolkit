@@ -11,7 +11,7 @@ import {
 } from './controls';
 import type { GestureHandlerProps, VideoSource } from '../types';
 import { VideoSurface } from './core';
-import type { ReactVideoProps } from 'react-native-video';
+import type { ReactVideoProps, AudioTrack, VideoTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideo } from '../providers';
 import { TimeDisplay, LoadingSpinner } from './display';
@@ -48,6 +48,16 @@ interface VideoPlayerProps {
    * Props to style the video component itself.
    */
   videoStyle?: StyleProp<ViewStyle>;
+  /**
+   * Custom audio tracks to use instead of auto-extracting from video source.
+   * Only used when config.useCustomAudioTracks is true.
+   */
+  customAudioTracks?: AudioTrack[];
+  /**
+   * Custom video tracks to use instead of auto-extracting from video source.
+   * Only used when config.useCustomVideoTracks is true.
+   */
+  customVideoTracks?: VideoTrack[];
 }
 
 /**
@@ -61,6 +71,8 @@ const VideoPlayerComponent = ({
   videoProps,
   gestureProps,
   videoStyle,
+  customAudioTracks,
+  customVideoTracks,
 }: VideoPlayerProps) => {
   // this is the root of all the things :)
   const { state } = useVideo();
@@ -96,7 +108,13 @@ const VideoPlayerComponent = ({
       ]}>
       <GestureHandler {...gestureProps}>
         <View style={innerViewStyle}>
-          <VideoSurface {...videoProps} source={source} style={videoStyle} />
+          <VideoSurface
+            {...videoProps}
+            source={source}
+            style={videoStyle}
+            customAudioTracks={customAudioTracks}
+            customVideoTracks={customVideoTracks}
+          />
           {children}
         </View>
       </GestureHandler>

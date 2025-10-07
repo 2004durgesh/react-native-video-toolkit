@@ -80,6 +80,39 @@ import { VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
 </VideoProvider>;
 ```
 
+### Custom Tracks Example
+
+```tsx
+import { VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
+import type { AudioTrack, VideoTrack } from 'react-native-video';
+
+// Define your custom tracks
+const customAudioTracks: AudioTrack[] = [
+  { index: 0, title: 'English', language: 'en', type: 'audio' },
+  { index: 1, title: 'Spanish', language: 'es', type: 'audio' },
+  { index: 2, title: 'French', language: 'fr', type: 'audio' },
+];
+
+const customVideoTracks: VideoTrack[] = [
+  { index: 0, width: 1920, height: 1080, bitrate: 5000000, codecs: 'avc1.640028' },
+  { index: 1, width: 1280, height: 720, bitrate: 2500000, codecs: 'avc1.640028' },
+  { index: 2, width: 854, height: 480, bitrate: 1000000, codecs: 'avc1.640028' },
+];
+
+<VideoProvider
+  config={{
+    useCustomAudioTracks: true, // Enable custom audio tracks
+    useCustomVideoTracks: true, // Enable custom video tracks
+  }}>
+  <VideoPlayer
+    source={{ uri: 'https://example.com/video.m3u8' }}
+    customAudioTracks={customAudioTracks}
+    customVideoTracks={customVideoTracks}>
+    <CustomPlayerUI />
+  </VideoPlayer>
+</VideoProvider>;
+```
+
 ## Gestures
 
 The `VideoPlayer` includes built-in gesture support for common interactions like **double-tapping to seek** and **tapping to toggle controls**.

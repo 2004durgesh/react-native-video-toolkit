@@ -105,6 +105,16 @@ export interface VideoPlayerConfig {
    */
   playbackRates: number[];
   /**
+   * Whether to use custom audio tracks instead of auto-extracting from video source.
+   * When true, audio tracks won't be extracted from the video source automatically.
+   */
+  useCustomAudioTracks?: boolean;
+  /**
+   * Whether to use custom video tracks instead of auto-extracting from video source.
+   * When true, video tracks won't be extracted from the video source automatically.
+   */
+  useCustomVideoTracks?: boolean;
+  /**
    * A callback function that is called when the player enters fullscreen mode.
    */
   onEnterFullscreen?: () => void;

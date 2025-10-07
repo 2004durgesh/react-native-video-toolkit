@@ -57,71 +57,16 @@ export default function DefaultPlayerScreen() {
 
         {/* Video Player */}
         <View style={styles.playerContainer}>
-          {/* <VideoProvider> */}
           <VideoPlayer
             source={currentVideo?.source!}
             videoProps={{
-              onLoadStart(e) {
+              onLoad(e) {
                 console.log('Video loading started', e);
               },
             }}>
             <DefaultLayout title={currentVideo?.title} subtitle="React Native Video Toolkit" />
           </VideoPlayer>
-          {/* </VideoProvider> */}
         </View>
-
-        {/* Features List */}
-        <ScrollView style={styles.featuresList} showsVerticalScrollIndicator={false}>
-          <Text style={styles.featuresTitle}>✨ Default Layout Features</Text>
-
-          <View style={styles.featureItem}>
-            <Ionicons name="play-circle" size={24} color="#34C759" />
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Play/Pause Controls</Text>
-              <Text style={styles.featureDescription}>Tap to play/pause, or use spacebar</Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Ionicons name="resize" size={24} color="#FF9500" />
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Fullscreen Support</Text>
-              <Text style={styles.featureDescription}>Enter fullscreen with rotation support</Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Ionicons name="hand-right" size={24} color="#AF52DE" />
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Gesture Controls</Text>
-              <Text style={styles.featureDescription}>Double tap to seek, pinch to zoom</Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Ionicons name="volume-high" size={24} color="#007AFF" />
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Volume Control</Text>
-              <Text style={styles.featureDescription}>Adjustable volume with mute button</Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Ionicons name="settings" size={24} color="#FF3B30" />
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Settings Menu</Text>
-              <Text style={styles.featureDescription}>Quality, speed, and subtitle options</Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Ionicons name="time" size={24} color="#5856D6" />
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Progress Tracking</Text>
-              <Text style={styles.featureDescription}>Seek with progress bar and time display</Text>
-            </View>
-          </View>
-        </ScrollView>
       </View>
     </DemoScreen>
   );

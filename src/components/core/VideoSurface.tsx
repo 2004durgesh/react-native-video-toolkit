@@ -7,6 +7,8 @@ import RNVideo, {
   type OnPlaybackRateChangeData,
   type OnProgressData,
   type ReactVideoProps,
+  type AudioTrack,
+  type VideoTrack,
 } from 'react-native-video';
 import { useEffect, useMemo, useRef, type FC } from 'react';
 import { Dimensions, Platform, View, type StyleProp, type ViewStyle } from 'react-native';
@@ -36,6 +38,16 @@ interface VideoSurfaceProps extends ReactVideoProps {
    * Style for the container of the video player.
    */
   style?: ReactVideoProps['style'];
+  /**
+   * Custom audio tracks to use instead of auto-extracting from video source.
+   * Only used when config.useCustomAudioTracks is true.
+   */
+  customAudioTracks?: AudioTrack[];
+  /**
+   * Custom video tracks to use instead of auto-extracting from video source.
+   * Only used when config.useCustomVideoTracks is true.
+   */
+  customVideoTracks?: VideoTrack[];
 }
 
 /**
@@ -45,7 +57,13 @@ interface VideoSurfaceProps extends ReactVideoProps {
  * This component is responsible for handling video playback,
  * events, and other video-related functionality.
  */
-export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) => {
+export const VideoSurface: FC<VideoSurfaceProps> = ({
+  source,
+  style,
+  customAudioTracks,
+  customVideoTracks,
+  ...rest
+}) => {
   const internalVideoRef = useRef(null);
   const { dispatch, state } = useVideo();
   const { isPlaying, setPlaying } = usePlayback();
@@ -96,29 +114,53 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({ source, style, ...rest }) 
   const handleLoad = (data: OnLoadData) => {
     setDuration(data.duration);
     setBuffering(false);
-    const dedupedAudioTracks = dedupeLanguageTracks(data.audioTracks);
+
+    // Use custom tracks if configured, otherwise extract from video source
+    const useCustomAudio = state.config.useCustomAudioTracks;
+    const useCustomVideo = state.config.useCustomVideoTracks;
+
+    // Handle audio tracks
+    let audioTracksToUse;
+    if (useCustomAudio && customAudioTracks) {
+      audioTracksToUse = customAudioTracks;
+    } else {
+      audioTracksToUse = dedupeLanguageTracks(data.audioTracks);
+    }
+
+    // Handle video tracks
+    let videoTracksToUse;
+    if (useCustomVideo && customVideoTracks) {
+      videoTracksToUse = customVideoTracks;
+    } else {
+      videoTracksToUse = dedupeVideoTracks(data.videoTracks);
+    }
+
+    // Text tracks are always extracted from source (no custom option for now)
     const dedupedTextTracks = dedupeLanguageTracks(data.textTracks);
-    const dedupedVideoTracks = dedupeVideoTracks(data.videoTracks);
-    getAudioTracks(dedupedAudioTracks);
+
+    // Set the tracks in state
+    getAudioTracks(audioTracksToUse);
+    getVideoTracks(videoTracksToUse);
+
     // Add an "Off" option for text tracks
     getTextTracks(
       [...dedupedTextTracks, { index: -1, title: 'Off', language: 'off', type: 'disabled' }].sort(
         (a, b) => a.index - b.index
       )
     );
-    getVideoTracks(dedupedVideoTracks);
+
     // Select the first track by default if none is selected
-    if (!audioTrack && dedupedAudioTracks.length > 0) {
-      setAudioTrack(dedupedAudioTracks[0]!);
+    if (!audioTrack && audioTracksToUse.length > 0) {
+      setAudioTrack(audioTracksToUse[0]!);
     }
     // Select the first track by default if none is selected
     if (!textTrack && dedupedTextTracks.length > 0) {
       setTextTrack(dedupedTextTracks[0]!);
     }
     // Select the track that matches the natural size, or the first one if none match
-    if (!videoTrack && dedupedVideoTracks.length > 0) {
-      const naturalSizeIndex = dedupedVideoTracks.findIndex((t) => t.height === data.naturalSize.height);
-      setVideoTrack(dedupedVideoTracks[naturalSizeIndex !== -1 ? naturalSizeIndex : 0]!);
+    if (!videoTrack && videoTracksToUse.length > 0) {
+      const naturalSizeIndex = videoTracksToUse.findIndex((t) => t.height === data.naturalSize.height);
+      setVideoTrack(videoTracksToUse[naturalSizeIndex !== -1 ? naturalSizeIndex : 0]!);
     }
   };
   const handleProgress = (data: OnProgressData) => {

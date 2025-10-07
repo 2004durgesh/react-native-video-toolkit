@@ -3,8 +3,7 @@ import { View, Platform } from 'react-native';
 import { Slot } from 'expo-router';
 import RNOrientationDirector, { Orientation } from 'react-native-orientation-director';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Video } from 'lucide-react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { VideoProvider } from 'react-native-video-toolkit';
 
 export default function RootLayout() {
@@ -16,11 +15,11 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
+      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
         <VideoProvider>
           <Slot />
         </VideoProvider>
-      </SafeAreaProvider>
+      </SafeAreaView>
     </GestureHandlerRootView>
   );
 }
