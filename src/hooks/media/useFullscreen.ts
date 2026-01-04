@@ -38,7 +38,7 @@ export const useFullscreen = () => {
     } else {
       // Exiting fullscreen
       if (Platform.OS !== 'web' && state.config.enableScreenRotation) {
-        await orientation.unlockOrientation();
+        await orientation.lockToPortrait();
       }
 
       NativeVideoToolkit.exitFullscreen();

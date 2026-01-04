@@ -1,10 +1,21 @@
 import { useEffect } from 'react';
-import { View, Platform } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 import { Slot } from 'expo-router';
 import RNOrientationDirector, { Orientation } from 'react-native-orientation-director';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { VideoProvider } from 'react-native-video-toolkit';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { VideoProvider, useVideo } from 'react-native-video-toolkit';
+
+function AppContent() {
+  const { state } = useVideo();
+
+  useEffect(() => {
+    // Hide status bar in fullscreen mode
+    StatusBar.setHidden(state.fullscreen);
+  }, [state.fullscreen]);
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   useEffect(() => {
@@ -14,12 +25,12 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#000' }}>
+      <SafeAreaProvider>
         <VideoProvider>
-          <Slot />
+          <AppContent />
         </VideoProvider>
-      </SafeAreaView>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

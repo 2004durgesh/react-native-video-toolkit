@@ -1,145 +1,210 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet, Image } from 'react-native';
-import { router } from 'expo-router';
-import { DemoScreen, DemoCard, DemoSection } from '../components/DemoComponents';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { VideoPlayer, DefaultLayout, useVideo, VideoProvider, type VideoSource } from 'react-native-video-toolkit';
+
+const videoSources: { title: string; source: VideoSource }[] = [
+  {
+    title: 'MP4 - Big Buck Bunny',
+    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+  },
+  {
+    title: 'HLS - Sintel',
+    source: { uri: 'https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8' },
+  },
+  {
+    title: 'DASH - Test Stream',
+    source: { uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd' },
+  },
+  {
+    title: 'Elephants Dream',
+    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
+  },
+  {
+    title: 'Tears of Steel',
+    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' },
+  },
+];
+
+function VideoSourceSelector({
+  selectedIndex,
+  onSelect,
+}: {
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+}) {
+  return (
+    <View style={styles.sourceSelector}>
+      <Text style={styles.selectorTitle}>Select Video Source</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {videoSources.map((video, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[styles.sourceButton, index === selectedIndex && styles.sourceButtonActive]}
+            onPress={() => onSelect(index)}>
+            <Text style={[styles.sourceButtonText, index === selectedIndex && styles.sourceButtonTextActive]}>
+              {video.title}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+function Player({ source, title }: { source: VideoSource; title: string }) {
+  const { state } = useVideo();
+
+  return (
+    <View style={state.fullscreen ? styles.fullscreenContainer : styles.playerContainer}>
+      <VideoPlayer source={source} containerStyle={state.fullscreen ? styles.fullscreenVideo : undefined}>
+        <DefaultLayout title={title} />
+      </VideoPlayer>
+    </View>
+  );
+}
+
+function HomeContent() {
+  const [selectedVideo, setSelectedVideo] = useState(0);
+  const currentVideo = videoSources[selectedVideo]!;
+  const { state } = useVideo();
+
+  // Hide everything except video when in fullscreen
+  if (state.fullscreen) {
+    return (
+      <View style={styles.fullscreenWrapper}>
+        <StatusBar hidden />
+        <Player source={currentVideo.source} title={currentVideo.title} />
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Video Toolkit Test</Text>
+        <Text style={styles.headerSubtitle}>Testing video playback features</Text>
+      </View>
+
+      {/* Video Source Selector */}
+      <VideoSourceSelector selectedIndex={selectedVideo} onSelect={setSelectedVideo} />
+
+      {/* Video Player */}
+      <Player source={currentVideo.source} title={currentVideo.title} />
+
+      {/* Info Section */}
+      <View style={styles.infoSection}>
+        <Text style={styles.infoTitle}>Now Playing</Text>
+        <Text style={styles.infoText}>{currentVideo.title}</Text>
+        <Text style={styles.infoHint}>
+          • Double tap sides to seek{'\n'}• Tap to show/hide controls{'\n'}• Use fullscreen button to test fullscreen
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+}
 
 export default function HomeScreen() {
   return (
-    <DemoScreen
-      title="Video Toolkit Demo"
-      description="Comprehensive showcase of React Native Video Toolkit"
-      showBackButton={false}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Hero Section */}
-        <View style={styles.hero}>
-          <View style={styles.heroIcon}>
-            <Text style={styles.heroEmoji}>🎬</Text>
-          </View>
-          <Text style={styles.heroTitle}>React Native Video Toolkit</Text>
-          <Text style={styles.heroSubtitle}>
-            A powerful, feature-rich video player component with modern controls, gesture support, and beautiful themes.
-          </Text>
-        </View>
-
-        {/* Quick Start Section */}
-        <DemoSection title="🚀 Quick Start">
-          <DemoCard
-            title="Default Player"
-            description="Ready-to-use video player with all controls"
-            icon="play-circle-outline"
-            color="#007AFF"
-            onPress={() => router.push('/(tabs)/players/default')}
-          />
-          <DemoCard
-            title="Custom Player"
-            description="Build your own layout with compound components"
-            icon="build-outline"
-            color="#34C759"
-            onPress={() => router.push('/(tabs)/players/custom')}
-          />
-        </DemoSection>
-
-        {/* Features Overview */}
-        <DemoSection title="✨ Key Features">
-          <DemoCard
-            title="Gesture Controls"
-            description="Pinch to zoom, double tap, swipe gestures"
-            icon="hand-right-outline"
-            color="#FF9500"
-            onPress={() => router.push('/(tabs)/features/gestures')}
-          />
-          <DemoCard
-            title="Theming System"
-            description="Customizable themes and styling options"
-            icon="color-palette-outline"
-            color="#AF52DE"
-            onPress={() => router.push('/(tabs)/styling/themes')}
-          />
-          <DemoCard
-            title="Advanced Controls"
-            description="Volume, playback speed, fullscreen, subtitles"
-            icon="settings-outline"
-            color="#FF3B30"
-            onPress={() => router.push('/(tabs)/features/controls')}
-          />
-        </DemoSection>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Built with ❤️ for React Native developers</Text>
-        </View>
-      </ScrollView>
-    </DemoScreen>
+    <VideoProvider>
+      <HomeContent />
+    </VideoProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000',
   },
-  hero: {
-    alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 24,
+  fullscreenWrapper: {
+    flex: 1,
+    backgroundColor: '#000',
   },
-  heroIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  heroEmoji: {
-    fontSize: 40,
-  },
-  heroTitle: {
-    fontSize: 28,
+  headerTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 12,
+    color: '#fff',
   },
-  heroSubtitle: {
-    fontSize: 16,
-    color: '#A0A0A0',
-    textAlign: 'center',
-    lineHeight: 24,
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 4,
   },
-  platformCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    padding: 20,
-    marginHorizontal: 16,
+  sourceSelector: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  selectorTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#888',
     marginBottom: 8,
   },
-  platformRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
+  sourceButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 20,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#333',
   },
-  platformItem: {
-    alignItems: 'center',
+  sourceButtonActive: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  sourceButtonText: {
+    color: '#888',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  sourceButtonTextActive: {
+    color: '#fff',
+  },
+  playerContainer: {
+    height: 220,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#111',
+  },
+  fullscreenContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  fullscreenVideo: {
     flex: 1,
   },
-  platformEmoji: {
-    fontSize: 24,
-    marginBottom: 8,
+  infoSection: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
-  platformText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
-    textAlign: 'center',
+  infoTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  footer: {
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-    alignItems: 'center',
+  infoText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    marginTop: 4,
   },
-  footerText: {
-    color: '#6D6D70',
-    fontSize: 14,
-    textAlign: 'center',
+  infoHint: {
+    fontSize: 13,
+    color: '#666',
+    marginTop: 16,
+    lineHeight: 22,
   },
 });
