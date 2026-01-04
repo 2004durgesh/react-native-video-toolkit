@@ -23,7 +23,6 @@
     "expo-linking": "~8.0.8",
     "expo-router": "~6.0.12",
     "expo-status-bar": "~3.0.8",
-    "lucide-react-native": "^0.539.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "npm:react-native-tvos@0.81.4-1",

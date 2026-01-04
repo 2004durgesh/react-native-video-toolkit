@@ -1,6 +1,6 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { usePlayback } from '../../hooks';
-import { Pause, Play } from 'lucide-react-native';
+import { Pause, Play } from '../svgs';
 import { BaseIconButton } from '../../components/common/BaseIconButton';
 
 export interface PlayButtonProps {

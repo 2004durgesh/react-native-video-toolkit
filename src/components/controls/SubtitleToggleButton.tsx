@@ -1,5 +1,5 @@
 import { BaseIconButton } from '../common';
-import { Captions, CaptionsOff } from 'lucide-react-native';
+import { Subtitles, SubtitlesOff } from '../svgs';
 import { useSettings } from '../../hooks';
 import { useState, useEffect } from 'react';
 
@@ -13,7 +13,7 @@ export const SubtitleToggleButton = () => {
   const [lastSelectedTrack, setLastSelectedTrack] = useState<any>(null);
 
   const isOff = !textTrack || textTrack.index === -1;
-  const icon = isOff ? CaptionsOff : Captions;
+  const icon = isOff ? SubtitlesOff : Subtitles;
 
   useEffect(() => {
     if (textTrack && textTrack.index !== -1) {

@@ -8720,7 +8720,6 @@ __metadata:
     fumadocs-mdx: 11.9.0
     fumadocs-ui: 15.7.10
     lucide-react: ^0.542.0
-    lucide-react-native: ^0.542.0
     next: 15.5.2
     null-loader: ^4.0.1
     postcss: ^8.5.6
@@ -13750,28 +13749,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react-native@npm:^0.539.0":
-  version: 0.539.0
-  resolution: "lucide-react-native@npm:0.539.0"
-  peerDependencies:
-    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-native: "*"
-    react-native-svg: ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0
-  checksum: 98156494935696d7d6a694ad22bf39466e150deaf3a7be599ea6ca7f742558515bcd60024f73917e45a971c0c2000f7b2a3b14669c176c5a92ae0c27506edfcf
-  languageName: node
-  linkType: hard
-
-"lucide-react-native@npm:^0.542.0":
-  version: 0.542.0
-  resolution: "lucide-react-native@npm:0.542.0"
-  peerDependencies:
-    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-native: "*"
-    react-native-svg: ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0
-  checksum: 2bba3ad713602486f9b4b1b2c4276478e88a6ad1e3a6d7b6780f558029f1b728a080a23af81851b78605b41da5de8da5c2711652b3911f11fe14fa3b13b5446a
-  languageName: node
-  linkType: hard
-
 "lucide-react@npm:^0.542.0":
   version: 0.542.0
   resolution: "lucide-react@npm:0.542.0"
@@ -17596,7 +17573,6 @@ __metadata:
     expo-linking: ~8.0.8
     expo-router: ~6.0.12
     expo-status-bar: ~3.0.8
-    lucide-react-native: ^0.539.0
     react: 19.1.0
     react-dom: 19.1.0
     react-native: "npm:react-native-tvos@0.81.4-1"
@@ -17638,7 +17614,6 @@ __metadata:
     eslint-plugin-unused-imports: ^4.2.0
     husky: ^9.1.7
     jest: ^29.7.0
-    lucide-react-native: ^0.539.0
     prettier: ^3.0.3
     react: 19.0.0
     react-native: 0.79.5
@@ -17655,7 +17630,6 @@ __metadata:
     turbo: ^1.10.7
     typescript: ^5.8.3
   peerDependencies:
-    lucide-react-native: ">=0.539.0"
     react: "*"
     react-native: "*"
     react-native-gesture-handler: ">=2.0.0"

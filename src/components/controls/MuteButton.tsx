@@ -1,6 +1,6 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useVolume } from '../../hooks';
-import { Volume2, VolumeX } from 'lucide-react-native';
+import { VolumeUp, VolumeOff } from '../svgs';
 import { BaseIconButton } from '../../components/common/BaseIconButton';
 
 export interface MuteButtonProps {
@@ -26,8 +26,8 @@ export const MuteButton = ({
 }: MuteButtonProps): React.ReactElement => {
   const { muted, toggleMute } = useVolume();
 
-  const MuteIcon = renderMuteIcon || VolumeX;
-  const UnmuteIcon = renderUnmuteIcon || Volume2;
+  const MuteIcon = renderMuteIcon || VolumeOff;
+  const UnmuteIcon = renderUnmuteIcon || VolumeUp;
 
   return (
     <BaseIconButton

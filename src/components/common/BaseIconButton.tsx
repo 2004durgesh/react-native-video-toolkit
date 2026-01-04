@@ -60,12 +60,18 @@ export const BaseIconButton = ({
   );
   return (
     <GestureDetector gesture={gesture}>
-      {/* @ts-ignore */}
-      <Ripple rippleDuration={500} rippleColor={theme.colors.accent} {...props}>
+      {!PlatformUtils.isWeb() ? (
+        /* @ts-ignore */
+        <Ripple rippleDuration={500} rippleColor={theme.colors.accent} {...props}>
+          <View collapsable={false} style={{ padding: 10 }}>
+            <IconComponent size={iconSize} color={iconColor} />
+          </View>
+        </Ripple>
+      ) : (
         <View collapsable={false} style={{ padding: 10 }}>
           <IconComponent size={iconSize} color={iconColor} />
         </View>
-      </Ripple>
+      )}
     </GestureDetector>
   );
 };

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useSettings } from '../../hooks';
-import { Settings } from 'lucide-react-native';
+import { Settings } from '../svgs';
 import { BaseIconButton } from '../common/BaseIconButton';
 
 export interface SettingsButtonProps {

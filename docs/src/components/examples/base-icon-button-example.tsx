@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { BaseIconButton } from 'react-native-video-toolkit';
-import { Heart } from 'lucide-react-native';
+import { Heart } from 'lucide-react';
 
 export const BaseIconButtonExample = () => {
   /**

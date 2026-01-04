@@ -1,6 +1,6 @@
 'use client';
 import { VideoPlayer, DefaultLayout, BaseIconButton, useVideo } from 'react-native-video-toolkit';
-import { Heart } from 'lucide-react-native';
+import { Heart } from 'lucide-react';
 
 export const SlotsUsage = () => {
   const { state } = useVideo();

@@ -27,7 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
 import { SettingsButton, type SettingsButtonProps } from '../controls';
-import { ChevronLeft, X } from 'lucide-react-native';
+import { ChevronLeft, Close } from '../svgs';
 import { Title } from '../display';
 
 interface MenuContextType {
@@ -489,7 +489,9 @@ export const Menu = {
     const { closeSettings } = useMenuContext();
 
     return (
-      <>{children || <BaseIconButton onTap={closeSettings} {...props} IconComponent={X} style={style} {...props} />}</>
+      <>
+        {children || <BaseIconButton onTap={closeSettings} {...props} IconComponent={Close} style={style} {...props} />}
+      </>
     );
   },
   /**

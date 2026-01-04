@@ -1,6 +1,6 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useFullscreen } from '../../hooks';
-import { Maximize, Minimize } from 'lucide-react-native';
+import { Maximize, Minimize } from '../svgs';
 import { BaseIconButton } from '..';
 
 export interface FullscreenButtonProps {
