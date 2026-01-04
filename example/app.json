@@ -28,27 +28,6 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "react-native-video",
-        {
-          "enableNotificationControls": true,
-          "androidExtensions": {
-            "useExoplayerRtsp": false,
-            "useExoplayerSmoothStreaming": false,
-            "useExoplayerHls": false,
-            "useExoplayerDash": false
-          }
-        }
-      ],
-      [
-        "react-native-edge-to-edge",
-        {
-          "android": {
-            "parentTheme": "Material3",
-            "enforceNavigationBarContrast": false
-          }
-        }
-      ],
        "react-native-orientation-director",
        [
         "@react-native-tvos/config-tv",

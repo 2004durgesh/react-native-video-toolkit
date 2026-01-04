@@ -214,6 +214,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         volume={muted ? 0 : volume}
         muted={muted}
         rate={playbackRate}
+        controls={false}
         selectedVideoTrack={{ type: SelectedVideoTrackType.RESOLUTION, value: videoTrack?.height }}
         selectedAudioTrack={{ type: SelectedTrackType.INDEX, value: audioTrack?.index }}
         selectedTextTrack={{ type: SelectedTrackType.INDEX, value: textTrack?.index }}

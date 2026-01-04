@@ -48,7 +48,8 @@
     "prepare": "bob build",
     "codegen": "bob build && npx react-native codegen",
     "release": "release-it",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "clean:node": "del-cli node_modules example/node_modules docs/node_modules"
   },
   "keywords": [
     "react-native",
