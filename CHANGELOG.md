@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 (2026-01-07)
+
+* chore: bump example app's expo version ([0c12f9b](https://github.com/2004durgesh/react-native-video-toolkit/commit/0c12f9b))
+* chore: update release-it version ([696e2f7](https://github.com/2004durgesh/react-native-video-toolkit/commit/696e2f7))
+* refactor(components): remove videosource type and fix circular dependencies ([95d7c78](https://github.com/2004durgesh/react-native-video-toolkit/commit/95d7c78))
+* refactor(example): restructure example app and refine fullscreen orientation ([a8a99f4](https://github.com/2004durgesh/react-native-video-toolkit/commit/a8a99f4))
+* feat: replace lucide-react-native with custom svg icons ([a07a88d](https://github.com/2004durgesh/react-native-video-toolkit/commit/a07a88d))
+* docs: update audio track type and readme ([4328c6a](https://github.com/2004durgesh/react-native-video-toolkit/commit/4328c6a))
+
 ## 0.4.0 (2025-10-07)
 
 * feat(video): enable custom audio and video track support in player & surface ([c912a9d](https://github.com/2004durgesh/react-native-video-toolkit/commit/c912a9d))
