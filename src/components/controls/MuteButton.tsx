@@ -1,7 +1,7 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useVolume } from '../../hooks';
 import { VolumeUp, VolumeOff } from '../svgs';
-import { BaseIconButton } from '../../components/common/BaseIconButton';
+import { BaseIconButton } from '../common';
 
 export interface MuteButtonProps {
   size?: number;

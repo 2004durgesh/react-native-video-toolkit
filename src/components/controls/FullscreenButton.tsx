@@ -1,7 +1,7 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useFullscreen } from '../../hooks';
 import { Maximize, Minimize } from '../svgs';
-import { BaseIconButton } from '..';
+import { BaseIconButton } from '../common';
 
 export interface FullscreenButtonProps {
   size?: number;

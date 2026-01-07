@@ -1,22 +1,22 @@
-import type { ReactVideoSource } from 'react-native-video';
+// import type { ReactVideoSource } from 'react-native-video';
 
-/**
- * Represents the source of the video to be played.
- */
-export interface VideoSource extends ReactVideoSource {
-  /**
-   * The URI of the video. This can be a remote URL or a local file path.
-   */
-  uri: string;
-  /**
-   * The type of the video. For example, 'video/mp4'.
-   */
-  type?: string;
-  /**
-   * The headers to be sent with the request for the video.
-   */
-  headers?: Record<string, string>;
-}
+// /**
+//  * Represents the source of the video to be played.
+//  */
+// export interface VideoSource extends ReactVideoSource {
+//   /**
+//    * The URI of the video. This can be a remote URL or a local file path.
+//    */
+//   uri: string;
+//   /**
+//    * The type of the video. For example, 'video/mp4'.
+//    */
+//   type?: string;
+//   /**
+//    * The headers to be sent with the request for the video.
+//    */
+//   headers?: Record<string, string>;
+// }
 
 /**
  * Represents the state of the video player.

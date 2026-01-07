@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { VideoPlayer, DefaultLayout, useVideo, VideoProvider, type VideoSource } from 'react-native-video-toolkit';
+import type { ReactVideoProps } from 'react-native-video';
+import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
 
-const videoSources: { title: string; source: VideoSource }[] = [
+const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
   {
     title: 'MP4 - Big Buck Bunny',
     source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
@@ -52,7 +53,7 @@ function VideoSourceSelector({
   );
 }
 
-function Player({ source, title }: { source: VideoSource; title: string }) {
+function Player({ source, title }: { source: ReactVideoProps['source']; title: string }) {
   const { state } = useVideo();
 
   return (

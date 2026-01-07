@@ -25,11 +25,11 @@ export function CustomSurfaceExample() {
 
 All props from [`react-native-video`](https://github.com/react-native-video/react-native-video#props) are supported.
 
-| Prop      | Type                   | Required | Default | Description                                                   |
-| --------- | ---------------------- | -------- | ------- | ------------------------------------------------------------- |
-| `source`  | `VideoSource`          | Yes      | –       | Video source (`uri`, local file, or require).                 |
-| `style`   | `StyleProp<ViewStyle>` | No       | –       | Additional style applied to the `<Video>` surface.            |
-| `...rest` | `ReactVideoProps`      | No       | –       | Any other props from `react-native-video` are passed through. |
+| Prop      | Type                        | Required | Default | Description                                                   |
+| --------- | --------------------------- | -------- | ------- | ------------------------------------------------------------- |
+| `source`  | `ReactVideoProps['source']` | Yes      | –       | Video source (`uri`, local file, or require).                 |
+| `style`   | `StyleProp<ViewStyle>`      | No       | –       | Additional style applied to the `<Video>` surface.            |
+| `...rest` | `ReactVideoProps`           | No       | –       | Any other props from `react-native-video` are passed through. |
 
 ---
 

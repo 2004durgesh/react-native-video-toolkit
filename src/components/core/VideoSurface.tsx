@@ -12,7 +12,6 @@ import RNVideo, {
 } from 'react-native-video';
 import { useEffect, useMemo, useRef, type FC } from 'react';
 import { Dimensions, Platform, View, type StyleProp, type ViewStyle } from 'react-native';
-import type { VideoSource } from '../../types';
 import { useVideo } from '../../providers';
 import {
   usePlayback,
@@ -29,15 +28,6 @@ import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks } from '../../
  * Props for the VideoSurface component.
  */
 interface VideoSurfaceProps extends ReactVideoProps {
-  /**
-   * The source of the video to be played.
-   * This can be a remote URL or a local file path.
-   */
-  source: VideoSource;
-  /**
-   * Style for the container of the video player.
-   */
-  style?: ReactVideoProps['style'];
   /**
    * Custom audio tracks to use instead of auto-extracting from video source.
    * Only used when config.useCustomAudioTracks is true.

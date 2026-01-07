@@ -9,7 +9,7 @@ import {
   SettingsButton,
   SubtitleToggleButton,
 } from './controls';
-import type { GestureHandlerProps, VideoSource } from '../types';
+import type { GestureHandlerProps } from '../types';
 import { VideoSurface } from './core';
 import type { ReactVideoProps, AudioTrack, VideoTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
@@ -25,7 +25,7 @@ interface VideoPlayerProps {
    * This can be a remote URL or a local file path.
    * Extends the source prop from react-native-video.
    */
-  source: VideoSource;
+  source: ReactVideoProps['source'];
   /**
    * Children components to be rendered on top of the video player.
    * This can be used to add custom controls or overlays.

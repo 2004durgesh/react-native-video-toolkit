@@ -50,7 +50,7 @@ export default function App() {
 
 | Prop                | Type                                                           | Required | Default | Description                                                                                                             |
 | ------------------- | -------------------------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `source`            | `VideoSource`                                                  | Yes      | –       | Video source (`uri`, local file, or require). Extends `react-native-video`.                                             |
+| `source`            | `ReactVideoProps['source']`                                    | Yes      | –       | Video source (`uri`, local file, or require). Uses the source type from `react-native-video`.                           |
 | `children`          | `ReactNode`                                                    | No       | –       | Optional custom overlay or controls.                                                                                    |
 | `containerStyle`    | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the root container.                                                                                    |
 | `videoProps`        | `ReactVideoProps`                                              | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player. |

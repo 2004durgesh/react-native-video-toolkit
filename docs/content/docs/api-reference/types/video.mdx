@@ -1,22 +1,7 @@
 ---
 title: 'Video Types'
-description: Types related to the video player including video source, state, and configuration interfaces.
+description: Types related to the video player including state and configuration interfaces.
 ---
-
-## `VideoSource`
-
-The `VideoSource` interface defines the source of the video to be played. Extends the source prop from `react-native-video` to include all the properties available in source prop of `react-native-video`.
-
-| Property  | Type                     | Required | Default | Description                                            |
-| --------- | ------------------------ | -------- | ------- | ------------------------------------------------------ |
-| `uri`     | `string`                 | Yes      | –       | The URI of the video.                                  |
-| `type`    | `string`                 | No       | –       | The type of the video.                                 |
-| `headers` | `Record<string, string>` | No       | –       | The headers to be sent with the request for the video. |
-
-<Callout type="info">
-  The `uri` is the only required property. The `type` and `headers` are optional and can be used to provide more
-  information about the video source.
-</Callout>
 
 ## `VideoState`
 
