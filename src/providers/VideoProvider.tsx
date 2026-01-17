@@ -1,10 +1,11 @@
-import React, { createContext, useReducer, useContext, useEffect } from 'react';
+import React, { createContext, useReducer, useContext, useEffect, useMemo } from 'react';
 import type { VideoPlayerConfig, VideoState, Theme } from '../types';
 import { defaultTheme } from '../themes';
 import { type LayoutRectangle, Dimensions } from 'react-native';
 import { ThemeProvider } from './ThemeProvider';
 import { SettingsProvider } from './SettingsProvider';
 import { PortalHost, PortalProvider } from './PortalProvider';
+import type { VideoRef } from 'react-native-video';
 /**
  * Default configuration for the video player.
  */
@@ -38,7 +39,7 @@ interface VideoProviderState extends VideoState {
   /**
    * A ref to the video component.
    */
-  videoRef: React.RefObject<any> | null;
+  videoRef: React.RefObject<VideoRef> | null;
   /**
    * Whether the controls are visible.
    */
@@ -204,9 +205,13 @@ export const VideoProvider: React.FC<{
 }> = ({ children, config, theme }) => {
   const [state, dispatch] = useReducer(videoReducer, initialState);
 
+  // Memoize config and theme to prevent infinite re-renders if passed as inline objects
+  const memoizedConfig = useMemo(() => config, [config]);
+  const memoizedTheme = useMemo(() => theme, [theme]);
+
   useEffect(() => {
-    dispatch({ type: 'INITIALIZE', payload: { config, theme } });
-  }, [config, theme]);
+    dispatch({ type: 'INITIALIZE', payload: { config: memoizedConfig, theme: memoizedTheme } });
+  }, [memoizedConfig, memoizedTheme]);
 
   return (
     <PortalProvider>

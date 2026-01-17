@@ -7,12 +7,12 @@ description: Types related to player gestures including double-tap, pan gestures
 
 The `UseDoubleTapGestureProps` interface defines the props for the `useDoubleTapGesture` hook.
 
-| Property                | Type                   | Required | Default     | Description                                                       |
-| ----------------------- | ---------------------- | -------- | ----------- | ----------------------------------------------------------------- |
-| `videoRef`              | `React.RefObject<any>` | Yes      | `null`      | A ref to the video player component.                              |
-| `doubleTapSeekInterval` | `number`               | No       | `10`        | The number of seconds to seek forward or backward on double-tap.  |
-| `onDoubleTapSeekStart`  | `() => void`           | No       | `undefined` | A callback function that is called when a double-tap seek starts. |
-| `onDoubleTapSeekEnd`    | `() => void`           | No       | `undefined` | A callback function that is called when a double-tap seek ends.   |
+| Property                | Type                        | Required | Default     | Description                                                       |
+| ----------------------- | --------------------------- | -------- | ----------- | ----------------------------------------------------------------- |
+| `videoRef`              | `React.RefObject<VideoRef>` | Yes      | `null`      | A ref to the video player component.                              |
+| `doubleTapSeekInterval` | `number`                    | No       | `10`        | The number of seconds to seek forward or backward on double-tap.  |
+| `onDoubleTapSeekStart`  | `() => void`                | No       | `undefined` | A callback function that is called when a double-tap seek starts. |
+| `onDoubleTapSeekEnd`    | `() => void`                | No       | `undefined` | A callback function that is called when a double-tap seek ends.   |
 
 ## `UsePanGestureProps`
 

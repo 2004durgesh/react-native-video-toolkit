@@ -18,13 +18,13 @@ export const usePlayback = () => {
    * Toggles the playback state of the video.
    */
   const togglePlayPause = useCallback(() => {
+    const willBePlaying = !state.isPlaying;
     dispatch({ type: 'TOGGLE_PLAY_PAUSE' });
-    const newPlayingState = !state.isPlaying;
 
-    if (newPlayingState) {
+    if (willBePlaying) {
       showControls();
     } else if (state.hideTimeoutRef) {
-      clearTimeout(state.hideTimeoutRef!);
+      clearTimeout(state.hideTimeoutRef);
       showControls();
     }
   }, [dispatch, state.isPlaying, state.hideTimeoutRef, showControls]);

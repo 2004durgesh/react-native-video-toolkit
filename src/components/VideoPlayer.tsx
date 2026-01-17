@@ -1,5 +1,5 @@
 import React, { type FC, type ReactNode, useMemo } from 'react';
-import { View, StyleSheet, type StyleProp, type ViewStyle, Platform } from 'react-native';
+import { View, StyleSheet, type StyleProp, type ViewStyle, Platform, type ViewProps } from 'react-native';
 import {
   PlayButton,
   ProgressBar,
@@ -19,7 +19,7 @@ import { TimeDisplay, LoadingSpinner } from './display';
 /**
  * Props for the VideoPlayer component.
  */
-interface VideoPlayerProps {
+interface VideoPlayerProps extends ViewProps {
   /**
    * The source of the video to be played.
    * This can be a remote URL or a local file path.

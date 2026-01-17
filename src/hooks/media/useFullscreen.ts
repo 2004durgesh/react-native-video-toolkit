@@ -21,10 +21,10 @@ export const useFullscreen = () => {
    * Enhanced fullscreen toggle with intelligent orientation handling
    */
   const toggleFullscreen = useCallback(async () => {
+    const enteringFullscreen = !state.fullscreen;
     dispatch({ type: 'TOGGLE_FULLSCREEN' });
-    const newFullscreenState = !state.fullscreen;
 
-    if (newFullscreenState) {
+    if (enteringFullscreen) {
       // Entering fullscreen
       showControls();
 
@@ -45,7 +45,7 @@ export const useFullscreen = () => {
       state.config.onExitFullscreen?.();
 
       if (state.hideTimeoutRef) {
-        clearTimeout(state.hideTimeoutRef!);
+        clearTimeout(state.hideTimeoutRef);
       }
       showControls();
     }

@@ -3,15 +3,21 @@ import { useSettingsContext } from '../../providers';
 import { useCallback } from 'react';
 
 /**
- * A hook for managing video settings like videoTrack, audio tracks, and texts.
+ * A hook for managing video settings like video track, audio tracks, and text/subtitle tracks.
  *
  * @returns An object with the following properties:
- * - `videoTrack`: The current video videoTrack setting.
- * - `setVideoTrack`: A function to set the video videoTrack.
+ * - `videoTrack`: The current video track setting.
+ * - `videoTracks`: The list of available video tracks.
+ * - `setVideoTrack`: A function to set the current video track.
+ * - `setAvailableVideoTracks`: A function to set the list of available video tracks.
  * - `audioTrack`: The current audio track setting.
- * - `setAudioTrack`: A function to set the audio track.
- * - `textTrack`: The current text track setting.
- * - `setTextTrack`: A function to set the text track.
+ * - `audioTracks`: The list of available audio tracks.
+ * - `setAudioTrack`: A function to set the current audio track.
+ * - `setAvailableAudioTracks`: A function to set the list of available audio tracks.
+ * - `textTrack`: The current text/subtitle track setting.
+ * - `textTracks`: The list of available text/subtitle tracks.
+ * - `setTextTrack`: A function to set the current text track.
+ * - `setAvailableTextTracks`: A function to set the list of available text tracks.
  */
 export const useSettings = () => {
   const { state, dispatch } = useSettingsContext();
@@ -46,13 +52,12 @@ export const useSettings = () => {
   );
 
   /**
-   * Gets the available video videoTracks.
-   * @param videoTracks - An array of available video videoTracks.
+   * Sets the available video tracks list.
+   * @param videoTracks - An array of available video tracks.
    */
-
-  const getVideoTracks = useCallback(
+  const setAvailableVideoTracks = useCallback(
     (videoTracks: VideoTrack[]) => {
-      dispatch({ type: 'GET_VIDEO_TRACKS', payload: videoTracks });
+      dispatch({ type: 'SET_AVAILABLE_VIDEO_TRACKS', payload: videoTracks });
     },
     [dispatch]
   );
@@ -69,25 +74,23 @@ export const useSettings = () => {
   );
 
   /**
-   * Gets the available audio tracks.
+   * Sets the available audio tracks list.
    * @param audioTracks - An array of available audio tracks.
    */
-
-  const getAudioTracks = useCallback(
+  const setAvailableAudioTracks = useCallback(
     (audioTracks: AudioTrack[]) => {
-      dispatch({ type: 'GET_AUDIO_TRACKS', payload: audioTracks });
+      dispatch({ type: 'SET_AVAILABLE_AUDIO_TRACKS', payload: audioTracks });
     },
     [dispatch]
   );
 
   /**
-   * Gets the available text tracks.
+   * Sets the available text/subtitle tracks list.
    * @param textTracks - An array of available text tracks.
    */
-
-  const getTextTracks = useCallback(
+  const setAvailableTextTracks = useCallback(
     (textTracks: TextTrack[]) => {
-      dispatch({ type: 'GET_TEXT_TRACKS', payload: textTracks });
+      dispatch({ type: 'SET_AVAILABLE_TEXT_TRACKS', payload: textTracks });
     },
     [dispatch]
   );
@@ -107,15 +110,15 @@ export const useSettings = () => {
     videoTrack: state.videoTrack,
     videoTracks: state.videoTracks,
     setVideoTrack,
-    getVideoTracks,
+    setAvailableVideoTracks,
     audioTrack: state.audioTrack,
     audioTracks: state.audioTracks,
     setAudioTrack,
-    getAudioTracks,
+    setAvailableAudioTracks,
     textTrack: state.textTrack,
     textTracks: state.textTracks,
     setTextTrack,
-    getTextTracks,
+    setAvailableTextTracks,
     isSettingsMenuVisible: state.isSettingsMenuVisible,
     openSettings,
     closeSettings,

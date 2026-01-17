@@ -29,6 +29,7 @@ import { useSettings } from '../../hooks';
 import { SettingsButton, type SettingsButtonProps } from '../controls';
 import { ChevronLeft, Close } from '../svgs';
 import { Title } from '../display';
+import Check from '../svgs/Check';
 
 interface MenuContextType {
   closeSettings: () => void;
@@ -475,7 +476,7 @@ export const Menu = {
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
           <AnimatedView style={checkAnimatedStyle}>
-            <Text style={[styles.radioIndicator, { color: theme.colors.text }]}>{isChecked ? '✓' : ' '}</Text>
+            {isChecked && <Check fill={theme.colors.text} style={[styles.radioIndicator]} />}
           </AnimatedView>
         </View>
       </Menu.Item>

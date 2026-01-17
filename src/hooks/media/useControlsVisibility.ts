@@ -1,5 +1,5 @@
 import { useVideo } from '../../providers';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 /**
  * A hook for controlling the visibility of the video controls.
@@ -13,11 +13,24 @@ import { useCallback } from 'react';
 export const useControlsVisibility = () => {
   const { state, dispatch } = useVideo();
   const { controlsVisible, config, isPlaying, hideTimeoutRef } = state;
+  const isMountedRef = useRef(true);
+
+  // Cleanup on unmount to prevent memory leaks
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (hideTimeoutRef) {
+        clearTimeout(hideTimeoutRef);
+      }
+    };
+  }, [hideTimeoutRef]);
 
   /**
    * Hides the video controls.
    */
   const hideControls = useCallback(() => {
+    if (!isMountedRef.current) return;
     dispatch({ type: 'HIDE_CONTROLS' });
     state.config.onHideControls?.();
   }, [dispatch, state.config]);
@@ -26,6 +39,8 @@ export const useControlsVisibility = () => {
    * Shows the video controls.
    */
   const showControls = useCallback(() => {
+    if (!isMountedRef.current) return;
+
     if (hideTimeoutRef) {
       clearTimeout(hideTimeoutRef);
     }
@@ -33,7 +48,11 @@ export const useControlsVisibility = () => {
     dispatch({ type: 'SHOW_CONTROLS' });
 
     if (config.autoHideControls && isPlaying) {
-      const newTimeout = setTimeout(() => hideControls(), config.autoHideDelay);
+      const newTimeout = setTimeout(() => {
+        if (isMountedRef.current) {
+          hideControls();
+        }
+      }, config.autoHideDelay);
       dispatch({ type: 'SET_HIDE_TIMEOUT', payload: newTimeout as unknown as NodeJS.Timeout });
     }
     state.config.onShowControls?.();

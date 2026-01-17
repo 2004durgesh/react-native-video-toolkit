@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Dimensions } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
@@ -11,7 +10,6 @@ import {
   withSpring,
   withTiming,
   runOnJS,
-  type SharedValue,
 } from 'react-native-reanimated';
 import type { UseDoubleTapGestureProps } from '../../types';
 import { useVideo } from '../../providers';
@@ -310,17 +308,22 @@ export const useDoubleTapGesture = ({
     rippleScale,
   ]);
 
-  const createDirectionalStyle = (opacityValue: SharedValue<number>) =>
-    useAnimatedStyle(
-      () => ({
-        opacity: opacityValue.value,
-        transform: [{ scale: scaleValue.value }],
-      }),
-      [opacityValue, scaleValue]
-    );
+  // Inline animated styles to comply with hooks rules (no conditional/dynamic hook calls)
+  const forwardAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: forwardOpacity.value,
+      transform: [{ scale: scaleValue.value }],
+    }),
+    [forwardOpacity, scaleValue]
+  );
 
-  const forwardAnimatedStyle = createDirectionalStyle(forwardOpacity);
-  const backwardAnimatedStyle = createDirectionalStyle(backwardOpacity);
+  const backwardAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: backwardOpacity.value,
+      transform: [{ scale: scaleValue.value }],
+    }),
+    [backwardOpacity, scaleValue]
+  );
 
   return {
     doubleTapGesture,

@@ -6,24 +6,26 @@ import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-nativ
 
 const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
   {
-    title: 'MP4 - Big Buck Bunny',
-    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+    title: 'HLS - Tears of Steel',
+    source: {
+      uri: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+    },
   },
   {
-    title: 'HLS - Sintel',
-    source: { uri: 'https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8' },
+    title: 'MP4 - Big Buck Bunny',
+    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
   },
   {
     title: 'DASH - Test Stream',
     source: { uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd' },
   },
   {
-    title: 'Elephants Dream',
-    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
+    title: 'local MP4',
+    source: { uri: require('../../../assets/test.mp4') },
   },
   {
-    title: 'Tears of Steel',
-    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' },
+    title: 'local MP4 (Vertical)',
+    source: { uri: require('../../../assets/vertical.mp4') },
   },
 ];
 
@@ -58,7 +60,12 @@ function Player({ source, title }: { source: ReactVideoProps['source']; title: s
 
   return (
     <View style={state.fullscreen ? styles.fullscreenContainer : styles.playerContainer}>
-      <VideoPlayer source={source} containerStyle={state.fullscreen ? styles.fullscreenVideo : undefined}>
+      <VideoPlayer
+        videoProps={{
+          onLoad: (e) => console.log(e),
+        }}
+        source={source}
+        containerStyle={state.fullscreen ? styles.fullscreenVideo : undefined}>
         <DefaultLayout title={title} />
       </VideoPlayer>
     </View>
@@ -75,7 +82,7 @@ function HomeContent() {
     return (
       <View style={styles.fullscreenWrapper}>
         <StatusBar hidden />
-        <Player source={currentVideo.source} title={currentVideo.title} />
+        <Player key={selectedVideo} source={currentVideo.source} title={currentVideo.title} />
       </View>
     );
   }
@@ -94,7 +101,7 @@ function HomeContent() {
       <VideoSourceSelector selectedIndex={selectedVideo} onSelect={setSelectedVideo} />
 
       {/* Video Player */}
-      <Player source={currentVideo.source} title={currentVideo.title} />
+      <Player key={selectedVideo} source={currentVideo.source} title={currentVideo.title} />
 
       {/* Info Section */}
       <View style={styles.infoSection}>

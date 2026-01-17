@@ -66,9 +66,9 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     videoTrack,
     audioTrack,
     textTrack,
-    getVideoTracks,
-    getAudioTracks,
-    getTextTracks,
+    setAvailableVideoTracks,
+    setAvailableAudioTracks,
+    setAvailableTextTracks,
     setAudioTrack,
     setTextTrack,
     setVideoTrack,
@@ -129,11 +129,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     const dedupedTextTracks = dedupeLanguageTracks(data.textTracks);
 
     // Set the tracks in state
-    getAudioTracks(audioTracksToUse);
-    getVideoTracks(videoTracksToUse);
+    setAvailableAudioTracks(audioTracksToUse);
+    setAvailableVideoTracks(videoTracksToUse);
 
     // Add an "Off" option for text tracks
-    getTextTracks(
+    setAvailableTextTracks(
       [...dedupedTextTracks, { index: -1, title: 'Off', language: 'off', type: 'disabled' }].sort(
         (a, b) => a.index - b.index
       )
@@ -189,12 +189,14 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
 
   return (
     <View
-      onLayout={(e) => {
+      onLayout={combineHandlers((e) => {
         const { layout } = e.nativeEvent;
         dispatch({ type: 'SET_VIDEO_WRAPPER_LAYOUT', payload: layout });
-      }}
-      // @ts-ignore
-      style={{ height: state.videoLayout.height, ...(Platform.OS === 'web' && { height: '100vh' }) }}>
+      }, userOnLayout)}
+      style={{
+        height: state.videoLayout.height || 'auto',
+        ...(Platform.OS === 'web' && { height: '100vh' as unknown as number }),
+      }}>
       <RNVideo
         ref={internalVideoRef}
         source={source}
