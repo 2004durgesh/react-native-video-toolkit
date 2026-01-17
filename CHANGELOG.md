@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 (2026-01-17)
+
+* feat: add custom video track type with label/uri support ([1b3f360](https://github.com/2004durgesh/react-native-video-toolkit/commit/1b3f360))
+* refactor(core): fix memory leaks, stale closures and improve api naming ([76a14ff](https://github.com/2004durgesh/react-native-video-toolkit/commit/76a14ff))
+* refactor(hooks): improve api with explicit types, callbacks and fullscreen controls ([875d420](https://github.com/2004durgesh/react-native-video-toolkit/commit/875d420))
+
 ## 0.5.0 (2026-01-07)
 
 * chore: bump example app's expo version ([0c12f9b](https://github.com/2004durgesh/react-native-video-toolkit/commit/0c12f9b))
