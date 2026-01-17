@@ -6,12 +6,14 @@ import RNVideo, {
   type OnLoadData,
   type OnPlaybackRateChangeData,
   type OnProgressData,
+  type OnBufferData,
+  type OnVideoErrorData,
   type ReactVideoProps,
   type AudioTrack,
   type VideoTrack,
 } from 'react-native-video';
 import { useEffect, useMemo, useRef, type FC } from 'react';
-import { Dimensions, Platform, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Dimensions, Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideo } from '../../providers';
 import {
   usePlayback,
@@ -157,15 +159,15 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setCurrentTime(data.currentTime);
     setPlayableDuration(data.playableDuration);
   };
-  const handleBuffer = (data: any) => setBuffering(data.isBuffering);
-  const handleError = (error: any) =>
+  const handleBuffer = (data: OnBufferData) => setBuffering(data.isBuffering);
+  const handleError = (error: OnVideoErrorData) =>
     dispatch({ type: 'SET_ERROR', payload: error?.error?.errorString || 'An unknown error occurred' });
   const handleEnd = () => {
     setPlaying(false);
     seek(0);
     showControls();
   };
-  const handleLayout = (event: any) => {
+  const handleLayout = (event: { nativeEvent: { layout: LayoutRectangle } }) => {
     const { layout } = event.nativeEvent;
     dispatch({ type: 'SET_VIDEO_LAYOUT', payload: layout });
   };

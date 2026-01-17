@@ -17,9 +17,9 @@ export const defaultTheme: Theme = {
     border: '#3A3A3A',
   },
   iconSizes: {
-    sm: 24,
-    md: 30,
-    lg: 40,
+    sm: 18,
+    md: 24,
+    lg: 32,
   },
   fontSizes: {
     sm: 13,

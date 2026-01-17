@@ -44,7 +44,7 @@ export const BaseIconButton = ({
       iconSize = theme.iconSizes.md;
       break;
     default:
-      iconSize = theme.iconSizes.sm;
+      iconSize = theme.iconSizes.md;
   }
 
   const gesture = useMemo(

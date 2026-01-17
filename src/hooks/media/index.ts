@@ -1,8 +1,8 @@
-export { useBuffering } from './useBuffering';
-export { useControlsVisibility } from './useControlsVisibility';
-export { useFullscreen } from './useFullscreen';
+export { useBuffering, type UseBufferingReturn } from './useBuffering';
+export { useControlsVisibility, type UseControlsVisibilityReturn } from './useControlsVisibility';
+export { useFullscreen, type UseFullscreenReturn } from './useFullscreen';
 export { useOrientation } from './useOrientation';
-export { usePlayback } from './usePlayback';
-export { useProgress } from './useProgress';
-export { useVolume } from './useVolume';
-export { usePlaybackRate } from './usePlaybackRate';
+export { usePlayback, type UsePlaybackReturn } from './usePlayback';
+export { useProgress, type UseProgressReturn } from './useProgress';
+export { useVolume, type UseVolumeReturn } from './useVolume';
+export { usePlaybackRate, type UsePlaybackRateReturn } from './usePlaybackRate';

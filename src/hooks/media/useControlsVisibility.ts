@@ -2,6 +2,20 @@ import { useVideo } from '../../providers';
 import { useCallback, useEffect, useRef } from 'react';
 
 /**
+ * Return type for the useControlsVisibility hook.
+ */
+export interface UseControlsVisibilityReturn {
+  /** Shows the video controls. */
+  showControls: () => void;
+  /** Hides the video controls. */
+  hideControls: () => void;
+  /** Toggles the visibility of the video controls. */
+  toggleControls: () => void;
+  /** Whether the controls are currently visible. */
+  controlsVisible: boolean;
+}
+
+/**
  * A hook for controlling the visibility of the video controls.
  *
  * @returns An object with the following properties:
@@ -10,7 +24,7 @@ import { useCallback, useEffect, useRef } from 'react';
  * - `toggleControls`: A function to toggle the visibility of the controls.
  * - `isControlsVisible`: Whether the controls are currently visible.
  */
-export const useControlsVisibility = () => {
+export const useControlsVisibility = (): UseControlsVisibilityReturn => {
   const { state, dispatch } = useVideo();
   const { controlsVisible, config, isPlaying, hideTimeoutRef } = state;
   const isMountedRef = useRef(true);

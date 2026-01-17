@@ -2,6 +2,26 @@ import { useVideo } from '../../providers';
 import { useCallback } from 'react';
 
 /**
+ * Return type for the useProgress hook.
+ */
+export interface UseProgressReturn {
+  /** The current time of the video in seconds. */
+  currentTime: number;
+  /** The duration of the video in seconds. */
+  duration: number;
+  /** The playable (buffered) duration of the video in seconds. */
+  playableDuration: number;
+  /** Seeks to a specific time in the video. */
+  seek: (time: number) => void;
+  /** Sets the current time of the video (internal use). */
+  setCurrentTime: (time: number) => void;
+  /** Sets the duration of the video (internal use). */
+  setDuration: (duration: number) => void;
+  /** Sets the playable duration of the video (internal use). */
+  setPlayableDuration: (playableDuration: number) => void;
+}
+
+/**
  * A hook for controlling video progress.
  *
  * @returns An object with the following properties:
@@ -13,7 +33,7 @@ import { useCallback } from 'react';
  * - `setPlayableDuration`: A function to set the playable duration of the video.
  * - `setDuration`: A function to set the duration of the video.
  */
-export const useProgress = () => {
+export const useProgress = (): UseProgressReturn => {
   const { state, dispatch } = useVideo();
   const { videoRef, duration } = state;
 

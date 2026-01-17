@@ -3,6 +3,18 @@ import { useControlsVisibility } from './useControlsVisibility';
 import { useCallback } from 'react';
 
 /**
+ * Return type for the usePlayback hook.
+ */
+export interface UsePlaybackReturn {
+  /** Whether the video is currently playing. */
+  isPlaying: boolean;
+  /** Toggles between play and pause. */
+  togglePlayPause: () => void;
+  /** Sets the playing state directly. */
+  setPlaying: (isPlaying: boolean) => void;
+}
+
+/**
  * A hook for controlling video playback.
  *
  * @returns An object with the following properties:
@@ -10,7 +22,7 @@ import { useCallback } from 'react';
  * - `togglePlayPause`: A function to toggle between play and pause.
  * - `setPlaying`: A function to set the playing state directly.
  */
-export const usePlayback = () => {
+export const usePlayback = (): UsePlaybackReturn => {
   const { state, dispatch } = useVideo();
   const { showControls } = useControlsVisibility();
 

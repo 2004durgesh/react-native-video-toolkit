@@ -226,7 +226,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               {!buffering ? (
                 <View style={layoutStyles.row}>
                   {slots?.beforeCenterPlayButton && slots.beforeCenterPlayButton}
-                  <VideoPlayer.PlayButton size={state.theme.iconSizes.md} />
+                  <VideoPlayer.PlayButton size={state.theme.iconSizes.lg} />
                   {slots?.afterCenterPlayButton && slots.afterCenterPlayButton}
                 </View>
               ) : null}

@@ -10,6 +10,12 @@ export interface ProgressBarProps {
   height?: number;
   thumbWidth?: number;
   style?: StyleProp<ViewStyle>;
+  /** Callback fired when the user starts seeking. */
+  onSeekStart?: () => void;
+  /** Callback fired when the user finishes seeking. */
+  onSeekEnd?: (time: number) => void;
+  /** Callback fired when the seek position changes. */
+  onSeek?: (time: number) => void;
 }
 
 /**
@@ -18,7 +24,14 @@ export interface ProgressBarProps {
  * @param {ProgressBarProps} props - The props for the component.
  * @returns {React.ReactElement} - The progress bar component.
  */
-export const ProgressBar = ({ height = 4, thumbWidth = 12, style }: ProgressBarProps): React.ReactElement => {
+export const ProgressBar = ({
+  height = 4,
+  thumbWidth = 12,
+  style,
+  onSeekStart,
+  onSeekEnd,
+  onSeek,
+}: ProgressBarProps): React.ReactElement => {
   const { currentTime, duration, seek, playableDuration } = useProgress();
   const { showControls } = useControlsVisibility();
   const {
@@ -44,10 +57,17 @@ export const ProgressBar = ({ height = 4, thumbWidth = 12, style }: ProgressBarP
 
   const handleSlidingStart = () => {
     showControls();
+    onSeekStart?.();
+  };
+
+  const handleSlidingComplete = (val: number) => {
+    onSeekEnd?.(Math.round(val));
   };
 
   const handleValueChange = (val: number) => {
-    seek(Math.round(val));
+    const time = Math.round(val);
+    seek(time);
+    onSeek?.(time);
   };
 
   return (
@@ -58,6 +78,7 @@ export const ProgressBar = ({ height = 4, thumbWidth = 12, style }: ProgressBarP
         maximumValue={max}
         cache={cache}
         onSlidingStart={handleSlidingStart}
+        onSlidingComplete={handleSlidingComplete}
         onValueChange={handleValueChange}
         theme={{
           minimumTrackTintColor: theme.colors.primary,

@@ -18,6 +18,15 @@ export const MyComponent = () => {
 };
 ```
 
+### Return Type
+
+```tsx
+interface UseBufferingReturn {
+  buffering: boolean;
+  setBuffering: (isBuffering: boolean) => void;
+}
+```
+
 ### Returns
 
 | Value          | Type                             | Description                                                                                                                                          |
@@ -58,6 +67,17 @@ export const MyComponent = () => {
   const { showControls, hideControls } = useControlsVisibility();
   // ...
 };
+```
+
+### Return Type
+
+```tsx
+interface UseControlsVisibilityReturn {
+  showControls: () => void;
+  hideControls: () => void;
+  toggleControls: () => void;
+  controlsVisible: boolean;
+}
 ```
 
 ### Returns
@@ -101,17 +121,30 @@ A hook for managing the video player's fullscreen mode.
 import { useFullscreen } from 'react-native-video-toolkit';
 
 export const MyComponent = () => {
-  const { fullscreen, toggleFullscreen } = useFullscreen();
+  const { fullscreen, toggleFullscreen, enterFullscreen, exitFullscreen } = useFullscreen();
   // ...
 };
 ```
 
+### Return Type
+
+```tsx
+interface UseFullscreenReturn {
+  fullscreen: boolean;
+  toggleFullscreen: () => Promise<void>;
+  enterFullscreen: () => Promise<void>;
+  exitFullscreen: () => Promise<void>;
+}
+```
+
 ### Returns
 
-| Value              | Type         | Description                                                                                                                                                  |
-| ------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `fullscreen`       | `boolean`    | A boolean indicating whether the video player is currently in fullscreen mode.                                                                               |
-| `toggleFullscreen` | `() => void` | A function that toggles the fullscreen mode. This function also handles screen orientation locking if `enableScreenRotation` is true in `VideoPlayerConfig`. |
+| Value              | Type                  | Description                                                                                                                                                  |
+| ------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `fullscreen`       | `boolean`             | A boolean indicating whether the video player is currently in fullscreen mode.                                                                               |
+| `toggleFullscreen` | `() => Promise<void>` | A function that toggles the fullscreen mode. This function also handles screen orientation locking if `enableScreenRotation` is true in `VideoPlayerConfig`. |
+| `enterFullscreen`  | `() => Promise<void>` | A function that enters fullscreen mode. No-op if already in fullscreen. Handles screen orientation locking automatically.                                    |
+| `exitFullscreen`   | `() => Promise<void>` | A function that exits fullscreen mode. No-op if not in fullscreen. Handles screen orientation unlocking automatically.                                       |
 
 [`<VideoPlayer.FullscreenButton />`](../components/controls/fullscreen-button.mdx) uses this hook to provide a button for toggling fullscreen mode.
 Handles tap gestures for toggling fullscreen mode.
@@ -150,6 +183,16 @@ export const MyComponent = () => {
   const { isPlaying, togglePlayPause } = usePlayback();
   // ...
 };
+```
+
+### Return Type
+
+```tsx
+interface UsePlaybackReturn {
+  isPlaying: boolean;
+  togglePlayPause: () => void;
+  setPlaying: (isPlaying: boolean) => void;
+}
 ```
 
 ### Returns
@@ -193,6 +236,15 @@ export const MyComponent = () => {
 };
 ```
 
+### Return Type
+
+```tsx
+interface UsePlaybackRateReturn {
+  playbackRate: number;
+  setPlaybackRate: (playbackRate: number) => void;
+}
+```
+
 ### Returns
 
 | Value             | Type                             | Description                                                 |
@@ -228,6 +280,20 @@ export const MyComponent = () => {
   const { currentTime, duration, seek } = useProgress();
   // ...
 };
+```
+
+### Return Type
+
+```tsx
+interface UseProgressReturn {
+  currentTime: number;
+  duration: number;
+  playableDuration: number;
+  seek: (time: number) => void;
+  setCurrentTime: (time: number) => void;
+  setDuration: (duration: number) => void;
+  setPlayableDuration: (playableDuration: number) => void;
+}
 ```
 
 ### Returns
@@ -290,6 +356,17 @@ export const MyComponent = () => {
   const { volume, muted, toggleMute } = useVolume();
   // ...
 };
+```
+
+### Return Type
+
+```tsx
+interface UseVolumeReturn {
+  volume: number;
+  muted: boolean;
+  setVolume: (volume: number) => void;
+  toggleMute: () => void;
+}
 ```
 
 ### Returns

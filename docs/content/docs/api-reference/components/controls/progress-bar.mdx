@@ -24,11 +24,14 @@ import { ProgressBarUsageExample } from '@/components/examples/controls/progress
 
 ## Props
 
-| Prop         | Type                   | Required | Default | Description                           |
-| ------------ | ---------------------- | -------- | ------- | ------------------------------------- |
-| `height`     | `number`               | No       | `4`     | Height of the progress track (in px). |
-| `thumbWidth` | `number`               | No       | `12`    | Width of the draggable thumb control. |
-| `style`      | `StyleProp<ViewStyle>` | No       | –       | Optional styles for the container.    |
+| Prop          | Type                     | Required | Default | Description                                    |
+| ------------- | ------------------------ | -------- | ------- | ---------------------------------------------- |
+| `height`      | `number`                 | No       | `4`     | Height of the progress track (in px).          |
+| `thumbWidth`  | `number`                 | No       | `12`    | Width of the draggable thumb control.          |
+| `style`       | `StyleProp<ViewStyle>`   | No       | –       | Optional styles for the container.             |
+| `onSeekStart` | `() => void`             | No       | –       | Callback fired when the user starts seeking.   |
+| `onSeekEnd`   | `(time: number) => void` | No       | –       | Callback fired when the user finishes seeking. |
+| `onSeek`      | `(time: number) => void` | No       | –       | Callback fired when the seek position changes. |
 
 ---
 
@@ -82,6 +85,7 @@ const MyVideoPlayer = () => {
 
 - Progress is managed via the `useProgress` hook (provides `currentTime`, `duration`, `seek`).
 - When sliding starts, `showControls()` is called so the UI remains visible during scrubbing.
+- Use `onSeekStart`, `onSeek`, and `onSeekEnd` callbacks to track user interactions.
 - Colors adapt automatically using the player's theme (`primary` for progress, `secondary` for track).
 
 </Callout>

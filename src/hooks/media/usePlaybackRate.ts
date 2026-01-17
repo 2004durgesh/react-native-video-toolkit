@@ -2,13 +2,23 @@ import { useVideo } from '../../providers';
 import { useCallback } from 'react';
 
 /**
- * A hook for controlling video buffering.
+ * Return type for the usePlaybackRate hook.
+ */
+export interface UsePlaybackRateReturn {
+  /** The current playback rate of the video. */
+  playbackRate: number;
+  /** Sets the playback rate of the video. */
+  setPlaybackRate: (playbackRate: number) => void;
+}
+
+/**
+ * A hook for controlling video playback rate.
  *
  * @returns An object with the following properties:
  * - `playbackRate`: A number indicating the current playback rate of the video.
  * - `setPlaybackRate`: A function to set the playback rate of the video.
  */
-export const usePlaybackRate = () => {
+export const usePlaybackRate = (): UsePlaybackRateReturn => {
   const { state, dispatch } = useVideo();
 
   /**

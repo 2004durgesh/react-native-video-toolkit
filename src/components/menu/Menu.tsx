@@ -476,7 +476,9 @@ export const Menu = {
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
           <AnimatedView style={checkAnimatedStyle}>
-            {isChecked && <Check fill={theme.colors.text} style={[styles.radioIndicator]} />}
+            {isChecked ? (
+              <Check size={theme.iconSizes.sm} fill={theme.colors.text} style={[styles.radioIndicator]} />
+            ) : null}
           </AnimatedView>
         </View>
       </Menu.Item>
@@ -556,7 +558,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   radioIndicator: {
-    fontSize: 16,
     marginLeft: 8,
   },
   header: {

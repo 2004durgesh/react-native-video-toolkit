@@ -3,6 +3,7 @@ import { useVolume } from '../../hooks';
 import { useVideo } from '../../providers';
 import { useSharedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
+import { useEffect } from 'react';
 
 export interface VolumeControlProps {
   orientation?: 'horizontal' | 'vertical';
@@ -12,6 +13,8 @@ export interface VolumeControlProps {
   trackColor?: string;
   progressColor?: string;
   style?: StyleProp<ViewStyle>;
+  /** Callback fired when the volume changes. */
+  onVolumeChange?: (volume: number) => void;
 }
 
 /**
@@ -28,6 +31,7 @@ export const VolumeControl = ({
   height = 4,
   thumbWidth = 12,
   style,
+  onVolumeChange,
 }: VolumeControlProps): React.ReactElement => {
   const { volume, setVolume } = useVolume();
   const {
@@ -36,12 +40,18 @@ export const VolumeControl = ({
 
   const updateVolume = (newVolume: number) => {
     setVolume(newVolume);
+    onVolumeChange?.(newVolume);
   };
 
-  // Shared values for the slider
+  // Shared values for the slider (0-1 scale to match volume state)
   const progress = useSharedValue(volume);
   const min = useSharedValue(0);
-  const max = useSharedValue(100);
+  const max = useSharedValue(1);
+
+  // Sync shared value when volume changes externally
+  useEffect(() => {
+    progress.value = volume;
+  }, [volume, progress]);
   return (
     <View style={style}>
       <Slider
