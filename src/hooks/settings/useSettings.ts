@@ -1,6 +1,7 @@
 import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
 import { useSettingsContext } from '../../providers';
 import { useCallback } from 'react';
+import type { CustomVideoTrack } from '../../types';
 
 /**
  * A hook for managing video settings like video track, audio tracks, and text/subtitle tracks.
@@ -45,7 +46,7 @@ export const useSettings = () => {
    * @param newVideoTrack - The new video videoTrack (e.g., 'auto', '1080p', '720p').
    */
   const setVideoTrack = useCallback(
-    (newVideoTrack: VideoTrack | null) => {
+    (newVideoTrack: CustomVideoTrack | VideoTrack | null) => {
       dispatch({ type: 'SET_VIDEO_TRACK', payload: newVideoTrack });
     },
     [dispatch]
@@ -56,7 +57,7 @@ export const useSettings = () => {
    * @param videoTracks - An array of available video tracks.
    */
   const setAvailableVideoTracks = useCallback(
-    (videoTracks: VideoTrack[]) => {
+    (videoTracks: (CustomVideoTrack | VideoTrack)[]) => {
       dispatch({ type: 'SET_AVAILABLE_VIDEO_TRACKS', payload: videoTracks });
     },
     [dispatch]

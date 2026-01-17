@@ -9,9 +9,9 @@ import {
   SettingsButton,
   SubtitleToggleButton,
 } from './controls';
-import type { GestureHandlerProps } from '../types';
+import type { GestureHandlerProps, CustomVideoTrack } from '../types';
 import { VideoSurface } from './core';
-import type { ReactVideoProps, AudioTrack, VideoTrack } from 'react-native-video';
+import type { ReactVideoProps, AudioTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideo } from '../providers';
 import { TimeDisplay, LoadingSpinner } from './display';
@@ -57,7 +57,7 @@ interface VideoPlayerProps extends ViewProps {
    * Custom video tracks to use instead of auto-extracting from video source.
    * Only used when config.useCustomVideoTracks is true.
    */
-  customVideoTracks?: VideoTrack[];
+  customVideoTracks?: CustomVideoTrack[];
 }
 
 /**

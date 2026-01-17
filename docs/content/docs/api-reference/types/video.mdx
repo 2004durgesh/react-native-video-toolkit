@@ -1,7 +1,34 @@
 ---
 title: 'Video Types'
-description: Types related to the video player including state and configuration interfaces.
+description: Types related to the video player including state, configuration, and custom video track interfaces.
 ---
+
+## `CustomVideoTrack`
+
+The `CustomVideoTrack` interface represents a custom video track with user-friendly properties. It extends the base `VideoTrack` from `react-native-video` with additional fields for better UX.
+
+| Property | Type     | Required | Default     | Description                                                                                  |
+| -------- | -------- | -------- | ----------- | -------------------------------------------------------------------------------------------- |
+| `label`  | `string` | No       | `undefined` | User-friendly label to display in the UI (e.g., "Auto", "1080p", "720p HD").                 |
+| `uri`    | `string` | No       | `undefined` | Optional URI for the specific quality stream. Useful for direct links to quality renditions. |
+| `height` | `number` | Yes      | –           | The height of the video track in pixels. Used for track selection by resolution.             |
+
+<Callout type="info">
+  If `label` is not provided, the UI will automatically display the height followed by "p" (e.g., "720p").
+</Callout>
+
+### Example
+
+```tsx
+import type { CustomVideoTrack } from 'react-native-video-toolkit';
+
+const customVideoTracks: CustomVideoTrack[] = [
+  { height: 0, label: 'Auto' },
+  { height: 1080, label: '1080p Full HD' },
+  { height: 720, label: '720p HD' },
+  { height: 480, label: '480p SD' },
+];
+```
 
 ## `VideoState`
 

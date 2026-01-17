@@ -1,11 +1,10 @@
-import { Stack } from 'expo-router';
+import { Tabs } from 'expo-router';
 
 export default function TabsLayout() {
   return (
-    <Stack
+    <Tabs
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#000' },
       }}
     />
   );

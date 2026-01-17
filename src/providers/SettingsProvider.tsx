@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
+import type { CustomVideoTrack } from '../types';
 
 /**
  * Represents the state of the SettingsProvider.
@@ -12,11 +13,11 @@ interface SettingsProviderState {
   /**
    * The current video videoTrack setting.
    */
-  videoTrack: VideoTrack | null;
+  videoTrack: CustomVideoTrack | VideoTrack | null;
   /**
    * The list of available video videoTracks.
    */
-  videoTracks: VideoTrack[];
+  videoTracks: (CustomVideoTrack | VideoTrack)[];
   /**
    * The current audio track setting.
    */
@@ -44,8 +45,8 @@ interface SettingsProviderState {
  */
 type SettingsAction =
   | { type: 'TOGGLE_SETTINGS_MENU' }
-  | { type: 'SET_VIDEO_TRACK'; payload: VideoTrack | null }
-  | { type: 'SET_AVAILABLE_VIDEO_TRACKS'; payload: VideoTrack[] }
+  | { type: 'SET_VIDEO_TRACK'; payload: CustomVideoTrack | VideoTrack | null }
+  | { type: 'SET_AVAILABLE_VIDEO_TRACKS'; payload: (CustomVideoTrack | VideoTrack)[] }
   | { type: 'SET_AUDIO_TRACK'; payload: AudioTrack | null }
   | { type: 'SET_AVAILABLE_AUDIO_TRACKS'; payload: AudioTrack[] }
   | { type: 'SET_TEXT_TRACK'; payload: TextTrack | null }

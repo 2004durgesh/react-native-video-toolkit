@@ -1,4 +1,5 @@
 // import type { ReactVideoSource } from 'react-native-video';
+import type { VideoTrack } from 'react-native-video';
 
 // /**
 //  * Represents the source of the video to be played.
@@ -17,6 +18,28 @@
 //    */
 //   headers?: Record<string, string>;
 // }
+
+/**
+ * Represents a custom video track with user-friendly properties.
+ * Extends the base VideoTrack from react-native-video with additional fields.
+ */
+export interface CustomVideoTrack extends Partial<VideoTrack> {
+  /**
+   * User-friendly label to display in the UI (e.g., "Auto", "1080p", "720p HD").
+   * If not provided, the height will be used to generate a label.
+   */
+  label?: string;
+  /**
+   * Optional URI for the specific quality stream.
+   * Useful for providing direct links to different quality renditions.
+   */
+  uri?: string;
+  /**
+   * The height of the video track in pixels.
+   * Used for track selection by resolution.
+   */
+  height: number;
+}
 
 /**
  * Represents the state of the video player.

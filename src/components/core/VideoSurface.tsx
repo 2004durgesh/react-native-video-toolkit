@@ -10,7 +10,6 @@ import RNVideo, {
   type OnVideoErrorData,
   type ReactVideoProps,
   type AudioTrack,
-  type VideoTrack,
 } from 'react-native-video';
 import { useEffect, useMemo, useRef, type FC } from 'react';
 import { Dimensions, Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
@@ -25,6 +24,7 @@ import {
   usePlaybackRate,
 } from '../../hooks';
 import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks } from '../../utils';
+import type { CustomVideoTrack } from '../../types';
 
 /**
  * Props for the VideoSurface component.
@@ -38,8 +38,9 @@ interface VideoSurfaceProps extends ReactVideoProps {
   /**
    * Custom video tracks to use instead of auto-extracting from video source.
    * Only used when config.useCustomVideoTracks is true.
+   * Supports CustomVideoTrack with label and uri fields for better UX.
    */
-  customVideoTracks?: VideoTrack[];
+  customVideoTracks?: CustomVideoTrack[];
 }
 
 /**
@@ -205,7 +206,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         style={[videoStyle, style]}
         resizeMode={ResizeMode.CONTAIN}
         paused={!isPlaying}
-        volume={muted ? 0 : volume}
+        volume={volume}
         muted={muted}
         rate={playbackRate}
         controls={false}

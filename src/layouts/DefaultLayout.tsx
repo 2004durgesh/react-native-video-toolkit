@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, type TextStyle, type StyleProp } from 'react-native';
 import { useBuffering, useControlsVisibility, useSettings, usePlaybackRate } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC } from 'react';
@@ -6,7 +6,9 @@ import { useVideo } from '../providers';
 import { Menu, Subtitle, Title, CommonLayoutStyles as layoutStyles, VideoPlayer } from '../components';
 export interface DefaultLayoutProps {
   title?: string;
+  titleStyle?: StyleProp<TextStyle>;
   subtitle?: string;
+  subtitleStyle?: StyleProp<TextStyle>;
   slots?: {
     beforeSettingsButton?: React.ReactElement;
     afterSettingsButton?: React.ReactElement;
@@ -36,7 +38,9 @@ export interface DefaultLayoutProps {
  */
 export const DefaultLayout: FC<DefaultLayoutProps> = ({
   title,
+  titleStyle,
   subtitle,
+  subtitleStyle,
   slots,
 }: DefaultLayoutProps): React.ReactElement => {
   const { buffering } = useBuffering();
@@ -100,8 +104,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
             <Animated.View
               style={[layoutStyles.topControls, topControlsAnimatedStyle, { padding: state.fullscreen ? 20 : 10 }]}>
               <View>
-                {title && <Title text={title} />}
-                {subtitle && <Subtitle text={subtitle} />}
+                {title && <Title text={title} style={titleStyle} />}
+                {subtitle && <Subtitle text={subtitle} style={subtitleStyle} />}
               </View>
               <View style={[layoutStyles.row]}>
                 <View style={[layoutStyles.row]}>
@@ -124,7 +128,9 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                         <Menu.Item navigateTo="video">
                           <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
                             <Title text="Video" />
-                            <Subtitle text={videoTrack ? videoTrack.height + 'p' : 'None'} />
+                            <Subtitle
+                              text={videoTrack ? ((videoTrack as any).label ?? videoTrack.height + 'p') : 'None'}
+                            />
                           </View>
                         </Menu.Item>
                         <Menu.Item navigateTo="captions">
@@ -170,7 +176,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                 onCheckedChange={() => {
                                   setVideoTrack(track);
                                 }}>
-                                {track.height}p
+                                {(track as any).label ?? track.height + 'p'}
                               </Menu.CheckboxItem>
                             ))}
                           </ScrollView>
