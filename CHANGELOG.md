@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0 (2026-01-28)
+
+* feat(ui): upgrade layout, menu animations and icon styles ([fd72085](https://github.com/2004durgesh/react-native-video-toolkit/commit/fd72085))
+
 ## 0.6.0 (2026-01-17)
 
 * feat: add custom video track type with label/uri support ([1b3f360](https://github.com/2004durgesh/react-native-video-toolkit/commit/1b3f360))
