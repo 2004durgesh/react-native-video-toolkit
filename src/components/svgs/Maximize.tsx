@@ -1,11 +1,33 @@
 import React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Defs, FeComposite, FeFlood, FeGaussianBlur, FeMerge, FeMergeNode, Filter, Path } from 'react-native-svg';
 import type { IconProps } from '../../types/svg';
 
 export const Maximize = (props: IconProps) => {
   return (
     <Svg width={props.size} height={props.size} fill={props.color} viewBox="0 -960 960 960" {...props}>
-      <Path d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z" />
+      <Defs>
+        <Filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+          {/* 1. Create the glow color (e.g., Black or a bright color) */}
+          <FeFlood result="flood" floodColor="#000" floodOpacity="1" />
+
+          {/* 2. Cut out the shape of the icon from the flood */}
+          <FeComposite in="flood" in2="SourceGraphic" operator="in" result="mask" />
+
+          {/* 3. Blur the result to create the glow */}
+          <FeGaussianBlur in="mask" stdDeviation="40" result="blurred" />
+
+          {/* 4. Merge the blur (bottom) and the original icon (top) */}
+          <FeMerge>
+            <FeMergeNode in="blurred" />
+            <FeMergeNode in="SourceGraphic" />
+          </FeMerge>
+        </Filter>
+      </Defs>
+      <Path
+        d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"
+        fill={props.color}
+        filter="url(#neon-glow)"
+      />
     </Svg>
   );
 };

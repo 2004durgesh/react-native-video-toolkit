@@ -1,21 +1,27 @@
-import { Text, StyleSheet, type StyleProp, type TextStyle } from 'react-native';
+import { Text, StyleSheet, type TextProps } from 'react-native';
 import { useVideo } from '../../providers';
+
+export interface TitleProps extends TextProps {
+  text: string;
+}
 
 /**
  * `Title` is a display component used to render a prominent title or heading.
  * It integrates with the video player's theme for consistent text styling.
  *
- * @param {object} props - The props for the Title component.
- * @param {string} props.text - The text content of the title.
- * @param {StyleProp<TextStyle>} [props.style] - Optional style to apply to the title text.
+ * @param {TitleProps} props - The props for the Title component.
  *
  * @returns {React.ReactElement} A Text component displaying the title.
  */
-export const Title = ({ text, style }: { text: string; style?: StyleProp<TextStyle> }): React.ReactElement => {
+export const Title = ({ text, style, ...rest }: TitleProps): React.ReactElement => {
   const {
     state: { theme },
   } = useVideo();
-  return <Text style={[styles.title, { color: theme.colors.text }, style]}>{text}</Text>;
+  return (
+    <Text style={[styles.title, { color: theme.colors.text }, style]} {...rest}>
+      {text}
+    </Text>
+  );
 };
 
 const styles = StyleSheet.create({

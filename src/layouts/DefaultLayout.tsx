@@ -1,23 +1,34 @@
-import { View, StyleSheet, ScrollView, type TextStyle, type StyleProp } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useBuffering, useControlsVisibility, useSettings, usePlaybackRate } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC } from 'react';
 import { useVideo } from '../providers';
-import { Menu, Subtitle, Title, CommonLayoutStyles as layoutStyles, VideoPlayer } from '../components';
+import {
+  Menu,
+  Subtitle,
+  Title,
+  CommonLayoutStyles as layoutStyles,
+  VideoPlayer,
+  type TitleProps,
+  type SubitleProps,
+} from '../components';
 export interface DefaultLayoutProps {
   title?: string;
-  titleStyle?: StyleProp<TextStyle>;
+  titleProps?: Omit<TitleProps, 'text'>;
   subtitle?: string;
-  subtitleStyle?: StyleProp<TextStyle>;
+  subtitleProps?: Omit<SubitleProps, 'text'>;
   slots?: {
     beforeSettingsButton?: React.ReactElement;
     afterSettingsButton?: React.ReactElement;
     beforeSubtitleToggleButton?: React.ReactElement;
     afterSubtitleToggleButton?: React.ReactElement;
     /**
-     * Here, before is above the progress bar and after is below the progress bar.
+     * Here, before is above the progress bar
      */
     beforeProgressBar?: React.ReactElement;
+    /**
+     * Here, after is below the progress bar
+     */
     afterProgressBar?: React.ReactElement;
     beforeTimeDisplay?: React.ReactElement;
     afterTimeDisplay?: React.ReactElement;
@@ -38,9 +49,9 @@ export interface DefaultLayoutProps {
  */
 export const DefaultLayout: FC<DefaultLayoutProps> = ({
   title,
-  titleStyle,
+  titleProps,
   subtitle,
-  subtitleStyle,
+  subtitleProps,
   slots,
 }: DefaultLayoutProps): React.ReactElement => {
   const { buffering } = useBuffering();
@@ -99,13 +110,17 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
     <>
       <Animated.View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
         <VideoPlayer.Controls>
-          <View
-            style={[layoutStyles.column, { justifyContent: 'space-between', height: '100%', paddingHorizontal: 15 }]}>
+          <View style={[layoutStyles.column, { height: '100%', paddingHorizontal: 15 }]}>
             <Animated.View
-              style={[layoutStyles.topControls, topControlsAnimatedStyle, { padding: state.fullscreen ? 20 : 10 }]}>
+              style={[
+                layoutStyles.topControls,
+                layoutStyles.row,
+                topControlsAnimatedStyle,
+                { padding: state.fullscreen ? 20 : 10, justifyContent: 'space-between' },
+              ]}>
               <View>
-                {title && <Title text={title} style={titleStyle} />}
-                {subtitle && <Subtitle text={subtitle} style={subtitleStyle} />}
+                {title && <Title text={title} {...titleProps} />}
+                {subtitle && <Subtitle text={subtitle} {...subtitleProps} />}
               </View>
               <View style={[layoutStyles.row]}>
                 <View style={[layoutStyles.row]}>
@@ -241,7 +256,9 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               style={[
                 layoutStyles.bottomControls,
                 bottomControlsAnimatedStyle,
-                { padding: state.fullscreen ? 20 : 10 },
+                {
+                  padding: state.fullscreen ? 20 : 10,
+                },
               ]}>
               <View style={[layoutStyles.column]}>
                 {slots?.beforeProgressBar && slots.beforeProgressBar}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ReactVideoProps } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
@@ -65,8 +65,22 @@ function Player({ source, title }: { source: ReactVideoProps['source']; title: s
           onLoad: (e) => console.log(e),
         }}
         source={source}
+        // style={{height:1000}}
         containerStyle={state.fullscreen ? styles.fullscreenVideo : undefined}>
-        <DefaultLayout title={title} />
+        <DefaultLayout
+          title={title}
+          titleProps={{
+            style: {
+              color: 'red',
+            },
+          }}
+          slots={
+            {
+              // beforeProgressBar: <Button title="button" onPress={() => {}} />,
+              // afterProgressBar: <Button title="button" onPress={() => {}} />,
+            }
+          }
+        />
       </VideoPlayer>
     </View>
   );

@@ -47,7 +47,7 @@ interface VideoPlayerProps extends ViewProps {
   /**
    * Props to style the video component itself.
    */
-  videoStyle?: StyleProp<ViewStyle>;
+  videoStyle?: ReactVideoProps['style'];
   /**
    * Custom audio tracks to use instead of auto-extracting from video source.
    * Only used when config.useCustomAudioTracks is true.

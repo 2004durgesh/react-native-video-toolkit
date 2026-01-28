@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { type PressableProps, View } from 'react-native';
+import { type PressableProps, View, StyleSheet } from 'react-native';
 import { useVideo } from '../../providers';
 import Ripple from 'react-native-material-ripple';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -32,20 +32,14 @@ export const BaseIconButton = ({
     state: { theme },
   } = useVideo();
 
+  const iconSize = size ?? theme.iconSizes.md;
   const iconColor = color || theme.colors.text;
-  let iconSize;
 
-  switch (true) {
-    case !!size:
-      iconSize = size;
-      break;
-    case PlatformUtils.isTV():
-    case PlatformUtils.isWeb():
-      iconSize = theme.iconSizes.md;
-      break;
-    default:
-      iconSize = theme.iconSizes.md;
-  }
+  const InnerContent = (
+    <View style={styles.iconContainer}>
+      <IconComponent size={iconSize} color={iconColor} />
+    </View>
+  );
 
   const gesture = useMemo(
     () =>
@@ -60,18 +54,31 @@ export const BaseIconButton = ({
   );
   return (
     <GestureDetector gesture={gesture}>
-      {!PlatformUtils.isWeb() ? (
-        /* @ts-ignore */
-        <Ripple rippleDuration={500} rippleColor={theme.colors.accent} {...props}>
-          <View collapsable={false} style={{ padding: 10 }}>
-            <IconComponent size={iconSize} color={iconColor} />
-          </View>
-        </Ripple>
+      {PlatformUtils.isWeb() ? (
+        <View>{InnerContent}</View>
       ) : (
-        <View collapsable={false} style={{ padding: 10 }}>
-          <IconComponent size={iconSize} color={iconColor} />
-        </View>
+        /* @ts-ignore */
+        <Ripple
+          rippleDuration={500}
+          rippleColor={theme.colors.accent}
+          // Ensure ripple respects the circular shape
+          rippleContainerBorderRadius={50}
+          // @ts-ignore
+          style={styles.rippleContainer}
+          {...props}>
+          {InnerContent}
+        </Ripple>
       )}
     </GestureDetector>
   );
 };
+
+const styles = StyleSheet.create({
+  rippleContainer: {
+    borderRadius: 50, // Matches the inner container
+    overflow: 'hidden',
+  },
+  iconContainer: {
+    padding: 10,
+  },
+});

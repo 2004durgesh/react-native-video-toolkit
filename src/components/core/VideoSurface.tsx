@@ -90,8 +90,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
       dispatch({ type: 'SET_DIMENSIONS', payload: { width: window.width, height: window.height } });
     });
     return () => subscription.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  }, [dispatch, showControls]);
 
   const {
     onLoad: userOnLoad,

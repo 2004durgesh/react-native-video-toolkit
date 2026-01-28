@@ -24,10 +24,10 @@ import { SubtitleExample } from '@/components/examples/display/subtitle';
 
 ## Props
 
-| Prop    | Type                   | Required | Default | Description                                              |
-| ------- | ---------------------- | -------- | ------- | -------------------------------------------------------- |
-| `text`  | `string`               | Yes      | –       | The string to display.                                   |
-| `style` | `StyleProp<TextStyle>` | No       | –       | Optional override styles (merged with theme + defaults). |
+| Prop   | Type        | Required | Description                                                                                                                         |
+| ------ | ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `text` | `string`    | Yes      | The string to display.                                                                                                              |
+| `...`  | `TextProps` | No       | In addition to `text`, this component accepts all other props from the React Native `Text` component, like `style`, `onPress`, etc. |
 
 ---
 

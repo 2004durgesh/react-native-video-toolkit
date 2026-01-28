@@ -47,7 +47,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
    * Calculate responsive dimensions for the bottom sheet based on device type and orientation
    * Handles both videoLayout dimensions and window dimensions (for web/fallback cases)
    */
-  const getResponsiveSheetDimensions = (fullscreen: boolean) => {
+  const sheetDimensions = useMemo(() => {
     const deviceType = detectDeviceType();
     const isTV = PlatformUtils.isTV();
     const isTablet = PlatformUtils.isTablet();
@@ -74,19 +74,13 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     }
 
     return {
-      height: sheetHeight,
-      width: sheetWidth,
+      height: Math.max(sheetHeight, 200),
+      width: Math.max(sheetWidth, 300),
     };
-  };
-  // Calculate responsive dimensions based on videoLayout
-  const sheetDimensions = useMemo(
-    () => getResponsiveSheetDimensions(fullscreen),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fullscreen, state.videoWrapperLayout]
-  );
-  // atleast 300 height and width
-  const SHEET_HEIGHT = sheetDimensions.height || 300;
-  const SHEET_WIDTH = sheetDimensions.width || 300;
+  }, [fullscreen, state.videoWrapperLayout]);
+
+  const SHEET_HEIGHT = sheetDimensions.height;
+  const SHEET_WIDTH = sheetDimensions.width;
 
   const translateY = useSharedValue(SHEET_HEIGHT);
   const context = useSharedValue({ y: 0 });
@@ -99,21 +93,17 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     }
   }, [visible, SHEET_HEIGHT, translateY]);
 
-  // Platform-aware gesture sensitivity
   const gestureConfig = useMemo(() => {
     const isTV = PlatformUtils.isTV();
     const isTablet = PlatformUtils.isTablet();
 
     return {
-      // TV: Less sensitive gestures, higher thresholds
       closeThreshold: isTV ? SHEET_HEIGHT / 2 : SHEET_HEIGHT / 3,
       velocityThreshold: isTV ? 300 : isTablet ? 500 : 600,
-      // TV users might not have precise gesture control
-      gestureEnabled: !isTV, // Enable on web TV platforms
+      gestureEnabled: !isTV,
     };
   }, [SHEET_HEIGHT]);
 
-  // Pan gesture to swipe down (with platform adaptations)
   const gesture = Gesture.Pan()
     .enabled(gestureConfig.gestureEnabled)
     .onStart(() => {
@@ -135,20 +125,13 @@ export const BottomSheet: FC<BottomSheetProps> = ({
       }
     });
 
-  const sheetAnimatedStyle = useAnimatedStyle(
-    () => ({
-      transform: [{ translateY: translateY.value }],
-    }),
-    [translateY]
-  );
+  const sheetAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
-  const backdropAnimatedStyle = useAnimatedStyle(
-    () => ({
-      opacity: interpolate(translateY.value, [0, SHEET_HEIGHT], [1, 0], Extrapolation.CLAMP),
-    }),
-    [translateY, SHEET_HEIGHT]
-  );
-  // Platform-specific styling
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(translateY.value, [0, SHEET_HEIGHT], [1, 0], Extrapolation.CLAMP),
+  }));
   const platformStyles = useMemo(() => {
     const isTV = PlatformUtils.isTV();
     const isTablet = PlatformUtils.isTablet();
@@ -167,7 +150,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
   return (
     <Portal name="sheet-portal">
       <Animated.View style={[styles.container, { backgroundColor: theme.colors.overlay }, backdropAnimatedStyle]}>
-        <Pressable style={{ ...StyleSheet.absoluteFillObject }} onPress={onClose} />
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <Animated.View
           style={[
             styles.sheetContainer,
@@ -179,7 +162,6 @@ export const BottomSheet: FC<BottomSheetProps> = ({
               borderRadius: platformStyles.borderRadius,
               padding: platformStyles.padding,
               marginBottom: platformStyles.marginBottom,
-              overflow: 'hidden',
             },
           ]}>
           {showHandle && (
@@ -197,11 +179,19 @@ export const BottomSheet: FC<BottomSheetProps> = ({
               </View>
             </GestureDetector>
           )}
-          {!showHandle && gestureConfig.gestureEnabled && (
-            <GestureDetector gesture={gesture}>{children}</GestureDetector>
+
+          {/* Content Logic: 
+              If handle is hidden, dragging the content closes the sheet.
+              If handle is shown, content is NOT draggable (allows scrolling inside).
+          */}
+          {!showHandle && gestureConfig.gestureEnabled ? (
+            <GestureDetector gesture={gesture}>
+              {/* Use a wrapper view to accept the gesture */}
+              <View style={{ flex: 1 }}>{children}</View>
+            </GestureDetector>
+          ) : (
+            children
           )}
-          {!showHandle && !gestureConfig.gestureEnabled && children}
-          {showHandle && children}
         </Animated.View>
       </Animated.View>
     </Portal>
@@ -222,8 +212,6 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   sheetContainer: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
     overflow: 'hidden',
   },
   handleContainer: {
@@ -231,6 +219,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: -8,
+    zIndex: 10,
+    backgroundColor: 'transparent',
   },
   handle: {
     backgroundColor: '#ccc',

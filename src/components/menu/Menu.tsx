@@ -22,8 +22,6 @@ import Animated, {
   FadeOut,
   SlideInRight,
   SlideOutLeft,
-  type AnimatedStyle,
-  type SharedValue,
 } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
 import { SettingsButton, type SettingsButtonProps } from '../controls';
@@ -58,13 +56,15 @@ interface MenuSubContentProps {
   style?: StyleProp<ViewStyle>;
 }
 
-interface MenuItemProps extends PressableProps {
+// FIXED: Omit onPress from PressableProps to avoid signature conflict
+interface MenuItemProps extends Omit<PressableProps, 'onPress'> {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   value?: string;
   autoClose?: boolean;
   navigateTo?: string;
+  onPress?: (value?: string) => void; // Custom handler signature
 }
 
 interface MenuLabelProps extends TextProps {
@@ -81,12 +81,10 @@ interface MenuGroupProps extends ViewProps {
   style?: StyleProp<ViewStyle>;
 }
 
-interface MenuCheckboxItemProps extends PressableProps {
+interface MenuCheckboxItemProps extends Omit<MenuItemProps, 'onPress'> {
   children: ReactNode;
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
-  style?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
 }
 
 interface MenuCloseProps extends PressableProps {
@@ -122,40 +120,6 @@ const useMenuContext = (): MenuContextType => {
 // Animated components
 const AnimatedView = Animated.createAnimatedComponent(View);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-// Custom hook for slide animations
-const useSlideAnimation = (
-  isVisible: boolean,
-  direction: 'left' | 'right' = 'right'
-): {
-  animatedStyle: AnimatedStyle<ViewStyle>;
-  opacity: SharedValue<number>;
-} => {
-  const translateX = useSharedValue(direction === 'right' ? 300 : -300);
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    if (isVisible) {
-      translateX.value = withTiming(0, {
-        duration: 300,
-      });
-      opacity.value = withTiming(1, { duration: 250 });
-    } else {
-      translateX.value = withTiming(direction === 'right' ? 300 : -300, { duration: 200 });
-      opacity.value = withTiming(0, { duration: 200 });
-    }
-  }, [isVisible, translateX, opacity, direction]);
-
-  const animatedStyle = useAnimatedStyle(
-    () => ({
-      transform: [{ translateX: translateX.value }],
-      opacity: opacity.value,
-    }),
-    [translateX, opacity]
-  );
-
-  return { animatedStyle, opacity };
-};
 
 export const Menu = {
   /**
@@ -219,7 +183,7 @@ export const Menu = {
     titleStyle,
     ...props
   }: MenuHeaderProps): React.ReactElement => {
-    const { currentView, goBack, navigationStack } = useMenuContext();
+    const { currentView, navigationStack } = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
 
@@ -248,23 +212,9 @@ export const Menu = {
     const menuContext = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
-    const opacity = useSharedValue(0);
 
-    useEffect(() => {
-      if (isSettingsMenuVisible) {
-        opacity.value = withTiming(1, { duration: 300 });
-      } else {
-        opacity.value = withTiming(0, { duration: 200 });
-      }
-    }, [currentView, opacity, isSettingsMenuVisible]);
-
-    const animatedStyle = useAnimatedStyle(
-      () => ({
-        opacity: opacity.value,
-      }),
-      [opacity]
-    );
-
+    // We pass the context value down again because the Portal might break context in some architectures,
+    // though BottomSheet typically handles this. It's safe to keep.
     return (
       <BottomSheet visible={isSettingsMenuVisible} onClose={closeSettings} {...props}>
         <AnimatedView
@@ -273,7 +223,7 @@ export const Menu = {
           exiting={FadeOut.duration(200)}>
           <MenuProvider value={menuContext}>
             {header ? header(currentView) : <Menu.Header />}
-            <AnimatedView style={[styles.contentBody, animatedStyle]}>{children}</AnimatedView>
+            <View style={styles.contentBody}>{children}</View>
           </MenuProvider>
         </AnimatedView>
       </BottomSheet>
@@ -284,17 +234,14 @@ export const Menu = {
    * SubContent: Conditionally renders content for a specific view ID with slide animation.
    */
   SubContent: ({ viewId, children, style }: MenuSubContentProps): React.ReactElement | null => {
-    const { currentView, navigationStack } = useMenuContext();
-    const isVisible = currentView === viewId;
-    const wasNavigatedTo = navigationStack.length > 1 && currentView === viewId;
+    const { currentView } = useMenuContext();
 
-    const { animatedStyle } = useSlideAnimation(isVisible, wasNavigatedTo ? 'right' : 'left');
-
-    if (!isVisible) return null;
+    if (currentView !== viewId) return null;
 
     return (
       <AnimatedView
-        style={[styles.subContent, style, animatedStyle]}
+        key={viewId} // Critical for Layout Animations to detect change
+        style={[styles.subContent, style]}
         entering={SlideInRight.duration(300)}
         exiting={SlideOutLeft.duration(200)}>
         {children}
@@ -302,8 +249,8 @@ export const Menu = {
     );
   },
 
-  /**
-   * Item: Enhanced with spring animation on press.
+  /*
+   * Item: Pressable menu item with optional navigation and auto-close behavior.
    */
   Item: ({
     children,
@@ -321,53 +268,34 @@ export const Menu = {
     const scale = useSharedValue(1);
 
     const handlePressIn = (): void => {
-      scale.value = withTiming(0.95, {
-        duration: 100,
-      });
+      scale.value = withTiming(0.95, { duration: 100 });
     };
 
     const handlePressOut = (): void => {
-      scale.value = withTiming(1, {
-        duration: 100,
-      });
+      scale.value = withTiming(1, { duration: 100 });
     };
 
     const handlePress = (): void => {
-      scale.value = withTiming(
-        1.02,
-        {
-          duration: 50,
-        },
-        () => {
-          scale.value = withTiming(1, {
-            duration: 100,
-          });
-        }
-      );
+      scale.value = withTiming(1.02, { duration: 50 }, () => {
+        scale.value = withTiming(1, { duration: 100 });
+      });
 
       if (onPress) {
-        // @ts-ignore
         runOnJS(onPress)(value);
       }
       if (navTo) {
         runOnJS(ctxNavigate)(navTo);
       } else if (autoClose) {
-        runOnJS((fn: () => void) => {
-          fn();
-        })(() => {
-          setTimeout(() => {
-            closeSettings();
-          }, 350);
-        });
+        // Debounce close to show ripple/animation
+        setTimeout(() => {
+          runOnJS(closeSettings)();
+        }, 300);
       }
     };
 
-    const animatedStyle = useAnimatedStyle(
-      () => ({
-        transform: [{ scale: scale.value }],
-      }),
-      [scale]
-    );
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+    }));
 
     const renderChildren = (): ReactNode => {
       if (typeof children === 'string') {
@@ -382,7 +310,6 @@ export const Menu = {
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={[styles.item, { backgroundColor: theme.colors.background }, style, animatedStyle]}
-        entering={FadeIn.delay(100).duration(200)}
         {...props}>
         {renderChildren()}
       </AnimatedPressable>
@@ -390,7 +317,7 @@ export const Menu = {
   },
 
   /**
-   * Label component for section headers.
+   * Label: Non-interactive text label for menu sections.
    */
   Label: ({ children, style, ...props }: MenuLabelProps): React.ReactElement => {
     const { state } = useVideo();
@@ -407,7 +334,7 @@ export const Menu = {
   },
 
   /**
-   * Separator component with fade animation.
+   * Separator: Horizontal line to separate menu sections.
    */
   Separator: ({ style, ...props }: MenuSeparatorProps): React.ReactElement => {
     const { state } = useVideo();
@@ -422,9 +349,10 @@ export const Menu = {
     );
   },
 
-  /**
-   * Group component with staggered children animation.
+  /*
+   * Group: Container for grouping related menu items.
    */
+
   Group: ({ children, style, ...props }: MenuGroupProps): React.ReactElement => {
     return (
       <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
@@ -434,8 +362,9 @@ export const Menu = {
   },
 
   /**
-   * CheckboxItem component with toggle animation.
+   * CheckboxItem: Menu item with a check indicator for boolean selection.
    */
+
   CheckboxItem: ({
     children,
     checked,
@@ -451,17 +380,12 @@ export const Menu = {
     const checkScale = useSharedValue(isChecked ? 1 : 0);
 
     useEffect(() => {
-      checkScale.value = withTiming(isChecked ? 1 : 0, {
-        duration: 150,
-      });
+      checkScale.value = withTiming(isChecked ? 1 : 0, { duration: 150 });
     }, [isChecked, checkScale]);
 
-    const checkAnimatedStyle = useAnimatedStyle(
-      () => ({
-        transform: [{ scale: checkScale.value }],
-      }),
-      [checkScale]
-    );
+    const checkAnimatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: checkScale.value }],
+    }));
 
     const handlePress = (): void => {
       const newChecked = !isChecked;
@@ -472,7 +396,7 @@ export const Menu = {
     };
 
     return (
-      <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} {...props}>
+      <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} autoClose={false} {...props}>
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
           <AnimatedView style={checkAnimatedStyle}>
@@ -485,48 +409,34 @@ export const Menu = {
     );
   },
 
-  /**
-   * Close component: a button to manually close the menu.
+  /*
+   * Close: Button to close the menu.
    */
   Close: ({ children, style, ...props }: MenuCloseProps): React.ReactElement => {
     const { closeSettings } = useMenuContext();
-
     return (
-      <>
-        {children || <BaseIconButton onTap={closeSettings} {...props} IconComponent={Close} style={style} {...props} />}
-      </>
+      <BaseIconButton onTap={closeSettings} IconComponent={Close} style={style} {...props}>
+        {children}
+      </BaseIconButton>
     );
   },
-  /**
-   * Back component: a button to go back in the navigation stack.
+
+  /*
+   * Back: Button to navigate back in the menu stack.
    */
+
   Back: ({ children, style, ...props }: MenuBackProps): React.ReactElement => {
     const { goBack, navigationStack } = useMenuContext();
     const canGoBack = navigationStack.length > 1;
     return (
-      <>
-        {children || (
-          <BaseIconButton
-            onTap={() => goBack()}
-            style={style}
-            disabled={!canGoBack}
-            {...props}
-            IconComponent={ChevronLeft}
-          />
-        )}
-      </>
+      <BaseIconButton onTap={() => goBack()} style={style} disabled={!canGoBack} IconComponent={ChevronLeft} {...props}>
+        {children}
+      </BaseIconButton>
     );
   },
 };
 
 const styles = StyleSheet.create({
-  trigger: {
-    padding: 8,
-    borderRadius: 4,
-  },
-  triggerText: {
-    fontSize: 14,
-  },
   content: {
     padding: 0,
     alignSelf: 'stretch',
@@ -566,17 +476,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginBottom: 4,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1, // Cleaner thin line
+    paddingVertical: 8,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
+    textAlign: 'center', // Centered title usually looks better
     textTransform: 'capitalize',
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
   },
   contentBody: {
     flexShrink: 1,

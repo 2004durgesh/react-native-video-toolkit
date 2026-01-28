@@ -24,13 +24,13 @@ export const Player = () => {
 
 ## Props
 
-| Prop            | Type                   | Default | Description                                                                |
-| --------------- | ---------------------- | ------- | -------------------------------------------------------------------------- |
-| `title`         | `string`               |         | The main title of the video, displayed in the top-left corner.             |
-| `titleStyle`    | `StyleProp<TextStyle>` |         | Custom style for the title text.                                           |
-| `subtitle`      | `string`               |         | A subtitle or secondary text, displayed below the main title.              |
-| `subtitleStyle` | `StyleProp<TextStyle>` |         | Custom style for the subtitle text.                                        |
-| `slots`         | `object`               |         | An object that allows you to render custom components in predefined slots. |
+| Prop            | Type                          | Default | Description                                                                |
+| --------------- | ----------------------------- | ------- | -------------------------------------------------------------------------- |
+| `title`         | `string`                      |         | The main title of the video, displayed in the top-left corner.             |
+| `titleProps`    | `Omit<TitleProps, 'text'>`    |         | Props to pass to the underlying `Title` component (e.g., for styling).     |
+| `subtitle`      | `string`                      |         | A subtitle or secondary text, displayed below the main title.              |
+| `subtitleProps` | `Omit<SubtitleProps, 'text'>` |         | Props to pass to the underlying `Subtitle` component (e.g., for styling).  |
+| `slots`         | `object`                      |         | An object that allows you to render custom components in predefined slots. |
 
 ### Slots
 

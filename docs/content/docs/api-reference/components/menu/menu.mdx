@@ -48,12 +48,15 @@ Button that opens the menu.
 
 Header for the menu, with back/close buttons and a title.
 
-| Prop              | Type        | Default | Required | Description                                |
-| ----------------- | ----------- | ------- | -------- | ------------------------------------------ |
-| `title`           | `string`    | –       | No       | Title of the current view.                 |
-| `showBackButton`  | `boolean`   | `true`  | No       | Show the back button.                      |
-| `showCloseButton` | `boolean`   | `true`  | No       | Show the close button.                     |
-| `...props`        | `ViewProps` | –       | No       | Additional props for the header container. |
+| Prop              | Type                   | Default | Required | Description                                 |
+| ----------------- | ---------------------- | ------- | -------- | ------------------------------------------- |
+| `title`           | `string`               | –       | No       | Title of the current view.                  |
+| `showBackButton`  | `boolean`              | `true`  | No       | Show the back button.                       |
+| `showCloseButton` | `boolean`              | `true`  | No       | Show the close button.                      |
+| `style`           | `StyleProp<ViewStyle>` | –       | No       | Custom style for the header container.      |
+| `titleStyle`      | `StyleProp<TextStyle>` | –       | No       | Custom style for the title text.            |
+| `children`        | `ReactNode`            | -       | No       | Custom content to render inside the header. |
+| `...props`        | `ViewProps`            | –       | No       | Additional props for the header container.  |
 
 ---
 
@@ -61,11 +64,11 @@ Header for the menu, with back/close buttons and a title.
 
 The `BottomSheet` wrapper for menu views.
 
-| Prop         | Type                                 | Default | Required | Description                      |
-| ------------ | ------------------------------------ | ------- | -------- | -------------------------------- |
-| `children`   | `ReactNode`                          |         | Yes      | Nested `Menu.SubContent` blocks. |
-| `header`     | `(currentView: string) => ReactNode` |         | No       | Optional custom header renderer. |
-| `sheetStyle` | `ViewStyle`                          |         | No       | Custom style for the sheet body. |
+| Prop       | Type                                 | Default | Required | Description                                       |
+| ---------- | ------------------------------------ | ------- | -------- | ------------------------------------------------- |
+| `children` | `ReactNode`                          |         | Yes      | Nested `Menu.SubContent` blocks.                  |
+| `header`   | `(currentView: string) => ReactNode` |         | No       | Optional custom header renderer.                  |
+| `...props` | `BottomSheetProps`                   | -       | No       | All other props from the `BottomSheet` component. |
 
 ---
 
@@ -74,10 +77,11 @@ The `BottomSheet` wrapper for menu views.
 Renders content for a specific `viewId`.
 Only visible when `currentView` matches.
 
-| Prop       | Type        | Required | Description                           |
-| ---------- | ----------- | -------- | ------------------------------------- |
-| `viewId`   | `string`    | Yes      | ID to match against navigation stack. |
-| `children` | `ReactNode` | Yes      | Sub-menu items.                       |
+| Prop       | Type                   | Required | Description                           |
+| ---------- | ---------------------- | -------- | ------------------------------------- |
+| `viewId`   | `string`               | Yes      | ID to match against navigation stack. |
+| `children` | `ReactNode`            | Yes      | Sub-menu items.                       |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the content view.    |
 
 ---
 
@@ -85,13 +89,16 @@ Only visible when `currentView` matches.
 
 Basic clickable row. Can either close the menu or navigate to a sub-view.
 
-| Prop         | Type                    | Default | Required | Description                                                             |
-| ------------ | ----------------------- | ------- | -------- | ----------------------------------------------------------------------- |
-| `onPress`    | `(value?: any) => void` | –       | No       | Action when pressed.                                                    |
-| `navigateTo` | `string`                | –       | No       | If set, navigates to this sub-view.                                     |
-| `autoClose`  | `boolean`               | `true`  | No       | If true, closes menu after press (ignored if `navigateTo` is provided). |
-| `disabled`   | `boolean`               | `false` | No       | Disables interaction.                                                   |
-| `value`      | `any`                   | –       | No       | Optional value passed to `onPress`.                                     |
+| Prop         | Type                       | Default | Required | Description                                                             |
+| ------------ | -------------------------- | ------- | -------- | ----------------------------------------------------------------------- |
+| `onPress`    | `(value?: string) => void` | –       | No       | Action when pressed.                                                    |
+| `navigateTo` | `string`                   | –       | No       | If set, navigates to this sub-view.                                     |
+| `autoClose`  | `boolean`                  | `true`  | No       | If true, closes menu after press (ignored if `navigateTo` is provided). |
+| `disabled`   | `boolean`                  | `false` | No       | Disables interaction.                                                   |
+| `value`      | `string`                   | –       | No       | Optional value passed to `onPress`.                                     |
+| `style`      | `StyleProp<ViewStyle>`     | –       | No       | Custom style for the item container.                                    |
+| `textStyle`  | `StyleProp<TextStyle>`     | –       | No       | Custom style for the item text (if children is a string).               |
+| `children`   | `ReactNode`                | Yes     | –        | The content of the item.                                                |
 
 ---
 
@@ -99,9 +106,11 @@ Basic clickable row. Can either close the menu or navigate to a sub-view.
 
 Non-interactive label for section headers.
 
-| Prop       | Type        | Required | Description     |
-| ---------- | ----------- | -------- | --------------- |
-| `children` | `ReactNode` | Yes      | The label text. |
+| Prop       | Type                   | Required | Description                                             |
+| ---------- | ---------------------- | -------- | ------------------------------------------------------- |
+| `children` | `ReactNode`            | Yes      | The label text.                                         |
+| `style`    | `StyleProp<TextStyle>` | No       | Custom style for the text.                              |
+| `...props` | `TextProps`            | No       | All other props from the React Native `Text` component. |
 
 ---
 
@@ -109,9 +118,10 @@ Non-interactive label for section headers.
 
 Divider line between items.
 
-| Prop    | Type        | Required | Description                |
-| ------- | ----------- | -------- | -------------------------- |
-| `style` | `ViewStyle` | No       | Custom style for the line. |
+| Prop       | Type                   | Required | Description                                             |
+| ---------- | ---------------------- | -------- | ------------------------------------------------------- |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the line.                              |
+| `...props` | `ViewProps`            | No       | All other props from the React Native `View` component. |
 
 ---
 
@@ -119,9 +129,11 @@ Divider line between items.
 
 Simple wrapper for grouping related items.
 
-| Prop       | Type        | Required | Description         |
-| ---------- | ----------- | -------- | ------------------- |
-| `children` | `ReactNode` | Yes      | The items to group. |
+| Prop       | Type                   | Required | Description                                             |
+| ---------- | ---------------------- | -------- | ------------------------------------------------------- |
+| `children` | `ReactNode`            | Yes      | The items to group.                                     |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the group container.                   |
+| `...props` | `ViewProps`            | No       | All other props from the React Native `View` component. |
 
 ---
 
@@ -129,10 +141,11 @@ Simple wrapper for grouping related items.
 
 Toggleable option with a check indicator.
 
-| Prop              | Type                         | Default | Required | Description               |
-| ----------------- | ---------------------------- | ------- | -------- | ------------------------- |
-| `checked`         | `boolean`                    |         | No       | Controlled checked state. |
-| `onCheckedChange` | `(checked: boolean) => void` |         | No       | Called when toggled.      |
+| Prop              | Type                         | Default | Required | Description                                                   |
+| ----------------- | ---------------------------- | ------- | -------- | ------------------------------------------------------------- |
+| `checked`         | `boolean`                    |         | No       | Controlled checked state.                                     |
+| `onCheckedChange` | `(checked: boolean) => void` |         | No       | Called when toggled.                                          |
+| `...props`        | `MenuItemProps`              | -       | No       | All other props from the `Menu.Item` component are supported. |
 
 If `checked` is not provided, it manages its own state.
 
@@ -142,9 +155,11 @@ If `checked` is not provided, it manages its own state.
 
 Button that closes the menu manually.
 
-| Prop       | Type             | Required | Description                      |
-| ---------- | ---------------- | -------- | -------------------------------- |
-| `...props` | `PressableProps` | No       | Props passed to the `Pressable`. |
+| Prop       | Type                   | Required | Description                                                      |
+| ---------- | ---------------------- | -------- | ---------------------------------------------------------------- |
+| `children` | `ReactNode`            | No       | Custom content to render inside the button. Defaults to an icon. |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                     |
+| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component.     |
 
 ---
 
@@ -152,9 +167,11 @@ Button that closes the menu manually.
 
 Button that navigates back in the menu stack.
 
-| Prop       | Type             | Required | Description                      |
-| ---------- | ---------------- | -------- | -------------------------------- |
-| `...props` | `PressableProps` | No       | Props passed to the `Pressable`. |
+| Prop       | Type                   | Required | Description                                                      |
+| ---------- | ---------------------- | -------- | ---------------------------------------------------------------- |
+| `children` | `ReactNode`            | No       | Custom content to render inside the button. Defaults to an icon. |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                     |
+| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component.     |
 
 ---
 
