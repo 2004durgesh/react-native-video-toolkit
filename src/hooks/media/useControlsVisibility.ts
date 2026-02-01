@@ -28,17 +28,28 @@ export const useControlsVisibility = (): UseControlsVisibilityReturn => {
   const { state, dispatch } = useVideo();
   const { controlsVisible, config, isPlaying, hideTimeoutRef } = state;
   const isMountedRef = useRef(true);
+  const hideTimeoutRefLocal = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Store callbacks in refs to avoid dependency issues with React Compiler
+  const onHideControlsRef = useRef(config.onHideControls);
+  const onShowControlsRef = useRef(config.onShowControls);
+
+  // Keep refs in sync with latest config values
+  useEffect(() => {
+    onHideControlsRef.current = config.onHideControls;
+    onShowControlsRef.current = config.onShowControls;
+  }, [config.onHideControls, config.onShowControls]);
 
   // Cleanup on unmount to prevent memory leaks
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
-      if (hideTimeoutRef) {
-        clearTimeout(hideTimeoutRef);
+      if (hideTimeoutRefLocal.current) {
+        clearTimeout(hideTimeoutRefLocal.current);
       }
     };
-  }, [hideTimeoutRef]);
+  }, []);
 
   /**
    * Hides the video controls.
@@ -46,8 +57,8 @@ export const useControlsVisibility = (): UseControlsVisibilityReturn => {
   const hideControls = useCallback(() => {
     if (!isMountedRef.current) return;
     dispatch({ type: 'HIDE_CONTROLS' });
-    state.config.onHideControls?.();
-  }, [dispatch, state.config]);
+    onHideControlsRef.current?.();
+  }, [dispatch]);
 
   /**
    * Shows the video controls.
@@ -55,8 +66,8 @@ export const useControlsVisibility = (): UseControlsVisibilityReturn => {
   const showControls = useCallback(() => {
     if (!isMountedRef.current) return;
 
-    if (hideTimeoutRef) {
-      clearTimeout(hideTimeoutRef);
+    if (hideTimeoutRefLocal.current) {
+      clearTimeout(hideTimeoutRefLocal.current);
     }
 
     dispatch({ type: 'SHOW_CONTROLS' });
@@ -64,13 +75,15 @@ export const useControlsVisibility = (): UseControlsVisibilityReturn => {
     if (config.autoHideControls && isPlaying) {
       const newTimeout = setTimeout(() => {
         if (isMountedRef.current) {
-          hideControls();
+          dispatch({ type: 'HIDE_CONTROLS' });
+          onHideControlsRef.current?.();
         }
       }, config.autoHideDelay);
+      hideTimeoutRefLocal.current = newTimeout;
       dispatch({ type: 'SET_HIDE_TIMEOUT', payload: newTimeout as unknown as NodeJS.Timeout });
     }
-    state.config.onShowControls?.();
-  }, [hideTimeoutRef, config, isPlaying, dispatch, hideControls, state.config]);
+    onShowControlsRef.current?.();
+  }, [config.autoHideControls, config.autoHideDelay, isPlaying, dispatch]);
 
   /**
    * Toggles the visibility of the video controls.

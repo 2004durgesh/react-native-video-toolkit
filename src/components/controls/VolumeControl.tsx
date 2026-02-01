@@ -1,9 +1,8 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVolume } from '../../hooks';
 import { useVideo } from '../../providers';
-import { useSharedValue } from 'react-native-reanimated';
+import { useSharedValue, useDerivedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
-import { useEffect } from 'react';
 
 export interface VolumeControlProps {
   orientation?: 'horizontal' | 'vertical';
@@ -44,14 +43,10 @@ export const VolumeControl = ({
   };
 
   // Shared values for the slider (0-1 scale to match volume state)
-  const progress = useSharedValue(volume);
+  const progress = useDerivedValue(() => volume);
   const min = useSharedValue(0);
   const max = useSharedValue(1);
 
-  // Sync shared value when volume changes externally
-  useEffect(() => {
-    progress.value = volume;
-  }, [volume, progress]);
   return (
     <View style={style}>
       <Slider

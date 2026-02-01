@@ -1,0 +1,28 @@
+---
+title: BaseButton
+description: A foundational component for creating interactive buttons.
+---
+
+import { BaseButtonExample } from '@/components/examples/base-button-example';
+
+### Usage
+
+<CodePreviewTabs preview={<BaseButtonExample />}>
+
+```json doc-gen:file
+{
+  "file": "./src/components/examples/base-button-example.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
+```
+
+</CodePreviewTabs>
+
+### Props
+
+| Prop       | Type              | Default    | Description                               |
+| ---------- | ----------------- | ---------- | ----------------------------------------- |
+| `children` | `React.ReactNode` | `required` | The content to render inside the button.  |
+| `onTap`    | `() => void`      | `required` | Callback fired when the button is tapped. |

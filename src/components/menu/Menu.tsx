@@ -412,26 +412,26 @@ export const Menu = {
   /*
    * Close: Button to close the menu.
    */
-  Close: ({ children, style, ...props }: MenuCloseProps): React.ReactElement => {
+  Close: ({ style, ...props }: MenuCloseProps): React.ReactElement => {
     const { closeSettings } = useMenuContext();
-    return (
-      <BaseIconButton onTap={closeSettings} IconComponent={Close} style={style} {...props}>
-        {children}
-      </BaseIconButton>
-    );
+    return <BaseIconButton onTap={closeSettings} IconComponent={Close} style={style} {...props} />;
   },
 
   /*
    * Back: Button to navigate back in the menu stack.
    */
 
-  Back: ({ children, style, ...props }: MenuBackProps): React.ReactElement => {
+  Back: ({ style, ...props }: MenuBackProps): React.ReactElement => {
     const { goBack, navigationStack } = useMenuContext();
     const canGoBack = navigationStack.length > 1;
     return (
-      <BaseIconButton onTap={() => goBack()} style={style} disabled={!canGoBack} IconComponent={ChevronLeft} {...props}>
-        {children}
-      </BaseIconButton>
+      <BaseIconButton
+        onTap={() => goBack()}
+        style={style}
+        disabled={!canGoBack}
+        IconComponent={ChevronLeft}
+        {...props}
+      />
     );
   },
 };

@@ -125,13 +125,19 @@ export const BottomSheet: FC<BottomSheetProps> = ({
       }
     });
 
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
+  const sheetAnimatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ translateY: translateY.value }],
+    }),
+    [translateY]
+  );
 
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateY.value, [0, SHEET_HEIGHT], [1, 0], Extrapolation.CLAMP),
-  }));
+  const backdropAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: interpolate(translateY.value, [0, SHEET_HEIGHT], [1, 0], Extrapolation.CLAMP),
+    }),
+    [translateY, SHEET_HEIGHT]
+  );
   const platformStyles = useMemo(() => {
     const isTV = PlatformUtils.isTV();
     const isTablet = PlatformUtils.isTablet();

@@ -1,9 +1,8 @@
 import { View, StyleSheet, type ViewStyle, type StyleProp } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
+import { useSharedValue, useDerivedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
 import { useProgress, useControlsVisibility } from '../../hooks';
 import { useVideo } from '../../providers';
-import { useEffect } from 'react';
 import { hexToRgba } from '../../utils';
 
 export interface ProgressBarProps {
@@ -38,22 +37,11 @@ export const ProgressBar = ({
     state: { theme },
   } = useVideo();
 
-  // Shared values for the slider
-  const progress = useSharedValue(currentTime);
+  // Shared values for the slider - use useDerivedValue to react to changes
+  const progress = useDerivedValue(() => currentTime);
   const min = useSharedValue(0);
-  const max = useSharedValue(duration);
-  const cache = useSharedValue(playableDuration);
-  useEffect(() => {
-    progress.value = currentTime;
-  }, [currentTime, progress]);
-
-  useEffect(() => {
-    cache.value = playableDuration;
-  }, [playableDuration, cache]);
-
-  useEffect(() => {
-    max.value = duration;
-  }, [duration, max]);
+  const max = useDerivedValue(() => duration);
+  const cache = useDerivedValue(() => playableDuration);
 
   const handleSlidingStart = () => {
     showControls();

@@ -1,4 +1,4 @@
 {
   "title": "Common",
-  "pages": ["base-icon-button", "bottom-sheet"]
+  "pages": ["base-button", "base-icon-button", "bottom-sheet"]
 }
