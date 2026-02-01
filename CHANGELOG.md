@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.7.1 (2026-02-01)</small>
+
+* refactor(components): extract basebutton and improve react compiler compatibility ([d552276](https://github.com/2004durgesh/react-native-video-toolkit/commit/d552276))
+
 ## 0.7.0 (2026-01-28)
 
 * feat(ui): upgrade layout, menu animations and icon styles ([fd72085](https://github.com/2004durgesh/react-native-video-toolkit/commit/fd72085))
