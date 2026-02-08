@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.7.2 (2026-02-08)</small>
+
+* refactor: enhance time formatting logic to handle invalid inputs and support hours ([b504a3e](https://github.com/2004durgesh/react-native-video-toolkit/commit/b504a3e))
+
 ## <small>0.7.1 (2026-02-01)</small>
 
 * refactor(components): extract basebutton and improve react compiler compatibility ([d552276](https://github.com/2004durgesh/react-native-video-toolkit/commit/d552276))
