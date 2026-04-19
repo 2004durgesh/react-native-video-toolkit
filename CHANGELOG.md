@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.8.2 (2026-04-19)</small>
+
+* Fix muted playback by guarding audio track selection and honoring iOS silent switch behavior (#1) ([c99e80f](https://github.com/2004durgesh/react-native-video-toolkit/commit/c99e80f)), closes [#1](https://github.com/2004durgesh/react-native-video-toolkit/issues/1)
+
 ## 0.8.0 (2026-04-19)
 
 * feat: refactor baseiconbutton to support optional icon prop and remove bottomsheet component ([945841c](https://github.com/2004durgesh/react-native-video-toolkit/commit/945841c))
