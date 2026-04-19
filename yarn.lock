@@ -5530,6 +5530,96 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rn-primitives/hooks@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@rn-primitives/hooks@npm:1.4.0"
+  dependencies:
+    "@rn-primitives/types": 1.4.0
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 24aeb907c04dc21c8e54735f8ff441af6c1d9a3068416c1ec32a6067e228e71efec1702736e1c7fb20dc9d0dbe27c354133870318e1c42b37b4cfd8225c997f5
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/popover@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@rn-primitives/popover@npm:1.4.0"
+  dependencies:
+    "@radix-ui/react-popover": ^1.1.15
+    "@rn-primitives/hooks": 1.4.0
+    "@rn-primitives/slot": 1.4.0
+    "@rn-primitives/types": 1.4.0
+  peerDependencies:
+    "@rn-primitives/portal": "*"
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 73541b32b204bec166e5f4b0867a5b108ce5116ca712f60387b9cfef0287cc69b6e59307d2a7e7c12422220c9520112282686cfcb6d31d68eb710026dd4cd014
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/portal@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@rn-primitives/portal@npm:1.4.0"
+  dependencies:
+    zustand: ^5.0.4
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 1fa036b8e54953d6d6aa5ef830ebc776631a2935c224fcf67fbdab0694902b699c3907a25ffb6e1ad73250b72da5babf41609840bb072757a450c0ccc6af1f45
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/slot@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@rn-primitives/slot@npm:1.4.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 528fec68cc327cda5238d36d0f6dedf6846c64738967e0c2f98c6ac3be37386b414ac7618a4a03b8203e9b37aaa94e14ccb30baf7f5bcb92e1e9a656a85a8c20
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/types@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@rn-primitives/types@npm:1.4.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 41b3d24205c66dced726bf18f33f78a3db477c180c0b134f3320630dca072a373cbddf66be9f0243aea87fc5ad89708fbe33e712a4261c3a2329ab75517bad0c
+  languageName: node
+  linkType: hard
+
 "@rtsao/scc@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rtsao/scc@npm:1.1.0"
@@ -9031,11 +9121,12 @@ __metadata:
     react-native: 0.79.5
     react-native-awesome-slider: ^2.7.1
     react-native-gesture-handler: ^2.28.0
-    react-native-reanimated: ^3.17.0
+    react-native-reanimated: ~4.1.1
     react-native-svg: ^15.12.1
     react-native-video: ^6.16.1
     react-native-video-toolkit: "workspace:*"
     react-native-web: ^0.21.1
+    react-native-worklets: ^0.6.1
     tailwind-merge: ^3.3.1
     tailwindcss: ^4.1.13
     tailwindcss-animate: ^1.0.7
@@ -17303,16 +17394,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-is-edge-to-edge@npm:1.1.7":
-  version: 1.1.7
-  resolution: "react-native-is-edge-to-edge@npm:1.1.7"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 4cdf2b2fb5b131f2015c26d2cb7688b4a0c5f3c8474b1bf0ddfa9eabb0263df440c87262ae8f812a6ecab0d5310df0373bddad4b51f53dabb2ffee01e9ef0f44
-  languageName: node
-  linkType: hard
-
 "react-native-is-edge-to-edge@npm:^1.1.6, react-native-is-edge-to-edge@npm:^1.2.1":
   version: 1.2.1
   resolution: "react-native-is-edge-to-edge@npm:1.2.1"
@@ -17346,54 +17427,6 @@ __metadata:
     expo:
       optional: true
   checksum: 55e8979f4215765c7904babfbdc4fa054580d29482aefba788302e6e349922a15475156ac482f21329b696381a9f1a0fb26bd5da69ae4f17ab0f131e2abb18e9
-  languageName: node
-  linkType: hard
-
-"react-native-reanimated@npm:3.17.4":
-  version: 3.17.4
-  resolution: "react-native-reanimated@npm:3.17.4"
-  dependencies:
-    "@babel/plugin-transform-arrow-functions": ^7.0.0-0
-    "@babel/plugin-transform-class-properties": ^7.0.0-0
-    "@babel/plugin-transform-classes": ^7.0.0-0
-    "@babel/plugin-transform-nullish-coalescing-operator": ^7.0.0-0
-    "@babel/plugin-transform-optional-chaining": ^7.0.0-0
-    "@babel/plugin-transform-shorthand-properties": ^7.0.0-0
-    "@babel/plugin-transform-template-literals": ^7.0.0-0
-    "@babel/plugin-transform-unicode-regex": ^7.0.0-0
-    "@babel/preset-typescript": ^7.16.7
-    convert-source-map: ^2.0.0
-    invariant: ^2.2.4
-    react-native-is-edge-to-edge: 1.1.7
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-    react: "*"
-    react-native: "*"
-  checksum: 8c812466c3a1d7d3576365f16c62183efd9651ae769849a40240a3f674131960e2380c8536232563dd0935a607696eb373abcece899ce4152bfdd711778e7cd7
-  languageName: node
-  linkType: hard
-
-"react-native-reanimated@npm:^3.17.0":
-  version: 3.19.5
-  resolution: "react-native-reanimated@npm:3.19.5"
-  dependencies:
-    "@babel/plugin-transform-arrow-functions": ^7.0.0-0
-    "@babel/plugin-transform-class-properties": ^7.0.0-0
-    "@babel/plugin-transform-classes": ^7.0.0-0
-    "@babel/plugin-transform-nullish-coalescing-operator": ^7.0.0-0
-    "@babel/plugin-transform-optional-chaining": ^7.0.0-0
-    "@babel/plugin-transform-shorthand-properties": ^7.0.0-0
-    "@babel/plugin-transform-template-literals": ^7.0.0-0
-    "@babel/plugin-transform-unicode-regex": ^7.0.0-0
-    "@babel/preset-typescript": ^7.16.7
-    convert-source-map: ^2.0.0
-    invariant: ^2.2.4
-    react-native-is-edge-to-edge: 1.1.7
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-    react: "*"
-    react-native: "*"
-  checksum: d3e5e38c23bd0f86e19110c1e16353a3b58166cb3a13ec1b600b5bbe287d8c57ab199023231b7960fd11b5c605f2a78428d7b80f28818e74eaecde1360dec4f6
   languageName: node
   linkType: hard
 
@@ -17504,6 +17537,8 @@ __metadata:
     "@react-native-community/cli": latest
     "@react-native/eslint-config": ^0.73.1
     "@release-it/conventional-changelog": ^9.0.2
+    "@rn-primitives/popover": ^1.4.0
+    "@rn-primitives/portal": ^1.4.0
     "@types/jest": ^29.5.5
     "@types/react": ^19.0.0
     "@types/react-native-material-ripple": ^0.9.6
@@ -17525,10 +17560,11 @@ __metadata:
     react-native-gesture-handler: 2.24.0
     react-native-material-ripple: ^0.9.1
     react-native-orientation-director: ^2.6.1
-    react-native-reanimated: 3.17.4
+    react-native-reanimated: ~4.1.1
     react-native-svg: ^15.12.1
     react-native-video: 6.14.0
     react-native-web: ^0.21.1
+    react-native-worklets: ^0.6.1
     release-it: latest
     turbo: ^1.10.7
     typescript: ^5.8.3
@@ -17540,6 +17576,7 @@ __metadata:
     react-native-reanimated: ">=3.0.0"
     react-native-svg: ">=15.0.0"
     react-native-video: ">=6.0.0"
+    react-native-worklets: ">=0.6.0"
   languageName: unknown
   linkType: soft
 
@@ -21120,6 +21157,27 @@ __metadata:
   version: 4.3.5
   resolution: "zod@npm:4.3.5"
   checksum: 68691183a91c67c4102db20139f3b5af288c59b4b11eb2239d712aae99dc6c1cecaeebcb0c012b44489771be05fecba21e79f65af4b3163b220239ef0af3ec49
+  languageName: node
+  linkType: hard
+
+"zustand@npm:^5.0.4":
+  version: 5.0.12
+  resolution: "zustand@npm:5.0.12"
+  peerDependencies:
+    "@types/react": ">=18.0.0"
+    immer: ">=9.0.6"
+    react: ">=18.0.0"
+    use-sync-external-store: ">=1.2.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    immer:
+      optional: true
+    react:
+      optional: true
+    use-sync-external-store:
+      optional: true
+  checksum: bf856f2d86912d46439b6e32004b32b77518af49dc23fdc1998457777d860183e0a677498731b61f3d38717b62283e08dd38d1fc3714385e84ba87ef9f5aa4c6
   languageName: node
   linkType: hard
 

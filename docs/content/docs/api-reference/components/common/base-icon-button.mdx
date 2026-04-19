@@ -22,9 +22,11 @@ import { BaseIconButtonExample } from '@/components/examples/base-icon-button-ex
 
 ### Props
 
-| Prop            | Type                | Default              | Description                                     |
-| --------------- | ------------------- | -------------------- | ----------------------------------------------- |
-| `IconComponent` | `React.ElementType` | `required`           | The icon component to render.                   |
-| `size`          | `number`            | `theme.iconSizes.md` | The size of the icon.                           |
-| `color`         | `string`            | `theme.colors.text`  | The color of the icon.                          |
-| `onTap`         | `() => void`        | `required`           | The function to call when the button is tapped. |
+| Prop            | Type                   | Default              | Description                                                          |
+| --------------- | ---------------------- | -------------------- | -------------------------------------------------------------------- |
+| `IconComponent` | `React.ElementType`    | `undefined`          | The icon component to render (automatically themed with size/color). |
+| `icon`          | `ReactNode`            | `undefined`          | A pre-rendered icon element (e.g. from external icon libraries).     |
+| `size`          | `number`               | `theme.iconSizes.md` | The size of the icon (applied to `IconComponent`).                   |
+| `color`         | `string`               | `theme.colors.text`  | The color of the icon (applied to `IconComponent`).                  |
+| `onTap`         | `() => void`           | `required`           | The function to call when the button is tapped.                      |
+| `style`         | `StyleProp<ViewStyle>` | `undefined`          | Optional custom styles for the icon container.                       |

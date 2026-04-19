@@ -11,18 +11,18 @@ import {
   type TextProps,
   type StyleProp,
 } from 'react-native';
-import { BaseIconButton, BottomSheet, type BottomSheetProps } from '../common';
+import { BaseIconButton, PopoverContent } from '../common';
 import { useVideo } from '../../providers';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
   FadeIn,
   FadeOut,
   SlideInRight,
   SlideOutLeft,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { useSettings } from '../../hooks';
 import { SettingsButton, type SettingsButtonProps } from '../controls';
 import { ChevronLeft, Close } from '../svgs';
@@ -44,10 +44,11 @@ interface MenuRootProps {
   initialView?: string;
 }
 
-interface MenuContentProps extends Partial<BottomSheetProps> {
+interface MenuContentProps {
   children: ReactNode;
   sheetStyle?: StyleProp<ViewStyle>;
   header?: (currentView: string) => ReactNode;
+  portalHost?: string;
 }
 
 interface MenuSubContentProps {
@@ -205,20 +206,29 @@ export const Menu = {
   },
 
   /**
-   * Content wrapper for the BottomSheet with enhanced animations.
+   * Content wrapper using PopoverContent with enhanced animations.
    */
-  Content: ({ children, sheetStyle, header, ...props }: MenuContentProps): React.ReactElement => {
+  Content: ({ children, sheetStyle, header, portalHost }: MenuContentProps): React.ReactElement => {
     const { isSettingsMenuVisible, closeSettings, currentView } = useMenuContext();
     const menuContext = useMenuContext();
     const { state } = useVideo();
-    const { theme } = state;
+    const { theme, portalHostName } = state;
 
-    // We pass the context value down again because the Portal might break context in some architectures,
-    // though BottomSheet typically handles this. It's safe to keep.
     return (
-      <BottomSheet visible={isSettingsMenuVisible} onClose={closeSettings} {...props}>
+      <PopoverContent
+        visible={isSettingsMenuVisible}
+        onClose={closeSettings}
+        portalHost={portalHost || portalHostName}
+        style={[
+          styles.popoverContent,
+          {
+            backgroundColor: theme.colors.background,
+            borderColor: theme.colors.border || '#333',
+          },
+          sheetStyle,
+        ]}>
         <AnimatedView
-          style={[styles.content, { backgroundColor: theme.colors.background }, sheetStyle]}
+          style={[styles.content, { backgroundColor: theme.colors.background }]}
           entering={FadeIn.duration(300)}
           exiting={FadeOut.duration(200)}>
           <MenuProvider value={menuContext}>
@@ -226,7 +236,7 @@ export const Menu = {
             <View style={styles.contentBody}>{children}</View>
           </MenuProvider>
         </AnimatedView>
-      </BottomSheet>
+      </PopoverContent>
     );
   },
 
@@ -240,7 +250,7 @@ export const Menu = {
 
     return (
       <AnimatedView
-        key={viewId} // Critical for Layout Animations to detect change
+        key={viewId}
         style={[styles.subContent, style]}
         entering={SlideInRight.duration(300)}
         exiting={SlideOutLeft.duration(200)}>
@@ -281,14 +291,13 @@ export const Menu = {
       });
 
       if (onPress) {
-        runOnJS(onPress)(value);
+        scheduleOnRN(onPress, value);
       }
       if (navTo) {
-        runOnJS(ctxNavigate)(navTo);
+        scheduleOnRN(ctxNavigate, navTo);
       } else if (autoClose) {
-        // Debounce close to show ripple/animation
         setTimeout(() => {
-          runOnJS(closeSettings)();
+          scheduleOnRN(closeSettings);
         }, 300);
       }
     };
@@ -352,7 +361,6 @@ export const Menu = {
   /*
    * Group: Container for grouping related menu items.
    */
-
   Group: ({ children, style, ...props }: MenuGroupProps): React.ReactElement => {
     return (
       <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
@@ -364,7 +372,6 @@ export const Menu = {
   /**
    * CheckboxItem: Menu item with a check indicator for boolean selection.
    */
-
   CheckboxItem: ({
     children,
     checked,
@@ -420,7 +427,6 @@ export const Menu = {
   /*
    * Back: Button to navigate back in the menu stack.
    */
-
   Back: ({ style, ...props }: MenuBackProps): React.ReactElement => {
     const { goBack, navigationStack } = useMenuContext();
     const canGoBack = navigationStack.length > 1;
@@ -437,6 +443,12 @@ export const Menu = {
 };
 
 const styles = StyleSheet.create({
+  popoverContent: {
+    width: 288,
+    maxHeight: 400,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
   content: {
     padding: 0,
     alignSelf: 'stretch',
@@ -476,14 +488,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginBottom: 4,
-    borderBottomWidth: 1, // Cleaner thin line
+    borderBottomWidth: 1,
     paddingVertical: 8,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
-    textAlign: 'center', // Centered title usually looks better
+    textAlign: 'center',
     textTransform: 'capitalize',
   },
   contentBody: {

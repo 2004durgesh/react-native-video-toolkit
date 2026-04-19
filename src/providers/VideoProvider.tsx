@@ -4,7 +4,7 @@ import { defaultTheme } from '../themes';
 import { type LayoutRectangle, Dimensions } from 'react-native';
 import { ThemeProvider } from './ThemeProvider';
 import { SettingsProvider } from './SettingsProvider';
-import { PortalHost, PortalProvider } from './PortalProvider';
+import { PortalHost } from '@rn-primitives/portal';
 import type { VideoRef } from 'react-native-video';
 /**
  * Default configuration for the video player.
@@ -60,6 +60,10 @@ interface VideoProviderState extends VideoState {
    * The dimensions of the screen.
    */
   dimensions: { width: number; height: number };
+  /**
+   * A unique identifier for the portal host associated with this provider.
+   */
+  portalHostName: string;
 }
 
 /**
@@ -112,6 +116,7 @@ const initialState: VideoProviderState = {
   videoLayout: { x: 0, y: 0, width: 0, height: 0 },
   videoWrapperLayout: { x: 0, y: 0, width: 0, height: 0 },
   dimensions: { width: Dimensions.get('window').width, height: Dimensions.get('window').height },
+  portalHostName: 'default-portal-host',
 };
 
 /**
@@ -203,7 +208,8 @@ export const VideoProvider: React.FC<{
    */
   theme?: Partial<Theme>;
 }> = ({ children, config, theme }) => {
-  const [state, dispatch] = useReducer(videoReducer, initialState);
+  const [portalId] = React.useState(() => `video-portal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  const [state, dispatch] = useReducer(videoReducer, { ...initialState, portalHostName: portalId });
 
   // Memoize config and theme to prevent infinite re-renders if passed as inline objects
   const memoizedConfig = useMemo(() => config, [config]);
@@ -214,16 +220,14 @@ export const VideoProvider: React.FC<{
   }, [memoizedConfig, memoizedTheme]);
 
   return (
-    <PortalProvider>
-      <VideoContext.Provider value={{ state, dispatch }}>
-        <ThemeProvider theme={state.theme}>
-          <SettingsProvider>
-            {children}
-            <PortalHost />
-          </SettingsProvider>
-        </ThemeProvider>
-      </VideoContext.Provider>
-    </PortalProvider>
+    <VideoContext.Provider value={{ state, dispatch }}>
+      <ThemeProvider theme={state.theme}>
+        <SettingsProvider>
+          {children}
+          <PortalHost name={state.portalHostName} />
+        </SettingsProvider>
+      </ThemeProvider>
+    </VideoContext.Provider>
   );
 };
 

@@ -1,4 +1,4 @@
 {
   "title": "Providers",
-  "pages": ["video-provider", "theme-provider", "settings-provider", "portal-provider"]
+  "pages": ["video-provider", "theme-provider", "settings-provider"]
 }

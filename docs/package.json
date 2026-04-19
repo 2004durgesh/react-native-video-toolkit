@@ -31,11 +31,12 @@
     "react-native": "0.79.5",
     "react-native-awesome-slider": "^2.7.1",
     "react-native-gesture-handler": "^2.28.0",
-    "react-native-reanimated": "^3.17.0",
+    "react-native-reanimated": "~4.1.1",
     "react-native-svg": "^15.12.1",
     "react-native-video": "^6.16.1",
     "react-native-video-toolkit": "workspace:*",
     "react-native-web": "^0.21.1",
+    "react-native-worklets": "^0.6.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7"
   },

@@ -5,7 +5,7 @@ import {
   type GestureTouchEvent,
   type LongPressGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import type { UseLongPressGestureProps } from '../../types';
 import { usePlaybackRate } from '../media';
 
@@ -67,11 +67,11 @@ export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd }: UseLon
       Gesture.LongPress()
         .onTouchesDown((event) => {
           'worklet';
-          runOnJS(startLongPress)(event);
+          scheduleOnRN(startLongPress, event);
         })
         .onFinalize((event) => {
           'worklet';
-          runOnJS(endLongPress)(event);
+          scheduleOnRN(endLongPress, event);
         }),
     [startLongPress, endLongPress]
   );

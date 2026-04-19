@@ -1,16 +1,15 @@
 import { useDoubleTapGesture, useLongPressGesture, usePanGesture, useSingleTapGesture } from '../hooks';
-import React, { type FC } from 'react';
+import React, { type FC, type ReactNode } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture, type ComposedGesture, type TapGesture } from 'react-native-gesture-handler';
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { useVideo } from '../providers';
-import type { Component } from 'react';
 import type { GestureHandlerProps } from '../types';
 
 /**
  * A component that displays the seek time text.
  */
-export const SeekText: FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SeekText: FC<{ children: ReactNode }> = ({ children }) => {
   return <Text style={styles.seekText}>{children}</Text>;
 };
 
@@ -18,14 +17,14 @@ export const SeekText: FC<{ children: React.ReactNode }> = ({ children }) => {
  * A component that displays an overlayed view.
  */
 export const OverlayedView = React.forwardRef<
-  Component,
+  any,
   {
-    children: React.ReactNode;
+    children: ReactNode;
     style: StyleProp<ViewStyle>;
   }
 >(({ children, style }, ref) => {
   return (
-    <Animated.View ref={ref} style={[styles.overlayedView, style]}>
+    <Animated.View ref={ref as any} style={[styles.overlayedView, style]}>
       {children}
     </Animated.View>
   );

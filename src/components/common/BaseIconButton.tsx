@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideo } from '../../providers';
 import { BaseButton } from './BaseButton';
 
 interface BaseIconButtonProps {
-  IconComponent: React.ElementType;
+  IconComponent?: React.ElementType;
+  icon?: ReactNode;
   size?: number;
   color?: string;
   onTap: () => void;
@@ -12,15 +13,16 @@ interface BaseIconButtonProps {
 }
 
 /**
- * `BaseIconButton` is a foundational component for creating interactive icon buttons within the video player.
- * It wraps an `IconComponent` with a ripple effect provided by `react-native-material-ripple`,
- * and integrates with the player's theme for consistent sizing and coloring.
+ * A foundational component for creating interactive icon buttons within the video player.
+ * Supports two icon patterns: `IconComponent` for components that accept `size`/`color` props,
+ * and `icon` for pre-rendered elements from external icon libraries.
  *
- * @param {BaseIconButtonProps} props - The props for the BaseIconButton component.
- * @returns {React.ReactElement} A touchable icon button with a ripple effect.
+ * @param {BaseIconButtonProps} props - The props for the component.
+ * @returns {React.ReactElement} The base icon button component.
  */
 export const BaseIconButton = ({
   IconComponent,
+  icon,
   size,
   color,
   onTap,
@@ -36,7 +38,7 @@ export const BaseIconButton = ({
   return (
     <BaseButton onTap={onTap}>
       <View style={[styles.iconContainer, style]}>
-        <IconComponent size={iconSize} color={iconColor} />
+        {icon ? icon : IconComponent ? <IconComponent size={iconSize} color={iconColor} /> : null}
       </View>
     </BaseButton>
   );

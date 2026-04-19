@@ -18,6 +18,7 @@ const config = {
     'react-native-web',
     'react-native-css-interop',
     'react-native-reanimated',
+    'react-native-worklets',
     'react-native-gesture-handler',
     'react-native-video',
     'react-native-svg',

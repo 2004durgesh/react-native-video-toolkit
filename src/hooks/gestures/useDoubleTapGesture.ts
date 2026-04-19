@@ -9,8 +9,8 @@ import {
   withSequence,
   withSpring,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import type { UseDoubleTapGestureProps } from '../../types';
 import { useVideo } from '../../providers';
 
@@ -107,7 +107,7 @@ export const useDoubleTapGesture = ({
       scaleValue.value = withSequence(withSpring(1.2), withSpring(1));
 
       animationTimeoutRef.current = setTimeout(() => {
-        runOnJS(resetConsecutiveCount)(direction);
+        scheduleOnRN(resetConsecutiveCount, direction);
       }, 1000);
     },
     [forwardOpacity, backwardOpacity, scaleValue, resetConsecutiveCount]
@@ -127,7 +127,7 @@ export const useDoubleTapGesture = ({
         const newPosition = Math.max(currentTime + seekAmount, 0);
 
         videoRef.current.seek(newPosition);
-        runOnJS(dispatch)({ type: 'SET_CURRENT_TIME', payload: newPosition });
+        scheduleOnRN(dispatch, { type: 'SET_CURRENT_TIME', payload: newPosition });
 
         if (isConsecutive) {
           consecutiveTapCount.current[direction]++;
@@ -151,7 +151,7 @@ export const useDoubleTapGesture = ({
         consecutiveTapCount.current.lastDirection = direction;
         consecutiveTapCount.current.lastTapTime = now;
 
-        runOnJS(showTapAnimation)(direction);
+        scheduleOnRN(showTapAnimation, direction);
       } catch (error) {
         console.error('Seek failed:', error);
       }
@@ -173,9 +173,9 @@ export const useDoubleTapGesture = ({
             tapCount.value = 0;
           }
 
-          runOnJS(setIsDoubleTap)(true);
+          scheduleOnRN(setIsDoubleTap, true);
           if (onDoubleTapSeekStart) {
-            runOnJS(onDoubleTapSeekStart)();
+            scheduleOnRN(onDoubleTapSeekStart);
           }
 
           const touchX = event.absoluteX;
@@ -197,16 +197,15 @@ export const useDoubleTapGesture = ({
           rippleScale.value = withTiming(1, { duration: 500 });
           rippleOpacity.value = 0.4;
 
-          runOnJS(handleSeek)(direction);
+          scheduleOnRN(handleSeek, direction);
         })
         .onEnd(() => {
-          runOnJS(setIsDoubleTap)(false);
+          scheduleOnRN(setIsDoubleTap, false);
           if (onDoubleTapSeekEnd) {
-            runOnJS(onDoubleTapSeekEnd)();
+            scheduleOnRN(onDoubleTapSeekEnd);
           }
           rippleOpacity.value = withTiming(0, { duration: 500 });
-        })
-        .runOnJS(true),
+        }),
     [
       onDoubleTapSeekStart,
       activeDirection,

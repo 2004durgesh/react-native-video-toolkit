@@ -62,13 +62,14 @@ Header for the menu, with back/close buttons and a title.
 
 ### `Menu.Content`
 
-The `BottomSheet` wrapper for menu views.
+The `Popover` wrapper for menu views.
 
-| Prop       | Type                                 | Default | Required | Description                                       |
-| ---------- | ------------------------------------ | ------- | -------- | ------------------------------------------------- |
-| `children` | `ReactNode`                          |         | Yes      | Nested `Menu.SubContent` blocks.                  |
-| `header`   | `(currentView: string) => ReactNode` |         | No       | Optional custom header renderer.                  |
-| `...props` | `BottomSheetProps`                   | -       | No       | All other props from the `BottomSheet` component. |
+| Prop         | Type                                 | Default | Required | Description                             |
+| ------------ | ------------------------------------ | ------- | -------- | --------------------------------------- |
+| `children`   | `ReactNode`                          |         | Yes      | Nested `Menu.SubContent` blocks.        |
+| `header`     | `(currentView: string) => ReactNode` |         | No       | Optional custom header renderer.        |
+| `sheetStyle` | `StyleProp<ViewStyle>`               | –       | No       | Custom style for the popover container. |
+| `portalHost` | `string`                             | –       | No       | Portal host name for the popover.       |
 
 ---
 

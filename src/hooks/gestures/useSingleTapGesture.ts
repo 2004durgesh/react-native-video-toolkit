@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useControlsVisibility } from '../media';
 import { Gesture } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import type { UseSingleTapGestureProps } from '../../types';
 
 /**
@@ -19,9 +19,9 @@ export const useSingleTapGesture = ({ onSingleTap }: UseSingleTapGestureProps) =
         .numberOfTaps(1)
         .onEnd((event) => {
           'worklet';
-          runOnJS(toggleControls)();
+          scheduleOnRN(toggleControls);
           if (onSingleTap) {
-            runOnJS(onSingleTap)(event);
+            scheduleOnRN(onSingleTap, event);
           }
         }),
     [toggleControls, onSingleTap]

@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, type ReactNode } from 'react';
 import { type PressableProps, View, StyleSheet } from 'react-native';
 import { useVideo } from '../../providers';
 import Ripple from 'react-native-material-ripple';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { PlatformUtils } from '../../utils/orientation';
 
 interface BaseButtonProps extends PressableProps {
-  children: React.ReactNode;
+  children: ReactNode;
   onTap: () => void;
 }
 
@@ -30,7 +30,7 @@ export const BaseButton = ({ children, onTap, ...props }: BaseButtonProps): Reac
         .numberOfTaps(1)
         .onEnd(() => {
           'worklet';
-          runOnJS(onTap)();
+          scheduleOnRN(onTap);
         }),
     [onTap]
   );

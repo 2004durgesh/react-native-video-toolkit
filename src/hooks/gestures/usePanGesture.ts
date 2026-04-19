@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
 import { useVideo } from '../../providers';
-import { runOnJS } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import type { UsePanGestureProps } from '../../types';
 
 /**
@@ -21,14 +21,14 @@ export const usePanGesture = ({ onLeftVerticalPan, onRightVerticalPan, onGlobalV
         .onUpdate((event) => {
           'worklet';
           if (onGlobalVerticalPan) {
-            runOnJS(onGlobalVerticalPan)(event);
+            scheduleOnRN(onGlobalVerticalPan, event);
             return;
           }
           const side = event.x < dimensions.width / 2 ? 'left' : 'right';
           if (side === 'left') {
-            if (onLeftVerticalPan) runOnJS(onLeftVerticalPan)(event);
+            if (onLeftVerticalPan) scheduleOnRN(onLeftVerticalPan, event);
           } else {
-            if (onRightVerticalPan) runOnJS(onRightVerticalPan)(event);
+            if (onRightVerticalPan) scheduleOnRN(onRightVerticalPan, event);
           }
         }),
     [onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan, dimensions.width]
