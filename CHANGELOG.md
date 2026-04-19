@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0 (2026-04-19)
+
+* feat: refactor baseiconbutton to support optional icon prop and remove bottomsheet component ([945841c](https://github.com/2004durgesh/react-native-video-toolkit/commit/945841c))
+
 ## <small>0.7.2 (2026-02-08)</small>
 
 * refactor: enhance time formatting logic to handle invalid inputs and support hours ([b504a3e](https://github.com/2004durgesh/react-native-video-toolkit/commit/b504a3e))
