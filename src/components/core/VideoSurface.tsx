@@ -175,6 +175,8 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setPlaybackRate(data.playbackRate);
   };
   const isFullscreen = state.fullscreen;
+  const selectedAudioTrackConfig =
+    typeof audioTrack?.index === 'number' ? { type: SelectedTrackType.INDEX, value: audioTrack.index } : undefined;
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
@@ -210,8 +212,9 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         rate={playbackRate}
         controls={false}
         selectedVideoTrack={{ type: SelectedVideoTrackType.RESOLUTION, value: videoTrack?.height }}
-        selectedAudioTrack={{ type: SelectedTrackType.INDEX, value: audioTrack?.index }}
+        selectedAudioTrack={selectedAudioTrackConfig}
         selectedTextTrack={{ type: SelectedTrackType.INDEX, value: textTrack?.index }}
+        ignoreSilentSwitch="ignore"
         onLoad={combineHandlers(handleLoad, userOnLoad)}
         onProgress={combineHandlers(handleProgress, userOnProgress)}
         onBuffer={combineHandlers(handleBuffer, userOnBuffer)}
