@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0 (2026-04-26)
+
+* refactor: new detailed color tokens and double tap bug fix ([38aae40](https://github.com/2004durgesh/react-native-video-toolkit/commit/38aae40))
+* feat: popover implementation for menu ([45ec1cc](https://github.com/2004durgesh/react-native-video-toolkit/commit/45ec1cc))
+
 ## <small>0.8.2 (2026-04-19)</small>
 
 * Fix muted playback by guarding audio track selection and honoring iOS silent switch behavior (#1) ([c99e80f](https://github.com/2004durgesh/react-native-video-toolkit/commit/c99e80f)), closes [#1](https://github.com/2004durgesh/react-native-video-toolkit/issues/1)
