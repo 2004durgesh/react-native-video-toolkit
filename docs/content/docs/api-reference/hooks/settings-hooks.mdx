@@ -12,7 +12,7 @@ A hook for managing video settings such as videoTrack, audio tracks, and subtitl
 import { useSettings } from 'react-native-video-toolkit';
 
 export const MyComponent = () => {
-  const { isSettingsMenuVisible, toggleSettingsMenu } = useSettings();
+  const { isSettingsMenuVisible, setSettingsMenuVisible } = useSettings();
   // ...
 };
 ```
@@ -36,7 +36,7 @@ export const MyComponent = () => {
 | `isSettingsMenuVisible`   | `boolean`                                                         | A boolean indicating whether the settings menu is currently visible. |
 | `openSettings`            | `() => void`                                                      | A function to explicitly open the settings menu.                     |
 | `closeSettings`           | `() => void`                                                      | A function to explicitly close the settings menu.                    |
-| `toggleSettingsMenu`      | `() => void`                                                      | A function to toggle the visibility of the settings menu.            |
+| `setSettingsMenuVisible`  | `(visible: boolean) => void`                                      | A function to explicitly set the visibility of the settings menu.    |
 
 ### Example
 

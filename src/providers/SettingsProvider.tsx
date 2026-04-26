@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext } from 'react';
+import React, { createContext, useReducer, useContext, type Dispatch, type ReactNode, type FC } from 'react';
 import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
 import type { CustomVideoTrack } from '../types';
 
@@ -44,7 +44,6 @@ interface SettingsProviderState {
  * Represents the actions that can be dispatched to the settings reducer.
  */
 type SettingsAction =
-  | { type: 'TOGGLE_SETTINGS_MENU' }
   | { type: 'SET_VIDEO_TRACK'; payload: CustomVideoTrack | VideoTrack | null }
   | { type: 'SET_AVAILABLE_VIDEO_TRACKS'; payload: (CustomVideoTrack | VideoTrack)[] }
   | { type: 'SET_AUDIO_TRACK'; payload: AudioTrack | null }
@@ -74,8 +73,6 @@ const initialSettingsState: SettingsProviderState = {
  */
 function settingsReducer(state: SettingsProviderState, action: SettingsAction): SettingsProviderState {
   switch (action.type) {
-    case 'TOGGLE_SETTINGS_MENU':
-      return { ...state, isSettingsMenuVisible: !state.isSettingsMenuVisible };
     case 'SET_VIDEO_TRACK':
       return { ...state, videoTrack: action.payload };
     case 'SET_AVAILABLE_VIDEO_TRACKS':
@@ -105,7 +102,7 @@ function settingsReducer(state: SettingsProviderState, action: SettingsAction): 
 const SettingsContext = createContext<
   | {
       state: SettingsProviderState;
-      dispatch: React.Dispatch<SettingsAction>;
+      dispatch: Dispatch<SettingsAction>;
     }
   | undefined
 >(undefined);
@@ -114,8 +111,8 @@ const SettingsContext = createContext<
  * The provider component for the video player settings.
  * This component provides the settings state to all its children.
  */
-export const SettingsProvider: React.FC<{
-  children: React.ReactNode;
+export const SettingsProvider: FC<{
+  children: ReactNode;
 }> = ({ children }) => {
   const [state, dispatch] = useReducer(settingsReducer, initialSettingsState);
 

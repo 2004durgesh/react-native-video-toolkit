@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import type { CustomVideoTrack } from '../../types';
 
 /**
- * A hook for managing video settings like video track, audio tracks, and text/subtitle tracks.
+ * A hook for managing video settings like video track, audio tracks, text/subtitle tracks, and menu visibility.
  *
  * @returns An object with the following properties:
  * - `videoTrack`: The current video track setting.
@@ -19,27 +19,41 @@ import type { CustomVideoTrack } from '../../types';
  * - `textTracks`: The list of available text/subtitle tracks.
  * - `setTextTrack`: A function to set the current text track.
  * - `setAvailableTextTracks`: A function to set the list of available text tracks.
+ * - `isSettingsMenuVisible`: Whether the settings menu is currently visible.
+ * - `openSettings`: A function to open the settings menu.
+ * - `closeSettings`: A function to close the settings menu.
+ * - `setSettingsMenuVisible`: A function to directly set the settings menu visibility.
  */
 export const useSettings = () => {
   const { state, dispatch } = useSettingsContext();
 
+  /**
+   * Opens the settings menu.
+   */
   const openSettings = useCallback(() => {
     dispatch({ type: 'OPEN_SETTINGS_SHEET' });
   }, [dispatch]);
 
+  /**
+   * Closes the settings menu.
+   */
   const closeSettings = useCallback(() => {
     dispatch({ type: 'CLOSE_SETTINGS_SHEET' });
   }, [dispatch]);
-  const toggleSettingsMenu = useCallback(() => {
-    dispatch({ type: 'TOGGLE_SETTINGS_MENU' });
-    const newSettingsMenuState = !state.isSettingsMenuVisible;
 
-    if (newSettingsMenuState) {
-      openSettings();
-    } else {
-      closeSettings();
-    }
-  }, [dispatch, state.isSettingsMenuVisible, openSettings, closeSettings]);
+  /**
+   * Directly sets the settings menu visibility.
+   */
+  const setSettingsMenuVisible = useCallback(
+    (visible: boolean) => {
+      if (visible) {
+        dispatch({ type: 'OPEN_SETTINGS_SHEET' });
+      } else {
+        dispatch({ type: 'CLOSE_SETTINGS_SHEET' });
+      }
+    },
+    [dispatch]
+  );
 
   /**
    * Sets the video videoTrack.
@@ -123,6 +137,6 @@ export const useSettings = () => {
     isSettingsMenuVisible: state.isSettingsMenuVisible,
     openSettings,
     closeSettings,
-    toggleSettingsMenu,
+    setSettingsMenuVisible,
   };
 };

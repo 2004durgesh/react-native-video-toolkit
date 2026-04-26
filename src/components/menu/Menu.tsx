@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode, type ReactElement } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,7 +11,15 @@ import {
   type TextProps,
   type StyleProp,
 } from 'react-native';
-import { BaseIconButton, PopoverContent } from '../common';
+import {
+  BaseIconButton,
+  PopoverRoot,
+  PopoverTrigger,
+  PopoverPortal,
+  PopoverOverlay,
+  PopoverContent,
+  usePopoverContext,
+} from '../common';
 import { useVideo } from '../../providers';
 import Animated, {
   useSharedValue,
@@ -24,8 +32,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { useSettings } from '../../hooks';
-import { SettingsButton, type SettingsButtonProps } from '../controls';
-import { ChevronLeft, Close } from '../svgs';
+import { type SettingsButtonProps } from '../controls';
+import { ChevronLeft, Close, Settings } from '../svgs';
 import { Title } from '../display';
 import Check from '../svgs/Check';
 
@@ -49,6 +57,10 @@ interface MenuContentProps {
   sheetStyle?: StyleProp<ViewStyle>;
   header?: (currentView: string) => ReactNode;
   portalHost?: string;
+  side?: 'top' | 'bottom';
+  sideOffset?: number;
+  align?: 'start' | 'center' | 'end';
+  alignOffset?: number;
 }
 
 interface MenuSubContentProps {
@@ -124,10 +136,10 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export const Menu = {
   /**
-   * Root component with navigation stack for sub-menus.
+   * Root component with navigation stack and popover state management.
    */
-  Root: ({ children, initialView = 'root' }: MenuRootProps): React.ReactElement => {
-    const { openSettings, closeSettings, isSettingsMenuVisible } = useSettings();
+  Root: ({ children, initialView = 'root' }: MenuRootProps): ReactElement => {
+    const { openSettings, closeSettings, isSettingsMenuVisible, setSettingsMenuVisible } = useSettings();
     const [navigationStack, setNavigationStack] = useState<string[]>([initialView]);
     const currentView = navigationStack[navigationStack.length - 1] || initialView;
 
@@ -149,27 +161,49 @@ export const Menu = {
       }
     }, [isSettingsMenuVisible, initialView]);
 
+    /**
+     * Syncs the popover's internal open state with the settings reducer.
+     */
+    const handleOpenChange = (open: boolean): void => {
+      setSettingsMenuVisible(open);
+    };
+
     return (
-      <MenuProvider
-        value={{
-          closeSettings,
-          openSettings,
-          isSettingsMenuVisible,
-          navigationStack,
-          navigateTo,
-          goBack,
-          currentView,
-        }}>
-        {children}
-      </MenuProvider>
+      <PopoverRoot onOpenChange={handleOpenChange}>
+        <MenuProvider
+          value={{
+            closeSettings,
+            openSettings,
+            isSettingsMenuVisible,
+            navigationStack,
+            navigateTo,
+            goBack,
+            currentView,
+          }}>
+          {children}
+        </MenuProvider>
+      </PopoverRoot>
     );
   },
 
   /**
-   * Trigger to open the menu.
+   * Trigger to open the menu, anchored for popover positioning.
    */
-  Trigger: (props: SettingsButtonProps): React.ReactElement => {
-    return <SettingsButton {...props} />;
+  Trigger: ({ size, color, style, renderSettingIcon }: SettingsButtonProps): ReactElement => {
+    const {
+      state: { theme },
+    } = useVideo();
+    const SettingsIcon = renderSettingIcon || Settings;
+    const iconSize = size ?? theme.iconSizes.md;
+    const iconColor = color || theme.colors.text;
+
+    return (
+      <PopoverTrigger asChild={false}>
+        <View style={[styles.triggerButton, style]}>
+          {typeof SettingsIcon === 'function' ? <SettingsIcon size={iconSize} color={iconColor} /> : SettingsIcon}
+        </View>
+      </PopoverTrigger>
+    );
   },
 
   /**
@@ -183,7 +217,7 @@ export const Menu = {
     style,
     titleStyle,
     ...props
-  }: MenuHeaderProps): React.ReactElement => {
+  }: MenuHeaderProps): ReactElement => {
     const { currentView, navigationStack } = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
@@ -206,44 +240,57 @@ export const Menu = {
   },
 
   /**
-   * Content wrapper using PopoverContent with enhanced animations.
+   * Content wrapper using @rn-primitives/popover with enhanced animations.
    */
-  Content: ({ children, sheetStyle, header, portalHost }: MenuContentProps): React.ReactElement => {
-    const { isSettingsMenuVisible, closeSettings, currentView } = useMenuContext();
+  Content: ({
+    children,
+    sheetStyle,
+    header,
+    portalHost,
+    side = 'bottom',
+    sideOffset = 8,
+    align = 'end',
+    alignOffset = 0,
+  }: MenuContentProps): ReactElement => {
+    const { currentView } = useMenuContext();
     const menuContext = useMenuContext();
     const { state } = useVideo();
     const { theme, portalHostName } = state;
 
     return (
-      <PopoverContent
-        visible={isSettingsMenuVisible}
-        onClose={closeSettings}
-        portalHost={portalHost || portalHostName}
-        style={[
-          styles.popoverContent,
-          {
-            backgroundColor: theme.colors.background,
-            borderColor: theme.colors.border || '#333',
-          },
-          sheetStyle,
-        ]}>
-        <AnimatedView
-          style={[styles.content, { backgroundColor: theme.colors.background }]}
-          entering={FadeIn.duration(300)}
-          exiting={FadeOut.duration(200)}>
-          <MenuProvider value={menuContext}>
-            {header ? header(currentView) : <Menu.Header />}
-            <View style={styles.contentBody}>{children}</View>
-          </MenuProvider>
-        </AnimatedView>
-      </PopoverContent>
+      <PopoverPortal hostName={portalHost || portalHostName}>
+        <PopoverOverlay />
+        <PopoverContent
+          side={side}
+          sideOffset={sideOffset}
+          align={align}
+          alignOffset={alignOffset}
+          style={[
+            styles.popoverContent,
+            {
+              backgroundColor: theme.colors.background,
+              borderColor: theme.colors.border || '#333',
+            },
+            sheetStyle,
+          ]}>
+          <AnimatedView
+            style={[styles.content, { backgroundColor: theme.colors.background }]}
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(200)}>
+            <MenuProvider value={menuContext}>
+              {header ? header(currentView) : <Menu.Header />}
+              <View style={styles.contentBody}>{children}</View>
+            </MenuProvider>
+          </AnimatedView>
+        </PopoverContent>
+      </PopoverPortal>
     );
   },
 
   /**
    * SubContent: Conditionally renders content for a specific view ID with slide animation.
    */
-  SubContent: ({ viewId, children, style }: MenuSubContentProps): React.ReactElement | null => {
+  SubContent: ({ viewId, children, style }: MenuSubContentProps): ReactElement | null => {
     const { currentView } = useMenuContext();
 
     if (currentView !== viewId) return null;
@@ -271,8 +318,9 @@ export const Menu = {
     autoClose = true,
     navigateTo: navTo,
     ...props
-  }: MenuItemProps): React.ReactElement => {
-    const { closeSettings, navigateTo: ctxNavigate } = useMenuContext();
+  }: MenuItemProps): ReactElement => {
+    const { navigateTo: ctxNavigate } = useMenuContext();
+    const { onOpenChange } = usePopoverContext();
     const { state } = useVideo();
     const { theme } = state;
     const scale = useSharedValue(1);
@@ -297,7 +345,7 @@ export const Menu = {
         scheduleOnRN(ctxNavigate, navTo);
       } else if (autoClose) {
         setTimeout(() => {
-          scheduleOnRN(closeSettings);
+          scheduleOnRN(onOpenChange, false);
         }, 300);
       }
     };
@@ -328,7 +376,7 @@ export const Menu = {
   /**
    * Label: Non-interactive text label for menu sections.
    */
-  Label: ({ children, style, ...props }: MenuLabelProps): React.ReactElement => {
+  Label: ({ children, style, ...props }: MenuLabelProps): ReactElement => {
     const { state } = useVideo();
     const { theme } = state;
 
@@ -345,7 +393,7 @@ export const Menu = {
   /**
    * Separator: Horizontal line to separate menu sections.
    */
-  Separator: ({ style, ...props }: MenuSeparatorProps): React.ReactElement => {
+  Separator: ({ style, ...props }: MenuSeparatorProps): ReactElement => {
     const { state } = useVideo();
     const { theme } = state;
 
@@ -361,7 +409,7 @@ export const Menu = {
   /*
    * Group: Container for grouping related menu items.
    */
-  Group: ({ children, style, ...props }: MenuGroupProps): React.ReactElement => {
+  Group: ({ children, style, ...props }: MenuGroupProps): ReactElement => {
     return (
       <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
         {children}
@@ -379,7 +427,7 @@ export const Menu = {
     style,
     textStyle,
     ...props
-  }: MenuCheckboxItemProps): React.ReactElement => {
+  }: MenuCheckboxItemProps): ReactElement => {
     const [internalChecked, setInternalChecked] = useState(checked ?? false);
     const isChecked = checked !== undefined ? checked : internalChecked;
     const { state } = useVideo();
@@ -419,15 +467,15 @@ export const Menu = {
   /*
    * Close: Button to close the menu.
    */
-  Close: ({ style, ...props }: MenuCloseProps): React.ReactElement => {
-    const { closeSettings } = useMenuContext();
-    return <BaseIconButton onTap={closeSettings} IconComponent={Close} style={style} {...props} />;
+  Close: ({ style, ...props }: MenuCloseProps): ReactElement => {
+    const { onOpenChange } = usePopoverContext();
+    return <BaseIconButton onTap={() => onOpenChange(false)} IconComponent={Close} style={style} {...props} />;
   },
 
   /*
    * Back: Button to navigate back in the menu stack.
    */
-  Back: ({ style, ...props }: MenuBackProps): React.ReactElement => {
+  Back: ({ style, ...props }: MenuBackProps): ReactElement => {
     const { goBack, navigationStack } = useMenuContext();
     const canGoBack = navigationStack.length > 1;
     return (
@@ -444,10 +492,16 @@ export const Menu = {
 
 const styles = StyleSheet.create({
   popoverContent: {
-    width: 288,
+    minWidth: 250,
     maxHeight: 400,
     borderRadius: 8,
     overflow: 'hidden',
+  },
+  triggerButton: {
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 0,
