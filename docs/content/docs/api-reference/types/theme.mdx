@@ -5,17 +5,25 @@ description: Types related to theming including color schemes, font sizes, icon 
 
 ### `colors`
 
-| Property     | Type     | Required | Default | Description                     |
-| ------------ | -------- | -------- | ------- | ------------------------------- |
-| `primary`    | `string` | Yes      | –       | Main action color.              |
-| `secondary`  | `string` | Yes      | –       | Secondary UI color.             |
-| `accent`     | `string` | Yes      | –       | Highlight or progress color.    |
-| `background` | `string` | Yes      | –       | Main background color.          |
-| `overlay`    | `string` | Yes      | –       | Semi-transparent overlay color. |
-| `text`       | `string` | Yes      | –       | Primary text color.             |
-| `error`      | `string` | Yes      | –       | Color for error states.         |
-| `success`    | `string` | Yes      | –       | Color for success states.       |
-| `border`     | `string` | Yes      | –       | Border or outline color.        |
+| Property              | Type     | Required | Description                                    |
+| --------------------- | -------- | -------- | ---------------------------------------------- |
+| `textMain`            | `string` | Yes      | Primary text color.                            |
+| `textSecondary`       | `string` | Yes      | Secondary text color.                          |
+| `iconNormal`          | `string` | Yes      | Default icon color.                            |
+| `iconActive`          | `string` | Yes      | Active icon state (e.g., CC turned on).        |
+| `sliderTrackActive`   | `string` | Yes      | Filled part of sliders (Progress/Volume).      |
+| `sliderTrackInactive` | `string` | Yes      | Unfilled part of sliders.                      |
+| `sliderTrackCache`    | `string` | Yes      | Buffered/loaded track color.                   |
+| `sliderThumb`         | `string` | Yes      | Draggable knob color.                          |
+| `menuBackground`      | `string` | Yes      | Popover sheet background color.                |
+| `menuBorder`          | `string` | Yes      | Popover outline color.                         |
+| `menuText`            | `string` | Yes      | Text color inside the menu.                    |
+| `menuSeparator`       | `string` | Yes      | Divider line color in the menu.                |
+| `badgeBackground`     | `string` | Yes      | Background for speed/seek badges (e.g., "2x"). |
+| `ripple`              | `string` | Yes      | Ripple effect color for buttons.               |
+| `spinner`             | `string` | Yes      | Loading indicator color.                       |
+| `error`               | `string` | Yes      | Color for error states.                        |
+| `success`             | `string` | Yes      | Color for success states.                      |
 
 ### `iconSizes`
 

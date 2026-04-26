@@ -87,7 +87,7 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
             entering={FadeInUp.duration(250)}
             exiting={FadeOutDown.duration(200)}
             style={[styles.badgeContainer]}>
-            <Text style={[styles.badgeText, { backgroundColor: theme.colors.overlay }]}>2x</Text>
+            <Text style={[styles.badgeText, { backgroundColor: theme.colors.badgeBackground }]}>2x</Text>
           </Animated.View>
         )}
         <OverlayedView ref={backwardRippleRef} style={{ left: '-15%', height: FULLSCREEN_HEIGHT }}>

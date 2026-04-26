@@ -6,15 +6,36 @@ import type { Theme } from '../types';
  */
 export const defaultTheme: Theme = {
   colors: {
-    primary: '#5A9EE6',
-    secondary: '#2A2A2A',
-    accent: '#3A3A3A',
-    background: '#121212',
-    overlay: hexToRgba('#121212', 0.6),
-    text: '#FAFAFA',
+    // Global Typography
+    textMain: '#FAFAFA',
+    textSecondary: hexToRgba('#FAFAFA', 0.7),
+
+    // Icons
+    iconNormal: '#FAFAFA',
+    iconActive: '#5A9EE6',
+
+    // Sliders
+    sliderTrackActive: '#5A9EE6',
+    sliderTrackInactive: '#2A2A2A',
+    sliderTrackCache: hexToRgba('#FAFAFA', 0.7),
+    sliderThumb: '#5A9EE6',
+
+    // Menu / Popover
+    menuBackground: '#121212',
+    menuBorder: '#3A3A3A',
+    menuText: '#FAFAFA',
+    menuSeparator: '#3A3A3A',
+
+    // Overlays & Badges
+    badgeBackground: hexToRgba('#121212', 0.6),
+
+    // Interaction / Feedback
+    ripple: '#3A3A3A',
+    spinner: '#5A9EE6',
+
+    // Status
     error: '#F25252',
     success: '#60D288',
-    border: '#3A3A3A',
   },
   iconSizes: {
     sm: 18,

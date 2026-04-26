@@ -33,7 +33,7 @@ export const BaseIconButton = ({
   } = useVideo();
 
   const iconSize = size ?? theme.iconSizes.md;
-  const iconColor = color || theme.colors.text;
+  const iconColor = color || theme.colors.iconNormal;
 
   return (
     <BaseButton onTap={onTap}>

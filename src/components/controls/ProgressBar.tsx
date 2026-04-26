@@ -3,7 +3,6 @@ import { useSharedValue, useDerivedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
 import { useProgress, useControlsVisibility } from '../../hooks';
 import { useVideo } from '../../providers';
-import { hexToRgba } from '../../utils';
 
 export interface ProgressBarProps {
   height?: number;
@@ -69,10 +68,10 @@ export const ProgressBar = ({
         onSlidingComplete={handleSlidingComplete}
         onValueChange={handleValueChange}
         theme={{
-          minimumTrackTintColor: theme.colors.primary,
-          maximumTrackTintColor: theme.colors.background,
-          bubbleBackgroundColor: theme.colors.primary,
-          cacheTrackTintColor: hexToRgba(theme.colors.text, 0.7),
+          minimumTrackTintColor: theme.colors.sliderTrackActive,
+          maximumTrackTintColor: theme.colors.sliderTrackInactive,
+          bubbleBackgroundColor: theme.colors.sliderThumb,
+          cacheTrackTintColor: theme.colors.sliderTrackCache,
         }}
         renderBubble={() => null}
         thumbWidth={thumbWidth}

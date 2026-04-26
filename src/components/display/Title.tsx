@@ -18,7 +18,7 @@ export const Title = ({ text, style, ...rest }: TitleProps): React.ReactElement 
     state: { theme },
   } = useVideo();
   return (
-    <Text style={[styles.title, { color: theme.colors.text }, style]} {...rest}>
+    <Text style={[styles.title, { color: theme.colors.textMain }, style]} {...rest}>
       {text}
     </Text>
   );

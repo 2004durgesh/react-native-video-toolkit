@@ -6,42 +6,36 @@ export interface Theme {
    * The colors used in the theme.
    */
   colors: {
-    /**
-     * The primary color.
-     */
-    primary: string;
-    /**
-     * The secondary color.
-     */
-    secondary: string;
-    /**
-     * The accent color.
-     */
-    accent: string;
-    /**
-     * The background color.
-     */
-    background: string;
-    /**
-     * The overlay color.
-     */
-    overlay: string;
-    /**
-     * The text color.
-     */
-    text: string;
-    /**
-     * The error color.
-     */
+    // Global Typography
+    textMain: string;
+    textSecondary: string;
+
+    // Icons
+    iconNormal: string;
+    iconActive: string;
+
+    // Sliders (Progress Bar & Volume)
+    sliderTrackActive: string;
+    sliderTrackInactive: string;
+    sliderTrackCache: string;
+    sliderThumb: string;
+
+    // Menu / Popover
+    menuBackground: string;
+    menuBorder: string;
+    menuText: string;
+    menuSeparator: string;
+
+    // Overlays & Badges
+    badgeBackground: string;
+
+    // Interaction / Feedback
+    ripple: string;
+    spinner: string;
+
+    // Status
     error: string;
-    /**
-     * The success color.
-     */
     success: string;
-    /**
-     * The border color.
-     */
-    border: string;
   };
   /**
    * The icon sizes used in the theme.

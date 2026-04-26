@@ -23,7 +23,7 @@ export const TimeDisplay = ({ type = 'both', fontSize = 14, color, style }: Time
     state: { theme },
   } = useVideo();
 
-  const textColor = color || theme.colors.text;
+  const textColor = color || theme.colors.textMain;
 
   const formatTime = (seconds: number) => {
     // Handle invalid inputs

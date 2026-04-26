@@ -195,7 +195,7 @@ export const Menu = {
     } = useVideo();
     const SettingsIcon = renderSettingIcon || Settings;
     const iconSize = size ?? theme.iconSizes.md;
-    const iconColor = color || theme.colors.text;
+    const iconColor = color || theme.colors.iconNormal;
 
     return (
       <PopoverTrigger asChild={false}>
@@ -227,12 +227,12 @@ export const Menu = {
 
     return (
       <AnimatedView
-        style={[styles.header, { borderBottomColor: theme.colors.border || '#ccc' }, style]}
+        style={[styles.header, { borderBottomColor: theme.colors.menuBorder || '#ccc' }, style]}
         entering={SlideInRight.duration(300)}
         {...props}>
         {shouldShowBackButton && <Menu.Back />}
         {children || (
-          <Title text={displayTitle} style={[styles.headerTitle, { color: theme.colors.text }, titleStyle]} />
+          <Title text={displayTitle} style={[styles.headerTitle, { color: theme.colors.menuText }, titleStyle]} />
         )}
         {showCloseButton && <Menu.Close />}
       </AnimatedView>
@@ -268,13 +268,13 @@ export const Menu = {
           style={[
             styles.popoverContent,
             {
-              backgroundColor: theme.colors.background,
-              borderColor: theme.colors.border || '#333',
+              backgroundColor: theme.colors.menuBackground,
+              borderColor: theme.colors.menuBorder || '#333',
             },
             sheetStyle,
           ]}>
           <AnimatedView
-            style={[styles.content, { backgroundColor: theme.colors.background }]}
+            style={[styles.content, { backgroundColor: theme.colors.menuBackground }]}
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(200)}>
             <MenuProvider value={menuContext}>
@@ -356,7 +356,7 @@ export const Menu = {
 
     const renderChildren = (): ReactNode => {
       if (typeof children === 'string') {
-        return <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>;
+        return <Text style={[styles.itemText, { color: theme.colors.menuText }, textStyle]}>{children}</Text>;
       }
       return children;
     };
@@ -366,7 +366,7 @@ export const Menu = {
         onPress={handlePress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[styles.item, { backgroundColor: theme.colors.background }, style, animatedStyle]}
+        style={[styles.item, { backgroundColor: theme.colors.menuBackground }, style, animatedStyle]}
         {...props}>
         {renderChildren()}
       </AnimatedPressable>
@@ -382,7 +382,7 @@ export const Menu = {
 
     return (
       <Animated.Text
-        style={[styles.label, { color: theme.colors.text }, style]}
+        style={[styles.label, { color: theme.colors.textSecondary || theme.colors.menuText }, style]}
         entering={FadeIn.delay(150).duration(250)}
         {...props}>
         {children}
@@ -399,7 +399,7 @@ export const Menu = {
 
     return (
       <AnimatedView
-        style={[styles.separator, { backgroundColor: theme.colors.border || '#ccc' }, style]}
+        style={[styles.separator, { backgroundColor: theme.colors.menuSeparator || '#ccc' }, style]}
         entering={FadeIn.delay(100).duration(200)}
         {...props}
       />
@@ -453,10 +453,10 @@ export const Menu = {
     return (
       <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} autoClose={false} {...props}>
         <View style={styles.radioItem}>
-          <Text style={[styles.itemText, { color: theme.colors.text }, textStyle]}>{children}</Text>
+          <Text style={[styles.itemText, { color: theme.colors.menuText }, textStyle]}>{children}</Text>
           <AnimatedView style={checkAnimatedStyle}>
             {isChecked ? (
-              <Check size={theme.iconSizes.sm} fill={theme.colors.text} style={[styles.radioIndicator]} />
+              <Check size={theme.iconSizes.sm} fill={theme.colors.iconNormal} style={[styles.radioIndicator]} />
             ) : null}
           </AnimatedView>
         </View>

@@ -22,7 +22,7 @@ export const LoadingSpinner = ({ size = 'large', color, style }: LoadingSpinnerP
     state: { theme },
   } = useVideo();
 
-  const spinnerColor = color || theme.colors.primary;
+  const spinnerColor = color || theme.colors.spinner;
 
   if (!buffering) {
     return null;

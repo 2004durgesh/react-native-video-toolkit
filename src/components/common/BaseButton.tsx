@@ -43,7 +43,7 @@ export const BaseButton = ({ children, onTap, ...props }: BaseButtonProps): Reac
         /* @ts-ignore */
         <Ripple
           rippleDuration={500}
-          rippleColor={theme.colors.accent}
+          rippleColor={theme.colors.ripple}
           rippleContainerBorderRadius={50}
           // @ts-ignore
           style={styles.rippleContainer}

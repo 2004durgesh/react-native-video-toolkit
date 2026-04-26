@@ -19,7 +19,7 @@ export const Subtitle = ({ text, style, ...rest }: SubitleProps): React.ReactEle
     state: { theme },
   } = useVideo();
   return (
-    <Text style={[styles.subtitle, { color: theme.colors.text }, style]} {...rest}>
+    <Text style={[styles.subtitle, { color: theme.colors.textMain }, style]} {...rest}>
       {text}
     </Text>
   );

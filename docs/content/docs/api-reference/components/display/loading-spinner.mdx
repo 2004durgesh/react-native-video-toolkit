@@ -27,7 +27,7 @@ import { LoadingSpinnerExample } from '@/components/examples/display/loading-spi
 | Prop    | Type                   | Required | Default               | Description                              |
 | ------- | ---------------------- | -------- | --------------------- | ---------------------------------------- |
 | `size`  | `'small' \| 'large'`   | No       | `'large'`             | Size of the spinner indicator.           |
-| `color` | `string`               | No       | Theme `primary` color | Color of the spinner.                    |
+| `color` | `string`               | No       | Theme `spinner` color | Color of the spinner.                    |
 | `style` | `StyleProp<ViewStyle>` | No       | –                     | Custom styles for the spinner container. |
 
 ---
@@ -77,7 +77,7 @@ const MyVideoPlayer = () => {
 <Callout type="info">
 
 - Spinner visibility is fully **managed internally** by the `useBuffering` hook.
-- Integrates with your theme via the `primary` color.
+- Integrates with your theme via the `spinner` color.
 - If you pass `color`, it overrides the theme color.
 
 </Callout>

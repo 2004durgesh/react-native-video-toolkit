@@ -55,8 +55,8 @@ export const VolumeControl = ({
         maximumValue={max}
         onValueChange={updateVolume}
         theme={{
-          minimumTrackTintColor: theme.colors.primary,
-          maximumTrackTintColor: theme.colors.secondary,
+          minimumTrackTintColor: theme.colors.sliderTrackActive,
+          maximumTrackTintColor: theme.colors.sliderTrackInactive,
         }}
         renderBubble={() => null}
         thumbWidth={thumbWidth}

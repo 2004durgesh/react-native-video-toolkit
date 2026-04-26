@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
 import {
   measure,
@@ -35,6 +35,7 @@ export const useDoubleTapGesture = ({
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
 }: UseDoubleTapGestureProps) => {
+  const { width: screenWidth } = useWindowDimensions();
   const { dispatch } = useVideo();
   const [isDoubleTap, setIsDoubleTap] = useState(false);
   const tapCount = useSharedValue(0);
@@ -179,7 +180,7 @@ export const useDoubleTapGesture = ({
           }
 
           const touchX = event.absoluteX;
-          const screenMidPoint = Dimensions.get('window').width / 2;
+          const screenMidPoint = screenWidth / 2;
           const direction = touchX < screenMidPoint ? 'backward' : 'forward';
           activeDirection.value = direction;
 
@@ -218,6 +219,7 @@ export const useDoubleTapGesture = ({
       handleSeek,
       tapCount,
       onDoubleTapSeekEnd,
+      screenWidth,
     ]
   );
 
