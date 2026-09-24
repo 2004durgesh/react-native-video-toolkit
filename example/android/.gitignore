@@ -11,7 +11,9 @@ local.properties
 *.iml
 *.hprof
 .cxx/
-.kotlin/
+
+# generated inline modules
+app/src/main/java/inline/
 
 # Bundle artifacts
 *.jsbundle

@@ -1,9 +1,19 @@
 const path = require('path');
 const { getDefaultConfig } = require('@expo/metro-config');
-const { getConfig } = require('react-native-builder-bob/metro-config');
 const pkg = require('../package.json');
 
 const root = path.resolve(__dirname, '..');
+const project = __dirname;
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// The library's peer dependencies live in both the monorepo root and the
+// example app. Force Metro to resolve a single copy (the example's) so we
+// don't end up with duplicate React/React Native instances.
+const modules = [
+  '@react-native/assets-registry',
+  ...Object.keys(pkg.peerDependencies ?? {}),
+];
 
 /**
  * Metro configuration
@@ -11,31 +21,23 @@ const root = path.resolve(__dirname, '..');
  *
  * @type {import('metro-config').MetroConfig}
  */
-const config = getConfig(getDefaultConfig(__dirname), {
-  root,
-  pkg,
-  project: __dirname,
-});
-//  config = {
-//   // When enabled, the optional code below will allow Metro to resolve
-//   // and bundle source files with TV-specific extensions
-//   // (e.g., *.ios.tv.tsx, *.android.tv.tsx, *.tv.tsx)
-//   //
-//   // Metro will still resolve source files with standard extensions
-//   // as usual if TV-specific files are not found for a module.
-//   //
-//   // This code is not enabled by default, since it will impact bundling performance,
-//   // but is available for developers who need this capability.
-//   //
-//   resolver: process.env.BUILDING_FOR_TV
-//     ? {
-//         sourceExts: [].concat(
-//           defaultConfig.resolver.sourceExts.map(e => `tv.${e}`),
-//           defaultConfig.resolver.sourceExts,
-//         ),
-//       }
-//     : undefined,
-// };
+const config = getDefaultConfig(project);
 
-// Merge in custom resolver options
+config.watchFolders = [root];
+
+config.resolver.blockList = [
+  ...config.resolver.blockList,
+  ...modules.map(
+    (m) => new RegExp(`^${escapeRegExp(path.join(root, 'node_modules', m))}\\/.*$`)
+  ),
+];
+
+config.resolver.extraNodeModules = {
+  ...config.resolver.extraNodeModules,
+  ...modules.reduce((acc, name) => {
+    acc[name] = path.join(project, 'node_modules', name);
+    return acc;
+  }, {}),
+};
+
 module.exports = config;

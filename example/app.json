@@ -44,7 +44,20 @@
             "topShelfWide2x": "./assets/images/icon-4640x1440.png"
           }
         }
-      ]
+      ],
+      [
+      "react-native-video",
+      {
+        "enableNotificationControls": true,
+        "enableAndroidPictureInPicture": true,
+        "androidExtensions": {
+          "useExoplayerRtsp": true,
+          "useExoplayerSmoothStreaming": true,
+          "useExoplayerHls": true,
+          "useExoplayerDash": true
+        }
+      }
+    ]
     ]
   }
 }
