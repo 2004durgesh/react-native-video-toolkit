@@ -132,10 +132,12 @@ function withExpo(nextConfig) {
 
       if (!config.plugins) config.plugins = [];
 
-      // 🔹 Define __DEV__ for client builds (fixes "__DEV__ is not defined" in RN libs like Reanimated/GestureHandler)
+      // 🔹 Define __DEV__ and global for client builds (fixes "__DEV__ is not defined"
+      // and "global is not defined" in RN libs like Reanimated/Worklets/GestureHandler)
       config.plugins.push(
         new options.webpack.DefinePlugin({
           __DEV__: JSON.stringify(process.env.NODE_ENV !== 'production'),
+          global: 'globalThis',
         })
       );
 

@@ -21,7 +21,7 @@ description: Step-by-step guide to install and configure React Native Video Tool
 Install the main library along with all required peer dependencies:
 
 ```npm
-npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-svg react-native-orientation-director
+npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
 ```
 
 <Callout type="warning">
@@ -46,6 +46,10 @@ module.exports = {
 ```
 
 <Callout type="info">The Reanimated plugin must be listed last in the plugins array.</Callout>
+
+<Callout type="info">
+  On Reanimated 4+, use `react-native-worklets/plugin` instead of `react-native-reanimated/plugin`.
+</Callout>
 
 </Step>
 
@@ -137,14 +141,37 @@ For bare React Native projects, follow the setup instructions in the [react-nati
 
 ### Install iOS Dependencies (iOS only)
 
-<Callout type="error">
-  iOS support is currently not available. We're looking for contributors to help add iOS TurboModules support.
-</Callout>
-
-If you plan to use this on iOS in the future, run:
+Install the native pods (the module is autolinked under the New Architecture):
 
 ```bash
 cd ios && pod install
+```
+
+<Callout type="info">
+  Fullscreen on iOS hides the status bar. For this to take effect, your app's `Info.plist` must have
+  `UIViewControllerBasedStatusBarAppearance` set to `false`. Expo prebuild and the default React Native template
+  usually set this already — add it manually only if the status bar doesn't hide in fullscreen.
+</Callout>
+
+For Expo, set it in `app.json`:
+
+```json
+{
+  "expo": {
+    "ios": {
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": false
+      }
+    }
+  }
+}
+```
+
+For bare React Native, add it to `ios/<YourApp>/Info.plist`:
+
+```xml
+<key>UIViewControllerBasedStatusBarAppearance</key>
+<false/>
 ```
 
 </Step>

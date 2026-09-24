@@ -62,18 +62,14 @@ Header for the menu, with back/close buttons and a title.
 
 ### `Menu.Content`
 
-The `Popover` wrapper for menu views.
+The bottom sheet wrapper for menu views. It slides up from the bottom and can be dismissed by tapping the backdrop, pressing the close button, or the Android hardware back button.
 
-| Prop          | Type                                 | Default    | Required | Description                                  |
-| ------------- | ------------------------------------ | ---------- | -------- | -------------------------------------------- |
-| `children`    | `ReactNode`                          |            | Yes      | Nested `Menu.SubContent` blocks.             |
-| `header`      | `(currentView: string) => ReactNode` |            | No       | Optional custom header renderer.             |
-| `sheetStyle`  | `StyleProp<ViewStyle>`               | –          | No       | Custom style for the popover container.      |
-| `portalHost`  | `string`                             | –          | No       | Portal host name for the popover.            |
-| `side`        | `'top' \| 'bottom'`                  | `'bottom'` | No       | The side of the trigger to show the popover. |
-| `sideOffset`  | `number`                             | `8`        | No       | Distance from the trigger.                   |
-| `align`       | `'start' \| 'center' \| 'end'`       | `'end'`    | No       | Alignment relative to the trigger.           |
-| `alignOffset` | `number`                             | `0`        | No       | Offset for the alignment.                    |
+| Prop         | Type                                 | Default | Required | Description                           |
+| ------------ | ------------------------------------ | ------- | -------- | ------------------------------------- |
+| `children`   | `ReactNode`                          |         | Yes      | Nested `Menu.SubContent` blocks.      |
+| `header`     | `(currentView: string) => ReactNode` |         | No       | Optional custom header renderer.      |
+| `sheetStyle` | `StyleProp<ViewStyle>`               | –       | No       | Custom style for the sheet container. |
+| `portalHost` | `string`                             | –       | No       | Portal host name for the sheet.       |
 
 ---
 

@@ -13,12 +13,12 @@ import {
 } from 'react-native';
 import {
   BaseIconButton,
-  PopoverRoot,
-  PopoverTrigger,
-  PopoverPortal,
-  PopoverOverlay,
-  PopoverContent,
-  usePopoverContext,
+  BottomSheetRoot,
+  BottomSheetTrigger,
+  BottomSheetPortal,
+  BottomSheetOverlay,
+  BottomSheetContent,
+  useBottomSheetContext,
 } from '../common';
 import { useVideo } from '../../providers';
 import Animated, {
@@ -26,12 +26,12 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   FadeIn,
-  FadeOut,
-  SlideInRight,
-  SlideOutLeft,
+  FadeInRight,
+  FadeOutLeft,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { useSettings } from '../../hooks';
+import { PlatformUtils } from '../../utils/orientation';
 import { type SettingsButtonProps } from '../controls';
 import { ChevronLeft, Close, Settings } from '../svgs';
 import { Title } from '../display';
@@ -134,6 +134,24 @@ const useMenuContext = (): MenuContextType => {
 const AnimatedView = Animated.createAnimatedComponent(View);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+/**
+ * react-native-reanimated's web layout/style update path throws when it cannot
+ * resolve the underlying node ("Cannot convert undefined or null to object").
+ * The animations here are non-essential polish (entering fades, press/checkmark
+ * scale), so we skip them on web while keeping them on native.
+ */
+const IS_WEB = PlatformUtils.isWeb();
+
+/**
+ * Returns the given reanimated layout-animation config, or `undefined` on web
+ * where reanimated's web animation path is unstable in this setup.
+ *
+ * @template T
+ * @param {T} animation - The layout animation config (e.g. `FadeIn.duration(200)`).
+ * @returns {T | undefined} The animation on native, or `undefined` on web.
+ */
+const webSafeAnimation = <T,>(animation: T): T | undefined => (IS_WEB ? undefined : animation);
+
 export const Menu = {
   /**
    * Root component with navigation stack and popover state management.
@@ -169,7 +187,7 @@ export const Menu = {
     };
 
     return (
-      <PopoverRoot onOpenChange={handleOpenChange}>
+      <BottomSheetRoot open={isSettingsMenuVisible} onOpenChange={handleOpenChange}>
         <MenuProvider
           value={{
             closeSettings,
@@ -182,7 +200,7 @@ export const Menu = {
           }}>
           {children}
         </MenuProvider>
-      </PopoverRoot>
+      </BottomSheetRoot>
     );
   },
 
@@ -198,11 +216,11 @@ export const Menu = {
     const iconColor = color || theme.colors.iconNormal;
 
     return (
-      <PopoverTrigger asChild={false}>
+      <BottomSheetTrigger asChild={false}>
         <View style={[styles.triggerButton, style]}>
           {typeof SettingsIcon === 'function' ? <SettingsIcon size={iconSize} color={iconColor} /> : SettingsIcon}
         </View>
-      </PopoverTrigger>
+      </BottomSheetTrigger>
     );
   },
 
@@ -228,7 +246,7 @@ export const Menu = {
     return (
       <AnimatedView
         style={[styles.header, { borderBottomColor: theme.colors.menuBorder || '#ccc' }, style]}
-        entering={SlideInRight.duration(300)}
+        entering={webSafeAnimation(FadeIn.duration(200))}
         {...props}>
         {shouldShowBackButton && <Menu.Back />}
         {children || (
@@ -242,48 +260,22 @@ export const Menu = {
   /**
    * Content wrapper using @rn-primitives/popover with enhanced animations.
    */
-  Content: ({
-    children,
-    sheetStyle,
-    header,
-    portalHost,
-    side = 'bottom',
-    sideOffset = 8,
-    align = 'end',
-    alignOffset = 0,
-  }: MenuContentProps): ReactElement => {
+  Content: ({ children, sheetStyle, header, portalHost }: MenuContentProps): ReactElement => {
     const { currentView } = useMenuContext();
     const menuContext = useMenuContext();
     const { state } = useVideo();
     const { theme, portalHostName } = state;
 
     return (
-      <PopoverPortal hostName={portalHost || portalHostName}>
-        <PopoverOverlay />
-        <PopoverContent
-          side={side}
-          sideOffset={sideOffset}
-          align={align}
-          alignOffset={alignOffset}
-          style={[
-            styles.popoverContent,
-            {
-              backgroundColor: theme.colors.menuBackground,
-              borderColor: theme.colors.menuBorder || '#333',
-            },
-            sheetStyle,
-          ]}>
-          <AnimatedView
-            style={[styles.content, { backgroundColor: theme.colors.menuBackground }]}
-            entering={FadeIn.duration(300)}
-            exiting={FadeOut.duration(200)}>
-            <MenuProvider value={menuContext}>
-              {header ? header(currentView) : <Menu.Header />}
-              <View style={styles.contentBody}>{children}</View>
-            </MenuProvider>
-          </AnimatedView>
-        </PopoverContent>
-      </PopoverPortal>
+      <BottomSheetPortal hostName={portalHost || portalHostName}>
+        <BottomSheetOverlay />
+        <BottomSheetContent style={[styles.sheetContent, { backgroundColor: theme.colors.menuBackground }, sheetStyle]}>
+          <MenuProvider value={menuContext}>
+            {header ? header(currentView) : <Menu.Header />}
+            <View style={styles.contentBody}>{children}</View>
+          </MenuProvider>
+        </BottomSheetContent>
+      </BottomSheetPortal>
     );
   },
 
@@ -299,8 +291,8 @@ export const Menu = {
       <AnimatedView
         key={viewId}
         style={[styles.subContent, style]}
-        entering={SlideInRight.duration(300)}
-        exiting={SlideOutLeft.duration(200)}>
+        entering={webSafeAnimation(FadeInRight.duration(200))}
+        exiting={webSafeAnimation(FadeOutLeft.duration(150))}>
         {children}
       </AnimatedView>
     );
@@ -320,7 +312,7 @@ export const Menu = {
     ...props
   }: MenuItemProps): ReactElement => {
     const { navigateTo: ctxNavigate } = useMenuContext();
-    const { onOpenChange } = usePopoverContext();
+    const { onOpenChange } = useBottomSheetContext();
     const { state } = useVideo();
     const { theme } = state;
     const scale = useSharedValue(1);
@@ -350,9 +342,12 @@ export const Menu = {
       }
     };
 
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: scale.value }],
-    }));
+    const animatedStyle = useAnimatedStyle(
+      () => ({
+        transform: [{ scale: scale.value }],
+      }),
+      [scale]
+    );
 
     const renderChildren = (): ReactNode => {
       if (typeof children === 'string') {
@@ -366,7 +361,7 @@ export const Menu = {
         onPress={handlePress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[styles.item, { backgroundColor: theme.colors.menuBackground }, style, animatedStyle]}
+        style={[styles.item, { backgroundColor: theme.colors.menuBackground }, style, IS_WEB ? null : animatedStyle]}
         {...props}>
         {renderChildren()}
       </AnimatedPressable>
@@ -383,7 +378,7 @@ export const Menu = {
     return (
       <Animated.Text
         style={[styles.label, { color: theme.colors.textSecondary || theme.colors.menuText }, style]}
-        entering={FadeIn.delay(150).duration(250)}
+        entering={webSafeAnimation(FadeIn.delay(150).duration(250))}
         {...props}>
         {children}
       </Animated.Text>
@@ -400,7 +395,7 @@ export const Menu = {
     return (
       <AnimatedView
         style={[styles.separator, { backgroundColor: theme.colors.menuSeparator || '#ccc' }, style]}
-        entering={FadeIn.delay(100).duration(200)}
+        entering={webSafeAnimation(FadeIn.delay(100).duration(200))}
         {...props}
       />
     );
@@ -411,7 +406,7 @@ export const Menu = {
    */
   Group: ({ children, style, ...props }: MenuGroupProps): ReactElement => {
     return (
-      <AnimatedView style={[styles.group, style]} entering={FadeIn.duration(250)} {...props}>
+      <AnimatedView style={[styles.group, style]} entering={webSafeAnimation(FadeIn.duration(250))} {...props}>
         {children}
       </AnimatedView>
     );
@@ -438,9 +433,12 @@ export const Menu = {
       checkScale.value = withTiming(isChecked ? 1 : 0, { duration: 150 });
     }, [isChecked, checkScale]);
 
-    const checkAnimatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: checkScale.value }],
-    }));
+    const checkAnimatedStyle = useAnimatedStyle(
+      () => ({
+        transform: [{ scale: checkScale.value }],
+      }),
+      [checkScale]
+    );
 
     const handlePress = (): void => {
       const newChecked = !isChecked;
@@ -454,7 +452,7 @@ export const Menu = {
       <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} autoClose={false} {...props}>
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.menuText }, textStyle]}>{children}</Text>
-          <AnimatedView style={checkAnimatedStyle}>
+          <AnimatedView style={IS_WEB ? undefined : checkAnimatedStyle}>
             {isChecked ? (
               <Check size={theme.iconSizes.sm} fill={theme.colors.iconNormal} style={[styles.radioIndicator]} />
             ) : null}
@@ -468,7 +466,7 @@ export const Menu = {
    * Close: Button to close the menu.
    */
   Close: ({ style, ...props }: MenuCloseProps): ReactElement => {
-    const { onOpenChange } = usePopoverContext();
+    const { onOpenChange } = useBottomSheetContext();
     return <BaseIconButton onTap={() => onOpenChange(false)} IconComponent={Close} style={style} {...props} />;
   },
 
@@ -491,21 +489,14 @@ export const Menu = {
 };
 
 const styles = StyleSheet.create({
-  popoverContent: {
-    minWidth: 250,
-    maxHeight: 400,
-    borderRadius: 8,
-    overflow: 'hidden',
+  sheetContent: {
+    paddingBottom: 16,
   },
   triggerButton: {
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
-  },
-  content: {
-    padding: 0,
-    alignSelf: 'stretch',
   },
   item: {
     paddingVertical: 12,

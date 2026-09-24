@@ -43,7 +43,7 @@ export const VolumeControl = ({
   };
 
   // Shared values for the slider (0-1 scale to match volume state)
-  const progress = useDerivedValue(() => volume);
+  const progress = useDerivedValue(() => volume, [volume]);
   const min = useSharedValue(0);
   const max = useSharedValue(1);
 

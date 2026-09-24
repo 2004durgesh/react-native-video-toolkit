@@ -78,7 +78,7 @@ A flexible and customizable video player UI toolkit for React Native.
 | Platform   | Tested |
 | ---------- | :----: |
 | Android    |   ✅   |
-| iOS        |   ❌   |
+| iOS        |   ✅   |
 | Android TV |   ✅   |
 | Apple TV   |   ❌   |
 | Web        |   ✅   |
@@ -103,11 +103,18 @@ A flexible and customizable video player UI toolkit for React Native.
 
 ## 📦 Installation
 
+Install the library along with its peer dependencies:
+
 ```bash
-npm install react-native-video-toolkit
+npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
 # or
-yarn add react-native-video-toolkit
+yarn add react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
 ```
+
+> [!NOTE]
+> Each peer dependency has its own setup (Reanimated babel plugin, Gesture Handler root view, orientation & video config plugins).
+> On **iOS**, fullscreen hides the status bar, which requires `UIViewControllerBasedStatusBarAppearance` set to `false` in your `Info.plist` (Expo prebuild and the default RN template usually set this already).
+> See the [full installation guide](https://react-native-video-toolkit-docs.vercel.app/docs/installation) for the complete setup.
 
 ---
 

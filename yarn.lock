@@ -6171,6 +6171,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rn-primitives/dialog@npm:^1.4.0":
+  version: 1.5.2
+  resolution: "@rn-primitives/dialog@npm:1.5.2"
+  dependencies:
+    "@radix-ui/react-dialog": ^1.1.15
+    "@rn-primitives/hooks": 1.5.2
+    "@rn-primitives/slot": 1.5.2
+    "@rn-primitives/types": 1.5.2
+  peerDependencies:
+    "@rn-primitives/portal": "*"
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: dc11abcac6180fa737219dcfd3eaca36332fa2f595babe13c0c91d8763a71865345ebee0d41b9dbee4705c4029e354788104f0e2664ad33cca378e5a1725f2e5
+  languageName: node
+  linkType: hard
+
 "@rn-primitives/hooks@npm:1.4.0":
   version: 1.4.0
   resolution: "@rn-primitives/hooks@npm:1.4.0"
@@ -6186,6 +6208,24 @@ __metadata:
     react-native-web:
       optional: true
   checksum: 24aeb907c04dc21c8e54735f8ff441af6c1d9a3068416c1ec32a6067e228e71efec1702736e1c7fb20dc9d0dbe27c354133870318e1c42b37b4cfd8225c997f5
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/hooks@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@rn-primitives/hooks@npm:1.5.2"
+  dependencies:
+    "@rn-primitives/types": 1.5.2
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 17d2e115587b2220830ac1117d0b86ab51a6dd65bec420fa285a545d7a79639820fff2ab9107c28994a5bb59b24305c42d853acc7bf0aa252a82c1f12e26e092
   languageName: node
   linkType: hard
 
@@ -6245,6 +6285,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rn-primitives/slot@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@rn-primitives/slot@npm:1.5.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 864345be7e5260621dce8ca50f345d8e2599e92801eaf93e5fddfe90fb8192c41dcefef4aac113412fc60ab22c269bd7288cda4aaff9e7899943a4626ece83f1
+  languageName: node
+  linkType: hard
+
 "@rn-primitives/types@npm:1.4.0":
   version: 1.4.0
   resolution: "@rn-primitives/types@npm:1.4.0"
@@ -6258,6 +6314,22 @@ __metadata:
     react-native-web:
       optional: true
   checksum: 41b3d24205c66dced726bf18f33f78a3db477c180c0b134f3320630dca072a373cbddf66be9f0243aea87fc5ad89708fbe33e712a4261c3a2329ab75517bad0c
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/types@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@rn-primitives/types@npm:1.5.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: d385567bc4226ae48d9c792d55d3508ebac67ceb123e40685ed87137ea17f17452561b7b2f14f53002157f53e146a1b62c795fa883f05b442c819523e2f9f54f
   languageName: node
   linkType: hard
 
@@ -18215,6 +18287,7 @@ __metadata:
     "@react-native-community/cli": latest
     "@react-native/eslint-config": ^0.73.1
     "@release-it/conventional-changelog": ^9.0.2
+    "@rn-primitives/dialog": ^1.4.0
     "@rn-primitives/popover": ^1.4.0
     "@rn-primitives/portal": ^1.4.0
     "@types/jest": ^29.5.5

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { ReactVideoProps } from 'react-native-video';
+import { TextTrackType, type ReactVideoProps } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
 
 const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
@@ -9,6 +9,20 @@ const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
     title: 'HLS - Tears of Steel',
     source: {
       uri: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+      textTracks: [
+        {
+          title: 'English CC',
+          language: 'en',
+          type: TextTrackType.VTT,
+          uri: 'https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_en.vtt',
+        },
+        {
+          title: 'Español',
+          language: 'es',
+          type: TextTrackType.VTT,
+          uri: 'https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_es.vtt',
+        },
+      ],
     },
   },
   {

@@ -37,10 +37,10 @@ export const ProgressBar = ({
   } = useVideo();
 
   // Shared values for the slider - use useDerivedValue to react to changes
-  const progress = useDerivedValue(() => currentTime);
+  const progress = useDerivedValue(() => currentTime, [currentTime]);
   const min = useSharedValue(0);
-  const max = useDerivedValue(() => duration);
-  const cache = useDerivedValue(() => playableDuration);
+  const max = useDerivedValue(() => duration, [duration]);
+  const cache = useDerivedValue(() => playableDuration, [playableDuration]);
 
   const handleSlidingStart = () => {
     showControls();
