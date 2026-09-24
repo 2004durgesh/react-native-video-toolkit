@@ -15,10 +15,10 @@ export const combineHandlers =
  * - Groups by width, height, codecs.
  * - Keeps the highest bitrate in each group.
  */
-export function dedupeVideoTracks<T extends VideoTrack>(tracks: T[]): T[] {
+export function dedupeVideoTracks<T extends VideoTrack>(tracks?: T[]): T[] {
   const map = new Map<string, T>();
 
-  for (const track of tracks) {
+  for (const track of tracks ?? []) {
     const signature = `${track.width}|${track.height}|${track.codecs}`;
     const existing = map.get(signature);
 
@@ -36,11 +36,11 @@ export function dedupeVideoTracks<T extends VideoTrack>(tracks: T[]): T[] {
  * - Keeps the first occurrence of each language.
  * - Filters out tracks with null/undefined language.
  */
-export function dedupeLanguageTracks<T extends AudioTrack | TextTrack>(tracks: T[]): T[] {
+export function dedupeLanguageTracks<T extends AudioTrack | TextTrack>(tracks?: T[]): T[] {
   const seen = new Set<string>();
   const result: T[] = [];
 
-  for (const track of tracks) {
+  for (const track of tracks ?? []) {
     if (!track.language) continue;
 
     if (!seen.has(`${track.language}|${track.title}`)) {

@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red', //for debugging purposes
   },
   badgeContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     zIndex: 99,
     top: '5%',

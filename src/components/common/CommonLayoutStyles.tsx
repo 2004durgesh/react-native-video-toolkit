@@ -14,7 +14,7 @@ export const CommonLayoutStyles = StyleSheet.create({
     zIndex: 2,
   },
   centerControls: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     pointerEvents: 'box-none',

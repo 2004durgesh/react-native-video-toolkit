@@ -149,7 +149,7 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
 
 const styles = StyleSheet.create({
   controlsContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     ...(Platform.OS === 'web' && {
       zIndex: 10,
       pointerEvents: 'box-none',

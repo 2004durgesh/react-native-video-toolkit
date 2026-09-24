@@ -155,7 +155,7 @@ export const usePopoverContext = RNPopover.useRootContext;
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'transparent',
   },
   content: {
