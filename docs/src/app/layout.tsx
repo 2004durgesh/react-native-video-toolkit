@@ -1,6 +1,6 @@
 import 'raf/polyfill';
 import '@/app/global.css';
-import { RootProvider } from 'fumadocs-ui/provider';
+import { RootProvider } from 'fumadocs-ui/provider/next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { cn } from '@/lib/utils';
 const fontSans = Geist({
@@ -17,7 +17,7 @@ const fontMono = Geist_Mono({
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={cn(fontSans.variable, fontMono.variable)} suppressHydrationWarning>
-      <body className="flex flex-col min-h-screen absolute inset-0 z-0">
+      <body className="flex flex-col min-h-screen relative z-0">
         <RootProvider theme={{ defaultTheme: 'dark' }}>{children}</RootProvider>
       </body>
     </html>

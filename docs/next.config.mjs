@@ -47,9 +47,6 @@ const config = {
   experimental: {
     forceSwcTransforms: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -139,6 +136,15 @@ function withExpo(nextConfig) {
           __DEV__: JSON.stringify(process.env.NODE_ENV !== 'production'),
           global: 'globalThis',
         })
+      );
+
+      // 🔹 Swap Reanimated's web utils for a shim that imports react-native-web's style helpers
+      // statically; its own require() calls are left untouched by webpack and fail in the browser
+      config.plugins.push(
+        new options.webpack.NormalModuleReplacementPlugin(
+          /react-native-reanimated[\\/]lib[\\/]module[\\/]ReanimatedModule[\\/]js-reanimated[\\/]webUtils\.web\.js$/,
+          require.resolve('./shims/reanimated-web-utils.js')
+        )
       );
 
       // Call user-defined webpack if provided
