@@ -21,15 +21,15 @@ export const MyComponent = () => {
 
 | Value                     | Type                                                              | Description                                                          |
 | ------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `videoTrack`              | `CustomVideoTrack \| VideoTrack \| null`                          | The current video quality setting.                                   |
-| `videoTracks`             | `(CustomVideoTrack \| VideoTrack)[]`                              | The list of available video qualities.                               |
+| `videoTrack`              | `CustomVideoTrack \| VideoTrack \| null`                          | The current video quality setting. Web only (see note below).        |
+| `videoTracks`             | `(CustomVideoTrack \| VideoTrack)[]`                              | The list of available video qualities. Empty on iOS and Android.     |
 | `setVideoTrack`           | `(newVideoTrack: CustomVideoTrack \| VideoTrack \| null) => void` | A function to set the current video quality.                         |
 | `setAvailableVideoTracks` | `(videoTracks: (CustomVideoTrack \| VideoTrack)[]) => void`       | A function to set the list of available video qualities.             |
 | `audioTrack`              | `AudioTrack \| null`                                              | The current audio track setting.                                     |
-| `audioTracks`             | `AudioTrack[]`                                                    | The list of available audio tracks.                                  |
+| `audioTracks`             | `AudioTrack[]`                                                    | The list of available audio tracks. Empty on iOS and Android.        |
 | `setAudioTrack`           | `(newAudioTrack: AudioTrack \| null) => void`                     | A function to set the current audio track.                           |
 | `setAvailableAudioTracks` | `(audioTracks: AudioTrack[]) => void`                             | A function to set the list of available audio tracks.                |
-| `textTrack`               | `TextTrack \| null`                                               | The current subtitle track setting.                                  |
+| `textTrack`               | `TextTrack \| null`                                               | The current subtitle track. `null` means subtitles are off.          |
 | `textTracks`              | `TextTrack[]`                                                     | The list of available subtitle tracks.                               |
 | `setTextTrack`            | `(newTextTrack: TextTrack \| null) => void`                       | A function to set the current subtitle track.                        |
 | `setAvailableTextTracks`  | `(textTracks: TextTrack[]) => void`                               | A function to set the list of available subtitle tracks.             |
@@ -37,6 +37,12 @@ export const MyComponent = () => {
 | `openSettings`            | `() => void`                                                      | A function to explicitly open the settings menu.                     |
 | `closeSettings`           | `() => void`                                                      | A function to explicitly close the settings menu.                    |
 | `setSettingsMenuVisible`  | `(visible: boolean) => void`                                      | A function to explicitly set the visibility of the settings menu.    |
+
+<Callout type="info">
+  Tracks use react-native-video v7's shape: `{ id, label, language?, selected }`. Subtitles work on every platform;
+  audio and quality selection are only supported on web, so `audioTracks` and `videoTracks` stay empty on iOS and
+  Android. To turn subtitles off, call `setTextTrack(null)`.
+</Callout>
 
 ### Example
 

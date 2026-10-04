@@ -1,1 +1,1 @@
-export { VideoSurface } from './VideoSurface';
+export { VideoSurface, type VideoSurfaceProps } from './VideoSurface';

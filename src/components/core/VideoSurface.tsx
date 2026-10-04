@@ -1,18 +1,28 @@
-import RNVideo, {
-  ResizeMode,
-  SelectedTrackType,
-  SelectedVideoTrackType,
-  ViewType,
-  type OnLoadData,
-  type OnPlaybackRateChangeData,
-  type OnProgressData,
-  type OnBufferData,
-  type OnVideoErrorData,
-  type ReactVideoProps,
+import {
+  useVideoPlayer,
+  VideoView,
+  type AllPlayerEvents,
   type AudioTrack,
+  type VideoConfig,
+  type VideoPlayer,
+  type VideoSource,
+  type VideoTrack,
+  type VideoViewProps,
+  type WebVideoPlayer,
+  type onLoadData,
+  type onProgressData,
+  type VideoRuntimeError,
 } from 'react-native-video';
-import { useEffect, useMemo, useRef, type FC } from 'react';
-import { Dimensions, Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect, useMemo, useRef, useState, type FC } from 'react';
+import {
+  Dimensions,
+  Platform,
+  StyleSheet,
+  View,
+  type LayoutChangeEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useVideo } from '../../providers';
 import {
   usePlayback,
@@ -29,19 +39,61 @@ import type { CustomVideoTrack } from '../../types';
 /**
  * Props for the VideoSurface component.
  */
-interface VideoSurfaceProps extends ReactVideoProps {
+export interface VideoSurfaceProps {
   /**
-   * Custom audio tracks to use instead of auto-extracting from video source.
+   * The video to play: a URL, a `require()`d asset, or a full react-native-video `VideoConfig`
+   * (headers, DRM, `externalSubtitles`, buffer settings...).
+   */
+  source: VideoConfig | VideoSource;
+  /**
+   * Style for the video view.
+   */
+  style?: StyleProp<ViewStyle>;
+  /**
+   * Props passed to react-native-video's `VideoView` (everything except `player`).
+   */
+  viewProps?: Partial<Omit<VideoViewProps, 'player'>>;
+  /**
+   * Player event callbacks. They run after the toolkit's own handling of the same event.
+   */
+  events?: Partial<AllPlayerEvents>;
+  /**
+   * Called on layout of the wrapper view.
+   */
+  onLayout?: (event: LayoutChangeEvent) => void;
+  /**
+   * Custom audio tracks to use instead of the ones reported by the player.
    * Only used when config.useCustomAudioTracks is true.
    */
   customAudioTracks?: AudioTrack[];
   /**
-   * Custom video tracks to use instead of auto-extracting from video source.
+   * Custom video tracks to use instead of the ones reported by the player.
    * Only used when config.useCustomVideoTracks is true.
-   * Supports CustomVideoTrack with label and uri fields for better UX.
    */
   customVideoTracks?: CustomVideoTrack[];
 }
+
+/**
+ * Audio and quality track selection is only implemented by react-native-video v7's web player.
+ * On iOS and Android these lists stay empty, so the settings menu hides those options.
+ */
+const asWebPlayer = (player: VideoPlayer): WebVideoPlayer | null => {
+  const candidate = player as unknown as Partial<WebVideoPlayer>;
+  return typeof candidate.getAvailableAudioTracks === 'function' &&
+    typeof candidate.getAvailableVideoTracks === 'function'
+    ? (player as unknown as WebVideoPlayer)
+    : null;
+};
+
+/**
+ * Picks the track to select after media loads: the current one if it still exists (by id),
+ * otherwise the one the player marks as selected, otherwise the first; `null` if there are none.
+ */
+const pickTrack = <T extends { id?: string; selected?: boolean }>(current: T | null, tracks: T[]): T | null =>
+  (current?.id !== undefined ? tracks.find((t) => t.id === current.id) : undefined) ??
+  tracks.find((t) => t.selected) ??
+  tracks[0] ??
+  null;
 
 /**
  * A component that wraps the `react-native-video` library
@@ -50,14 +102,15 @@ interface VideoSurfaceProps extends ReactVideoProps {
  * This component is responsible for handling video playback,
  * events, and other video-related functionality.
  */
-export const VideoSurface: FC<VideoSurfaceProps> = ({
+const VideoSurfaceContent: FC<VideoSurfaceProps> = ({
   source,
   style,
+  viewProps,
+  events,
+  onLayout: userOnLayout,
   customAudioTracks,
   customVideoTracks,
-  ...rest
 }) => {
-  const internalVideoRef = useRef(null);
   const { dispatch, state } = useVideo();
   const { isPlaying, setPlaying } = usePlayback();
   const { muted, volume } = useVolume();
@@ -77,12 +130,19 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setVideoTrack,
   } = useSettings();
 
-  // Set the ref in the store once it's created
-  useEffect(() => {
-    if (internalVideoRef.current) {
-      dispatch({ type: 'SET_VIDEO_REF', payload: internalVideoRef });
+  // The player is recreated by react-native-video whenever `source` changes.
+  const player = useVideoPlayer(source, (p) => {
+    // Play audio even when the iOS silent switch is on (iOS-only setting).
+    if (Platform.OS === 'ios') {
+      p.ignoreSilentSwitchMode = 'ignore';
     }
-  }, [dispatch]);
+  });
+
+  // Expose the player to the rest of the toolkit (seeking, gestures...).
+  useEffect(() => {
+    dispatch({ type: 'SET_PLAYER', payload: player });
+    return () => dispatch({ type: 'SET_PLAYER', payload: null });
+  }, [player, dispatch]);
 
   useEffect(() => {
     showControls();
@@ -92,94 +152,182 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     return () => subscription.remove();
   }, [dispatch, showControls]);
 
-  const {
-    onLoad: userOnLoad,
-    onProgress: userOnProgress,
-    onBuffer: userOnBuffer,
-    onError: userOnError,
-    onEnd: userOnEnd,
-    onLayout: userOnLayout,
-    onPlaybackRateChange: userOnPlaybackRateChange,
-    ...nativeProps
-  } = rest as Partial<ReactVideoProps>;
+  // Toolkit state is the source of truth; mirror it into the player.
+  useEffect(() => {
+    if (isPlaying) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }, [player, isPlaying]);
 
-  const handleLoad = (data: OnLoadData) => {
+  useEffect(() => {
+    player.volume = volume;
+  }, [player, volume]);
+
+  useEffect(() => {
+    player.muted = muted;
+  }, [player, muted]);
+
+  useEffect(() => {
+    if (playbackRate > 0) {
+      player.rate = playbackRate;
+    }
+  }, [player, playbackRate]);
+
+  // Track selection throws until the native player has loaded its media, so selections are only
+  // applied once this specific player instance has fired `onLoad`.
+  const [loadedPlayer, setLoadedPlayer] = useState<VideoPlayer | null>(null);
+  const isLoaded = loadedPlayer === player;
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    // `null` turns subtitles off.
+    player.selectTextTrack(textTrack ?? null);
+  }, [player, isLoaded, textTrack]);
+
+  useEffect(() => {
+    const webPlayer = asWebPlayer(player);
+    if (!isLoaded || !webPlayer || !audioTrack) return;
+    webPlayer.selectAudioTrack(audioTrack);
+  }, [player, isLoaded, audioTrack]);
+
+  useEffect(() => {
+    const webPlayer = asWebPlayer(player);
+    if (!isLoaded || !webPlayer || !videoTrack) return;
+    webPlayer.selectVideoTrack(videoTrack as VideoTrack);
+  }, [player, isLoaded, videoTrack]);
+
+  const handleLoad = (data: onLoadData) => {
+    setLoadedPlayer(player);
     setDuration(data.duration);
     setBuffering(false);
 
-    // Use custom tracks if configured, otherwise extract from video source
-    const useCustomAudio = state.config.useCustomAudioTracks;
-    const useCustomVideo = state.config.useCustomVideoTracks;
-
-    // Handle audio tracks
-    let audioTracksToUse;
-    if (useCustomAudio && customAudioTracks) {
-      audioTracksToUse = customAudioTracks;
-    } else {
-      audioTracksToUse = dedupeLanguageTracks(data.audioTracks);
+    // The play() issued before the media was ready may not stick on every platform.
+    if (isPlaying) {
+      player.play();
     }
 
-    // Handle video tracks
-    let videoTracksToUse;
-    if (useCustomVideo && customVideoTracks) {
-      videoTracksToUse = customVideoTracks;
-    } else {
-      videoTracksToUse = dedupeVideoTracks(data.videoTracks);
-    }
+    const webPlayer = asWebPlayer(player);
 
-    // Text tracks are always extracted from source (no custom option for now)
-    const dedupedTextTracks = dedupeLanguageTracks(data.textTracks);
+    const audioTracksToUse =
+      state.config.useCustomAudioTracks && customAudioTracks
+        ? customAudioTracks
+        : dedupeLanguageTracks(webPlayer?.getAvailableAudioTracks());
 
-    // Set the tracks in state
-    setAvailableAudioTracks(audioTracksToUse);
-    setAvailableVideoTracks(videoTracksToUse);
+    const videoTracksToUse =
+      state.config.useCustomVideoTracks && customVideoTracks
+        ? customVideoTracks
+        : dedupeVideoTracks(webPlayer?.getAvailableVideoTracks());
 
-    // Add an "Off" option for text tracks
-    setAvailableTextTracks(
-      [...dedupedTextTracks, { index: -1, title: 'Off', language: 'off', type: 'disabled' }].sort(
-        (a, b) => a.index - b.index
-      )
-    );
+    const textTracks = dedupeLanguageTracks(player.getAvailableTextTracks());
 
-    // Select the first track by default if none is selected
-    if (!audioTrack && audioTracksToUse.length > 0) {
-      setAudioTrack(audioTracksToUse[0]!);
+    // On native, audio/quality selection isn't supported, so don't offer it.
+    setAvailableAudioTracks(webPlayer ? audioTracksToUse : []);
+    setAvailableVideoTracks(webPlayer ? videoTracksToUse : []);
+    setAvailableTextTracks(textTracks);
+
+    // Keep the current selection if the new media has the same track (e.g. after switching
+    // sources); otherwise use whatever the player reports as active, or the first track.
+    if (webPlayer) {
+      setAudioTrack(pickTrack(audioTrack, audioTracksToUse));
+      setVideoTrack(pickTrack(videoTrack, videoTracksToUse));
     }
-    // Select the first track by default if none is selected
-    if (!textTrack && dedupedTextTracks.length > 0) {
-      setTextTrack(dedupedTextTracks[0]!);
-    }
-    // Select the track that matches the natural size, or the first one if none match
-    if (!videoTrack && videoTracksToUse.length > 0) {
-      const naturalSizeIndex = videoTracksToUse.findIndex((t) => t.height === data.naturalSize.height);
-      setVideoTrack(videoTracksToUse[naturalSizeIndex !== -1 ? naturalSizeIndex : 0]!);
-    }
+    setTextTrack(pickTrack(textTrack, textTracks));
   };
-  const handleProgress = (data: OnProgressData) => {
+  const handleProgress = (data: onProgressData) => {
     setCurrentTime(data.currentTime);
-    setPlayableDuration(data.playableDuration);
+    // `bufferDuration` is how far ahead of the playhead the player has buffered.
+    setPlayableDuration(data.currentTime + data.bufferDuration);
   };
-  const handleBuffer = (data: OnBufferData) => setBuffering(data.isBuffering);
-  const handleError = (error: OnVideoErrorData) =>
-    dispatch({ type: 'SET_ERROR', payload: error?.error?.errorString || 'An unknown error occurred' });
+  const handleBuffer = (buffering: boolean) => setBuffering(buffering);
+  const handleError = (error: VideoRuntimeError) =>
+    dispatch({ type: 'SET_ERROR', payload: error?.message || 'An unknown error occurred' });
   const handleEnd = () => {
     setPlaying(false);
     seek(0);
     showControls();
   };
-  const handleLayout = (event: { nativeEvent: { layout: LayoutRectangle } }) => {
-    const { layout } = event.nativeEvent;
-    dispatch({ type: 'SET_VIDEO_LAYOUT', payload: layout });
+  const handlePlaybackRateChange = (rate: number) => {
+    // Some platforms report a rate of 0 while paused; that isn't a speed the user chose.
+    if (rate > 0) {
+      setPlaybackRate(rate);
+    }
   };
-  const handlePlaybackRateChange = (data: OnPlaybackRateChangeData) => {
-    setPlaybackRate(data.playbackRate);
+
+  // Keep the latest handlers in a ref so player listeners are only attached once per player.
+  const handlersRef = useRef({
+    handleLoad,
+    handleProgress,
+    handleBuffer,
+    handleError,
+    handleEnd,
+    handlePlaybackRateChange,
+    events,
+  });
+  handlersRef.current = {
+    handleLoad,
+    handleProgress,
+    handleBuffer,
+    handleError,
+    handleEnd,
+    handlePlaybackRateChange,
+    events,
   };
+
+  // Re-subscribe user events only when the set of event names changes, not on every render.
+  const userEventNames = Object.keys(events ?? {})
+    .sort()
+    .join(',');
+
+  useEffect(() => {
+    const h = () => handlersRef.current;
+    const subscriptions = [
+      player.addEventListener('onLoad', (data) => {
+        h().handleLoad(data);
+        h().events?.onLoad?.(data);
+      }),
+      player.addEventListener('onProgress', (data) => {
+        h().handleProgress(data);
+        h().events?.onProgress?.(data);
+      }),
+      player.addEventListener('onBuffer', (buffering) => {
+        h().handleBuffer(buffering);
+        h().events?.onBuffer?.(buffering);
+      }),
+      player.addEventListener('onError', (error) => {
+        h().handleError(error);
+        h().events?.onError?.(error);
+      }),
+      player.addEventListener('onEnd', () => {
+        h().handleEnd();
+        h().events?.onEnd?.();
+      }),
+      player.addEventListener('onPlaybackRateChange', (rate) => {
+        h().handlePlaybackRateChange(rate);
+        h().events?.onPlaybackRateChange?.(rate);
+      }),
+    ];
+
+    // Forward any other events the consumer asked for.
+    const handledInternally = new Set(['onLoad', 'onProgress', 'onBuffer', 'onError', 'onEnd', 'onPlaybackRateChange']);
+    for (const name of userEventNames ? userEventNames.split(',') : []) {
+      if (handledInternally.has(name)) continue;
+      const eventName = name as keyof AllPlayerEvents;
+      subscriptions.push(
+        player.addEventListener(eventName, ((...args: unknown[]) =>
+          (h().events?.[eventName] as ((...a: unknown[]) => void) | undefined)?.(
+            ...args
+          )) as AllPlayerEvents[typeof eventName])
+      );
+    }
+
+    return () => subscriptions.forEach((subscription) => subscription.remove());
+  }, [player, userEventNames]);
+
   const isFullscreen = state.fullscreen;
-  const selectedAudioTrackConfig =
-    typeof audioTrack?.index === 'number' ? { type: SelectedTrackType.INDEX, value: audioTrack.index } : undefined;
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
       height: isFullscreen ? state.dimensions.height : undefined,
       aspectRatio: isFullscreen ? undefined : 16 / 9,
       backgroundColor: 'black',
@@ -193,7 +341,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
 
   return (
     <View
-      onLayout={combineHandlers((e) => {
+      onLayout={combineHandlers((e: LayoutChangeEvent) => {
         const { layout } = e.nativeEvent;
         dispatch({ type: 'SET_VIDEO_WRAPPER_LAYOUT', payload: layout });
       }, userOnLayout)}
@@ -201,32 +349,46 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         height: state.videoLayout.height || 'auto',
         ...(Platform.OS === 'web' && { height: '100vh' as unknown as number }),
       }}>
-      <RNVideo
-        ref={internalVideoRef}
-        source={source}
-        style={[videoStyle, style]}
-        resizeMode={ResizeMode.CONTAIN}
-        paused={!isPlaying}
-        volume={volume}
-        muted={muted}
-        rate={playbackRate}
+      <VideoView
+        player={player}
+        style={StyleSheet.flatten([videoStyle, style])}
+        resizeMode="contain"
         controls={false}
-        selectedVideoTrack={{ type: SelectedVideoTrackType.RESOLUTION, value: videoTrack?.height }}
-        selectedAudioTrack={selectedAudioTrackConfig}
-        selectedTextTrack={{ type: SelectedTrackType.INDEX, value: textTrack?.index }}
-        ignoreSilentSwitch="ignore"
-        onLoad={combineHandlers(handleLoad, userOnLoad)}
-        onProgress={combineHandlers(handleProgress, userOnProgress)}
-        onBuffer={combineHandlers(handleBuffer, userOnBuffer)}
-        onError={combineHandlers(handleError, userOnError)}
-        onEnd={combineHandlers(handleEnd, userOnEnd)}
-        onPlaybackRateChange={combineHandlers(handlePlaybackRateChange, userOnPlaybackRateChange)}
-        progressUpdateInterval={500}
-        onLayout={handleLayout}
-        viewType={ViewType.TEXTURE}
-        subtitleStyle={{ paddingBottom: 50, fontSize: 20, opacity: 0.8 }}
-        {...nativeProps}
+        // TextureView keeps the video composable with the toolkit's overlays and animations on Android.
+        surfaceType="texture"
+        {...viewProps}
+        onLayout={combineHandlers((e: LayoutChangeEvent) => {
+          const { layout } = e.nativeEvent;
+          dispatch({ type: 'SET_VIDEO_LAYOUT', payload: layout });
+        }, viewProps?.onLayout)}
       />
     </View>
   );
 };
+
+/**
+ * react-native-video v7 can't create a player during server-side rendering (e.g. Next.js), so on
+ * web the player is only created once the component has mounted in the browser. Until then a
+ * black placeholder keeps the layout stable. On native the player is created immediately.
+ */
+export const VideoSurface: FC<VideoSurfaceProps> = (props) => {
+  const [isMounted, setIsMounted] = useState(Platform.OS !== 'web');
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <View style={[styles.placeholder, props.style]} />;
+  }
+
+  return <VideoSurfaceContent {...props} />;
+};
+
+const styles = StyleSheet.create({
+  placeholder: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    backgroundColor: 'black',
+  },
+});

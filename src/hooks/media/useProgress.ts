@@ -35,7 +35,7 @@ export interface UseProgressReturn {
  */
 export const useProgress = (): UseProgressReturn => {
   const { state, dispatch } = useVideo();
-  const { videoRef, duration } = state;
+  const { player, duration } = state;
 
   /**
    * Seeks to a specific time in the video.
@@ -43,13 +43,13 @@ export const useProgress = (): UseProgressReturn => {
    */
   const seek = useCallback(
     (time: number) => {
-      if (videoRef?.current) {
+      if (player) {
         const newTime = Math.max(0, Math.min(time, duration));
-        videoRef.current.seek(newTime);
+        player.seekTo(newTime);
         dispatch({ type: 'SET_CURRENT_TIME', payload: newTime });
       }
     },
-    [videoRef, duration, dispatch]
+    [player, duration, dispatch]
   );
 
   /**

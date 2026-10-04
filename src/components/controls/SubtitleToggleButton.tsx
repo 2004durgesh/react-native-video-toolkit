@@ -1,3 +1,4 @@
+import type { TextTrack } from 'react-native-video';
 import { BaseIconButton } from '../common';
 import { Subtitles, SubtitlesOff } from '../svgs';
 import { useSettings } from '../../hooks';
@@ -10,24 +11,23 @@ import { useState, useEffect } from 'react';
  */
 export const SubtitleToggleButton = () => {
   const { textTrack, setTextTrack, textTracks } = useSettings();
-  const [lastSelectedTrack, setLastSelectedTrack] = useState<any>(null);
+  const [lastSelectedTrack, setLastSelectedTrack] = useState<TextTrack | null>(null);
 
-  const isOff = !textTrack || textTrack.index === -1;
+  // `null` means subtitles are off.
+  const isOff = !textTrack;
   const icon = isOff ? SubtitlesOff : Subtitles;
 
   useEffect(() => {
-    if (textTrack && textTrack.index !== -1) {
+    if (textTrack) {
       setLastSelectedTrack(textTrack);
     }
   }, [textTrack]);
 
   const handleToggle = () => {
     if (isOff) {
-      const trackToUse = lastSelectedTrack || textTracks[0] || null;
-      setTextTrack(trackToUse);
+      setTextTrack(lastSelectedTrack ?? textTracks[0] ?? null);
     } else {
-      // Turning off: set to off state
-      setTextTrack({ index: -1, title: 'Off', language: 'off', type: 'disabled' });
+      setTextTrack(null);
     }
   };
 

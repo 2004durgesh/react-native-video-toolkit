@@ -1,6 +1,6 @@
 ---
 title: 'VideoSurface'
-description: A thin wrapper around react-native-video that integrates with the toolkit's context and hooks.
+description: A thin wrapper around react-native-video's player and VideoView that integrates with the toolkit's context and hooks.
 ---
 
 ## Usage
@@ -12,8 +12,8 @@ export function CustomSurfaceExample() {
   return (
     <VideoSurface
       source={{ uri: 'https://example.com/video.mp4' }}
-      resizeMode="cover"
-      onEnd={() => console.log('Playback finished')}
+      viewProps={{ resizeMode: 'cover' }}
+      events={{ onEnd: () => console.log('Playback finished') }}
     />
   );
 }
@@ -23,29 +23,47 @@ export function CustomSurfaceExample() {
 
 ## Props
 
-All props from [`react-native-video`](https://github.com/react-native-video/react-native-video#props) are supported.
+`VideoSurface` creates a react-native-video v7 player with `useVideoPlayer` and renders it in a `VideoView`.
 
-| Prop      | Type                        | Required | Default | Description                                                   |
-| --------- | --------------------------- | -------- | ------- | ------------------------------------------------------------- |
-| `source`  | `ReactVideoProps['source']` | Yes      | –       | Video source (`uri`, local file, or require).                 |
-| `style`   | `StyleProp<ViewStyle>`      | No       | –       | Additional style applied to the `<Video>` surface.            |
-| `...rest` | `ReactVideoProps`           | No       | –       | Any other props from `react-native-video` are passed through. |
+| Prop                | Type                                      | Required | Default | Description                                                                                                           |
+| ------------------- | ----------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
+| `source`            | `VideoConfig \| VideoSource`              | Yes      | –       | A URL, a `require()`d asset, or a react-native-video `VideoConfig` (`uri`, `headers`, `drm`, `externalSubtitles`...). |
+| `style`             | `StyleProp<ViewStyle>`                    | No       | –       | Additional style applied to the `VideoView`.                                                                          |
+| `viewProps`         | `Partial<Omit<VideoViewProps, 'player'>>` | No       | –       | Props passed to react-native-video's `VideoView` (`resizeMode`, `pictureInPicture`, `surfaceType`...).                |
+| `events`            | `Partial<AllPlayerEvents>`                | No       | –       | Player event callbacks. They run after the toolkit's own handling of the same event.                                  |
+| `onLayout`          | `(event: LayoutChangeEvent) => void`      | No       | –       | Called on layout of the wrapper view.                                                                                 |
+| `customAudioTracks` | `AudioTrack[]`                            | No       | –       | Replaces the reported audio tracks when `config.useCustomAudioTracks` is `true` (web only).                           |
+| `customVideoTracks` | `CustomVideoTrack[]`                      | No       | –       | Replaces the reported quality tracks when `config.useCustomVideoTracks` is `true` (web only).                         |
+
+By default the view uses `resizeMode="contain"`, `controls={false}` and, on Android, `surfaceType="texture"` so the
+video composes with the toolkit's overlays. Anything you pass in `viewProps` overrides these.
 
 ---
 
 <Callout type="info">
 **Events**
 
-These events are **already handled internally** and connected to the global store:
+The toolkit listens to these player events and keeps the global store in sync. Your `events` callbacks run after it:
 
-- **`onLoad`** → sets duration, clears buffering, deduplicates tracks, and selects the first available track by default.
-- **`onProgress`** → updates current time
+- **`onLoad`** → sets duration, clears buffering, reads the available tracks, and keeps the current selection if the new media has the same track (otherwise picks the active or first track).
+- **`onProgress`** → updates current time and buffered position
 - **`onBuffer`** → updates buffering state
-- **`onError`** → dispatches an error message into state
+- **`onError`** → dispatches the error message into state
 - **`onEnd`** → stops playback, seeks to `0`, and shows controls
-- **`onLayout`** → updates player layout in state
+- **`onPlaybackRateChange`** → updates the playback rate
 
-You can override these if needed, but by default they keep your UI in sync.
+Any other event in `events` (for example `onSeek` or `onVolumeChange`) is forwarded to your callback directly.
+
+</Callout>
+
+---
+
+<Callout type="info">
+**The player**
+
+The player instance is shared through the store as `useVideo().state.player`, for example to seek with
+`player.seekTo(seconds)`. react-native-video recreates the player whenever `source` changes. Track selections are
+applied once the new media has loaded.
 
 </Callout>
 
@@ -57,6 +75,8 @@ You can override these if needed, but by default they keep your UI in sync.
 - Automatically adapts when `fullscreen` is toggled in the global store.
 - Uses a `16:9` aspect ratio by default in normal mode.
 - In fullscreen, expands to `Dimensions.get('window')`.
+- On web, react-native-video can't create a player during server-side rendering (e.g. Next.js), so `VideoSurface`
+  renders a black placeholder until it mounts in the browser.
 
 </Callout>
 

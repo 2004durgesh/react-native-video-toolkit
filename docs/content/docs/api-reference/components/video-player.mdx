@@ -29,7 +29,7 @@ import { VideoPlayer } from 'react-native-video-toolkit';
 
 export default function App() {
   return (
-    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} videoProps={{ resizeMode: 'contain' }}>
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} viewProps={{ resizeMode: 'contain' }}>
       <VideoPlayer.Controls>
         <VideoPlayer.PlayButton />
         <VideoPlayer.ProgressBar />
@@ -38,7 +38,6 @@ export default function App() {
         <VideoPlayer.FullscreenButton />
         <VideoPlayer.SettingsButton />
       </VideoPlayer.Controls>
-      <VideoPlayer.Menu />
     </VideoPlayer>
   );
 }
@@ -48,16 +47,37 @@ export default function App() {
 
 ## Props
 
-| Prop                | Type                                                           | Required | Default | Description                                                                                                                       |
-| ------------------- | -------------------------------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `source`            | `ReactVideoProps['source']`                                    | Yes      | –       | Video source (`uri`, local file, or require). Uses the source type from `react-native-video`.                                     |
-| `children`          | `ReactNode`                                                    | No       | –       | Optional custom overlay or controls.                                                                                              |
-| `containerStyle`    | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the root container.                                                                                              |
-| `videoProps`        | `ReactVideoProps`                                              | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player.           |
-| `gestureProps`      | [`GestureHandlerProps`](../types/gestures#gesturehandlerprops) | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                                |
-| `videoStyle`        | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the [video](./core/video-surface.mdx) component.                                                                 |
-| `customAudioTracks` | `AudioTrack[]`                                                 | No       | –       | Custom audio tracks to use when `config.useCustomAudioTracks` is `true`.                                                          |
-| `customVideoTracks` | `CustomVideoTrack[]`                                           | No       | –       | Custom video tracks to use when `config.useCustomVideoTracks` is `true`. See [CustomVideoTrack](../types/video#customvideotrack). |
+| Prop                | Type                                                           | Required | Default | Description                                                                                                                                                                                                                                                     |
+| ------------------- | -------------------------------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source`            | `VideoConfig \| VideoSource`                                   | Yes      | –       | A URL, a `require()`d asset, or a react-native-video [`VideoConfig`](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/player/video-player) (`uri`, `headers`, `drm`, `externalSubtitles`, `bufferConfig`...). `require()` sources don't work on web. |
+| `children`          | `ReactNode`                                                    | No       | –       | Optional custom overlay or controls.                                                                                                                                                                                                                            |
+| `containerStyle`    | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the root container.                                                                                                                                                                                                                            |
+| `viewProps`         | `Partial<Omit<VideoViewProps, 'player'>>`                      | No       | –       | Props passed to react-native-video's [`VideoView`](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/video-view/props), e.g. `resizeMode`, `pictureInPicture`, `surfaceType`.                                                                         |
+| `events`            | `Partial<AllPlayerEvents>`                                     | No       | –       | Player event callbacks (`onLoad`, `onProgress`, `onEnd`, `onError`, ...). They run after the toolkit's own handling. See [player events](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/player/events).                                            |
+| `gestureProps`      | [`GestureHandlerProps`](../types/gestures#gesturehandlerprops) | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                                                                                                                                                              |
+| `videoStyle`        | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the [video](./core/video-surface.mdx) component.                                                                                                                                                                                               |
+| `customAudioTracks` | `AudioTrack[]`                                                 | No       | –       | Custom audio tracks to use when `config.useCustomAudioTracks` is `true`. Web only, see [Track support](#track-support).                                                                                                                                         |
+| `customVideoTracks` | `CustomVideoTrack[]`                                           | No       | –       | Custom video tracks to use when `config.useCustomVideoTracks` is `true`. Web only. See [CustomVideoTrack](../types/video#customvideotrack).                                                                                                                     |
+
+<Callout type="info">
+  `VideoConfig`, `VideoSource`, `VideoViewProps`, `AllPlayerEvents` and the track types are exported by
+  `react-native-video`.
+</Callout>
+
+---
+
+## Track support
+
+Track selection depends on what react-native-video v7 supports on each platform:
+
+| Track                | iOS / Android | Web                                 |
+| -------------------- | ------------- | ----------------------------------- |
+| Subtitles / captions | ✅            | ✅                                  |
+| Audio tracks         | ❌            | ✅ (Safari; experimental elsewhere) |
+| Video quality        | ❌            | ✅ (Safari; experimental elsewhere) |
+
+Where audio or quality selection isn't supported, the toolkit leaves those track lists empty and the settings menu
+hides the **Audio** and **Video** entries.
 
 ---
 
@@ -83,23 +103,59 @@ export default function App() {
 </VideoPlayer>
 ```
 
+### With Subtitles
+
+Pass subtitle files in the source's `externalSubtitles`. They appear in the settings menu and the
+[SubtitleToggleButton](./controls/subtitle-toggle-button), and the first one is turned on by default.
+
+```tsx
+<VideoPlayer
+  source={{
+    uri: 'https://example.com/video.mp4',
+    externalSubtitles: [
+      { uri: 'https://example.com/subs/en.vtt', label: 'English', language: 'en', type: 'vtt' },
+      { uri: 'https://example.com/subs/es.vtt', label: 'Español', language: 'es', type: 'vtt' },
+    ],
+  }}>
+  <DefaultLayout />
+</VideoPlayer>
+```
+
+Supported `type` values are `vtt`, `srt`, `ssa`, `ass` and `auto`. If the URL ends with the file extension you can
+leave `type` out.
+
+### Listening to Player Events
+
+```tsx
+<VideoPlayer
+  source={{ uri: 'https://example.com/video.mp4' }}
+  events={{
+    onLoad: (data) => console.log('duration', data.duration),
+    onEnd: () => console.log('finished'),
+    onError: (error) => console.warn(error.code, error.message),
+  }}>
+  <DefaultLayout />
+</VideoPlayer>
+```
+
 ### With Custom Tracks
+
+Custom tracks replace the lists the player reports. Like the built-in lists, they are only used on web.
 
 ```tsx
 import type { AudioTrack } from 'react-native-video';
 import type { CustomVideoTrack } from 'react-native-video-toolkit';
 
 const audioTracks: AudioTrack[] = [
-  { index: 0, title: 'English', language: 'en', type: 'audio/mp4a-latm' },
-  { index: 1, title: 'Spanish', language: 'es', type: 'audio/mp4a-latm' },
+  { id: 'en', label: 'English', language: 'en', selected: true },
+  { id: 'es', label: 'Spanish', language: 'es', selected: false },
 ];
 
-// CustomVideoTrack provides a user-friendly API with label and optional uri
+// CustomVideoTrack: `label` is shown in the menu; `height` is only used to build a label like "720p".
 const videoTracks: CustomVideoTrack[] = [
-  { height: 0, label: 'Auto' },
-  { height: 1080, label: '1080p Full HD' },
-  { height: 720, label: '720p HD' },
-  { height: 480, label: '480p SD' },
+  { id: 'auto', label: 'Auto' },
+  { id: '1080', label: '1080p Full HD' },
+  { id: '720', height: 720 },
 ];
 
 <VideoProvider config={{ useCustomAudioTracks: true, useCustomVideoTracks: true }}>
@@ -112,24 +168,29 @@ const videoTracks: CustomVideoTrack[] = [
 </VideoProvider>;
 ```
 
+<Callout type="info">
+  On web, selecting a custom track asks the player to select the track with the same `id`, so the ids must match the
+  tracks the player reports.
+</Callout>
+
 ---
 
 ## Compound Components
 
 The `VideoPlayer` exports several prebuilt UI primitives:
 
-| Component                      | Description                                         |
-| ------------------------------ | --------------------------------------------------- |
-| `VideoPlayer.Controls`         | A container for grouping controls (`absoluteFill`). |
-| `VideoPlayer.PlayButton`       | Toggles play/pause.                                 |
-| `VideoPlayer.ProgressBar`      | Displays seekable progress.                         |
-| `VideoPlayer.TimeDisplay`      | Shows current time / duration.                      |
-| `VideoPlayer.VolumeControl`    | Slider for adjusting volume.                        |
-| `VideoPlayer.FullscreenButton` | Toggles fullscreen.                                 |
-| `VideoPlayer.MuteButton`       | Toggles mute on/off.                                |
-| `VideoPlayer.LoadingSpinner`   | Spinner for buffering state.                        |
-| `VideoPlayer.SettingsButton`   | Opens settings menu.                                |
-| `VideoPlayer.Menu`             | Bottom-sheet style menu for settings.               |
+| Component                          | Description                                         |
+| ---------------------------------- | --------------------------------------------------- |
+| `VideoPlayer.Controls`             | A container for grouping controls (`absoluteFill`). |
+| `VideoPlayer.PlayButton`           | Toggles play/pause.                                 |
+| `VideoPlayer.ProgressBar`          | Displays seekable progress.                         |
+| `VideoPlayer.TimeDisplay`          | Shows current time / duration.                      |
+| `VideoPlayer.VolumeControl`        | Slider for adjusting volume.                        |
+| `VideoPlayer.FullscreenButton`     | Toggles fullscreen.                                 |
+| `VideoPlayer.MuteButton`           | Toggles mute on/off.                                |
+| `VideoPlayer.LoadingSpinner`       | Spinner for buffering state.                        |
+| `VideoPlayer.SettingsButton`       | Opens the settings menu.                            |
+| `VideoPlayer.SubtitleToggleButton` | Turns subtitles on and off.                         |
 
 ---
 

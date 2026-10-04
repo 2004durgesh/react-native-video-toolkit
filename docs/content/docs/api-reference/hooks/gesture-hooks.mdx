@@ -65,6 +65,12 @@ const MyVideoPlayer = () => {
     </GestureDetector>
   );
 };
+
+export const App = () => (
+  <VideoProvider>
+    <MyVideoPlayer />
+  </VideoProvider>
+);
 ```
 
 ## `useLongPressGesture()`
@@ -154,11 +160,13 @@ A hook for handling double tap gestures to seek forward or backward in the video
 ### Usage
 
 ```tsx
-import { useDoubleTapGesture } from 'react-native-video-toolkit';
+import { useDoubleTapGesture, useVideo } from 'react-native-video-toolkit';
 
-export const Player = () => {
+// Render inside a VideoProvider, so the player created by VideoPlayer is available.
+export const DoubleTapLayer = () => {
+  const { state } = useVideo();
   const { doubleTapGesture } = useDoubleTapGesture({
-    videoRef: videoRef,
+    player: state.player,
   });
   return (
     <GestureDetector gesture={doubleTapGesture}>
@@ -170,12 +178,12 @@ export const Player = () => {
 
 ### Props
 
-| Prop                    | Type                     | Default     | Description                                                       |
-| ----------------------- | ------------------------ | ----------- | ----------------------------------------------------------------- |
-| `videoRef`              | `React.RefObject<Video>` | `required`  | A ref to the `Video` component from `react-native-video`.         |
-| `doubleTapSeekInterval` | `number`                 | `10`        | The number of seconds to seek forward or backward.                |
-| `onDoubleTapSeekStart`  | `() => void`             | `undefined` | A callback function that is called when a double tap seek starts. |
-| `onDoubleTapSeekEnd`    | `() => void`             | `undefined` | A callback function that is called when a double tap seek ends.   |
+| Prop                    | Type                  | Default     | Description                                                               |
+| ----------------------- | --------------------- | ----------- | ------------------------------------------------------------------------- |
+| `player`                | `VideoPlayer \| null` | `required`  | The react-native-video player to seek, usually `useVideo().state.player`. |
+| `doubleTapSeekInterval` | `number`              | `10`        | The number of seconds to seek forward or backward.                        |
+| `onDoubleTapSeekStart`  | `() => void`          | `undefined` | A callback function that is called when a double tap seek starts.         |
+| `onDoubleTapSeekEnd`    | `() => void`          | `undefined` | A callback function that is called when a double tap seek ends.           |
 
 ### Returns
 
@@ -194,18 +202,18 @@ export const Player = () => {
 ### Example
 
 ```tsx
-import { useDoubleTapGesture } from 'react-native-video-toolkit';
+import { useDoubleTapGesture, useVideo, VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { VideoPlayer } from 'react-native-video-toolkit';
-import React, { useRef } from 'react';
-import { View, Text } from 'react-native';
+import React from 'react';
+import { Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 const MyVideoPlayer = () => {
-  const videoRef = useRef(null);
+  // `state.player` is set once VideoPlayer has created the react-native-video player.
+  const { state } = useVideo();
   const { doubleTapGesture, isDoubleTap, doubleTapValue, forwardAnimatedStyle, backwardAnimatedStyle } =
     useDoubleTapGesture({
-      videoRef,
+      player: state.player,
       doubleTapSeekInterval: 15,
       onDoubleTapSeekStart: () => console.log('Double tap seek started'),
       onDoubleTapSeekEnd: () => console.log('Double tap seek ended'),
@@ -213,7 +221,7 @@ const MyVideoPlayer = () => {
 
   return (
     <GestureDetector gesture={doubleTapGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} videoRef={videoRef}>
+      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
         {isDoubleTap && (
           <>
             <Animated.View style={forwardAnimatedStyle}>

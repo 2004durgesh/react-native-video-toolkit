@@ -2,7 +2,20 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { useBuffering, useControlsVisibility, useSettings, usePlaybackRate } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC } from 'react';
+import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
 import { useVideo } from '../providers';
+import type { CustomVideoTrack } from '../types';
+
+/** Menu label for an audio or text track. */
+const trackLabel = (track: AudioTrack | TextTrack): string => track.label || track.language || 'Unknown';
+
+/** Menu label for a quality track; custom tracks may only provide a height. */
+const videoTrackLabel = (track: CustomVideoTrack | VideoTrack): string =>
+  track.label || ('height' in track && track.height ? `${track.height}p` : 'Auto');
+
+/** Tracks match by id when they have one (custom tracks may not), otherwise by identity. */
+const isSameTrack = <T extends { id?: string }>(selected: T | null, track: T): boolean =>
+  selected === track || (selected?.id !== undefined && selected.id === track.id);
 import {
   Menu,
   Subtitle,
@@ -134,24 +147,27 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                     <Menu.Trigger />
                     <Menu.Content>
                       <Menu.SubContent viewId="root">
-                        <Menu.Item navigateTo="audio">
-                          <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                            <Title text="Audio" />
-                            <Subtitle text={audioTrack ? (audioTrack.title! ?? audioTrack.language!) : 'None'} />
-                          </View>
-                        </Menu.Item>
-                        <Menu.Item navigateTo="video">
-                          <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                            <Title text="Video" />
-                            <Subtitle
-                              text={videoTrack ? ((videoTrack as any).label ?? videoTrack.height + 'p') : 'None'}
-                            />
-                          </View>
-                        </Menu.Item>
+                        {/* Audio/quality selection is only available where the player supports it (web). */}
+                        {audioTracks.length > 0 && (
+                          <Menu.Item navigateTo="audio">
+                            <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
+                              <Title text="Audio" />
+                              <Subtitle text={audioTrack ? trackLabel(audioTrack) : 'None'} />
+                            </View>
+                          </Menu.Item>
+                        )}
+                        {videoTracks.length > 0 && (
+                          <Menu.Item navigateTo="video">
+                            <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
+                              <Title text="Video" />
+                              <Subtitle text={videoTrack ? videoTrackLabel(videoTrack) : 'None'} />
+                            </View>
+                          </Menu.Item>
+                        )}
                         <Menu.Item navigateTo="captions">
                           <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
                             <Title text="Captions" />
-                            <Subtitle text={textTrack ? (textTrack.title! ?? textTrack.language!) : 'Off'} />
+                            <Subtitle text={textTrack ? trackLabel(textTrack) : 'Off'} />
                           </View>
                         </Menu.Item>
                         <Menu.Item navigateTo="playbackRate">
@@ -166,12 +182,12 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                           <ScrollView style={{ maxHeight: '100%' }}>
                             {audioTracks.map((track) => (
                               <Menu.CheckboxItem
-                                key={track.index}
-                                checked={audioTrack?.index === track.index}
+                                key={track.id}
+                                checked={isSameTrack(audioTrack, track)}
                                 onCheckedChange={() => {
                                   setAudioTrack(track);
                                 }}>
-                                {track.title ?? track.language}
+                                {trackLabel(track)}
                               </Menu.CheckboxItem>
                             ))}
                           </ScrollView>
@@ -184,14 +200,14 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                       <Menu.SubContent viewId="video">
                         {videoTracks.length > 0 ? (
                           <ScrollView style={{ maxHeight: '100%' }}>
-                            {videoTracks.map((track) => (
+                            {videoTracks.map((track, i) => (
                               <Menu.CheckboxItem
-                                key={track.index}
-                                checked={videoTrack?.index === track.index}
+                                key={track.id ?? `${videoTrackLabel(track)}-${i}`}
+                                checked={isSameTrack(videoTrack, track)}
                                 onCheckedChange={() => {
                                   setVideoTrack(track);
                                 }}>
-                                {(track as any).label ?? track.height + 'p'}
+                                {videoTrackLabel(track)}
                               </Menu.CheckboxItem>
                             ))}
                           </ScrollView>
@@ -204,14 +220,21 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                       <Menu.SubContent viewId="captions">
                         {textTracks.length > 0 ? (
                           <ScrollView style={{ maxHeight: '100%' }}>
+                            <Menu.CheckboxItem
+                              checked={!textTrack}
+                              onCheckedChange={() => {
+                                setTextTrack(null);
+                              }}>
+                              Off
+                            </Menu.CheckboxItem>
                             {textTracks.map((track) => (
                               <Menu.CheckboxItem
-                                key={track.index}
-                                checked={textTrack?.index === track.index}
+                                key={track.id}
+                                checked={isSameTrack(textTrack, track)}
                                 onCheckedChange={() => {
                                   setTextTrack(track);
                                 }}>
-                                {track.title ?? track.language}
+                                {trackLabel(track)}
                               </Menu.CheckboxItem>
                             ))}
                           </ScrollView>

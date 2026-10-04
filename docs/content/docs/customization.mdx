@@ -82,27 +82,30 @@ import { VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
 
 ### Custom Tracks Example
 
+Custom tracks replace the audio and quality lists the player reports. react-native-video v7 only supports audio and
+quality selection on web, so these lists are only used there; on iOS and Android the settings menu hides them.
+
 ```tsx
 import { VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
 import type { AudioTrack } from 'react-native-video';
 import type { CustomVideoTrack } from 'react-native-video-toolkit';
 
 // Define your custom tracks
+// On web, selecting a track selects the player track with the same `id`.
 const customAudioTracks: AudioTrack[] = [
-  { index: 0, title: 'English', language: 'en', type: 'audio/mp4a-latm' },
-  { index: 1, title: 'Spanish', language: 'es', type: 'audio/mp4a-latm' },
-  { index: 2, title: 'French', language: 'fr', type: 'audio/mp4a-latm' },
+  { id: 'en', label: 'English', language: 'en', selected: true },
+  { id: 'es', label: 'Spanish', language: 'es', selected: false },
+  { id: 'fr', label: 'French', language: 'fr', selected: false },
 ];
 
 // CustomVideoTrack provides a user-friendly API:
 // - label: Display name in the UI (e.g., "Auto", "1080p HD")
-// - height: Resolution height in pixels
-// - uri: Optional direct URL to the quality stream
+// - height: Optional; used to build a label like "720p" when `label` is missing
 const customVideoTracks: CustomVideoTrack[] = [
-  { height: 0, label: 'Auto' },
-  { height: 1080, label: '1080p Full HD' },
-  { height: 720, label: '720p HD' },
-  { height: 480, label: '480p SD' },
+  { id: 'auto', label: 'Auto' },
+  { id: '1080', label: '1080p Full HD' },
+  { id: '720', height: 720 },
+  { id: '480', label: '480p SD' },
 ];
 
 <VideoProvider

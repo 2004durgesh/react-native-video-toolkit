@@ -21,6 +21,8 @@ const config = {
     'react-native-worklets',
     'react-native-gesture-handler',
     'react-native-video',
+    'react-native-nitro-modules',
+    '@videojs/react',
     'react-native-svg',
     'react-native-material-ripple',
     'react-native-video-toolkit',

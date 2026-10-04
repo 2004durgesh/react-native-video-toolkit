@@ -10,8 +10,8 @@ import {
   SubtitleToggleButton,
 } from './controls';
 import type { GestureHandlerProps, CustomVideoTrack } from '../types';
-import { VideoSurface } from './core';
-import type { ReactVideoProps, AudioTrack } from 'react-native-video';
+import { VideoSurface, type VideoSurfaceProps } from './core';
+import type { AudioTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideo } from '../providers';
 import { TimeDisplay, LoadingSpinner } from './display';
@@ -21,11 +21,10 @@ import { TimeDisplay, LoadingSpinner } from './display';
  */
 interface VideoPlayerProps extends ViewProps {
   /**
-   * The source of the video to be played.
-   * This can be a remote URL or a local file path.
-   * Extends the source prop from react-native-video.
+   * The video to play: a URL, a `require()`d asset, or a react-native-video `VideoConfig`
+   * (headers, DRM, `externalSubtitles`, buffer settings...).
    */
-  source: ReactVideoProps['source'];
+  source: VideoSurfaceProps['source'];
   /**
    * Children components to be rendered on top of the video player.
    * This can be used to add custom controls or overlays.
@@ -36,10 +35,15 @@ interface VideoPlayerProps extends ViewProps {
    */
   containerStyle?: StyleProp<ViewStyle>;
   /**
-   * Props to be passed to the underlying react-native-video component.
-   * See https://github.com/react-native-video/react-native-video for more details.
+   * Props passed to react-native-video's `VideoView` (e.g. `resizeMode`, `pictureInPicture`,
+   * `surfaceType`). See https://docs.thewidlarzgroup.com/react-native-video/docs/v7/video-view/props
    */
-  videoProps?: ReactVideoProps;
+  viewProps?: VideoSurfaceProps['viewProps'];
+  /**
+   * Player event callbacks (`onLoad`, `onProgress`, `onEnd`, `onError`, ...). They run after the
+   * toolkit's own handling. See https://docs.thewidlarzgroup.com/react-native-video/docs/v7/player/events
+   */
+  events?: VideoSurfaceProps['events'];
   /**
    * Props to be passed to the GestureHandler component.
    */
@@ -47,7 +51,7 @@ interface VideoPlayerProps extends ViewProps {
   /**
    * Props to style the video component itself.
    */
-  videoStyle?: ReactVideoProps['style'];
+  videoStyle?: StyleProp<ViewStyle>;
   /**
    * Custom audio tracks to use instead of auto-extracting from video source.
    * Only used when config.useCustomAudioTracks is true.
@@ -68,7 +72,8 @@ const VideoPlayerComponent = ({
   source,
   children,
   containerStyle,
-  videoProps,
+  viewProps,
+  events,
   gestureProps,
   videoStyle,
   customAudioTracks,
@@ -109,9 +114,10 @@ const VideoPlayerComponent = ({
       <GestureHandler {...gestureProps}>
         <View style={innerViewStyle}>
           <VideoSurface
-            {...videoProps}
             source={source}
             style={videoStyle}
+            viewProps={viewProps}
+            events={events}
             customAudioTracks={customAudioTracks}
             customVideoTracks={customVideoTracks}
           />

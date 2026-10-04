@@ -106,10 +106,14 @@ A flexible and customizable video player UI toolkit for React Native.
 Install the library along with its peer dependencies:
 
 ```bash
-npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
+npm install react-native-video-toolkit react-native-video@7.0.0-beta.11 react-native-nitro-modules react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
 # or
-yarn add react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
+yarn add react-native-video-toolkit react-native-video@7.0.0-beta.11 react-native-nitro-modules react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
 ```
+
+> [!IMPORTANT]
+> The toolkit is built on [react-native-video v7](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/fundamentals/intro), which is in beta. Audio and quality selection are only available on web, and Apple TV isn't supported yet.
+> Upgrading from a version built on v6? See the [migration guide](https://react-native-video-toolkit-docs.vercel.app/docs/migration-v7).
 
 > [!NOTE]
 > Each peer dependency has its own setup (Reanimated babel plugin, Gesture Handler root view, orientation & video config plugins).

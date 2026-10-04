@@ -1,0 +1,142 @@
+---
+title: Migrating to react-native-video v7
+description: What changes when you upgrade to the toolkit release built on react-native-video v7, and how to update your code.
+---
+
+The toolkit is now built on [react-native-video v7](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/fundamentals/intro),
+a rewrite of the library that separates the player from the view. Most toolkit components work as before, but a few
+props, types and behaviors changed. This page lists everything you need to update.
+
+<Callout type="warn">
+  react-native-video v7 is in beta. Audio track and video quality selection are only supported on web, and Apple TV
+  isn't supported yet. If you rely on those, stay on the v6-based toolkit release for now.
+</Callout>
+
+## 1. Update dependencies
+
+Install react-native-video v7 and its new peer dependency, `react-native-nitro-modules`:
+
+```npm
+npm install react-native-video@7.0.0-beta.11 react-native-nitro-modules
+```
+
+Both contain native code, so **rebuild the app** (run `pod install` first on iOS). A JavaScript reload alone fails
+with _"Failed to get NitroModules"_.
+
+If you target web, also pin `@videojs/react` as described in [Installation](/docs/installation#install-dependencies).
+
+## 2. Update the Expo config plugin
+
+The react-native-video plugin options changed. `enableNotificationControls`, `useExoplayerRtsp` and
+`useExoplayerSmoothStreaming` were removed; `enableBackgroundAudio` and `enableAndroidPictureInPicture` were added.
+See [Configure react-native-video](/docs/installation#configure-react-native-video).
+
+## 3. `source`
+
+`source` now takes react-native-video v7's `VideoConfig` (or just a URL / `require()`). The biggest change is
+subtitles: `textTracks` is now `externalSubtitles`.
+
+```tsx
+// Before (v6)
+import { TextTrackType } from 'react-native-video';
+
+<VideoPlayer
+  source={{
+    uri: 'https://example.com/video.mp4',
+    textTracks: [{ title: 'English', language: 'en', type: TextTrackType.VTT, uri: 'https://example.com/en.vtt' }],
+  }}
+/>;
+
+// After (v7)
+<VideoPlayer
+  source={{
+    uri: 'https://example.com/video.mp4',
+    externalSubtitles: [{ label: 'English', language: 'en', type: 'vtt', uri: 'https://example.com/en.vtt' }],
+  }}
+/>;
+```
+
+<Callout type="info">
+  v7 loads external subtitles on Android for every source type and injects them into HLS streams on iOS. v6 dropped them
+  on Android and ignored them for HLS on iOS. On web, `require()` sources aren't supported; use a URL.
+</Callout>
+
+## 4. `videoProps` → `viewProps` and `events`
+
+`videoProps` was spread onto v6's `<Video>` component, which no longer exists. Split it into:
+
+- **`viewProps`**: props for react-native-video's [`VideoView`](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/video-view/props)
+- **`events`**: [player event](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/player/events) callbacks
+
+```tsx
+// Before (v6)
+<VideoPlayer source={source} videoProps={{ resizeMode: 'cover', onLoad: (e) => console.log(e.duration) }} />
+
+// After (v7)
+<VideoPlayer source={source} viewProps={{ resizeMode: 'cover' }} events={{ onLoad: (e) => console.log(e.duration) }} />
+```
+
+| v6 `videoProps`                           | v7                                                                                                              |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `resizeMode`, `controls`                  | `viewProps.resizeMode` (`'contain'`, `'cover'`, `'stretch'`, `'none'`), `viewProps.controls`                    |
+| `pictureInPicture`                        | `viewProps.pictureInPicture`                                                                                    |
+| `viewType`                                | `viewProps.surfaceType` (`'surface'` or `'texture'`, Android only)                                              |
+| `onLoad`, `onProgress`, `onEnd`, ...      | `events.onLoad`, `events.onProgress`, `events.onEnd`, ...                                                       |
+| `paused`, `volume`, `muted`, `rate`       | Managed by the toolkit. Use [`usePlayback`](./api-reference/hooks/media-hooks), `useVolume`, `usePlaybackRate`. |
+| `repeat`                                  | Set `loop = true` on `useVideo().state.player` once it exists                                                   |
+| `subtitleStyle`, `progressUpdateInterval` | Not available in v7.                                                                                            |
+
+Several event payloads changed shape:
+
+| Event                  | v6 payload                                            | v7 payload                                              |
+| ---------------------- | ----------------------------------------------------- | ------------------------------------------------------- |
+| `onLoad`               | duration, `naturalSize`, track lists                  | `{ duration, currentTime, width, height, orientation }` |
+| `onProgress`           | `{ currentTime, playableDuration, seekableDuration }` | `{ currentTime, bufferDuration }`                       |
+| `onBuffer`             | `{ isBuffering }`                                     | `boolean`                                               |
+| `onError`              | `{ error: { errorString, ... } }`                     | `{ code, message }`                                     |
+| `onPlaybackRateChange` | `{ playbackRate }`                                    | `number`                                                |
+
+Your `events` callbacks run after the toolkit's own handling, so they can't stop it.
+
+## 5. `videoRef` → `player`
+
+The store no longer holds a ref to the video component. It holds the v7 player instance as `state.player`:
+
+```tsx
+const { state } = useVideo();
+
+// Before (v6)
+state.videoRef?.current?.seek(30);
+const position = await state.videoRef?.current?.getCurrentPosition();
+
+// After (v7)
+state.player?.seekTo(30);
+const position = state.player?.currentTime;
+```
+
+`useDoubleTapGesture` takes the player too: `useDoubleTapGesture({ player: state.player })` instead of
+`{ videoRef }`.
+
+## 6. Tracks
+
+The track types from react-native-video changed shape:
+
+| v6                                 | v7                                   |
+| ---------------------------------- | ------------------------------------ |
+| `{ index, title, language, type }` | `{ id, label, language?, selected }` |
+
+- **Turning subtitles off**: v6 used a placeholder track with `index: -1`. In v7, call `setTextTrack(null)`.
+- **Audio and quality**: only supported on web. On iOS and Android `audioTracks` and `videoTracks` from
+  [`useSettings`](./api-reference/hooks/settings-hooks) stay empty, and the settings menu hides them.
+- **`CustomVideoTrack`**: `height` is now optional and only used to build a fallback label. On web, give custom tracks
+  the same `id` as the player's tracks.
+- **`dedupeVideoTracks` / `dedupeLanguageTracks`**: now compare `label` (and `language`) instead of resolution, bitrate
+  or `title`, and no longer drop tracks without a language.
+
+## 7. Other changes
+
+- **iOS silent switch**: audio keeps playing when the silent switch is on, as before. The toolkit sets
+  `ignoreSilentSwitchMode = 'ignore'` on the player.
+- **Server-side rendering (web)**: v7 can't create a player on the server, so `VideoSurface` renders a black
+  placeholder until it mounts in the browser. You don't need `ssr: false` or a dynamic import.
+- **Apple TV**: the v7 beta's iOS pod only declares iOS, so tvOS builds aren't supported yet. Android TV works.

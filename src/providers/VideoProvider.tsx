@@ -5,7 +5,7 @@ import { type LayoutRectangle, Dimensions } from 'react-native';
 import { ThemeProvider } from './ThemeProvider';
 import { SettingsProvider } from './SettingsProvider';
 import { PortalHost } from '@rn-primitives/portal';
-import type { VideoRef } from 'react-native-video';
+import type { VideoPlayer } from 'react-native-video';
 /**
  * Default configuration for the video player.
  */
@@ -37,9 +37,9 @@ interface VideoProviderState extends VideoState {
    */
   theme: Theme;
   /**
-   * A ref to the video component.
+   * The react-native-video player instance, or `null` before it is created.
    */
-  videoRef: React.RefObject<VideoRef> | null;
+  player: VideoPlayer | null;
   /**
    * Whether the controls are visible.
    */
@@ -72,7 +72,7 @@ interface VideoProviderState extends VideoState {
  */
 type Action =
   | { type: 'INITIALIZE'; payload: { theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> } }
-  | { type: 'SET_VIDEO_REF'; payload: React.RefObject<any> }
+  | { type: 'SET_PLAYER'; payload: VideoPlayer | null }
   | { type: 'SHOW_CONTROLS' }
   | { type: 'HIDE_CONTROLS' }
   | { type: 'SET_CONTROLS_VISIBLE'; payload: boolean }
@@ -110,7 +110,7 @@ const initialState: VideoProviderState = {
   error: null,
   config: defaultConfig,
   theme: defaultTheme,
-  videoRef: null,
+  player: null,
   controlsVisible: true,
   hideTimeoutRef: null,
   videoLayout: { x: 0, y: 0, width: 0, height: 0 },
@@ -155,8 +155,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return { ...state, controlsVisible: true };
     case 'HIDE_CONTROLS':
       return { ...state, controlsVisible: false };
-    case 'SET_VIDEO_REF':
-      return { ...state, videoRef: action.payload };
+    case 'SET_PLAYER':
+      return { ...state, player: action.payload };
     case 'SET_PLAYING':
       return { ...state, isPlaying: action.payload };
     case 'SET_CURRENT_TIME':

@@ -63,7 +63,9 @@ const MyVideoPlayer = () => {
 <Callout type="info">
 
 - The button automatically manages subtitle state using `useSettings` hook.
-- When turned on, it resumes the last selected subtitle track.
-- If no subtitles are available, the button will not be rendered.
+- When turned on, it resumes the last selected subtitle track, or the first available one.
+- Turning it off sets the text track to `null`.
+- If no subtitles are available, the button still renders but has no effect. Add subtitles with the source's
+  `externalSubtitles` (see [VideoPlayer](../video-player#with-subtitles)).
 
 </Callout>

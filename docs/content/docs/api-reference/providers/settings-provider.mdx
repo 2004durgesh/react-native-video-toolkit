@@ -17,32 +17,37 @@ export const VideoPlayerComponent = () => <SettingsProvider>{/* Your video playe
 
 The `SettingsProvider` manages the following state:
 
-| State                   | Type           | Description                            |                             |
-| :---------------------- | :------------- | :------------------------------------- | --------------------------- |
-| `isSettingsMenuVisible` | `boolean`      | Whether the settings menu is visible.  |                             |
-| `videoTrack`            | `VideoTrack    | null`                                  | The current video track.    |
-| `videoTracks`           | `VideoTrack[]` | The list of available video tracks.    |                             |
-| `audioTrack`            | `AudioTrack    | null`                                  | The current audio track.    |
-| `audioTracks`           | `AudioTrack[]` | The list of available audio tracks.    |                             |
-| `textTrack`             | `TextTrack     | null`                                  | The current subtitle track. |
-| `textTracks`            | `TextTrack[]`  | The list of available subtitle tracks. |                             |
-| `playbackRate`          | `number`       | The current playback rate.             |                             |
+| State                   | Type                                     | Description                                                   |
+| :---------------------- | :--------------------------------------- | :------------------------------------------------------------ |
+| `isSettingsMenuVisible` | `boolean`                                | Whether the settings menu is visible.                         |
+| `videoTrack`            | `CustomVideoTrack \| VideoTrack \| null` | The current video quality track (web only).                   |
+| `videoTracks`           | `(CustomVideoTrack \| VideoTrack)[]`     | The available video quality tracks. Empty on iOS and Android. |
+| `audioTrack`            | `AudioTrack \| null`                     | The current audio track (web only).                           |
+| `audioTracks`           | `AudioTrack[]`                           | The available audio tracks. Empty on iOS and Android.         |
+| `textTrack`             | `TextTrack \| null`                      | The current subtitle track. `null` means subtitles are off.   |
+| `textTracks`            | `TextTrack[]`                            | The available subtitle tracks.                                |
+| `playbackRate`          | `number`                                 | The current playback rate.                                    |
+
+<Callout type="info">
+  `AudioTrack`, `VideoTrack` and `TextTrack` come from react-native-video v7 and share the shape
+  `{ id, label, language?, selected }`. Audio and quality selection are only supported by v7's web player.
+</Callout>
 
 ## Actions
 
 The `SettingsProvider` handles the following actions:
 
-| Action                 | Payload        | Description                                 |                                  |
-| :--------------------- | :------------- | :------------------------------------------ | -------------------------------- |
-| `SET_VIDEO_TRACK`      | `VideoTrack    | null`                                       | Sets the current video track.    |
-| `GET_VIDEO_TRACKS`     | `VideoTrack[]` | Sets the list of available video tracks.    |                                  |
-| `SET_AUDIO_TRACK`      | `AudioTrack    | null`                                       | Sets the current audio track.    |
-| `GET_AUDIO_TRACKS`     | `AudioTrack[]` | Sets the list of available audio tracks.    |                                  |
-| `SET_TEXT_TRACK`       | `TextTrack     | null`                                       | Sets the current subtitle track. |
-| `GET_TEXT_TRACKS`      | `TextTrack[]`  | Sets the list of available subtitle tracks. |                                  |
-| `SET_PLAYBACK_RATE`    | `number`       | Sets the playback rate.                     |                                  |
-| `OPEN_SETTINGS_SHEET`  |                | Opens the settings menu.                    |                                  |
-| `CLOSE_SETTINGS_SHEET` |                | Closes the settings menu.                   |                                  |
+| Action                       | Payload                                  | Description                                     |
+| :--------------------------- | :--------------------------------------- | :---------------------------------------------- |
+| `SET_VIDEO_TRACK`            | `CustomVideoTrack \| VideoTrack \| null` | Sets the current video quality track.           |
+| `SET_AVAILABLE_VIDEO_TRACKS` | `(CustomVideoTrack \| VideoTrack)[]`     | Sets the list of available video tracks.        |
+| `SET_AUDIO_TRACK`            | `AudioTrack \| null`                     | Sets the current audio track.                   |
+| `SET_AVAILABLE_AUDIO_TRACKS` | `AudioTrack[]`                           | Sets the list of available audio tracks.        |
+| `SET_TEXT_TRACK`             | `TextTrack \| null`                      | Sets the current subtitle track (`null` = off). |
+| `SET_AVAILABLE_TEXT_TRACKS`  | `TextTrack[]`                            | Sets the list of available subtitle tracks.     |
+| `SET_PLAYBACK_RATE`          | `number`                                 | Sets the playback rate.                         |
+| `OPEN_SETTINGS_SHEET`        | –                                        | Opens the settings menu.                        |
+| `CLOSE_SETTINGS_SHEET`       | –                                        | Closes the settings menu.                       |
 
 ## useSettingsContext
 

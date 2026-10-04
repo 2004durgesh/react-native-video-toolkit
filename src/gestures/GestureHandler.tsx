@@ -48,7 +48,7 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   children,
 }) => {
   const { state } = useVideo();
-  const { fullscreen, videoRef, config, theme } = state;
+  const { fullscreen, player, config, theme } = state;
   const {
     doubleTapGesture,
     isDoubleTap,
@@ -60,7 +60,7 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
     forwardAnimatedStyle,
     backwardAnimatedStyle,
   } = useDoubleTapGesture({
-    videoRef,
+    player,
     doubleTapSeekInterval,
     onDoubleTapSeekStart,
     onDoubleTapSeekEnd,

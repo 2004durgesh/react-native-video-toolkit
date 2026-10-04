@@ -48,7 +48,8 @@ const handleClick = combineHandlers(onClick1, onClick2);
 
 ## `dedupeVideoTracks`
 
-Deduplicates video tracks by grouping them by `width`, `height`, and `codecs`, keeping only the track with the highest `bitrate` in each group.
+Deduplicates video (quality) tracks by `label`, keeping the first track for each label. react-native-video v7 doesn't
+report resolution or bitrate per track, so the label is the only thing to compare.
 
 ### Usage
 
@@ -56,29 +57,30 @@ Deduplicates video tracks by grouping them by `width`, `height`, and `codecs`, k
 import { dedupeVideoTracks } from 'react-native-video-toolkit';
 
 const videoTracks = [
-  { width: 1280, height: 720, codecs: 'avc1.4d401f', bitrate: 2000000 },
-  { width: 1280, height: 720, codecs: 'avc1.4d401f', bitrate: 1500000 },
-  { width: 1920, height: 1080, codecs: 'avc1.640028', bitrate: 5000000 },
+  { id: '0', label: '720p', selected: true },
+  { id: '1', label: '720p', selected: false },
+  { id: '2', label: '1080p', selected: false },
 ];
 
-const dedupedTracks = dedupeVideoTracks(videoTracks);
+const dedupedTracks = dedupeVideoTracks(videoTracks); // 720p (id 0), 1080p
 ```
 
 ### Parameters
 
-| Parameter | Type      | Required | Description                |
-| --------- | --------- | -------- | -------------------------- |
-| `tracks`  | `Track[]` | Yes      | The array of video tracks. |
+| Parameter | Type           | Required | Description                |
+| --------- | -------------- | -------- | -------------------------- |
+| `tracks`  | `VideoTrack[]` | Yes      | The array of video tracks. |
 
 ### Returns
 
-| Type      | Description                                 |
-| --------- | ------------------------------------------- |
-| `Track[]` | An array of unique, highest-bitrate tracks. |
+| Type           | Description                               |
+| -------------- | ----------------------------------------- |
+| `VideoTrack[]` | The tracks with duplicate labels removed. |
 
 ## `dedupeLanguageTracks`
 
-Deduplicates audio or text tracks by `language` and `title`, removing duplicates and filtering out tracks with an undefined language.
+Deduplicates audio or text tracks by `language` and `label`, keeping the first track for each combination. Tracks
+without a language are kept, since external subtitles may omit it.
 
 ### Usage
 
@@ -86,25 +88,26 @@ Deduplicates audio or text tracks by `language` and `title`, removing duplicates
 import { dedupeLanguageTracks } from 'react-native-video-toolkit';
 
 const audioTracks = [
-  { language: 'en', title: 'English Stereo' },
-  { language: 'en', title: 'English 5.1' },
-  { language: 'fr', title: 'Français' },
+  { id: '0', language: 'en', label: 'English Stereo', selected: true },
+  { id: '1', language: 'en', label: 'English Stereo', selected: false },
+  { id: '2', language: 'en', label: 'English 5.1', selected: false },
+  { id: '3', language: 'fr', label: 'Français', selected: false },
 ];
 
-const dedupedTracks = dedupeLanguageTracks(audioTracks);
+const dedupedTracks = dedupeLanguageTracks(audioTracks); // English Stereo, English 5.1, Français
 ```
 
 ### Parameters
 
-| Parameter | Type      | Required | Description                        |
-| --------- | --------- | -------- | ---------------------------------- |
-| `tracks`  | `Track[]` | Yes      | The array of audio or text tracks. |
+| Parameter | Type                          | Required | Description                        |
+| --------- | ----------------------------- | -------- | ---------------------------------- |
+| `tracks`  | `(AudioTrack \| TextTrack)[]` | Yes      | The array of audio or text tracks. |
 
 ### Returns
 
-| Type      | Description                                       |
-| --------- | ------------------------------------------------- |
-| `Track[]` | An array of unique tracks, one for each language. |
+| Type                          | Description                                                 |
+| ----------------------------- | ----------------------------------------------------------- |
+| `(AudioTrack \| TextTrack)[]` | The tracks with duplicate language and label pairs removed. |
 
 ## `hexToRgba`
 

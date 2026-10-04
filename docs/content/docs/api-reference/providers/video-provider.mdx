@@ -25,26 +25,26 @@ export const VideoPlayerComponent = () => <VideoProvider>{/* Your video player c
 
 The `VideoProvider` manages the following state:
 
-| State                | Type                                                        | Description                                          |                                             |
-| -------------------- | ----------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------- |
-| `isPlaying`          | `boolean`                                                   | Whether the video is playing.                        |                                             |
-| `currentTime`        | `number`                                                    | The current time of the video in seconds.            |                                             |
-| `playableDuration`   | `number`                                                    | The playable duration of the video in seconds.       |                                             |
-| `duration`           | `number`                                                    | The duration of the video in seconds.                |                                             |
-| `buffering`          | `boolean`                                                   | Whether the video is buffering.                      |                                             |
-| `muted`              | `boolean`                                                   | Whether the video is muted.                          |                                             |
-| `volume`             | `number`                                                    | The volume of the video.                             |                                             |
-| `playbackRate`       | `number`                                                    | The playback rate of the video.                      |                                             |
-| `fullscreen`         | `boolean`                                                   | Whether the video is in fullscreen mode.             |                                             |
-| `error`              | `string  `                                                  | `null`                                               | An error message, if any.                   |
-| `config`             | [`VideoPlayerConfig`](../types/video.mdx#videoplayerconfig) | The configuration for the video player.              |                                             |
-| `theme`              | [`Theme`](../types/theme.mdx)                               | The theme for the video player.                      |                                             |
-| `videoRef`           | `React.RefObject<VideoRef>`                                 | `null`                                               | A ref to the video component.               |
-| `controlsVisible`    | `boolean`                                                   | `true`                                               | Whether the controls are currently visible. |
-| `hideTimeoutRef`     | `NodeJS.Timeout`                                            | `null`                                               | A timeout ref for hiding the controls.      |
-| `videoWrapperLayout` | `LayoutRectangle`                                           | The layout of the view wrapping the video component. |                                             |
-| `videoLayout`        | `LayoutRectangle`                                           | The layout of the video component.                   |                                             |
-| `dimensions`         | `{ width: number; height: number }`                         | The dimensions of the screen.                        |                                             |
+| State                | Type                                                        | Description                                          |                                                                                                               |
+| -------------------- | ----------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `isPlaying`          | `boolean`                                                   | Whether the video is playing.                        |                                                                                                               |
+| `currentTime`        | `number`                                                    | The current time of the video in seconds.            |                                                                                                               |
+| `playableDuration`   | `number`                                                    | The playable duration of the video in seconds.       |                                                                                                               |
+| `duration`           | `number`                                                    | The duration of the video in seconds.                |                                                                                                               |
+| `buffering`          | `boolean`                                                   | Whether the video is buffering.                      |                                                                                                               |
+| `muted`              | `boolean`                                                   | Whether the video is muted.                          |                                                                                                               |
+| `volume`             | `number`                                                    | The volume of the video.                             |                                                                                                               |
+| `playbackRate`       | `number`                                                    | The playback rate of the video.                      |                                                                                                               |
+| `fullscreen`         | `boolean`                                                   | Whether the video is in fullscreen mode.             |                                                                                                               |
+| `error`              | `string  `                                                  | `null`                                               | An error message, if any.                                                                                     |
+| `config`             | [`VideoPlayerConfig`](../types/video.mdx#videoplayerconfig) | The configuration for the video player.              |                                                                                                               |
+| `theme`              | [`Theme`](../types/theme.mdx)                               | The theme for the video player.                      |                                                                                                               |
+| `player`             | `VideoPlayer \| null`                                       | `null`                                               | The react-native-video player instance, e.g. for `player.seekTo(seconds)`. Set once `VideoPlayer` creates it. |
+| `controlsVisible`    | `boolean`                                                   | `true`                                               | Whether the controls are currently visible.                                                                   |
+| `hideTimeoutRef`     | `NodeJS.Timeout`                                            | `null`                                               | A timeout ref for hiding the controls.                                                                        |
+| `videoWrapperLayout` | `LayoutRectangle`                                           | The layout of the view wrapping the video component. |                                                                                                               |
+| `videoLayout`        | `LayoutRectangle`                                           | The layout of the video component.                   |                                                                                                               |
+| `dimensions`         | `{ width: number; height: number }`                         | The dimensions of the screen.                        |                                                                                                               |
 
 ## Actions
 

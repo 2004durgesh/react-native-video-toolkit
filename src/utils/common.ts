@@ -11,40 +11,39 @@ export const combineHandlers =
   };
 
 /**
- * Deduplicates video tracks:
- * - Groups by width, height, codecs.
- * - Keeps the highest bitrate in each group.
+ * Deduplicates video (quality) tracks:
+ * - Groups by label, since react-native-video v7 exposes no resolution or bitrate per track.
+ * - Keeps the first occurrence of each label.
  */
 export function dedupeVideoTracks<T extends VideoTrack>(tracks?: T[]): T[] {
-  const map = new Map<string, T>();
+  const seen = new Set<string>();
+  const result: T[] = [];
 
   for (const track of tracks ?? []) {
-    const signature = `${track.width}|${track.height}|${track.codecs}`;
-    const existing = map.get(signature);
-
-    if (!existing || track.bitrate! > existing.bitrate!) {
-      map.set(signature, track);
+    if (!seen.has(track.label)) {
+      seen.add(track.label);
+      result.push(track);
     }
   }
 
-  return Array.from(map.values());
+  return result;
 }
 
 /**
  * Deduplicates audio/text tracks:
- * - Groups by language.
- * - Keeps the first occurrence of each language.
- * - Filters out tracks with null/undefined language.
+ * - Groups by language and label.
+ * - Keeps the first occurrence of each group.
+ * - Keeps tracks without a language (external subtitles may omit it).
  */
 export function dedupeLanguageTracks<T extends AudioTrack | TextTrack>(tracks?: T[]): T[] {
   const seen = new Set<string>();
   const result: T[] = [];
 
   for (const track of tracks ?? []) {
-    if (!track.language) continue;
+    const signature = `${track.language ?? ''}|${track.label}`;
 
-    if (!seen.has(`${track.language}|${track.title}`)) {
-      seen.add(`${track.language}|${track.title}`);
+    if (!seen.has(signature)) {
+      seen.add(signature);
       result.push(track);
     }
   }

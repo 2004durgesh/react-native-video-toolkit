@@ -30,7 +30,7 @@ import { useVideo } from '../../providers';
  * - `backwardAnimatedStyle`: The animated style for the backward seek animation.
  */
 export const useDoubleTapGesture = ({
-  videoRef,
+  player,
   doubleTapSeekInterval = 10,
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
@@ -116,18 +116,17 @@ export const useDoubleTapGesture = ({
 
   const handleSeek = useCallback(
     async (direction: 'forward' | 'backward') => {
-      if (!videoRef?.current) return;
+      if (!player) return;
 
       const now = Date.now();
       const timeSinceLastTap = now - consecutiveTapCount.current.lastTapTime;
       const isConsecutive = timeSinceLastTap < 500 && direction === consecutiveTapCount.current.lastDirection;
 
       try {
-        const currentTime = await videoRef.current.getCurrentPosition();
         const seekAmount = direction === 'forward' ? doubleTapSeekInterval : -doubleTapSeekInterval;
-        const newPosition = Math.max(currentTime + seekAmount, 0);
+        const newPosition = Math.max(player.currentTime + seekAmount, 0);
 
-        videoRef.current.seek(newPosition);
+        player.seekTo(newPosition);
         scheduleOnRN(dispatch, { type: 'SET_CURRENT_TIME', payload: newPosition });
 
         if (isConsecutive) {
@@ -157,7 +156,7 @@ export const useDoubleTapGesture = ({
         console.error('Seek failed:', error);
       }
     },
-    [videoRef, doubleTapSeekInterval, showTapAnimation, dispatch]
+    [player, doubleTapSeekInterval, showTapAnimation, dispatch]
   );
 
   const doubleTapGesture = useMemo(

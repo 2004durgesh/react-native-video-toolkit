@@ -36,9 +36,9 @@ export interface CustomVideoTrack extends Partial<VideoTrack> {
   uri?: string;
   /**
    * The height of the video track in pixels.
-   * Used for track selection by resolution.
+   * Only used to build a fallback label (e.g. "720p") when `label` is not provided.
    */
-  height: number;
+  height?: number;
 }
 
 /**

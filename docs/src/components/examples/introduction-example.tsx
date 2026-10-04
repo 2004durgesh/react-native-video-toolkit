@@ -6,7 +6,7 @@ import { VideoPlayer, DefaultLayout, VideoProvider } from 'react-native-video-to
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 export function GettingStartedExample() {
   const videoSource = {
-    uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    uri: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
   };
 
   return (
@@ -22,7 +22,7 @@ export function GettingStartedExample() {
         }}>
         <View>
           <VideoPlayer
-            videoProps={{
+            events={{
               onLoad(e) {
                 console.log('Video loaded', e);
               },

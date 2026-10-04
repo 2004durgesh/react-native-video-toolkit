@@ -5,16 +5,24 @@ description: Types related to the video player including state, configuration, a
 
 ## `CustomVideoTrack`
 
-The `CustomVideoTrack` interface represents a custom video track with user-friendly properties. It extends the base `VideoTrack` from `react-native-video` with additional fields for better UX.
+The `CustomVideoTrack` interface represents a custom video quality track with user-friendly properties. It extends
+react-native-video v7's `VideoTrack` (`{ id, label, language?, selected }`, all optional here) with a few extra fields.
 
-| Property | Type     | Required | Default     | Description                                                                                  |
-| -------- | -------- | -------- | ----------- | -------------------------------------------------------------------------------------------- |
-| `label`  | `string` | No       | `undefined` | User-friendly label to display in the UI (e.g., "Auto", "1080p", "720p HD").                 |
-| `uri`    | `string` | No       | `undefined` | Optional URI for the specific quality stream. Useful for direct links to quality renditions. |
-| `height` | `number` | Yes      | –           | The height of the video track in pixels. Used for track selection by resolution.             |
+| Property | Type     | Required | Default     | Description                                                                                         |
+| -------- | -------- | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| `id`     | `string` | No       | `undefined` | Identifies the track. On web, selecting a custom track selects the player track with the same `id`. |
+| `label`  | `string` | No       | `undefined` | User-friendly label to display in the UI (e.g., "Auto", "1080p", "720p HD").                        |
+| `uri`    | `string` | No       | `undefined` | Optional URI for the specific quality stream. Not used for switching yet.                           |
+| `height` | `number` | No       | `undefined` | The height of the video track in pixels. Only used to build a fallback label such as "720p".        |
 
 <Callout type="info">
-  If `label` is not provided, the UI will automatically display the height followed by "p" (e.g., "720p").
+  If `label` is not provided, the UI displays the height followed by "p" (e.g., "720p"), or "Auto" if there's no height
+  either.
+</Callout>
+
+<Callout type="warn">
+  Quality selection is only supported by react-native-video v7's web player. On iOS and Android the quality list stays
+  empty and the settings menu hides it, even when custom tracks are configured.
 </Callout>
 
 ### Example
@@ -23,10 +31,10 @@ The `CustomVideoTrack` interface represents a custom video track with user-frien
 import type { CustomVideoTrack } from 'react-native-video-toolkit';
 
 const customVideoTracks: CustomVideoTrack[] = [
-  { height: 0, label: 'Auto' },
-  { height: 1080, label: '1080p Full HD' },
-  { height: 720, label: '720p HD' },
-  { height: 480, label: '480p SD' },
+  { id: 'auto', label: 'Auto' },
+  { id: '1080', label: '1080p Full HD' },
+  { id: '720', height: 720 },
+  { id: '480', label: '480p SD' },
 ];
 ```
 
@@ -62,8 +70,8 @@ The `VideoPlayerConfig` interface allows you to configure the behavior of the vi
 | `enablePanGestures`       | `boolean`    | No       | `true`                   | If `true`, the user can use pan gestures to control volume and brightness.  |
 | `enableScreenRotation`    | `boolean`    | No       | `true`                   | If `true`, the screen will rotate automatically when the device is rotated. |
 | `playbackRates`           | `number[]`   | No       | `[0.5, 1, 1.25, 1.5, 2]` | An array of playback rates to be displayed in the settings menu.            |
-| `useCustomAudioTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom audio tracks instead of auto-extracting from source.  |
-| `useCustomVideoTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom video tracks instead of auto-extracting from source.  |
+| `useCustomAudioTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom audio tracks instead of the player's (web only).      |
+| `useCustomVideoTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom video tracks instead of the player's (web only).      |
 | `onEnterFullscreen`       | `() => void` | No       | `undefined`              | A callback function that is called when the player enters fullscreen mode.  |
 | `onExitFullscreen`        | `() => void` | No       | `undefined`              | A callback function that is called when the player exits fullscreen mode.   |
 | `onHideControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are hidden.            |

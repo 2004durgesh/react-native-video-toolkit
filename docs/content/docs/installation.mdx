@@ -10,6 +10,17 @@ description: Step-by-step guide to install and configure React Native Video Tool
   React Native 0.76 or higher.
 </Callout>
 
+The toolkit is built on [react-native-video v7](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/fundamentals/intro), which is currently in beta:
+
+- **react-native-video** `7.0.0-beta.11` and **react-native-nitro-modules** `0.35.0` or higher
+- **iOS** 15.0+ and **Android** 6.0+
+- **Apple TV (tvOS) is not supported yet.** The v7 beta's iOS pod only declares iOS.
+
+<Callout type="warn">
+  Coming from a toolkit version built on react-native-video v6? See [Migrating to react-native-video
+  v7](/docs/migration-v7) for the breaking changes.
+</Callout>
+
 ## Installation Steps
 
 <Steps>
@@ -21,11 +32,28 @@ description: Step-by-step guide to install and configure React Native Video Tool
 Install the main library along with all required peer dependencies:
 
 ```npm
-npm install react-native-video-toolkit react-native-video react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
+npm install react-native-video-toolkit react-native-video@7.0.0-beta.11 react-native-nitro-modules react-native-gesture-handler react-native-reanimated react-native-worklets react-native-svg react-native-orientation-director
 ```
 
 <Callout type="warning">
-  Make sure to install all dependencies as they are required for the library to function properly.
+  Make sure to install all dependencies as they are required for the library to function properly. Pin
+  `react-native-video` to an exact v7 beta: betas can include breaking changes.
+</Callout>
+
+<Callout type="info">
+**Targeting web?** react-native-video v7 plays video on web through video.js. `7.0.0-beta.11` declares
+`@videojs/react@^10.0.0-beta.11`, which also allows the stable 10.x release, and that release is not compatible.
+Pin it to the beta in your root `package.json`:
+
+```json
+{
+  "resolutions": { "@videojs/react": "10.0.0-beta.11" }
+}
+```
+
+With npm, use `"overrides"` instead of `"resolutions"`. Without the pin, the player fails on web with _"Element
+type is invalid … Check the render method of `VideoView`"_.
+
 </Callout>
 
 </Step>
@@ -111,29 +139,42 @@ If you're using Expo, add the following to your `app.json` or `app.config.js` to
 
 <Step>
 ### Configure react-native-video
-If you're using Expo, add the following to your `app.json` or `app.config.js` to include the necessary plugin:
+If you're using Expo, add the react-native-video config plugin to your `app.json` or `app.config.js`. All options are optional:
 
 ```json
 {
   "expo": {
     "plugins": [
-      "react-native-video",
-      {
-        "enableNotificationControls": true,
-        "androidExtensions": {
-          "useExoplayerRtsp": false,
-          "useExoplayerSmoothStreaming": false,
-          "useExoplayerHls": false,
-          "useExoplayerDash": false
+      [
+        "react-native-video",
+        {
+          "enableBackgroundAudio": false,
+          "enableAndroidPictureInPicture": false,
+          "androidExtensions": {
+            "useExoplayerHls": true,
+            "useExoplayerDash": true
+          }
         }
-      }
+      ]
     ]
   }
 }
 ```
 
+| Option                          | Default | Description                                                               |
+| ------------------------------- | ------- | ------------------------------------------------------------------------- |
+| `enableBackgroundAudio`         | `false` | Configures the app so audio can keep playing in the background.           |
+| `enableAndroidPictureInPicture` | `false` | Adds the Android manifest settings needed for picture-in-picture.         |
+| `androidExtensions`             | both on | Which ExoPlayer extensions to include. Turn off HLS or DASH to save size. |
+
 <Callout type="info">
-For bare React Native projects, follow the setup instructions in the [react-native-video](https://docs.thewidlarzgroup.com/react-native-video/docs/v6/installation)
+  The v6 plugin options `enableNotificationControls`, `useExoplayerRtsp` and `useExoplayerSmoothStreaming` no longer
+  exist. Notification controls are always configured and are turned on at runtime with the player's
+  `showNotificationControls` property.
+</Callout>
+
+<Callout type="info">
+For bare React Native projects, follow the setup instructions in the [react-native-video v7 docs](https://docs.thewidlarzgroup.com/react-native-video/docs/v7/fundamentals/configuration/without-expo)
 </Callout>
 </Step>
 
@@ -212,7 +253,7 @@ import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
 export default function TestVideo() {
   return (
     <VideoPlayer
-      source={{ uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}
+      source={{ uri: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' }}
       style={{ width: '100%', height: 200 }}>
       <DefaultLayout />
     </VideoPlayer>
@@ -238,6 +279,16 @@ export default function TestVideo() {
 
 - Make sure you've imported `react-native-gesture-handler` at the top of your entry file
 - Verify that `GestureHandlerRootView` wraps your entire app
+
+**"Failed to get NitroModules: The native "NitroModules" Turbo/Native-Module could not be found":**
+
+- react-native-video v7 and `react-native-nitro-modules` contain native code, so a JavaScript reload is not enough.
+  Rebuild the app, and run `pod install` first on iOS.
+
+**Web: "Element type is invalid … Check the render method of `VideoView`":**
+
+- `@videojs/react` resolved to an incompatible stable release. Pin it to `10.0.0-beta.11` as shown in
+  [Install Dependencies](#install-dependencies).
 
 ### Getting Help
 

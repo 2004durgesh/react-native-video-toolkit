@@ -5,17 +5,16 @@ import type {
   PanGestureHandlerEventPayload,
   TapGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
-import type { VideoRef } from 'react-native-video';
-import type { RefObject } from 'react';
+import type { VideoPlayer } from 'react-native-video';
 
 /**
  * Props for the useDoubleTapGesture hook.
  */
 export interface UseDoubleTapGestureProps {
   /**
-   * A ref to the video component.
+   * The react-native-video player instance used for seeking.
    */
-  videoRef: RefObject<VideoRef> | null;
+  player: VideoPlayer | null;
   /**
    * The interval in seconds to seek forward or backward when double tapping.
    */

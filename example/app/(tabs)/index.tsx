@@ -1,57 +1,47 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-native-video';
+import type { VideoConfig } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
 
-const SUBTITLE_BASE_URL =
-  'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
+// Public sample captions (video.js "Elephants Dream" example). They won't line up with these
+// videos' dialogue, but they're reachable and exercise subtitle selection, CJK and RTL text.
+const CAPTIONS_BASE_URL = 'https://cdn.jsdelivr.net/gh/videojs/video.js@main/docs/examples/elephantsdream';
 
-// English comes first: it's the default track, and the toolkit auto-selects the first text track.
-const subtitleTracks: TextTracks = [
-  { title: 'English', language: 'en', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/eng-2.vtt` },
-  {
-    title: 'Chinese (Chinese - (Simplified))',
-    language: 'zh',
-    type: TextTrackType.VTT,
-    uri: `${SUBTITLE_BASE_URL}/chi-3.vtt`,
-  },
-  {
-    title: 'Chinese (Chinese - (Traditional))',
-    language: 'zh',
-    type: TextTrackType.VTT,
-    uri: `${SUBTITLE_BASE_URL}/chi-4.vtt`,
-  },
-  { title: 'Malay', language: 'ms', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/may-5.vtt` },
+const externalSubtitles: NonNullable<VideoConfig['externalSubtitles']> = [
+  { uri: `${CAPTIONS_BASE_URL}/captions.en.vtt`, label: 'English', language: 'en', type: 'vtt' },
+  { uri: `${CAPTIONS_BASE_URL}/captions.ja.vtt`, label: '日本語', language: 'ja', type: 'vtt' },
+  { uri: `${CAPTIONS_BASE_URL}/captions.ar.vtt`, label: 'العربية', language: 'ar', type: 'vtt' },
+  { uri: `${CAPTIONS_BASE_URL}/captions.ru.vtt`, label: 'Русский', language: 'ru', type: 'vtt' },
+  { uri: `${CAPTIONS_BASE_URL}/captions.sv.vtt`, label: 'Svenska', language: 'sv', type: 'vtt' },
 ];
 
-const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
+const videoSources: { title: string; source: VideoConfig }[] = [
   {
     title: 'HLS - Tears of Steel',
     source: {
       uri: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
-      textTracks: subtitleTracks,
+      externalSubtitles,
     },
   },
   {
-    title: 'MP4 - Big Buck Bunny',
-    // Sidecar subtitles go on an MP4: on iOS, react-native-video ignores them for .m3u8 sources.
+    title: 'MP4 - Big Buck Bunny (10s)',
     source: {
-      uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      textTracks: subtitleTracks,
+      uri: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_5MB.mp4',
+      externalSubtitles,
     },
   },
   {
     title: 'DASH - Test Stream',
-    source: { uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd', textTracks: subtitleTracks },
+    source: { uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd', externalSubtitles },
   },
   {
     title: 'local MP4',
-    source: { uri: require('../../../assets/test.mp4'), textTracks: subtitleTracks },
+    source: { uri: require('../../../assets/test.mp4'), externalSubtitles },
   },
   {
     title: 'local MP4 (Vertical)',
-    source: { uri: require('../../../assets/vertical.mp4'), textTracks: subtitleTracks },
+    source: { uri: require('../../../assets/vertical.mp4'), externalSubtitles },
   },
 ];
 
@@ -81,13 +71,13 @@ function VideoSourceSelector({
   );
 }
 
-function Player({ source, title }: { source: ReactVideoProps['source']; title: string }) {
+function Player({ source, title }: { source: VideoConfig; title: string }) {
   const { state } = useVideo();
 
   return (
     <View style={state.fullscreen ? styles.fullscreenContainer : styles.playerContainer}>
       <VideoPlayer
-        videoProps={{
+        events={{
           onLoad: (e) => console.log(e),
         }}
         source={source}

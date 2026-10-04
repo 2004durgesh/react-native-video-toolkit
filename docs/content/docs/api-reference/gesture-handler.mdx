@@ -36,7 +36,14 @@ For detailed information on available props and examples, refer to the [Props](#
 ## Internal Integration (In VideoPlayer)
 
 ```tsx
-const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, gestureProps }: VideoPlayerProps) => {
+const VideoPlayerComponent = ({
+  source,
+  children,
+  containerStyle,
+  viewProps,
+  events,
+  gestureProps,
+}: VideoPlayerProps) => {
   // this is the root of all the things :)
   const { state } = useVideo();
 
@@ -75,7 +82,7 @@ const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, ge
       ]}>
       <GestureHandler {...gestureProps}>
         <View style={innerViewStyle}>
-          <VideoSurface {...videoProps} source={source} />
+          <VideoSurface source={source} viewProps={viewProps} events={events} />
           {children}
         </View>
       </GestureHandler>
