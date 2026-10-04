@@ -18,20 +18,3 @@ export type {
   BottomSheetContentProps,
   BottomSheetCloseProps,
 } from './BottomSheet';
-export {
-  PopoverRoot,
-  PopoverTrigger,
-  PopoverPortal,
-  PopoverOverlay,
-  PopoverContent,
-  PopoverClose,
-  usePopoverContext,
-} from './Popover';
-export type {
-  PopoverRootProps,
-  PopoverTriggerProps,
-  PopoverPortalProps,
-  PopoverOverlayProps,
-  PopoverContentProps as PopoverContentComponentProps,
-  PopoverCloseProps,
-} from './Popover';

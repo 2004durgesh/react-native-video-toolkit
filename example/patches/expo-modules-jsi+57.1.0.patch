@@ -1,3 +1,42 @@
+diff --git a/node_modules/expo-modules-jsi/apple/Package.swift b/node_modules/expo-modules-jsi/apple/Package.swift
+index 77b0525..54f560b 100644
+--- a/node_modules/expo-modules-jsi/apple/Package.swift
++++ b/node_modules/expo-modules-jsi/apple/Package.swift
+@@ -92,6 +92,25 @@ let package = Package(
+         // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0470-isolated-conformances.md
+         .enableUpcomingFeature("InferIsolatedConformances"),
+ 
++        // Patched (patch-package): built in the Swift 5 language mode so Xcode 26.2 (Swift 6.2.3)
++        // reports its region-isolation false positives as warnings instead of errors. These are
++        // the features the Swift 6 language mode enables by default, so the semantics match.
++        .enableUpcomingFeature("ConciseMagicFile"),
++        .enableUpcomingFeature("ForwardTrailingClosures"),
++        .enableUpcomingFeature("StrictConcurrency"),
++        .enableUpcomingFeature("BareSlashRegexLiterals"),
++        .enableUpcomingFeature("ImplicitOpenExistentials"),
++        .enableUpcomingFeature("ImportObjcForwardDeclarations"),
++        .enableUpcomingFeature("DisableOutwardActorInference"),
++        .enableUpcomingFeature("DeprecateApplicationMain"),
++        .enableUpcomingFeature("IsolatedDefaultValues"),
++        .enableUpcomingFeature("GlobalConcurrency"),
++        .enableUpcomingFeature("InferSendableFromCaptures"),
++        .enableUpcomingFeature("RegionBasedIsolation"),
++        .enableUpcomingFeature("DynamicActorIsolation"),
++        .enableUpcomingFeature("GlobalActorIsolatedTypesUsability"),
++        .enableUpcomingFeature("NonfrozenEnumExhaustivity"),
++
+         .unsafeFlags([
+           "-enable-library-evolution",
+           "-emit-module-interface",
+@@ -150,7 +169,7 @@ let package = Package(
+       path: "Benchmarks",
+     ),
+   ] + testFrameworks.binaryTargets,
+-  swiftLanguageModes: [.v6],
++  swiftLanguageModes: [.v5],
+   cxxLanguageStandard: .cxx20
+ )
+ 
 diff --git a/node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h b/node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h
 index 6115e87..957527c 100644
 --- a/node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h

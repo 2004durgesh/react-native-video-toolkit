@@ -1,45 +1,57 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TextTrackType, type ReactVideoProps } from 'react-native-video';
+import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
+
+const SUBTITLE_BASE_URL =
+  'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
+
+// English comes first: it's the default track, and the toolkit auto-selects the first text track.
+const subtitleTracks: TextTracks = [
+  { title: 'English', language: 'en', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/eng-2.vtt` },
+  {
+    title: 'Chinese (Chinese - (Simplified))',
+    language: 'zh',
+    type: TextTrackType.VTT,
+    uri: `${SUBTITLE_BASE_URL}/chi-3.vtt`,
+  },
+  {
+    title: 'Chinese (Chinese - (Traditional))',
+    language: 'zh',
+    type: TextTrackType.VTT,
+    uri: `${SUBTITLE_BASE_URL}/chi-4.vtt`,
+  },
+  { title: 'Malay', language: 'ms', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/may-5.vtt` },
+];
 
 const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
   {
     title: 'HLS - Tears of Steel',
     source: {
       uri: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
-      textTracks: [
-        {
-          title: 'English CC',
-          language: 'en',
-          type: TextTrackType.VTT,
-          uri: 'https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_en.vtt',
-        },
-        {
-          title: 'Español',
-          language: 'es',
-          type: TextTrackType.VTT,
-          uri: 'https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_es.vtt',
-        },
-      ],
+      textTracks: subtitleTracks,
     },
   },
   {
     title: 'MP4 - Big Buck Bunny',
-    source: { uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+    // Sidecar subtitles go on an MP4: on iOS, react-native-video ignores them for .m3u8 sources.
+    source: {
+      uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      textTracks: subtitleTracks,
+    },
   },
   {
     title: 'DASH - Test Stream',
-    source: { uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd' },
+    source: { uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd', textTracks: subtitleTracks },
   },
   {
     title: 'local MP4',
-    source: { uri: require('../../../assets/test.mp4') },
+    source: { uri: require('../../../assets/test.mp4'), textTracks: subtitleTracks },
   },
   {
     title: 'local MP4 (Vertical)',
-    source: { uri: require('../../../assets/vertical.mp4') },
+    source: { uri: require('../../../assets/vertical.mp4'), textTracks: subtitleTracks },
   },
 ];
 

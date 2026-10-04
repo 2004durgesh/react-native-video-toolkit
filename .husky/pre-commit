@@ -10,7 +10,6 @@ STAGED_FILES=$(git diff --cached --name-only)
 # Ensure README.md is restored if script exits
 trap 'test -f README.mdx && mv README.mdx README.md' EXIT
 
-yarn clean 
 yarn prepare 
 
 # Run docs build only if ./docs changed

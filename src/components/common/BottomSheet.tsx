@@ -1,8 +1,25 @@
 import React, { type ReactElement, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native';
 import * as Dialog from '@rn-primitives/dialog';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideInRight,
+  SlideOutDown,
+  SlideOutRight,
+} from 'react-native-reanimated';
 import { PlatformUtils } from '../../utils/orientation';
+
+/** Bottom sheets stop growing at 640 wide on large screens (Material guidance). */
+const SHEET_MAX_WIDTH = 640;
+
+/** On TV the sheet becomes a right-hand side panel taking about a third of the screen. */
+const TV_PANEL_WIDTH_RATIO = 0.33;
+const TV_PANEL_MIN_WIDTH = 320;
+const TV_PANEL_MAX_WIDTH = 600;
+
+const IS_TV = PlatformUtils.isTV();
 
 interface BottomSheetRootProps {
   children: ReactNode;
@@ -148,7 +165,12 @@ const BottomSheetOverlay = ({ style, closeOnPress = true, forceMount }: BottomSh
 };
 
 /**
- * Sheet container pinned to the bottom that slides up into view.
+ * Sheet container that slides into view.
+ *
+ * On phones, tablets and web it is a bottom sheet capped at the screen's shorter side (and at
+ * {@link SHEET_MAX_WIDTH}), so in landscape/fullscreen it stays as wide as it is in portrait
+ * and is centered instead of spanning the whole screen. On TV it becomes a full-height panel
+ * on the right edge, with no grabber since there is no touch input.
  *
  * @param {BottomSheetContentProps} props - The props for the component.
  * @returns {ReactElement} The bottom sheet content component.
@@ -161,16 +183,22 @@ const BottomSheetContent = ({
   title = 'Menu',
   description,
 }: BottomSheetContentProps): ReactElement => {
+  const { width, height } = useWindowDimensions();
+
+  const sizeStyle: ViewStyle = IS_TV
+    ? { width: Math.min(TV_PANEL_MAX_WIDTH, Math.max(TV_PANEL_MIN_WIDTH, width * TV_PANEL_WIDTH_RATIO)) }
+    : { maxWidth: Math.min(SHEET_MAX_WIDTH, width, height) };
+
   return (
-    <View style={styles.sheetWrapper} pointerEvents="box-none">
+    <View style={IS_TV ? styles.panelWrapper : styles.sheetWrapper} pointerEvents="box-none">
       <Dialog.Content forceMount={forceMount} asChild>
         <Animated.View
-          entering={webSafeAnimation(SlideInDown.duration(300))}
-          exiting={webSafeAnimation(SlideOutDown.duration(250))}
-          style={StyleSheet.flatten([styles.sheet, normalizeStyle(style)])}>
+          entering={webSafeAnimation(IS_TV ? SlideInRight.duration(300) : SlideInDown.duration(300))}
+          exiting={webSafeAnimation(IS_TV ? SlideOutRight.duration(250) : SlideOutDown.duration(250))}
+          style={StyleSheet.flatten([IS_TV ? styles.panel : styles.sheet, sizeStyle, normalizeStyle(style)])}>
           <Dialog.Title style={styles.srOnly}>{title}</Dialog.Title>
           {description ? <Dialog.Description style={styles.srOnly}>{description}</Dialog.Description> : null}
-          {showGrabber && <View style={styles.grabber} />}
+          {showGrabber && !IS_TV && <View style={styles.grabber} />}
           {children}
         </Animated.View>
       </Dialog.Content>
@@ -222,6 +250,7 @@ const styles = StyleSheet.create({
   },
   sheet: {
     width: '100%',
+    marginHorizontal: 'auto',
     maxHeight: '80%',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -232,6 +261,23 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -2 },
     shadowRadius: 12,
     elevation: 12,
+  },
+  panelWrapper: {
+    ...StyleSheet.absoluteFill,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  panel: {
+    height: '100%',
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+    paddingVertical: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: -2, height: 0 },
+    shadowRadius: 16,
+    elevation: 16,
   },
   srOnly: {
     position: 'absolute',
