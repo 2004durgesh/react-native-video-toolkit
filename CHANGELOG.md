@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0 (2026-10-05)
+
+* feat: add components prop to bring your own sheet, slider, spinner and press feedback ([c565c33](https://github.com/2004durgesh/react-native-video-toolkit/commit/c565c33))
+* feat: let the menu sheet open above navigation with a root portal host ([952c121](https://github.com/2004durgesh/react-native-video-toolkit/commit/952c121))
+* feat(bottom-sheet): adapt layout for landscape and tv, and fix pre-commit tooling ([963285e](https://github.com/2004durgesh/react-native-video-toolkit/commit/963285e))
+* chore: upgrade example to Expo SDK 57 and react-native-tvos 0.86 ([a44234c](https://github.com/2004durgesh/react-native-video-toolkit/commit/a44234c))
+* chore(docs): upgrade to next 16 and fumadocs 16 ([6b1d950](https://github.com/2004durgesh/react-native-video-toolkit/commit/6b1d950))
+* fix: RN 0.86 compatibility and iOS fullscreen native module ([0097337](https://github.com/2004durgesh/react-native-video-toolkit/commit/0097337))
+* fix(web): resolve bottom sheet crashes on react-native-web ([a05eeac](https://github.com/2004durgesh/react-native-video-toolkit/commit/a05eeac))
+
 ## 0.9.0 (2026-04-26)
 
 * refactor: new detailed color tokens and double tap bug fix ([38aae40](https://github.com/2004durgesh/react-native-video-toolkit/commit/38aae40))
