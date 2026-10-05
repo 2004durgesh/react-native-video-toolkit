@@ -243,15 +243,20 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 </View>
               </View>
             </Animated.View>
-            <Animated.View style={[centerControlsAnimatedStyle, layoutStyles.centerControls]}>
-              {!buffering ? (
-                <View style={layoutStyles.row}>
-                  {slots?.beforeCenterPlayButton && slots.beforeCenterPlayButton}
-                  <VideoPlayer.PlayButton size={state.theme.iconSizes.lg} />
-                  {slots?.afterCenterPlayButton && slots.afterCenterPlayButton}
-                </View>
-              ) : null}
-            </Animated.View>
+            {/* The full-size, pass-through overlay is a plain View: on web, reanimated inlines an
+                animated view's styles and drops `pointerEvents: 'box-none'`, so the overlay would
+                swallow taps meant for the top and bottom controls. */}
+            <View style={layoutStyles.centerControls}>
+              <Animated.View style={centerControlsAnimatedStyle}>
+                {!buffering ? (
+                  <View style={layoutStyles.row}>
+                    {slots?.beforeCenterPlayButton && slots.beforeCenterPlayButton}
+                    <VideoPlayer.PlayButton size={state.theme.iconSizes.lg} />
+                    {slots?.afterCenterPlayButton && slots.afterCenterPlayButton}
+                  </View>
+                ) : null}
+              </Animated.View>
+            </View>
             <Animated.View
               style={[
                 layoutStyles.bottomControls,

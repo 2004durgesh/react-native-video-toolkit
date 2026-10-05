@@ -1,6 +1,6 @@
-import { ActivityIndicator, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useBuffering } from '../../hooks';
-import { useVideo } from '../../providers';
+import { useVideo, useVideoComponents } from '../../providers';
 
 export interface LoadingSpinnerProps {
   size?: 'small' | 'large';
@@ -14,13 +14,15 @@ export interface LoadingSpinnerProps {
  * The spinner's appearance can be customized via props and integrates with the player's theme.
  *
  * @param {LoadingSpinnerProps} props - The props for the LoadingSpinner component.
- * @returns {React.ReactElement | null} An `ActivityIndicator` component if buffering, otherwise `null`.
+ * @returns {React.ReactElement | null} The `Spinner` from `VideoProvider`'s `components` (an `ActivityIndicator`
+ * by default) if buffering, otherwise `null`.
  */
 export const LoadingSpinner = ({ size = 'large', color, style }: LoadingSpinnerProps): React.ReactElement | null => {
   const { buffering } = useBuffering();
   const {
     state: { theme },
   } = useVideo();
+  const { Spinner } = useVideoComponents();
 
   const spinnerColor = color || theme.colors.spinner;
 
@@ -28,7 +30,7 @@ export const LoadingSpinner = ({ size = 'large', color, style }: LoadingSpinnerP
     return null;
   }
 
-  return <ActivityIndicator size={size} color={spinnerColor} style={[styles.spinner, style]} />;
+  return <Spinner size={size} color={spinnerColor} style={[styles.spinner, style]} />;
 };
 
 const styles = StyleSheet.create({

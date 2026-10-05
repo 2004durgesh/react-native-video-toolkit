@@ -1,4 +1,4 @@
 {
   "title": "Types",
-  "pages": ["video", "controls", "gestures", "theme"]
+  "pages": ["video", "controls", "gestures", "theme", "components"]
 }

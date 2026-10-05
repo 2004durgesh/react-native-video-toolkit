@@ -15,11 +15,12 @@ export const VideoPlayerComponent = () => <VideoProvider>{/* Your video player c
 
 ## Props
 
-| Prop       | Type                         | Default    | Description                             |
-| ---------- | ---------------------------- | ---------- | --------------------------------------- |
-| `config`   | `Partial<VideoPlayerConfig>` | `{}`       | The configuration for the video player. |
-| `theme`    | `Partial<Theme>`             | `{}`       | The theme for the video player.         |
-| `children` | `ReactNode`                  | `required` | The children to render.                 |
+| Prop         | Type                                                              | Default    | Description                                                                                                                           |
+| ------------ | ----------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `config`     | `Partial<VideoPlayerConfig>`                                      | `{}`       | The configuration for the video player.                                                                                               |
+| `theme`      | `Partial<Theme>`                                                  | `{}`       | The theme for the video player.                                                                                                       |
+| `components` | [`Partial<VideoComponents>`](../types/components#videocomponents) | `{}`       | Replacements for the sheet, sliders, spinner and press feedback the player renders. See [Custom Components](../../custom-components). |
+| `children`   | `ReactNode`                                                       | `required` | The children to render.                                                                                                               |
 
 ## State
 

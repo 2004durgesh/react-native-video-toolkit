@@ -83,7 +83,7 @@ PODS:
     - RNScreens
   - ExpoSymbols (57.0.3):
     - ExpoModulesCore
-  - ExpoUI (57.0.19):
+  - ExpoUI (57.0.21):
     - ExpoModulesCore
     - ExpoModulesWorklets
     - React-RCTFabric
@@ -1604,6 +1604,51 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - react-native-slider (5.2.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - react-native-slider/common (= 5.2.1)
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - react-native-slider/common (5.2.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - react-native-video (6.19.3):
     - hermes-engine
     - RCTRequired
@@ -2459,6 +2504,7 @@ DEPENDENCIES:
   - React-mutationobservernativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver`)
   - react-native-orientation-director (from `../node_modules/react-native-orientation-director`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-video (from `../node_modules/react-native-video`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-networking (from `../node_modules/react-native/ReactCommon/react/networking`)
@@ -2622,6 +2668,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-orientation-director"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-slider:
+    :path: "../node_modules/@react-native-community/slider"
   react-native-video:
     :path: "../node_modules/react-native-video"
   React-NativeModulesApple:
@@ -2728,7 +2776,7 @@ SPEC CHECKSUMS:
   ExpoModulesWorkletsAdapter: 45b4ea99adb80abaa012b45e9a9543b4763275c9
   ExpoRouter: 3a8e63a51be53961b03f331c33108629090cf667
   ExpoSymbols: 37a3a6e5847edb08b83a5ee04d3b46525e205f00
-  ExpoUI: 98d4650d9d32daaf772597adc76525c645b1ff76
+  ExpoUI: 9cc4762adb625c875850b69a66451dd9c6bb7767
   FBLazyVector: 2949fedf75d1576367537d289d0fb7edbd89dadc
   hermes-engine: 63c5db7d529c36335fada6582fd293ae2a105d77
   RCTDeprecation: 7f111a2a009d1f1f6280d05d98c4e92a563433e1
@@ -2770,6 +2818,7 @@ SPEC CHECKSUMS:
   React-mutationobservernativemodule: e0ede27ce743a95a29c876441b9c10df2aaaa987
   react-native-orientation-director: 087de0eba1ddf735120b8fb48d2ebc3ef07e8eb7
   react-native-safe-area-context: 6b4966397ada0f7dd481e4486a2ef936834861a1
+  react-native-slider: 6f0c45414cd6ddd89eba696588dc0da5edce53a9
   react-native-video: 141f52d2a5c82f139acbfcd69c8a0b8bfb132062
   React-NativeModulesApple: 21e59e2c8f20d1d72ad8644c8921029bfb2662af
   React-networking: 85a82f3a8baa8e19a88a664d601d3834350dd726

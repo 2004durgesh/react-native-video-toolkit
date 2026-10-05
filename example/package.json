@@ -19,6 +19,9 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.16",
+    "@expo/ui": "^57.0.21",
+    "@gorhom/bottom-sheet": "^5.2.14",
+    "@react-native-community/slider": "^5.2.1",
     "expo": "latest",
     "expo-constants": "~57.0.19",
     "expo-linking": "~57.0.10",

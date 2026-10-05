@@ -98,8 +98,9 @@ function settingsReducer(state: SettingsProviderState, action: SettingsAction): 
 
 /**
  * The context for the video player settings.
+ * @internal
  */
-const SettingsContext = createContext<
+export const SettingsContext = createContext<
   | {
       state: SettingsProviderState;
       dispatch: Dispatch<SettingsAction>;

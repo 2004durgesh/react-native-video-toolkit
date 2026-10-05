@@ -1,4 +1,5 @@
 export * from './common';
+export * from './defaults';
 export * from './controls';
 export * from './menu';
 export * from './VideoPlayer';

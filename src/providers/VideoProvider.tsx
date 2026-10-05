@@ -1,9 +1,10 @@
 import React, { createContext, useReducer, useContext, useEffect, useMemo } from 'react';
-import type { VideoPlayerConfig, VideoState, Theme } from '../types';
+import type { VideoPlayerConfig, VideoState, Theme, VideoComponents } from '../types';
 import { defaultTheme } from '../themes';
 import { type LayoutRectangle, Dimensions } from 'react-native';
 import { ThemeProvider } from './ThemeProvider';
 import { SettingsProvider } from './SettingsProvider';
+import { ComponentsProvider } from './ComponentsProvider';
 import { PortalHost } from '@rn-primitives/portal';
 import type { VideoRef } from 'react-native-video';
 /**
@@ -123,7 +124,7 @@ const initialState: VideoProviderState = {
  * The context for the video player.
  * @internal
  */
-const VideoContext = createContext<
+export const VideoContext = createContext<
   | {
       state: VideoProviderState;
       dispatch: React.Dispatch<Action>;
@@ -207,7 +208,13 @@ export const VideoProvider: React.FC<{
    * The theme for the video player.
    */
   theme?: Partial<Theme>;
-}> = ({ children, config, theme }) => {
+  /**
+   * Replacements for the components the toolkit renders internally (the menu `Sheet`, the
+   * `Slider`, the buffering `Spinner` and the buttons' `PressFeedback`). Anything left out uses the
+   * toolkit's default.
+   */
+  components?: Partial<VideoComponents>;
+}> = ({ children, config, theme, components }) => {
   const [portalId] = React.useState(() => `video-portal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const [state, dispatch] = useReducer(videoReducer, { ...initialState, portalHostName: portalId });
 
@@ -223,8 +230,10 @@ export const VideoProvider: React.FC<{
     <VideoContext.Provider value={{ state, dispatch }}>
       <ThemeProvider theme={state.theme}>
         <SettingsProvider>
-          {children}
-          <PortalHost name={state.portalHostName} />
+          <ComponentsProvider components={components}>
+            {children}
+            <PortalHost name={state.portalHostName} />
+          </ComponentsProvider>
         </SettingsProvider>
       </ThemeProvider>
     </VideoContext.Provider>

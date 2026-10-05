@@ -11,16 +11,9 @@ import {
   type TextProps,
   type StyleProp,
 } from 'react-native';
-import {
-  BaseIconButton,
-  BottomSheetRoot,
-  BottomSheetTrigger,
-  BottomSheetPortal,
-  BottomSheetOverlay,
-  BottomSheetContent,
-  useBottomSheetContext,
-} from '../common';
-import { useVideo } from '../../providers';
+import { BaseIconButton } from '../common';
+import { useVideo, useVideoComponents } from '../../providers';
+import { ContextBridge, useBridgedContexts } from '../../providers/ContextBridge';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -154,10 +147,11 @@ const webSafeAnimation = <T,>(animation: T): T | undefined => (IS_WEB ? undefine
 
 export const Menu = {
   /**
-   * Root component with navigation stack and popover state management.
+   * Root component with navigation stack management. The open state lives in the settings state
+   * (`useSettings`), so any `Sheet` can host the menu.
    */
   Root: ({ children, initialView = 'root' }: MenuRootProps): ReactElement => {
-    const { openSettings, closeSettings, isSettingsMenuVisible, setSettingsMenuVisible } = useSettings();
+    const { openSettings, closeSettings, isSettingsMenuVisible } = useSettings();
     const [navigationStack, setNavigationStack] = useState<string[]>([initialView]);
     const currentView = navigationStack[navigationStack.length - 1] || initialView;
 
@@ -179,48 +173,42 @@ export const Menu = {
       }
     }, [isSettingsMenuVisible, initialView]);
 
-    /**
-     * Syncs the popover's internal open state with the settings reducer.
-     */
-    const handleOpenChange = (open: boolean): void => {
-      setSettingsMenuVisible(open);
-    };
-
     return (
-      <BottomSheetRoot open={isSettingsMenuVisible} onOpenChange={handleOpenChange}>
-        <MenuProvider
-          value={{
-            closeSettings,
-            openSettings,
-            isSettingsMenuVisible,
-            navigationStack,
-            navigateTo,
-            goBack,
-            currentView,
-          }}>
-          {children}
-        </MenuProvider>
-      </BottomSheetRoot>
+      <MenuProvider
+        value={{
+          closeSettings,
+          openSettings,
+          isSettingsMenuVisible,
+          navigationStack,
+          navigateTo,
+          goBack,
+          currentView,
+        }}>
+        {children}
+      </MenuProvider>
     );
   },
 
   /**
-   * Trigger to open the menu, anchored for popover positioning.
+   * Trigger to open the menu.
    */
   Trigger: ({ size, color, style, renderSettingIcon }: SettingsButtonProps): ReactElement => {
     const {
       state: { theme },
     } = useVideo();
+    const { openSettings } = useMenuContext();
     const SettingsIcon = renderSettingIcon || Settings;
     const iconSize = size ?? theme.iconSizes.md;
     const iconColor = color || theme.colors.iconNormal;
 
     return (
-      <BottomSheetTrigger asChild={false}>
-        <View style={[styles.triggerButton, style]}>
-          {typeof SettingsIcon === 'function' ? <SettingsIcon size={iconSize} color={iconColor} /> : SettingsIcon}
-        </View>
-      </BottomSheetTrigger>
+      <Pressable
+        onPress={openSettings}
+        accessibilityRole="button"
+        accessibilityLabel="Settings"
+        style={[styles.triggerButton, style]}>
+        {typeof SettingsIcon === 'function' ? <SettingsIcon size={iconSize} color={iconColor} /> : SettingsIcon}
+      </Pressable>
     );
   },
 
@@ -248,34 +236,48 @@ export const Menu = {
         style={[styles.header, { borderBottomColor: theme.colors.menuBorder || '#ccc' }, style]}
         entering={webSafeAnimation(FadeIn.duration(200))}
         {...props}>
-        {shouldShowBackButton && <Menu.Back />}
+        {/* Equal side slots keep the title centered whether or not each button is shown. */}
+        <View style={[styles.headerSide, styles.headerSideStart]}>{shouldShowBackButton && <Menu.Back />}</View>
         {children || (
-          <Title text={displayTitle} style={[styles.headerTitle, { color: theme.colors.menuText }, titleStyle]} />
+          <Title
+            text={displayTitle}
+            numberOfLines={1}
+            style={[styles.headerTitle, { color: theme.colors.menuText }, titleStyle]}
+          />
         )}
-        {showCloseButton && <Menu.Close />}
+        <View style={[styles.headerSide, styles.headerSideEnd]}>{showCloseButton && <Menu.Close />}</View>
       </AnimatedView>
     );
   },
 
   /**
-   * Content wrapper using @rn-primitives/popover with enhanced animations.
+   * Content wrapper, rendered inside the `Sheet` from `VideoProvider`'s `components`
+   * (a bottom sheet by default).
    */
   Content: ({ children, sheetStyle, header, portalHost }: MenuContentProps): ReactElement => {
-    const { currentView } = useMenuContext();
     const menuContext = useMenuContext();
+    const { currentView } = menuContext;
+    const { setSettingsMenuVisible } = useSettings();
+    const { Sheet } = useVideoComponents();
+    const contexts = useBridgedContexts();
     const { state } = useVideo();
     const { theme, portalHostName } = state;
 
+    // Sheets render through portals that can sit outside the providers, so the toolkit's contexts
+    // and the menu's own context are re-provided around the content.
     return (
-      <BottomSheetPortal hostName={portalHost || portalHostName}>
-        <BottomSheetOverlay />
-        <BottomSheetContent style={[styles.sheetContent, { backgroundColor: theme.colors.menuBackground }, sheetStyle]}>
+      <Sheet
+        open={menuContext.isSettingsMenuVisible}
+        onOpenChange={setSettingsMenuVisible}
+        style={[styles.sheetContent, { backgroundColor: theme.colors.menuBackground }, sheetStyle]}
+        portalHost={portalHost || portalHostName}>
+        <ContextBridge contexts={contexts}>
           <MenuProvider value={menuContext}>
             {header ? header(currentView) : <Menu.Header />}
             <View style={styles.contentBody}>{children}</View>
           </MenuProvider>
-        </BottomSheetContent>
-      </BottomSheetPortal>
+        </ContextBridge>
+      </Sheet>
     );
   },
 
@@ -311,8 +313,7 @@ export const Menu = {
     navigateTo: navTo,
     ...props
   }: MenuItemProps): ReactElement => {
-    const { navigateTo: ctxNavigate } = useMenuContext();
-    const { onOpenChange } = useBottomSheetContext();
+    const { navigateTo: ctxNavigate, closeSettings } = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
     const scale = useSharedValue(1);
@@ -337,7 +338,7 @@ export const Menu = {
         scheduleOnRN(ctxNavigate, navTo);
       } else if (autoClose) {
         setTimeout(() => {
-          scheduleOnRN(onOpenChange, false);
+          scheduleOnRN(closeSettings);
         }, 300);
       }
     };
@@ -466,8 +467,8 @@ export const Menu = {
    * Close: Button to close the menu.
    */
   Close: ({ style, ...props }: MenuCloseProps): ReactElement => {
-    const { onOpenChange } = useBottomSheetContext();
-    return <BaseIconButton onTap={() => onOpenChange(false)} IconComponent={Close} style={style} {...props} />;
+    const { closeSettings } = useMenuContext();
+    return <BaseIconButton onTap={closeSettings} IconComponent={Close} style={style} {...props} />;
   },
 
   /*
@@ -536,10 +537,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     paddingVertical: 8,
   },
+  headerSide: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  headerSideStart: {
+    justifyContent: 'flex-start',
+  },
+  headerSideEnd: {
+    justifyContent: 'flex-end',
+  },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    flex: 1,
+    flex: 2,
     textAlign: 'center',
     textTransform: 'capitalize',
   },

@@ -1,8 +1,6 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVolume } from '../../hooks';
-import { useVideo } from '../../providers';
-import { useSharedValue, useDerivedValue } from 'react-native-reanimated';
-import { Slider } from 'react-native-awesome-slider';
+import { useVideo, useVideoComponents } from '../../providers';
 
 export interface VolumeControlProps {
   orientation?: 'horizontal' | 'vertical';
@@ -19,7 +17,8 @@ export interface VolumeControlProps {
 /**
  * `VolumeControl` is a slider component that allows users to adjust the video's volume.
  * It provides a visual representation of the current volume level and allows for interactive changes.
- * It uses `react-native-awesome-slider` for the slider functionality and integrates with the video player's volume state.
+ * It renders the `Slider` from `VideoProvider`'s `components` (`react-native-awesome-slider` by default)
+ * and integrates with the video player's volume state.
  *
  * @param {VolumeControlProps} props - The props for the VolumeControl component.
  * @returns {React.ReactElement} A slider component for volume control.
@@ -36,34 +35,28 @@ export const VolumeControl = ({
   const {
     state: { theme },
   } = useVideo();
+  const { Slider } = useVideoComponents();
 
   const updateVolume = (newVolume: number) => {
     setVolume(newVolume);
     onVolumeChange?.(newVolume);
   };
 
-  // Shared values for the slider (0-1 scale to match volume state)
-  const progress = useDerivedValue(() => volume, [volume]);
-  const min = useSharedValue(0);
-  const max = useSharedValue(1);
-
   return (
     <View style={style}>
       <Slider
-        progress={progress}
-        minimumValue={min}
-        maximumValue={max}
+        variant="volume"
+        value={volume}
+        minimumValue={0}
+        maximumValue={1}
         onValueChange={updateVolume}
-        theme={{
-          minimumTrackTintColor: theme.colors.sliderTrackActive,
-          maximumTrackTintColor: theme.colors.sliderTrackInactive,
-        }}
-        renderBubble={() => null}
+        height={height}
         thumbWidth={thumbWidth}
-        containerStyle={{
-          height,
-          width,
-          borderRadius: height / 2,
+        width={width}
+        colors={{
+          active: theme.colors.sliderTrackActive,
+          inactive: theme.colors.sliderTrackInactive,
+          thumb: theme.colors.sliderThumb,
         }}
       />
     </View>

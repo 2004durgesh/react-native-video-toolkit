@@ -20,7 +20,8 @@ export const CustomPlayerUI = () => {
       <View style={styles.topControls}>
         <MuteButton />
         <VolumeControl />
-        <View style={{ flex: 1 }} /> {/* Spacer */}
+        {/* Spacer */}
+        <View style={{ flex: 1 }} />
         <FullscreenButton />
         <SettingsButton />
         {/* Use Menu for settings sheet */}

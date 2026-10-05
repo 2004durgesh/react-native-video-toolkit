@@ -1,0 +1,66 @@
+---
+title: 'Components Types'
+description: Props contracts for the components you can replace through VideoProvider's components prop.
+---
+
+These types describe what the toolkit passes to the components you provide through `<VideoProvider components>`. See [Custom Components](../../custom-components) for a guide and examples.
+
+## `VideoComponents`
+
+The components the toolkit renders internally. `VideoProvider` accepts a `Partial<VideoComponents>`: anything you leave out uses the default.
+
+| Property        | Type                                | Default                                         | Description                                |
+| --------------- | ----------------------------------- | ----------------------------------------------- | ------------------------------------------ |
+| `Sheet`         | `ComponentType<SheetProps>`         | `DefaultSheet` (bottom sheet; side panel on TV) | Hosts the settings `Menu`.                 |
+| `Slider`        | `ComponentType<SliderProps>`        | `DefaultSlider` (`react-native-awesome-slider`) | Used by `ProgressBar` and `VolumeControl`. |
+| `Spinner`       | `ComponentType<SpinnerProps>`       | `DefaultSpinner` (`ActivityIndicator`)          | Shown while the video is buffering.        |
+| `PressFeedback` | `ComponentType<PressFeedbackProps>` | `DefaultPressFeedback` (ripple; none on web)    | Wraps every control button.                |
+
+## `SheetProps`
+
+The open state is owned by the toolkit: show the sheet while `open` is `true`, and call `onOpenChange(false)` when the user dismisses it.
+
+| Property       | Type                      | Required | Description                                                                                                        |
+| -------------- | ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| `open`         | `boolean`                 | Yes      | Whether the sheet should be shown.                                                                                 |
+| `onOpenChange` | `(open: boolean) => void` | Yes      | Call with `false` when the user dismisses the sheet.                                                               |
+| `children`     | `ReactNode`               | Yes      | The menu content. It already has access to the player state, so it can render in a portal outside `VideoProvider`. |
+| `style`        | `StyleProp<ViewStyle>`    | No       | Style from `Menu.Content`: the theme's menu background, padding and `sheetStyle`.                                  |
+| `portalHost`   | `string`                  | No       | The toolkit's portal host name. The default sheet renders into it; custom sheets can ignore it.                    |
+
+## `SliderProps`
+
+Values are plain numbers. Call `onValueChange` while the user drags.
+
+| Property            | Type                                                                     | Required | Description                                                                          |
+| ------------------- | ------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------ |
+| `variant`           | `'progress' \| 'volume'`                                                 | Yes      | Which control is rendering the slider.                                               |
+| `value`             | `number`                                                                 | Yes      | The current value: seconds for `progress`, `0`–`1` for `volume`.                     |
+| `minimumValue`      | `number`                                                                 | Yes      | The lowest value.                                                                    |
+| `maximumValue`      | `number`                                                                 | Yes      | The highest value: the duration for `progress` (`0` until loaded), `1` for `volume`. |
+| `bufferedValue`     | `number`                                                                 | No       | How far the media is buffered, on the same scale as `value`. `progress` only.        |
+| `onValueChange`     | `(value: number) => void`                                                | Yes      | Call while the user drags.                                                           |
+| `onSlidingStart`    | `() => void`                                                             | No       | Call when the user starts dragging.                                                  |
+| `onSlidingComplete` | `(value: number) => void`                                                | No       | Call when the user releases the slider.                                              |
+| `height`            | `number`                                                                 | Yes      | Track height requested by the control.                                               |
+| `thumbWidth`        | `number`                                                                 | Yes      | Thumb size requested by the control.                                                 |
+| `width`             | `number`                                                                 | No       | Fixed width requested by the control, if any (`VolumeControl` sets one).             |
+| `colors`            | `{ active: string; inactive: string; buffered?: string; thumb: string }` | Yes      | Colors from the player theme. `buffered` is only set for `progress`.                 |
+
+## `SpinnerProps`
+
+| Property | Type                   | Required | Description                                               |
+| -------- | ---------------------- | -------- | --------------------------------------------------------- |
+| `size`   | `'small' \| 'large'`   | Yes      | Requested size.                                           |
+| `color`  | `string`               | Yes      | Color from the theme, or `LoadingSpinner`'s `color` prop. |
+| `style`  | `StyleProp<ViewStyle>` | No       | Positioning style (centered over the video by default).   |
+
+## `PressFeedbackProps`
+
+Visual feedback only: the toolkit detects the tap itself, so don't attach a press handler. Extends `ViewProps` (without `children` and `style`); spread the remaining props onto your root view.
+
+| Property   | Type                   | Required | Description                                            |
+| ---------- | ---------------------- | -------- | ------------------------------------------------------ |
+| `children` | `ReactNode`            | Yes      | The button content (usually an icon).                  |
+| `color`    | `string`               | Yes      | Feedback color from the theme (`theme.colors.ripple`). |
+| `style`    | `StyleProp<ViewStyle>` | No       | Style for the feedback container.                      |

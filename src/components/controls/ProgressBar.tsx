@@ -1,8 +1,6 @@
 import { View, StyleSheet, type ViewStyle, type StyleProp } from 'react-native';
-import { useSharedValue, useDerivedValue } from 'react-native-reanimated';
-import { Slider } from 'react-native-awesome-slider';
 import { useProgress, useControlsVisibility } from '../../hooks';
-import { useVideo } from '../../providers';
+import { useVideo, useVideoComponents } from '../../providers';
 
 export interface ProgressBarProps {
   height?: number;
@@ -35,12 +33,7 @@ export const ProgressBar = ({
   const {
     state: { theme },
   } = useVideo();
-
-  // Shared values for the slider - use useDerivedValue to react to changes
-  const progress = useDerivedValue(() => currentTime, [currentTime]);
-  const min = useSharedValue(0);
-  const max = useDerivedValue(() => duration, [duration]);
-  const cache = useDerivedValue(() => playableDuration, [playableDuration]);
+  const { Slider } = useVideoComponents();
 
   const handleSlidingStart = () => {
     showControls();
@@ -60,24 +53,21 @@ export const ProgressBar = ({
   return (
     <View style={[styles.container, style]}>
       <Slider
-        progress={progress}
-        minimumValue={min}
-        maximumValue={max}
-        cache={cache}
+        variant="progress"
+        value={currentTime}
+        minimumValue={0}
+        maximumValue={duration}
+        bufferedValue={playableDuration}
         onSlidingStart={handleSlidingStart}
         onSlidingComplete={handleSlidingComplete}
         onValueChange={handleValueChange}
-        theme={{
-          minimumTrackTintColor: theme.colors.sliderTrackActive,
-          maximumTrackTintColor: theme.colors.sliderTrackInactive,
-          bubbleBackgroundColor: theme.colors.sliderThumb,
-          cacheTrackTintColor: theme.colors.sliderTrackCache,
-        }}
-        renderBubble={() => null}
+        height={height}
         thumbWidth={thumbWidth}
-        containerStyle={{
-          height,
-          borderRadius: height / 2,
+        colors={{
+          active: theme.colors.sliderTrackActive,
+          inactive: theme.colors.sliderTrackInactive,
+          buffered: theme.colors.sliderTrackCache,
+          thumb: theme.colors.sliderThumb,
         }}
       />
     </View>

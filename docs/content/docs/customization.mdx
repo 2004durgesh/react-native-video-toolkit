@@ -56,10 +56,11 @@ The `VideoProvider` and `VideoPlayer` accept various props to configure their be
 
 ### VideoProvider Props
 
-| Prop     | Type                                                                 | Required | Default | Description                                         |
-| -------- | -------------------------------------------------------------------- | -------- | ------- | --------------------------------------------------- |
-| `theme`  | [`Theme`](./api-reference/types/theme)                               | No       | –       | Custom theme object for colors, fonts, sizing, etc. |
-| `config` | [`VideoPlayerConfig`](./api-reference/types/video#videoplayerconfig) | No       | –       | Configuration options for player behavior.          |
+| Prop         | Type                                                                           | Required | Default | Description                                                                                        |
+| ------------ | ------------------------------------------------------------------------------ | -------- | ------- | -------------------------------------------------------------------------------------------------- |
+| `theme`      | [`Theme`](./api-reference/types/theme)                                         | No       | –       | Custom theme object for colors, fonts, sizing, etc.                                                |
+| `config`     | [`VideoPlayerConfig`](./api-reference/types/video#videoplayerconfig)           | No       | –       | Configuration options for player behavior.                                                         |
+| `components` | [`Partial<VideoComponents>`](./api-reference/types/components#videocomponents) | No       | –       | Your own sheet, sliders, spinner and press feedback. See [Custom Components](./custom-components). |
 
 ### Configuration Example
 

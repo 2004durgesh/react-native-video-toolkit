@@ -3,8 +3,9 @@ import type { Theme } from '../types';
 
 /**
  * The context for the video player theme.
+ * @internal
  */
-const ThemeContext = createContext<Theme | undefined>(undefined);
+export const ThemeContext = createContext<Theme | undefined>(undefined);
 
 /**
  * The provider component for the video player theme.
