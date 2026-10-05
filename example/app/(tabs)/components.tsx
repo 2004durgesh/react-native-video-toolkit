@@ -1,7 +1,6 @@
 import React, { useMemo, useState, type ComponentType } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import {
   VideoPlayer,
   DefaultLayout,
@@ -15,6 +14,7 @@ import { NativeSheet } from '../../components/NativeSheet';
 import { CommunitySlider } from '../../components/CommunitySlider';
 import { RingSpinner } from '../../components/RingSpinner';
 import { ScalePressFeedback } from '../../components/ScalePressFeedback';
+import { APP_PORTAL_HOST } from '../../constants';
 
 /**
  * Example of replacing the toolkit's internal components through `<VideoProvider components>`.
@@ -150,14 +150,13 @@ export default function ComponentsScreen() {
     [sheet, controls]
   );
 
-  // The modal provider sits outside `VideoProvider` on purpose: the toolkit re-provides its state
-  // inside the sheet, so the menu works wherever the sheet library renders it.
+  // Both sheets open at the app root (gorhom's `BottomSheetModalProvider` and the toolkit's
+  // `VideoPortalHost` live in `app/_layout.tsx`), outside this provider: the toolkit re-provides
+  // its state inside the sheet, so the menu works wherever the sheet renders.
   return (
-    <BottomSheetModalProvider>
-      <VideoProvider components={components}>
-        <ComponentsContent sheet={sheet} onSheetChange={setSheet} controls={controls} onControlsChange={setControls} />
-      </VideoProvider>
-    </BottomSheetModalProvider>
+    <VideoProvider components={components} portalHost={APP_PORTAL_HOST}>
+      <ComponentsContent sheet={sheet} onSheetChange={setSheet} controls={controls} onControlsChange={setControls} />
+    </VideoProvider>
   );
 }
 

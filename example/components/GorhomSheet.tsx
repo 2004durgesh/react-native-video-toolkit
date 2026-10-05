@@ -11,7 +11,7 @@ import type { SheetProps } from 'react-native-video-toolkit';
 
 /**
  * Hosts the settings menu in a `@gorhom/bottom-sheet` modal.
- * Needs a `BottomSheetModalProvider` above it (see `app/(tabs)/components.tsx`).
+ * Needs a `BottomSheetModalProvider` above it (see `app/_layout.tsx`).
  */
 export function GorhomSheet({ open, onOpenChange, children, style }: SheetProps) {
   const ref = useRef<BottomSheetModal>(null);

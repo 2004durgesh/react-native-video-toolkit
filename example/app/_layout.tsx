@@ -4,7 +4,9 @@ import { Slot } from 'expo-router';
 import RNOrientationDirector, { Orientation } from 'react-native-orientation-director';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { VideoProvider, useVideo } from 'react-native-video-toolkit';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { VideoPortalHost, VideoProvider, useVideo } from 'react-native-video-toolkit';
+import { APP_PORTAL_HOST } from '../constants';
 
 function AppContent() {
   const { state } = useVideo();
@@ -27,9 +29,13 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#000' }}>
       <SafeAreaProvider>
-        <VideoProvider>
-          <AppContent />
-        </VideoProvider>
+        {/* At the root, above the tabs, so sheets aren't drawn under the tab bar. */}
+        <BottomSheetModalProvider>
+          <VideoProvider>
+            <AppContent />
+          </VideoProvider>
+          <VideoPortalHost name={APP_PORTAL_HOST} />
+        </BottomSheetModalProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

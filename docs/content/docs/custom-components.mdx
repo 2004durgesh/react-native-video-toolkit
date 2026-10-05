@@ -51,7 +51,7 @@ The sheet hosts the settings menu. The toolkit owns the open state, so your shee
 
 ### `@gorhom/bottom-sheet`
 
-`BottomSheetModal` is imperative, so mirror `open` onto `present()` and `dismiss()`. Wrap your app (or the screen) in `BottomSheetModalProvider`.
+`BottomSheetModal` is imperative, so mirror `open` onto `present()` and `dismiss()`. Place `BottomSheetModalProvider` at your app root, above your navigator, so the sheet is drawn over tab bars and headers. The menu keeps working even though the sheet is then rendered outside `VideoProvider`.
 
 ```tsx
 import { useCallback, useEffect, useRef } from 'react';

@@ -92,7 +92,8 @@ type Action =
   | { type: 'SET_VIDEO_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_VIDEO_WRAPPER_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_DIMENSIONS'; payload: { width: number; height: number } }
-  | { type: 'SET_PLAYBACK_RATE'; payload: number };
+  | { type: 'SET_PLAYBACK_RATE'; payload: number }
+  | { type: 'SET_PORTAL_HOST_NAME'; payload: string };
 
 /**
  * The initial state for the VideoProvider.
@@ -188,6 +189,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return { ...state, dimensions: action.payload };
     case 'SET_PLAYBACK_RATE':
       return { ...state, playbackRate: action.payload };
+    case 'SET_PORTAL_HOST_NAME':
+      return action.payload === state.portalHostName ? state : { ...state, portalHostName: action.payload };
 
     default:
       return state;
@@ -214,9 +217,20 @@ export const VideoProvider: React.FC<{
    * toolkit's default.
    */
   components?: Partial<VideoComponents>;
-}> = ({ children, config, theme, components }) => {
+  /**
+   * Name of a `VideoPortalHost` you render yourself, usually at the app root above your navigator.
+   * The settings sheet then opens there, so it can cover tab bars and headers. When left out, the
+   * provider renders its own host after its children.
+   */
+  portalHost?: string;
+}> = ({ children, config, theme, components, portalHost }) => {
   const [portalId] = React.useState(() => `video-portal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
-  const [state, dispatch] = useReducer(videoReducer, { ...initialState, portalHostName: portalId });
+  const portalHostName = portalHost ?? portalId;
+  const [state, dispatch] = useReducer(videoReducer, { ...initialState, portalHostName });
+
+  useEffect(() => {
+    dispatch({ type: 'SET_PORTAL_HOST_NAME', payload: portalHostName });
+  }, [portalHostName]);
 
   // Memoize config and theme to prevent infinite re-renders if passed as inline objects
   const memoizedConfig = useMemo(() => config, [config]);
@@ -232,7 +246,7 @@ export const VideoProvider: React.FC<{
         <SettingsProvider>
           <ComponentsProvider components={components}>
             {children}
-            <PortalHost name={state.portalHostName} />
+            {portalHost ? null : <PortalHost name={portalHostName} />}
           </ComponentsProvider>
         </SettingsProvider>
       </ThemeProvider>

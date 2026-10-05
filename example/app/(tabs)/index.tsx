@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
+import { APP_PORTAL_HOST } from '../../constants';
 
 const SUBTITLE_BASE_URL =
   'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
@@ -157,7 +158,7 @@ function HomeContent() {
 
 export default function HomeScreen() {
   return (
-    <VideoProvider>
+    <VideoProvider portalHost={APP_PORTAL_HOST}>
       <HomeContent />
     </VideoProvider>
   );

@@ -15,12 +15,48 @@ export const VideoPlayerComponent = () => <VideoProvider>{/* Your video player c
 
 ## Props
 
-| Prop         | Type                                                              | Default    | Description                                                                                                                           |
-| ------------ | ----------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `config`     | `Partial<VideoPlayerConfig>`                                      | `{}`       | The configuration for the video player.                                                                                               |
-| `theme`      | `Partial<Theme>`                                                  | `{}`       | The theme for the video player.                                                                                                       |
-| `components` | [`Partial<VideoComponents>`](../types/components#videocomponents) | `{}`       | Replacements for the sheet, sliders, spinner and press feedback the player renders. See [Custom Components](../../custom-components). |
-| `children`   | `ReactNode`                                                       | `required` | The children to render.                                                                                                               |
+| Prop         | Type                                                              | Default    | Description                                                                                                                                         |
+| ------------ | ----------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `config`     | `Partial<VideoPlayerConfig>`                                      | `{}`       | The configuration for the video player.                                                                                                             |
+| `theme`      | `Partial<Theme>`                                                  | `{}`       | The theme for the video player.                                                                                                                     |
+| `components` | [`Partial<VideoComponents>`](../types/components#videocomponents) | `{}`       | Replacements for the sheet, sliders, spinner and press feedback the player renders. See [Custom Components](../../custom-components).               |
+| `portalHost` | `string`                                                          | –          | Name of a [`VideoPortalHost`](#videoportalhost) to open the settings sheet in. When left out, the provider renders its own host after its children. |
+| `children`   | `ReactNode`                                                       | `required` | The children to render.                                                                                                                             |
+
+## VideoPortalHost
+
+The settings sheet opens in a portal host that `VideoProvider` renders after its children. If the provider sits inside a screen (for example one tab of a tab navigator), the sheet is drawn inside that screen, so the navigator's tab bar or header can end up on top of it.
+
+To open the sheet above your navigation instead, render a `VideoPortalHost` at the app root, after the navigator, and pass its name to `portalHost`. One host can serve every player in the app.
+
+```tsx
+import { Slot } from 'expo-router';
+import { DefaultLayout, VideoPlayer, VideoPortalHost, VideoProvider } from 'react-native-video-toolkit';
+
+// App root, e.g. app/_layout.tsx
+export default function RootLayout() {
+  return (
+    <>
+      <Slot />
+      <VideoPortalHost name="app" />
+    </>
+  );
+}
+
+// Any screen
+export const PlayerScreen = () => (
+  <VideoProvider portalHost="app">
+    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <DefaultLayout />
+    </VideoPlayer>
+  </VideoProvider>
+);
+```
+
+<Callout type="info">
+  This applies to the default sheet. A custom `Sheet` renders wherever its library puts it; for `@gorhom/bottom-sheet`,
+  place `BottomSheetModalProvider` at the app root for the same effect.
+</Callout>
 
 ## State
 
