@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.0 (2026-10-09)
+
+* feat: add picture-in-picture support and speed, audio, quality and skip icons ([1eb8c6a](https://github.com/2004durgesh/react-native-video-toolkit/commit/1eb8c6a))
+* feat: replace icon glow with soft shadows, add hover and press feedback, require reanimated 4.5 ([acfa75f](https://github.com/2004durgesh/react-native-video-toolkit/commit/acfa75f))
+
 ## 0.10.0 (2026-10-05)
 
 * feat: add components prop to bring your own sheet, slider, spinner and press feedback ([c565c33](https://github.com/2004durgesh/react-native-video-toolkit/commit/c565c33))
