@@ -8,8 +8,10 @@ import RNVideo, {
   type OnProgressData,
   type OnBufferData,
   type OnVideoErrorData,
+  type OnPictureInPictureStatusChangedData,
   type ReactVideoProps,
   type AudioTrack,
+  type VideoRef,
 } from 'react-native-video';
 import { useEffect, useMemo, useRef, type FC } from 'react';
 import { Dimensions, Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
@@ -57,7 +59,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   customVideoTracks,
   ...rest
 }) => {
-  const internalVideoRef = useRef(null);
+  const internalVideoRef = useRef<VideoRef>(null);
   const { dispatch, state } = useVideo();
   const { isPlaying, setPlaying } = usePlayback();
   const { muted, volume } = useVolume();
@@ -100,6 +102,8 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     onEnd: userOnEnd,
     onLayout: userOnLayout,
     onPlaybackRateChange: userOnPlaybackRateChange,
+    onPictureInPictureStatusChanged: userOnPictureInPictureStatusChanged,
+    onRestoreUserInterfaceForPictureInPictureStop: userOnRestoreUserInterfaceForPictureInPictureStop,
     ...nativeProps
   } = rest as Partial<ReactVideoProps>;
 
@@ -174,6 +178,19 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const handlePlaybackRateChange = (data: OnPlaybackRateChangeData) => {
     setPlaybackRate(data.playbackRate);
   };
+  const handlePictureInPictureStatusChanged = ({ isActive }: OnPictureInPictureStatusChangedData) => {
+    dispatch({ type: 'SET_PICTURE_IN_PICTURE', payload: isActive });
+    if (isActive) {
+      state.config.onEnterPictureInPicture?.();
+    } else {
+      state.config.onExitPictureInPicture?.();
+    }
+  };
+  // iOS asks the app to restore its player UI when the user leaves picture-in-picture, and waits for
+  // an answer. The player stays mounted, so report it restored right away, unless the app handles it.
+  const handleRestoreUserInterfaceForPictureInPictureStop =
+    userOnRestoreUserInterfaceForPictureInPictureStop ??
+    (() => internalVideoRef.current?.restoreUserInterfaceForPictureInPictureStopCompleted(true));
   const isFullscreen = state.fullscreen;
   const selectedAudioTrackConfig =
     typeof audioTrack?.index === 'number' ? { type: SelectedTrackType.INDEX, value: audioTrack.index } : undefined;
@@ -221,6 +238,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         onError={combineHandlers(handleError, userOnError)}
         onEnd={combineHandlers(handleEnd, userOnEnd)}
         onPlaybackRateChange={combineHandlers(handlePlaybackRateChange, userOnPlaybackRateChange)}
+        onPictureInPictureStatusChanged={combineHandlers(
+          handlePictureInPictureStatusChanged,
+          userOnPictureInPictureStatusChanged
+        )}
+        onRestoreUserInterfaceForPictureInPictureStop={handleRestoreUserInterfaceForPictureInPictureStop}
         progressUpdateInterval={500}
         onLayout={handleLayout}
         viewType={ViewType.TEXTURE}

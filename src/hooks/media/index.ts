@@ -6,3 +6,4 @@ export { usePlayback, type UsePlaybackReturn } from './usePlayback';
 export { useProgress, type UseProgressReturn } from './useProgress';
 export { useVolume, type UseVolumeReturn } from './useVolume';
 export { usePlaybackRate, type UsePlaybackRateReturn } from './usePlaybackRate';
+export { usePictureInPicture, type UsePictureInPictureReturn } from './usePictureInPicture';

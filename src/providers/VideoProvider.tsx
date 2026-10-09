@@ -18,6 +18,7 @@ const defaultConfig: VideoPlayerConfig = {
   enablePanGestures: true,
   enableFullscreen: true,
   enableVolumeControl: true,
+  enablePictureInPicture: false,
   enableScreenRotation: true,
   playbackRates: [0.5, 1, 1.25, 1.5, 2],
   useCustomAudioTracks: false,
@@ -82,6 +83,7 @@ type Action =
   | { type: 'SET_VOLUME'; payload: number }
   | { type: 'TOGGLE_MUTE' }
   | { type: 'TOGGLE_FULLSCREEN' }
+  | { type: 'SET_PICTURE_IN_PICTURE'; payload: boolean }
   | { type: 'SET_PLAYING'; payload: boolean }
   | { type: 'SET_CURRENT_TIME'; payload: number }
   | { type: 'SET_PLAYABLE_DURATION'; payload: number }
@@ -109,6 +111,7 @@ const initialState: VideoProviderState = {
   volume: 1,
   playbackRate: 1,
   fullscreen: false,
+  pictureInPicture: false,
   error: null,
   config: defaultConfig,
   theme: defaultTheme,
@@ -179,6 +182,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return { ...state, muted: !state.muted };
     case 'TOGGLE_FULLSCREEN':
       return { ...state, fullscreen: !state.fullscreen };
+    case 'SET_PICTURE_IN_PICTURE':
+      return { ...state, pictureInPicture: action.payload };
     case 'SET_HIDE_TIMEOUT':
       return { ...state, hideTimeoutRef: action.payload };
     case 'SET_VIDEO_LAYOUT':

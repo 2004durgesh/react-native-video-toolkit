@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/2004durgesh/react-native-video-toolkit.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,cpp}"
+  s.frameworks = "AVKit"
   s.private_header_files = "ios/**/*.h"
 
 

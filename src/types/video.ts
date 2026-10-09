@@ -82,6 +82,10 @@ export interface VideoState {
    */
   fullscreen: boolean;
   /**
+   * Whether the video is playing in picture-in-picture.
+   */
+  pictureInPicture: boolean;
+  /**
    * An error message, if any.
    */
   error: string | null;
@@ -116,6 +120,11 @@ export interface VideoPlayerConfig {
    */
   enableVolumeControl: boolean;
   /**
+   * Whether to show the picture-in-picture button. Off by default, because picture-in-picture needs
+   * native setup: the `audio` background mode on iOS and `supportsPictureInPicture` on Android.
+   */
+  enablePictureInPicture: boolean;
+  /**
    * Whether to enable pan gestures to seek.
    */
   enablePanGestures: boolean;
@@ -145,6 +154,14 @@ export interface VideoPlayerConfig {
    * A callback function that is called when the player exits fullscreen mode.
    */
   onExitFullscreen?: () => void;
+  /**
+   * A callback function that is called when the player enters picture-in-picture.
+   */
+  onEnterPictureInPicture?: () => void;
+  /**
+   * A callback function that is called when the player exits picture-in-picture.
+   */
+  onExitPictureInPicture?: () => void;
   /**
    * A callback function that is called when the controls are hidden.
    */

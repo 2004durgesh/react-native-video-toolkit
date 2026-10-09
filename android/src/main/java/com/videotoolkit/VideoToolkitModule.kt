@@ -1,6 +1,9 @@
 package com.videotoolkit
 
 import android.app.Activity
+import android.app.AppOpsManager
+import android.content.pm.PackageManager
+import android.os.Process
 import android.app.UiModeManager
 import android.content.Context
 import android.content.res.Configuration
@@ -26,6 +29,7 @@ class VideoToolkitModule(reactContext: ReactApplicationContext) :
     private const val INSETS_TYPE_SHOW = 1
     private const val INSETS_TYPE_BEHAVIOR = 2
     private const val INSETS_TYPE_APPEARANCE_CLEAR = 3
+    private const val FLAG_SUPPORTS_PICTURE_IN_PICTURE = 0x400000
   }
 
   /**
@@ -232,6 +236,43 @@ class VideoToolkitModule(reactContext: ReactApplicationContext) :
         promise.resolve(isCurrentlyFullscreen)
       }
     }
+  }
+
+  /**
+   * Picture-in-picture needs the system feature, `android:supportsPictureInPicture` on the activity,
+   * and the user not having turned it off for the app.
+   */
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  override fun isPictureInPictureSupported(): Boolean {
+    val packageManager = reactApplicationContext.packageManager
+    if (!packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) return false
+
+    val packageName = reactApplicationContext.packageName
+    val activitySupportsPip = try {
+      val activity = reactApplicationContext.currentActivity
+      if (activity != null) {
+        packageManager.getActivityInfo(activity.componentName, 0).flags and FLAG_SUPPORTS_PICTURE_IN_PICTURE != 0
+      } else {
+        // No activity yet (early in startup): accept any activity of the app that supports it.
+        @Suppress("DEPRECATION")
+        packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES).activities
+          ?.any { it.flags and FLAG_SUPPORTS_PICTURE_IN_PICTURE != 0 } ?: false
+      }
+    } catch (e: Exception) {
+      false
+    }
+    if (!activitySupportsPip) return false
+
+    // Android 8+ lets the user turn picture-in-picture off per app.
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return true
+    val appOps = reactApplicationContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_PICTURE_IN_PICTURE, Process.myUid(), packageName)
+    } else {
+      @Suppress("DEPRECATION")
+      appOps.checkOpNoThrow(AppOpsManager.OPSTR_PICTURE_IN_PICTURE, Process.myUid(), packageName)
+    }
+    return mode == AppOpsManager.MODE_ALLOWED
   }
 
   @ReactMethod

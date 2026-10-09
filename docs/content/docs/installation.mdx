@@ -118,20 +118,29 @@ If you're using Expo, add the following to your `app.json` or `app.config.js` to
 {
   "expo": {
     "plugins": [
-      "react-native-video",
-      {
-        "enableNotificationControls": true,
-        "androidExtensions": {
-          "useExoplayerRtsp": false,
-          "useExoplayerSmoothStreaming": false,
-          "useExoplayerHls": false,
-          "useExoplayerDash": false
+      [
+        "react-native-video",
+        {
+          "enableNotificationControls": true,
+          "enableBackgroundAudio": true,
+          "enableAndroidPictureInPicture": true,
+          "androidExtensions": {
+            "useExoplayerRtsp": false,
+            "useExoplayerSmoothStreaming": false,
+            "useExoplayerHls": false,
+            "useExoplayerDash": false
+          }
         }
-      }
+      ]
     ]
   }
 }
 ```
+
+<Callout type="info">
+  `enableBackgroundAudio` and `enableAndroidPictureInPicture` are only needed for
+  [picture-in-picture](./api-reference/components/controls/picture-in-picture-button).
+</Callout>
 
 <Callout type="info">
 For bare React Native projects, follow the setup instructions in the [react-native-video](https://docs.thewidlarzgroup.com/react-native-video/docs/v6/installation)

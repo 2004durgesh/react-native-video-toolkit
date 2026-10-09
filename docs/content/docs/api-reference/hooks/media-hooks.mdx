@@ -170,6 +170,51 @@ const MyFullscreenButton = () => {
 export default MyFullscreenButton;
 ```
 
+## `usePictureInPicture()`
+
+A hook for moving the video into a floating picture-in-picture window and back.
+
+### Usage
+
+```tsx
+import { usePictureInPicture } from 'react-native-video-toolkit';
+
+export const MyComponent = () => {
+  const { pictureInPicture, togglePictureInPicture, enterPictureInPicture, exitPictureInPicture } =
+    usePictureInPicture();
+  // ...
+};
+```
+
+### Return Type
+
+```tsx
+interface UsePictureInPictureReturn {
+  pictureInPicture: boolean;
+  supported: boolean;
+  enterPictureInPicture: () => void;
+  exitPictureInPicture: () => void;
+  togglePictureInPicture: () => void;
+}
+```
+
+### Returns
+
+| Value                    | Type         | Description                                                                                                                                           |
+| ------------------------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pictureInPicture`       | `boolean`    | Whether the video is playing in picture-in-picture. Also updates when the user closes the window.                                                     |
+| `enterPictureInPicture`  | `() => void` | Moves the video into a floating picture-in-picture window.                                                                                            |
+| `exitPictureInPicture`   | `() => void` | Brings the video back from picture-in-picture.                                                                                                        |
+| `togglePictureInPicture` | `() => void` | Enters or exits picture-in-picture.                                                                                                                   |
+| `supported`              | `boolean`    | Whether picture-in-picture can work on this device and in this app; see [`isPictureInPictureSupported`](../utils/common#ispictureinpicturesupported). |
+
+[`<VideoPlayer.PictureInPictureButton />`](../components/controls/picture-in-picture-button) uses this hook.
+
+<Callout type="warn">
+  Picture-in-picture needs native setup (the `audio` background mode on iOS, `supportsPictureInPicture` on Android); see
+  the [button's setup section](../components/controls/picture-in-picture-button#setup).
+</Callout>
+
 ## `usePlayback()`
 
 A hook for controlling the video's playback state (play, pause).

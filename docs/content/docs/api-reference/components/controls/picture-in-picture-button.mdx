@@ -1,0 +1,112 @@
+---
+title: 'PictureInPictureButton'
+description: 'A control component that moves the video into a floating picture-in-picture window and back'
+---
+
+import { PictureInPictureButtonUsageExample } from '@/components/examples/controls/picture-in-picture-button';
+
+## Usage
+
+Picture-in-picture is opt-in: set `enablePictureInPicture` in the `VideoProvider` config, and `DefaultLayout` shows the button next to the fullscreen button. Try it in the preview below; it works in browsers that support picture-in-picture.
+
+<CodePreviewTabs preview={<PictureInPictureButtonUsageExample />}>
+
+```json doc-gen:file
+{
+  "file": "./src/components/examples/controls/picture-in-picture-button.tsx",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
+```
+
+</CodePreviewTabs>
+
+---
+
+## Setup
+
+Picture-in-picture needs native configuration in your app:
+
+- **iOS**: the `audio` background mode (`UIBackgroundModes` in `Info.plist`).
+- **Android**: `android:supportsPictureInPicture="true"` on your main activity.
+
+With Expo, the react-native-video config plugin adds both:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "react-native-video",
+        {
+          "enableBackgroundAudio": true,
+          "enableAndroidPictureInPicture": true
+        }
+      ]
+    ]
+  }
+}
+```
+
+Then run `npx expo prebuild` and rebuild the app. Where picture-in-picture can't work (no device support, or the setup above is missing), the button renders nothing; see [`isPictureInPictureSupported`](../../utils/common#ispictureinpicturesupported). The iOS Simulator doesn't support picture-in-picture, so test it on a device. For bare React Native projects, add them by hand, following the [react-native-video installation guide](https://docs.thewidlarzgroup.com/react-native-video/docs/v6/installation).
+
+<Callout type="warn">
+  Keep the player mounted while `pictureInPicture` is `true`. On Android, react-native-video already shows only the
+  video in the picture-in-picture window and restores your screen afterwards; swapping or remounting the player there
+  (for example, switching to a different layout) loses the picture-in-picture session.
+</Callout>
+
+---
+
+## Props
+
+| Prop              | Type                    | Required | Default                | Description                                              |
+| ----------------- | ----------------------- | -------- | ---------------------- | -------------------------------------------------------- |
+| `size`            | `number`                | No       | –                      | Size of the icon.                                        |
+| `color`           | `string`                | No       | –                      | Color of the icon.                                       |
+| `style`           | `StyleProp<ViewStyle>`  | No       | –                      | Optional styles applied to the button container.         |
+| `renderEnterIcon` | `() => React.ReactNode` | No       | `PictureInPicture`     | Custom renderer for the "enter picture-in-picture" icon. |
+| `renderExitIcon`  | `() => React.ReactNode` | No       | `PictureInPictureExit` | Custom renderer for the "exit picture-in-picture" icon.  |
+
+---
+
+## Examples
+
+<Tabs items={['Default', 'Custom Icons']}>
+<Tab value="Default">
+
+### Default Picture-in-Picture Button
+
+```tsx
+import { PictureInPictureButton } from 'react-native-video-toolkit';
+
+<PictureInPictureButton size={24} color="white" />;
+```
+
+</Tab>
+<Tab value="Custom Icons">
+
+### Custom Icons
+
+```tsx
+import { PictureInPictureButton } from 'react-native-video-toolkit';
+import { PictureInPicture } from 'phosphor-react-native';
+import React from 'react';
+
+<PictureInPictureButton
+  renderEnterIcon={() => <PictureInPicture size={24} color="white" />}
+  renderExitIcon={() => <PictureInPicture size={24} color="white" weight="fill" />}
+/>;
+```
+
+</Tab>
+</Tabs>
+
+---
+
+<Callout type="info">
+  - Uses [`usePictureInPicture`](../../hooks/media-hooks#usepictureinpicture) internally; the icon follows the player's
+  picture-in-picture state, including when the user closes the window themselves. - `DefaultLayout` doesn't show it on
+  TV.
+</Callout>

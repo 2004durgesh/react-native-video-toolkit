@@ -34,37 +34,41 @@ const customVideoTracks: CustomVideoTrack[] = [
 
 The `VideoState` interface represents the current state of the video player.
 
-| Property           | Type      | Required | Default | Description                                   |
-| ------------------ | --------- | -------- | ------- | --------------------------------------------- |
-| `isPlaying`        | `boolean` | Yes      | `false` | Whether the video is currently playing.       |
-| `currentTime`      | `number`  | Yes      | `0`     | The current playback time of the video.       |
-| `playableDuration` | `number`  | Yes      | `0`     | The playable duration of the video.           |
-| `duration`         | `number`  | Yes      | `0`     | The total duration of the video.              |
-| `buffering`        | `boolean` | Yes      | `false` | Whether the video is currently buffering.     |
-| `muted`            | `boolean` | Yes      | `false` | Whether the video is currently muted.         |
-| `volume`           | `number`  | Yes      | `1`     | The current volume of the video.              |
-| `playbackRate`     | `number`  | Yes      | `1`     | The current playback rate of the video.       |
-| `fullscreen`       | `boolean` | Yes      | `false` | Whether the video is currently in fullscreen. |
-| `error`            | `string`  | Yes      | `null`  | The current error, if any.                    |
+| Property           | Type      | Required | Default | Description                                         |
+| ------------------ | --------- | -------- | ------- | --------------------------------------------------- |
+| `isPlaying`        | `boolean` | Yes      | `false` | Whether the video is currently playing.             |
+| `currentTime`      | `number`  | Yes      | `0`     | The current playback time of the video.             |
+| `playableDuration` | `number`  | Yes      | `0`     | The playable duration of the video.                 |
+| `duration`         | `number`  | Yes      | `0`     | The total duration of the video.                    |
+| `buffering`        | `boolean` | Yes      | `false` | Whether the video is currently buffering.           |
+| `muted`            | `boolean` | Yes      | `false` | Whether the video is currently muted.               |
+| `volume`           | `number`  | Yes      | `1`     | The current volume of the video.                    |
+| `playbackRate`     | `number`  | Yes      | `1`     | The current playback rate of the video.             |
+| `fullscreen`       | `boolean` | Yes      | `false` | Whether the video is currently in fullscreen.       |
+| `pictureInPicture` | `boolean` | Yes      | `false` | Whether the video is playing in picture-in-picture. |
+| `error`            | `string`  | Yes      | `null`  | The current error, if any.                          |
 
 ## `VideoPlayerConfig`
 
 The `VideoPlayerConfig` interface allows you to configure the behavior of the video player.
 
-| Property                  | Type         | Required | Default                  | Description                                                                 |
-| ------------------------- | ------------ | -------- | ------------------------ | --------------------------------------------------------------------------- |
-| `autoHideControls`        | `boolean`    | No       | `true`                   | If `true`, the controls will automatically hide after a certain delay.      |
-| `autoPlay`                | `boolean`    | No       | `true`                   | If `true`, the video will start playing automatically.                      |
-| `autoHideDelay`           | `number`     | No       | `5000`                   | The delay in milliseconds before the controls are hidden.                   |
-| `enableDoubleTapGestures` | `boolean`    | No       | `true`                   | If `true`, the user can double-tap to seek forward or backward.             |
-| `enableFullscreen`        | `boolean`    | No       | `true`                   | If `true`, the user can enter and exit fullscreen mode.                     |
-| `enableVolumeControl`     | `boolean`    | No       | `true`                   | If `true`, the user can control the volume of the video.                    |
-| `enablePanGestures`       | `boolean`    | No       | `true`                   | If `true`, the user can use pan gestures to control volume and brightness.  |
-| `enableScreenRotation`    | `boolean`    | No       | `true`                   | If `true`, the screen will rotate automatically when the device is rotated. |
-| `playbackRates`           | `number[]`   | No       | `[0.5, 1, 1.25, 1.5, 2]` | An array of playback rates to be displayed in the settings menu.            |
-| `useCustomAudioTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom audio tracks instead of auto-extracting from source.  |
-| `useCustomVideoTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom video tracks instead of auto-extracting from source.  |
-| `onEnterFullscreen`       | `() => void` | No       | `undefined`              | A callback function that is called when the player enters fullscreen mode.  |
-| `onExitFullscreen`        | `() => void` | No       | `undefined`              | A callback function that is called when the player exits fullscreen mode.   |
-| `onHideControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are hidden.            |
-| `onShowControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are shown.             |
+| Property                  | Type         | Required | Default                  | Description                                                                                                                             |
+| ------------------------- | ------------ | -------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `autoHideControls`        | `boolean`    | No       | `true`                   | If `true`, the controls will automatically hide after a certain delay.                                                                  |
+| `autoPlay`                | `boolean`    | No       | `true`                   | If `true`, the video will start playing automatically.                                                                                  |
+| `autoHideDelay`           | `number`     | No       | `5000`                   | The delay in milliseconds before the controls are hidden.                                                                               |
+| `enableDoubleTapGestures` | `boolean`    | No       | `true`                   | If `true`, the user can double-tap to seek forward or backward.                                                                         |
+| `enableFullscreen`        | `boolean`    | No       | `true`                   | If `true`, the user can enter and exit fullscreen mode.                                                                                 |
+| `enableVolumeControl`     | `boolean`    | No       | `true`                   | If `true`, the user can control the volume of the video.                                                                                |
+| `enablePictureInPicture`  | `boolean`    | No       | `false`                  | If `true`, `DefaultLayout` shows the [picture-in-picture button](../components/controls/picture-in-picture-button). Needs native setup. |
+| `enablePanGestures`       | `boolean`    | No       | `true`                   | If `true`, the user can use pan gestures to control volume and brightness.                                                              |
+| `enableScreenRotation`    | `boolean`    | No       | `true`                   | If `true`, the screen will rotate automatically when the device is rotated.                                                             |
+| `playbackRates`           | `number[]`   | No       | `[0.5, 1, 1.25, 1.5, 2]` | An array of playback rates to be displayed in the settings menu.                                                                        |
+| `useCustomAudioTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom audio tracks instead of auto-extracting from source.                                                              |
+| `useCustomVideoTracks`    | `boolean`    | No       | `false`                  | If `true`, use custom video tracks instead of auto-extracting from source.                                                              |
+| `onEnterFullscreen`       | `() => void` | No       | `undefined`              | A callback function that is called when the player enters fullscreen mode.                                                              |
+| `onExitFullscreen`        | `() => void` | No       | `undefined`              | A callback function that is called when the player exits fullscreen mode.                                                               |
+| `onEnterPictureInPicture` | `() => void` | No       | `undefined`              | A callback function that is called when the player enters picture-in-picture.                                                           |
+| `onExitPictureInPicture`  | `() => void` | No       | `undefined`              | A callback function that is called when the player exits picture-in-picture.                                                            |
+| `onHideControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are hidden.                                                                        |
+| `onShowControls`          | `() => void` | No       | `undefined`              | A callback function that is called when the controls are shown.                                                                         |

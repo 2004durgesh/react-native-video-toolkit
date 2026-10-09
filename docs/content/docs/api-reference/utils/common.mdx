@@ -139,3 +139,25 @@ import { hexToRgba } from 'react-native-video-toolkit';
 const rgbaColor = hexToRgba('#FF0000', 0.5);
 // rgbaColor will be 'rgba(255, 0, 0, 0.5)'
 ```
+
+## `isPictureInPictureSupported`
+
+Whether picture-in-picture can work here: the device supports it and the app is set up for it. On iOS that means the `audio` background mode; on Android, `android:supportsPictureInPicture` on the activity and the user not having turned picture-in-picture off for the app; on web, browser support. The iOS Simulator doesn't support picture-in-picture, so it returns `false` there.
+
+[`PictureInPictureButton`](../components/controls/picture-in-picture-button) uses it to hide itself where picture-in-picture can't work.
+
+### Usage
+
+```tsx
+import { isPictureInPictureSupported } from 'react-native-video-toolkit';
+
+if (isPictureInPictureSupported()) {
+  // Show your own picture-in-picture control.
+}
+```
+
+### Returns
+
+| Type      | Description                                                                                                            |
+| --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `boolean` | Whether picture-in-picture is supported. Synchronous. Returns `true` if the installed native code predates this check. |

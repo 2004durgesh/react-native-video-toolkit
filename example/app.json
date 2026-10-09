@@ -49,6 +49,7 @@
       "react-native-video",
       {
         "enableNotificationControls": true,
+        "enableBackgroundAudio": true,
         "enableAndroidPictureInPicture": true,
         "androidExtensions": {
           "useExoplayerRtsp": true,

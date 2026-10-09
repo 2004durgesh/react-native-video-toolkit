@@ -8,6 +8,7 @@ import {
   MuteButton,
   SettingsButton,
   SubtitleToggleButton,
+  PictureInPictureButton,
 } from './controls';
 import type { GestureHandlerProps, CustomVideoTrack } from '../types';
 import { VideoSurface } from './core';
@@ -145,6 +146,7 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
   LoadingSpinner,
   SettingsButton,
   SubtitleToggleButton,
+  PictureInPictureButton,
 });
 
 const styles = StyleSheet.create({

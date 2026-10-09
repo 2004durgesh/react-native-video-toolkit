@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <AVKit/AVKit.h>
 
 #import "VideoToolkit.h"
 
@@ -46,6 +47,18 @@ RCT_EXPORT_MODULE()
 - (void)isFullscreen:(RCTPromiseResolveBlock)resolve
               reject:(RCTPromiseRejectBlock)reject {
   resolve(@(self->_isFullscreen));
+}
+
+// Picture-in-picture needs device support and the `audio` background mode; without the mode
+// AVPictureInPictureController never starts.
+- (NSNumber *)isPictureInPictureSupported {
+  BOOL deviceSupported = NO;
+  if (@available(iOS 9.0, tvOS 14.0, *)) {
+    deviceSupported = [AVPictureInPictureController isPictureInPictureSupported];
+  }
+  NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+  BOOL hasAudioMode = [backgroundModes isKindOfClass:[NSArray class]] && [backgroundModes containsObject:@"audio"];
+  return @(deviceSupported && hasAudioMode);
 }
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:

@@ -22,6 +22,12 @@ export interface Spec {
    * @returns A promise that resolves to a boolean indicating whether the application is in fullscreen mode.
    */
   isFullscreen(): Promise<boolean>;
+  /**
+   * Whether picture-in-picture can work here: the device supports it and the app is set up for it
+   * (the `audio` background mode on iOS, `supportsPictureInPicture` on Android, and the user hasn't
+   * turned it off for the app). Synchronous, so it can be used while rendering.
+   */
+  isPictureInPictureSupported(): boolean;
 }
 
 export const NativeVideoToolkit: Spec = {
@@ -91,6 +97,13 @@ export const NativeVideoToolkit: Spec = {
       console.error('Error checking fullscreen state:', err);
       return false;
     }
+  },
+
+  /**
+   * Whether the browser supports picture-in-picture for video elements.
+   */
+  isPictureInPictureSupported: (): boolean => {
+    return typeof document !== 'undefined' && !!document.pictureInPictureEnabled;
   },
 };
 

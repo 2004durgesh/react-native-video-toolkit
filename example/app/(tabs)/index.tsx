@@ -5,6 +5,9 @@ import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-nati
 import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
 import { APP_PORTAL_HOST } from '../../constants';
 
+// Picture-in-picture needs native setup, so the button is opt-in (see the react-native-video plugin in app.json).
+const PLAYER_CONFIG = { enablePictureInPicture: true };
+
 const SUBTITLE_BASE_URL =
   'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
 
@@ -158,7 +161,7 @@ function HomeContent() {
 
 export default function HomeScreen() {
   return (
-    <VideoProvider portalHost={APP_PORTAL_HOST}>
+    <VideoProvider portalHost={APP_PORTAL_HOST} config={PLAYER_CONFIG}>
       <HomeContent />
     </VideoProvider>
   );

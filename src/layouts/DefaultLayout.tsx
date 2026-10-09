@@ -1,5 +1,5 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { useBuffering, useControlsVisibility, useSettings, usePlaybackRate } from '../hooks';
+import { useBuffering, useControlsVisibility, useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC } from 'react';
 import { useVideo } from '../providers';
@@ -11,7 +11,12 @@ import {
   VideoPlayer,
   type TitleProps,
   type SubitleProps,
+  Audio,
+  Quality,
+  Speed,
+  Subtitles,
 } from '../components';
+import { PlatformUtils } from '../utils/orientation';
 export interface DefaultLayoutProps {
   title?: string;
   titleProps?: Omit<TitleProps, 'text'>;
@@ -34,6 +39,8 @@ export interface DefaultLayoutProps {
     afterTimeDisplay?: React.ReactElement;
     beforeMuteButton?: React.ReactElement;
     afterMuteButton?: React.ReactElement;
+    beforePictureInPictureButton?: React.ReactElement;
+    afterPictureInPictureButton?: React.ReactElement;
     beforeFullscreenButton?: React.ReactElement;
     afterFullscreenButton?: React.ReactElement;
     beforeCenterPlayButton?: React.ReactElement;
@@ -69,6 +76,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   } = useSettings();
   const { controlsVisible } = useControlsVisibility();
   const { playbackRate, setPlaybackRate } = usePlaybackRate();
+  const { supported: pictureInPictureSupported } = usePictureInPicture();
   const topControlsAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(controlsVisible ? 1 : 0, { duration: 100, easing: Easing.bezierFn(0.25, 0.1, 0.25, 1) }),
@@ -106,6 +114,10 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
       // Keep position absolute and translate for centering
     };
   }, [controlsVisible, buffering]);
+
+  const showPictureInPictureButton =
+    state.config.enablePictureInPicture && pictureInPictureSupported && !PlatformUtils.isTV();
+
   return (
     <>
       <Animated.View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
@@ -136,13 +148,27 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                       <Menu.SubContent viewId="root">
                         <Menu.Item navigateTo="audio">
                           <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                            <Title text="Audio" />
+                            <View style={[layoutStyles.row, styles.menuRowLabel]}>
+                              <Audio
+                                size={state.theme.iconSizes.sm}
+                                color={state.theme.colors.menuText}
+                                shadow={false}
+                              />
+                              <Title text="Audio" />
+                            </View>
                             <Subtitle text={audioTrack ? (audioTrack.title! ?? audioTrack.language!) : 'None'} />
                           </View>
                         </Menu.Item>
                         <Menu.Item navigateTo="video">
                           <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                            <Title text="Video" />
+                            <View style={[layoutStyles.row, styles.menuRowLabel]}>
+                              <Quality
+                                size={state.theme.iconSizes.sm}
+                                color={state.theme.colors.menuText}
+                                shadow={false}
+                              />
+                              <Title text="Video" />
+                            </View>
                             <Subtitle
                               text={videoTrack ? ((videoTrack as any).label ?? videoTrack.height + 'p') : 'None'}
                             />
@@ -150,13 +176,27 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                         </Menu.Item>
                         <Menu.Item navigateTo="captions">
                           <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                            <Title text="Captions" />
+                            <View style={[layoutStyles.row, styles.menuRowLabel]}>
+                              <Subtitles
+                                size={state.theme.iconSizes.sm}
+                                color={state.theme.colors.menuText}
+                                shadow={false}
+                              />
+                              <Title text="Captions" />
+                            </View>
                             <Subtitle text={textTrack ? (textTrack.title! ?? textTrack.language!) : 'Off'} />
                           </View>
                         </Menu.Item>
                         <Menu.Item navigateTo="playbackRate">
                           <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                            <Title text="Rate" />
+                            <View style={[layoutStyles.row, styles.menuRowLabel]}>
+                              <Speed
+                                size={state.theme.iconSizes.sm}
+                                color={state.theme.colors.menuText}
+                                shadow={false}
+                              />
+                              <Title text="Rate" />
+                            </View>
                             <Subtitle text={`${playbackRate}x`} />
                           </View>
                         </Menu.Item>
@@ -278,6 +318,13 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 </View>
                 <View style={layoutStyles.spacer} />
                 <View style={[layoutStyles.row]}>
+                  {showPictureInPictureButton && (
+                    <View style={[layoutStyles.row]}>
+                      {slots?.beforePictureInPictureButton && slots.beforePictureInPictureButton}
+                      <VideoPlayer.PictureInPictureButton />
+                      {slots?.afterPictureInPictureButton && slots.afterPictureInPictureButton}
+                    </View>
+                  )}
                   <View style={[layoutStyles.row]}>
                     {slots?.beforeFullscreenButton && slots.beforeFullscreenButton}
                     <VideoPlayer.FullscreenButton />
@@ -312,5 +359,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: 'space-between',
+  },
+  menuRowLabel: {
+    gap: 12,
   },
 });

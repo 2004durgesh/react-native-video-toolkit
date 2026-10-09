@@ -6,6 +6,7 @@
     "volume-control",
     "progress-bar",
     "fullscreen-button",
+    "picture-in-picture-button",
     "settings-button",
     "subtitle-toggle-button"
   ]

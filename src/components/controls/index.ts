@@ -12,3 +12,4 @@ export type { VolumeControlProps } from './VolumeControl';
 export type { FullscreenButtonProps } from './FullscreenButton';
 export type { MuteButtonProps } from './MuteButton';
 export type { SettingsButtonProps } from './SettingsButton';
+export { PictureInPictureButton } from './PictureInPictureButton';
