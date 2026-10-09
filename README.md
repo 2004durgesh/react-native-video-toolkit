@@ -109,7 +109,8 @@ yarn add react-native-video-toolkit react-native-video react-native-gesture-hand
 ```
 
 > [!NOTE]
-> Each peer dependency has its own setup (Reanimated babel plugin, Gesture Handler root view, orientation & video config plugins).
+> Requires `react-native-reanimated` 4.5+ and `react-native-worklets` 0.10+.
+> Each peer dependency has its own setup (Worklets babel plugin, Gesture Handler root view, orientation & video config plugins).
 > On **iOS**, fullscreen hides the status bar, which requires `UIViewControllerBasedStatusBarAppearance` set to `false` in your `Info.plist` (Expo prebuild and the default RN template usually set this already).
 > See the [full installation guide](https://react-native-video-toolkit-docs.vercel.app/docs/installation) for the complete setup.
 

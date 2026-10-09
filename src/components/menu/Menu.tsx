@@ -22,13 +22,13 @@ import Animated, {
   FadeInRight,
   FadeOutLeft,
 } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
 import { useSettings } from '../../hooks';
 import { PlatformUtils } from '../../utils/orientation';
 import { type SettingsButtonProps } from '../controls';
 import { ChevronLeft, Close, Settings } from '../svgs';
 import { Title } from '../display';
 import Check from '../svgs/Check';
+import type { IconProps } from '../../types/svg';
 
 interface MenuContextType {
   closeSettings: () => void;
@@ -111,6 +111,10 @@ interface MenuHeaderProps extends ViewProps {
   style?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
 }
+
+// The menu sits on a plain background, so its icons skip the drop shadow meant for icons over video.
+const MenuCloseIcon = (props: IconProps): ReactElement => <Close {...props} shadow={false} />;
+const MenuBackIcon = (props: IconProps): ReactElement => <ChevronLeft {...props} shadow={false} />;
 
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 export const MenuProvider = MenuContext.Provider;
@@ -316,39 +320,19 @@ export const Menu = {
     const { navigateTo: ctxNavigate, closeSettings } = useMenuContext();
     const { state } = useVideo();
     const { theme } = state;
-    const scale = useSharedValue(1);
-
-    const handlePressIn = (): void => {
-      scale.value = withTiming(0.95, { duration: 100 });
-    };
-
-    const handlePressOut = (): void => {
-      scale.value = withTiming(1, { duration: 100 });
-    };
 
     const handlePress = (): void => {
-      scale.value = withTiming(1.02, { duration: 50 }, () => {
-        scale.value = withTiming(1, { duration: 100 });
-      });
-
-      if (onPress) {
-        scheduleOnRN(onPress, value);
-      }
+      onPress?.(value);
       if (navTo) {
-        scheduleOnRN(ctxNavigate, navTo);
+        ctxNavigate(navTo);
       } else if (autoClose) {
-        setTimeout(() => {
-          scheduleOnRN(closeSettings);
-        }, 300);
+        // Let the press feedback finish before the sheet closes.
+        setTimeout(closeSettings, 300);
       }
     };
 
-    const animatedStyle = useAnimatedStyle(
-      () => ({
-        transform: [{ scale: scale.value }],
-      }),
-      [scale]
-    );
+    // A pseudo-selector object owns its property, so a background from `style` becomes the resting value.
+    const restingBackground = StyleSheet.flatten(style)?.backgroundColor ?? theme.colors.menuBackground;
 
     const renderChildren = (): ReactNode => {
       if (typeof children === 'string') {
@@ -360,9 +344,21 @@ export const Menu = {
     return (
       <AnimatedPressable
         onPress={handlePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={[styles.item, { backgroundColor: theme.colors.menuBackground }, style, IS_WEB ? null : animatedStyle]}
+        style={[
+          styles.item,
+          style,
+          {
+            // Hover and press feedback run natively (CSS on web), without re-rendering.
+            backgroundColor: {
+              'default': restingBackground,
+              ':hover': theme.colors.ripple,
+              ':active': theme.colors.ripple,
+            },
+            transform: { 'default': [{ scale: 1 }], ':active': [{ scale: 0.97 }] },
+            transitionProperty: ['backgroundColor', 'transform'],
+            transitionDuration: 100,
+          },
+        ]}
         {...props}>
         {renderChildren()}
       </AnimatedPressable>
@@ -455,7 +451,12 @@ export const Menu = {
           <Text style={[styles.itemText, { color: theme.colors.menuText }, textStyle]}>{children}</Text>
           <AnimatedView style={IS_WEB ? undefined : checkAnimatedStyle}>
             {isChecked ? (
-              <Check size={theme.iconSizes.sm} fill={theme.colors.iconNormal} style={[styles.radioIndicator]} />
+              <Check
+                size={theme.iconSizes.sm}
+                fill={theme.colors.iconNormal}
+                shadow={false}
+                style={[styles.radioIndicator]}
+              />
             ) : null}
           </AnimatedView>
         </View>
@@ -468,7 +469,7 @@ export const Menu = {
    */
   Close: ({ style, ...props }: MenuCloseProps): ReactElement => {
     const { closeSettings } = useMenuContext();
-    return <BaseIconButton onTap={closeSettings} IconComponent={Close} style={style} {...props} />;
+    return <BaseIconButton onTap={closeSettings} IconComponent={MenuCloseIcon} style={style} {...props} />;
   },
 
   /*
@@ -482,7 +483,7 @@ export const Menu = {
         onTap={() => goBack()}
         style={style}
         disabled={!canGoBack}
-        IconComponent={ChevronLeft}
+        IconComponent={MenuBackIcon}
         {...props}
       />
     );

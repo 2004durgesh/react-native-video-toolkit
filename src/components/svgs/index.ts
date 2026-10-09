@@ -9,3 +9,4 @@ export * from './ChevronLeft';
 export * from './Settings';
 export * from './VolumeOff';
 export * from './VolumeUp';
+export * from './Check';

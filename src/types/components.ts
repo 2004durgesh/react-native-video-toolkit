@@ -148,6 +148,6 @@ export interface VideoComponents {
   Slider: ComponentType<SliderProps>;
   /** Shown while buffering. Default: `ActivityIndicator`. */
   Spinner: ComponentType<SpinnerProps>;
-  /** Wraps every control button. Default: a material ripple (none on web). */
+  /** Wraps every control button. Default: a material ripple (a hover and press tint on web). */
   PressFeedback: ComponentType<PressFeedbackProps>;
 }

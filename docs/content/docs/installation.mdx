@@ -28,28 +28,29 @@ npm install react-native-video-toolkit react-native-video react-native-gesture-h
   Make sure to install all dependencies as they are required for the library to function properly.
 </Callout>
 
+<Callout type="info">
+  The toolkit needs `react-native-reanimated` 4.5 or later (which itself needs React Native 0.83 or later) and
+  `react-native-worklets` 0.10 or later.
+</Callout>
+
 </Step>
 
 <Step>
 
 ### Configure React Native Reanimated
 
-Add the Reanimated babel plugin to your `babel.config.js`:
+Add the Worklets babel plugin, which Reanimated 4 uses, to your `babel.config.js`:
 
 ```js
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
-    'react-native-reanimated/plugin', // This should be the last plugin
+    'react-native-worklets/plugin', // This should be the last plugin
   ],
 };
 ```
 
-<Callout type="info">The Reanimated plugin must be listed last in the plugins array.</Callout>
-
-<Callout type="info">
-  On Reanimated 4+, use `react-native-worklets/plugin` instead of `react-native-reanimated/plugin`.
-</Callout>
+<Callout type="info">The Worklets plugin must be listed last in the plugins array.</Callout>
 
 </Step>
 

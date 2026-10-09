@@ -21,12 +21,12 @@ export const Player = () => (
 
 Anything you leave out keeps the toolkit's default, so you can replace one piece at a time.
 
-| Key             | Used by                             | Default                                     | Props                                                                       |
-| --------------- | ----------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------- |
-| `Sheet`         | `Menu.Content` (the settings menu)  | Bottom sheet; a right-hand side panel on TV | [`SheetProps`](./api-reference/types/components#sheetprops)                 |
-| `Slider`        | `ProgressBar`, `VolumeControl`      | `react-native-awesome-slider`               | [`SliderProps`](./api-reference/types/components#sliderprops)               |
-| `Spinner`       | `LoadingSpinner`                    | `ActivityIndicator`                         | [`SpinnerProps`](./api-reference/types/components#spinnerprops)             |
-| `PressFeedback` | Every control button (`BaseButton`) | Material ripple on native, none on web      | [`PressFeedbackProps`](./api-reference/types/components#pressfeedbackprops) |
+| Key             | Used by                             | Default                                                | Props                                                                       |
+| --------------- | ----------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `Sheet`         | `Menu.Content` (the settings menu)  | Bottom sheet; a right-hand side panel on TV            | [`SheetProps`](./api-reference/types/components#sheetprops)                 |
+| `Slider`        | `ProgressBar`, `VolumeControl`      | `react-native-awesome-slider`                          | [`SliderProps`](./api-reference/types/components#sliderprops)               |
+| `Spinner`       | `LoadingSpinner`                    | `ActivityIndicator`                                    | [`SpinnerProps`](./api-reference/types/components#spinnerprops)             |
+| `PressFeedback` | Every control button (`BaseButton`) | Material ripple on native; hover and press tint on web | [`PressFeedbackProps`](./api-reference/types/components#pressfeedbackprops) |
 
 <Callout type="info">
   Icons have their own props on each control (for example `renderSettingIcon` on the settings button), so they aren't
