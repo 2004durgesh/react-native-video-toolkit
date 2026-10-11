@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.11.1 (2026-10-11)</small>
+
+* fix: skip menu exit animations when the sheet closes ([0f0d3d1](https://github.com/2004durgesh/react-native-video-toolkit/commit/0f0d3d1))
+* chore: update yarn.lock for the new reanimated and worklets peer ranges ([9c58e3c](https://github.com/2004durgesh/react-native-video-toolkit/commit/9c58e3c))
+
 ## 0.11.0 (2026-10-09)
 
 * feat: add picture-in-picture support and speed, audio, quality and skip icons ([1eb8c6a](https://github.com/2004durgesh/react-native-video-toolkit/commit/1eb8c6a))
