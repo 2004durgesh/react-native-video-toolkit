@@ -7,13 +7,16 @@ import {
   VideoProvider,
   useVideo,
   type SheetProps,
+  type SpinnerProps,
   type VideoComponents,
 } from 'react-native-video-toolkit';
 import { GorhomSheet } from '../../components/GorhomSheet';
 import { NativeSheet } from '../../components/NativeSheet';
 import { CommunitySlider } from '../../components/CommunitySlider';
 import { RingSpinner } from '../../components/RingSpinner';
+import { NativeSpinner } from '../../components/NativeSpinner';
 import { ScalePressFeedback } from '../../components/ScalePressFeedback';
+import { useHideTabBarInFullscreen } from '../../components/useHideTabBarInFullscreen';
 import { APP_PORTAL_HOST } from '../../constants';
 
 /**
@@ -21,8 +24,9 @@ import { APP_PORTAL_HOST } from '../../constants';
  *
  * - Sheet: hosts the settings menu (gear icon). Try `@gorhom/bottom-sheet` or the native sheet
  *   from `@expo/ui`.
- * - Slider, Spinner, PressFeedback: `@react-native-community/slider`, a Reanimated ring and a
- *   scale-on-press button.
+ * - Spinner: shown while the video buffers. Try a Reanimated ring or the native spinner from
+ *   `@expo/ui`.
+ * - Slider, PressFeedback: `@react-native-community/slider` and a scale-on-press button.
  */
 
 const SOURCE = {
@@ -37,9 +41,16 @@ const sheets: Record<SheetChoice, { label: string; component?: ComponentType<She
   native: { label: '@expo/ui (native)', component: NativeSheet },
 };
 
+type SpinnerChoice = 'default' | 'ring' | 'native';
+
+const spinners: Record<SpinnerChoice, { label: string; component?: ComponentType<SpinnerProps> }> = {
+  default: { label: 'Default' },
+  ring: { label: 'Reanimated ring', component: RingSpinner },
+  native: { label: '@expo/ui (native)', component: NativeSpinner },
+};
+
 const customControls: Partial<VideoComponents> = {
   Slider: CommunitySlider,
-  Spinner: RingSpinner,
   PressFeedback: ScalePressFeedback,
 };
 
@@ -76,15 +87,20 @@ function Choice<T extends string>({
 function ComponentsContent({
   sheet,
   onSheetChange,
+  spinner,
+  onSpinnerChange,
   controls,
   onControlsChange,
 }: {
   sheet: SheetChoice;
   onSheetChange: (sheet: SheetChoice) => void;
+  spinner: SpinnerChoice;
+  onSpinnerChange: (spinner: SpinnerChoice) => void;
   controls: 'default' | 'custom';
   onControlsChange: (controls: 'default' | 'custom') => void;
 }) {
   const { state } = useVideo();
+  useHideTabBarInFullscreen();
 
   const player = (
     <View style={state.fullscreen ? styles.fullscreenContainer : styles.playerContainer}>
@@ -119,7 +135,13 @@ function ComponentsContent({
         onSelect={onSheetChange}
       />
       <Choice
-        title="Slider, spinner and buttons"
+        title="Buffering spinner"
+        options={(Object.keys(spinners) as SpinnerChoice[]).map((value) => ({ value, label: spinners[value].label }))}
+        selected={spinner}
+        onSelect={onSpinnerChange}
+      />
+      <Choice
+        title="Slider and buttons"
         options={[
           { value: 'default', label: 'Default' },
           { value: 'custom', label: 'Custom' },
@@ -132,6 +154,7 @@ function ComponentsContent({
 
       <Text style={styles.hint}>
         Open the menu with the gear icon to see the sheet, and drag the progress bar or volume slider to see the slider.
+        The spinner shows while the video buffers, for example right after a seek.
       </Text>
     </SafeAreaView>
   );
@@ -139,15 +162,17 @@ function ComponentsContent({
 
 export default function ComponentsScreen() {
   const [sheet, setSheet] = useState<SheetChoice>('gorhom');
+  const [spinner, setSpinner] = useState<SpinnerChoice>('native');
   const [controls, setControls] = useState<'default' | 'custom'>('custom');
 
   // Leaving a component out (or `undefined`) falls back to the toolkit's default.
   const components = useMemo<Partial<VideoComponents>>(
     () => ({
       Sheet: sheets[sheet].component,
+      Spinner: spinners[spinner].component,
       ...(controls === 'custom' ? customControls : {}),
     }),
-    [sheet, controls]
+    [sheet, spinner, controls]
   );
 
   // Both sheets open at the app root (gorhom's `BottomSheetModalProvider` and the toolkit's
@@ -155,7 +180,14 @@ export default function ComponentsScreen() {
   // its state inside the sheet, so the menu works wherever the sheet renders.
   return (
     <VideoProvider components={components} portalHost={APP_PORTAL_HOST}>
-      <ComponentsContent sheet={sheet} onSheetChange={setSheet} controls={controls} onControlsChange={setControls} />
+      <ComponentsContent
+        sheet={sheet}
+        onSheetChange={setSheet}
+        spinner={spinner}
+        onSpinnerChange={setSpinner}
+        controls={controls}
+        onControlsChange={setControls}
+      />
     </VideoProvider>
   );
 }

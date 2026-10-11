@@ -21,6 +21,7 @@ import Animated, {
   FadeIn,
   FadeInRight,
   FadeOutLeft,
+  LayoutAnimationConfig,
 } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
 import { PlatformUtils } from '../../utils/orientation';
@@ -278,7 +279,12 @@ export const Menu = {
         <ContextBridge contexts={contexts}>
           <MenuProvider value={menuContext}>
             {header ? header(currentView) : <Menu.Header />}
-            <View style={styles.contentBody}>{children}</View>
+            {/* When the sheet closes, the sub-view's exit animation is skipped. With Reanimated's
+                ENABLE_SHARED_ELEMENT_TRANSITIONS flag, a native sheet would otherwise stay mounted
+                waiting for that animation and leave its invisible window over the app. */}
+            <LayoutAnimationConfig skipExiting>
+              <View style={styles.contentBody}>{children}</View>
+            </LayoutAnimationConfig>
           </MenuProvider>
         </ContextBridge>
       </Sheet>

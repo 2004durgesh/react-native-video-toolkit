@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
 import { APP_PORTAL_HOST } from '../../constants';
+import { useHideTabBarInFullscreen } from '../../components/useHideTabBarInFullscreen';
 
 // Picture-in-picture needs native setup, so the button is opt-in (see the react-native-video plugin in app.json).
 const PLAYER_CONFIG = { enablePictureInPicture: true };
@@ -120,6 +121,7 @@ function HomeContent() {
   const [selectedVideo, setSelectedVideo] = useState(0);
   const currentVideo = videoSources[selectedVideo]!;
   const { state } = useVideo();
+  useHideTabBarInFullscreen();
 
   // Hide everything except video when in fullscreen
   if (state.fullscreen) {

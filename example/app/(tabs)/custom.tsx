@@ -3,6 +3,7 @@ import React from 'react';
 import { DefaultLayout, VideoPlayer } from 'react-native-video-toolkit';
 import type { CustomVideoTrack } from 'react-native-video-toolkit';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useHideTabBarInFullscreen } from '../../components/useHideTabBarInFullscreen';
 
 /**
  * Example demonstrating custom video tracks for quality selection.
@@ -51,6 +52,9 @@ const customVideoTracks: CustomVideoTrack[] = [
 ];
 
 const Custom = () => {
+  // This screen has no `VideoProvider` of its own: it uses the root one in `app/_layout.tsx`.
+  useHideTabBarInFullscreen();
+
   return (
     <SafeAreaView style={styles.container}>
       <VideoPlayer
