@@ -1,5 +1,5 @@
 import { Text, StyleSheet, type TextProps } from 'react-native';
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
 
 export interface TitleProps extends TextProps {
   text: string;
@@ -14,9 +14,7 @@ export interface TitleProps extends TextProps {
  * @returns {React.ReactElement} A Text component displaying the title.
  */
 export const Title = ({ text, style, ...rest }: TitleProps): React.ReactElement => {
-  const {
-    state: { theme },
-  } = useVideo();
+  const theme = useVideoSelector((state) => state.theme);
   return (
     <Text style={[styles.title, { color: theme.colors.textMain }, style]} {...rest}>
       {text}

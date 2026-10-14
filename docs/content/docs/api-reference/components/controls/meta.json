@@ -8,6 +8,7 @@
     "fullscreen-button",
     "picture-in-picture-button",
     "settings-button",
-    "subtitle-toggle-button"
+    "subtitle-toggle-button",
+    "up-next"
   ]
 }

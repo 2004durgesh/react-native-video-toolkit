@@ -1,4 +1,5 @@
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
+import { useVideoStore } from '../../providers/VideoProvider';
 import { useCallback } from 'react';
 
 /**
@@ -19,7 +20,8 @@ export interface UseBufferingReturn {
  * - `setBuffering`: A function to set the buffering state of the video.
  */
 export const useBuffering = (): UseBufferingReturn => {
-  const { state, dispatch } = useVideo();
+  const buffering = useVideoSelector((state) => state.buffering);
+  const { dispatch } = useVideoStore();
 
   /**
    * Sets the buffering state of the video.
@@ -33,7 +35,7 @@ export const useBuffering = (): UseBufferingReturn => {
   );
 
   return {
-    buffering: state.buffering,
+    buffering,
     setBuffering,
   };
 };

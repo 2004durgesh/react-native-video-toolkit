@@ -1,5 +1,5 @@
-import { useVideo } from '../../providers';
-import { useCallback, useEffect, useRef } from 'react';
+import { useVideoSelector } from '../../providers';
+import { useControlsController } from '../../providers/ControlsController';
 
 /**
  * Return type for the useControlsVisibility hook.
@@ -22,84 +22,18 @@ export interface UseControlsVisibilityReturn {
  * - `showControls`: A function to show the controls.
  * - `hideControls`: A function to hide the controls.
  * - `toggleControls`: A function to toggle the visibility of the controls.
- * - `isControlsVisible`: Whether the controls are currently visible.
+ * - `controlsVisible`: Whether the controls are currently visible.
+ *
+ * The functions are stable and shared by every caller, with one auto-hide timer per `VideoProvider`.
  */
 export const useControlsVisibility = (): UseControlsVisibilityReturn => {
-  const { state, dispatch } = useVideo();
-  const { controlsVisible, config, isPlaying, hideTimeoutRef } = state;
-  const isMountedRef = useRef(true);
-  const hideTimeoutRefLocal = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Store callbacks in refs to avoid dependency issues with React Compiler
-  const onHideControlsRef = useRef(config.onHideControls);
-  const onShowControlsRef = useRef(config.onShowControls);
-
-  // Keep refs in sync with latest config values
-  useEffect(() => {
-    onHideControlsRef.current = config.onHideControls;
-    onShowControlsRef.current = config.onShowControls;
-  }, [config.onHideControls, config.onShowControls]);
-
-  // Cleanup on unmount to prevent memory leaks
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-      if (hideTimeoutRefLocal.current) {
-        clearTimeout(hideTimeoutRefLocal.current);
-      }
-    };
-  }, []);
-
-  /**
-   * Hides the video controls.
-   */
-  const hideControls = useCallback(() => {
-    if (!isMountedRef.current) return;
-    dispatch({ type: 'HIDE_CONTROLS' });
-    onHideControlsRef.current?.();
-  }, [dispatch]);
-
-  /**
-   * Shows the video controls.
-   */
-  const showControls = useCallback(() => {
-    if (!isMountedRef.current) return;
-
-    if (hideTimeoutRefLocal.current) {
-      clearTimeout(hideTimeoutRefLocal.current);
-    }
-
-    dispatch({ type: 'SHOW_CONTROLS' });
-
-    if (config.autoHideControls && isPlaying) {
-      const newTimeout = setTimeout(() => {
-        if (isMountedRef.current) {
-          dispatch({ type: 'HIDE_CONTROLS' });
-          onHideControlsRef.current?.();
-        }
-      }, config.autoHideDelay);
-      hideTimeoutRefLocal.current = newTimeout;
-      dispatch({ type: 'SET_HIDE_TIMEOUT', payload: newTimeout as unknown as NodeJS.Timeout });
-    }
-    onShowControlsRef.current?.();
-  }, [config.autoHideControls, config.autoHideDelay, isPlaying, dispatch]);
-
-  /**
-   * Toggles the visibility of the video controls.
-   */
-  const toggleControls = useCallback(() => {
-    if (controlsVisible) {
-      hideControls();
-    } else {
-      showControls();
-    }
-  }, [controlsVisible, hideControls, showControls]);
+  const controlsVisible = useVideoSelector((state) => state.controlsVisible);
+  const controls = useControlsController();
 
   return {
-    showControls,
-    hideControls,
-    toggleControls,
+    showControls: controls.show,
+    hideControls: controls.hide,
+    toggleControls: controls.toggle,
     controlsVisible,
   };
 };

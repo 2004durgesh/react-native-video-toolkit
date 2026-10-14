@@ -1,0 +1,48 @@
+---
+title: 'UpNext'
+description: 'A card that counts down to the next video once the current one ends'
+---
+
+## Usage
+
+Render it inside `VideoPlayer`, after the layout, only when there is something to play next. It appears when the source ends, counts down, then calls `onPlayNext`. "Cancel" dismisses it; playing again or loading a new source hides it.
+
+```tsx
+import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
+
+<VideoPlayer source={{ uri: episode.url }}>
+  <DefaultLayout title={episode.title} />
+  {nextEpisode && (
+    <VideoPlayer.UpNext
+      title={`EP ${nextEpisode.number} · ${nextEpisode.title}`}
+      onPlayNext={() => playEpisode(nextEpisode)}
+    />
+  )}
+</VideoPlayer>;
+```
+
+---
+
+## Props
+
+| Prop         | Type                    | Required | Default | Description                                                                               |
+| ------------ | ----------------------- | -------- | ------- | ----------------------------------------------------------------------------------------- |
+| `title`      | `string`                | Yes      | –       | What plays next.                                                                          |
+| `subtitle`   | `string`                | No       | –       | A second line under the title.                                                            |
+| `countdown`  | `number`                | No       | `5`     | Seconds before `onPlayNext` is called. `0` plays the next video as soon as this one ends. |
+| `onPlayNext` | `() => void`            | Yes      | –       | Called when the countdown runs out or "Play now" is pressed. Load the next source here.   |
+| `onCancel`   | `() => void`            | No       | –       | Called when the card is dismissed with "Cancel".                                          |
+| `labels`     | `Partial<UpNextLabels>` | No       | –       | Replaces the card's text: `heading`, `playNow`, `cancel` and `playingIn(seconds)`.        |
+| `style`      | `StyleProp<ViewStyle>`  | No       | –       | Styles for the full-size overlay.                                                         |
+
+## Translated labels
+
+```tsx
+<VideoPlayer.UpNext
+  title={next.title}
+  onPlayNext={playNext}
+  labels={{ heading: 'A continuación', playNow: 'Reproducir', cancel: 'Cancelar', playingIn: (s) => `En ${s}s` }}
+/>
+```
+
+The card reads `ended` from [`usePlayback()`](../../hooks/media-hooks.mdx), which you can use to build your own.

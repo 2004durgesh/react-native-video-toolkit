@@ -1,4 +1,5 @@
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
+import { useVideoStore } from '../../providers/VideoProvider';
 import { useCallback } from 'react';
 
 /**
@@ -19,21 +20,22 @@ export interface UsePlaybackRateReturn {
  * - `setPlaybackRate`: A function to set the playback rate of the video.
  */
 export const usePlaybackRate = (): UsePlaybackRateReturn => {
-  const { state, dispatch } = useVideo();
+  const playbackRate = useVideoSelector((state) => state.playbackRate);
+  const { dispatch } = useVideoStore();
 
   /**
    * Sets the playback rate of the video.
    * @param playbackRate - A number indicating the desired playback rate.
    */
   const setPlaybackRate = useCallback(
-    (playbackRate: number) => {
-      dispatch({ type: 'SET_PLAYBACK_RATE', payload: playbackRate });
+    (rate: number) => {
+      dispatch({ type: 'SET_PLAYBACK_RATE', payload: rate });
     },
     [dispatch]
   );
 
   return {
-    playbackRate: state.playbackRate,
+    playbackRate,
     setPlaybackRate,
   };
 };

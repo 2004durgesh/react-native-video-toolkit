@@ -3,7 +3,7 @@ import React, { type FC, type ReactNode } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture, type ComposedGesture, type TapGesture } from 'react-native-gesture-handler';
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
-import { useVideo } from '../providers';
+import { useVideoSelector } from '../providers';
 import type { GestureHandlerProps } from '../types';
 
 /**
@@ -49,8 +49,10 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   onSwipeDown,
   children,
 }) => {
-  const { state } = useVideo();
-  const { fullscreen, videoRef, config, theme } = state;
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
+  const videoRef = useVideoSelector((state) => state.videoRef);
+  const config = useVideoSelector((state) => state.config);
+  const theme = useVideoSelector((state) => state.theme);
   const {
     doubleTapGesture,
     isDoubleTap,

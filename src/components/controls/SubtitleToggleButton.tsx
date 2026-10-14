@@ -1,7 +1,7 @@
 import { BaseIconButton } from '../common';
 import { Subtitles, SubtitlesOff } from '../svgs';
 import { useSettings } from '../../hooks';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 /**
  * A button that toggles subtitles on and off.
@@ -15,11 +15,11 @@ export const SubtitleToggleButton = () => {
   const isOff = !textTrack || textTrack.index === -1;
   const icon = isOff ? SubtitlesOff : Subtitles;
 
-  useEffect(() => {
-    if (textTrack && textTrack.index !== -1) {
-      setLastSelectedTrack(textTrack);
-    }
-  }, [textTrack]);
+  // Remember the last track that was on, so turning subtitles back on restores it. Done during render:
+  // an effect would commit an extra render.
+  if (textTrack && textTrack.index !== -1 && textTrack !== lastSelectedTrack) {
+    setLastSelectedTrack(textTrack);
+  }
 
   const handleToggle = () => {
     if (isOff) {

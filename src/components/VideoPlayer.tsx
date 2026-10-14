@@ -9,14 +9,16 @@ import {
   SettingsButton,
   SubtitleToggleButton,
   PictureInPictureButton,
+  UpNext,
 } from './controls';
 import type { GestureHandlerProps, CustomVideoTrack } from '../types';
 import { VideoSurface } from './core';
 import type { ReactVideoProps, AudioTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
-import { useVideo } from '../providers';
+import { useVideoSelector } from '../providers';
 import { TimeDisplay, LoadingSpinner } from './display';
 import { getFullscreenHeight } from '../utils';
+import { DevProfiler } from '../utils/DevProfiler';
 
 /**
  * Props for the VideoPlayer component.
@@ -77,7 +79,12 @@ const VideoPlayerComponent = ({
   customVideoTracks,
 }: VideoPlayerProps) => {
   // this is the root of all the things :)
-  const { state } = useVideo();
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
+  const height = useVideoSelector((state) =>
+    state.fullscreen
+      ? getFullscreenHeight(state.dimensions, state.config.enableScreenRotation)
+      : state.videoLayout.height
+  );
 
   // For web fullscreen, we need to adjust overflow to ensure controls are visible
   const innerViewStyle = useMemo(() => {
@@ -90,12 +97,12 @@ const VideoPlayerComponent = ({
         ...baseStyle,
         flex: 1,
         position: 'relative' as const,
-        ...(state.fullscreen && { overflow: 'visible' as const }),
+        ...(fullscreen && { overflow: 'visible' as const }),
       };
     }
 
     return baseStyle;
-  }, [state.fullscreen]);
+  }, [fullscreen]);
 
   return (
     <View
@@ -103,22 +110,22 @@ const VideoPlayerComponent = ({
       style={[
         {
           position: 'relative',
-          height: state.fullscreen
-            ? getFullscreenHeight(state.dimensions, state.config.enableScreenRotation)
-            : state.videoLayout.height,
+          height,
           ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
         },
         containerStyle,
       ]}>
       <GestureHandler {...gestureProps}>
         <View style={innerViewStyle}>
-          <VideoSurface
-            {...videoProps}
-            source={source}
-            style={videoStyle}
-            customAudioTracks={customAudioTracks}
-            customVideoTracks={customVideoTracks}
-          />
+          <DevProfiler id="VideoSurface">
+            <VideoSurface
+              {...videoProps}
+              source={source}
+              style={videoStyle}
+              customAudioTracks={customAudioTracks}
+              customVideoTracks={customVideoTracks}
+            />
+          </DevProfiler>
           {children}
         </View>
       </GestureHandler>
@@ -150,6 +157,7 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
   SettingsButton,
   SubtitleToggleButton,
   PictureInPictureButton,
+  UpNext,
 });
 
 const styles = StyleSheet.create({

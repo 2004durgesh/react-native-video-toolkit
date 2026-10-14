@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useControlsVisibility } from '../media';
+import { useControlsController } from '../../providers/ControlsController';
 import { Gesture } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseSingleTapGestureProps } from '../../types';
@@ -13,7 +13,8 @@ import type { UseSingleTapGestureProps } from '../../types';
 const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
 
 export const useSingleTapGesture = ({ onSingleTap }: UseSingleTapGestureProps) => {
-  const { toggleControls } = useControlsVisibility();
+  // The controller directly: `useControlsVisibility()` would re-render this on every toggle
+  const { toggle: toggleControls } = useControlsController();
   const singleTapGesture = useMemo(
     () =>
       Gesture.Tap()

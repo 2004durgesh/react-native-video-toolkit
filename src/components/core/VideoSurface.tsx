@@ -13,18 +13,13 @@ import RNVideo, {
   type AudioTrack,
   type VideoRef,
 } from 'react-native-video';
-import { useEffect, useMemo, useRef, type FC } from 'react';
+import { useCallback, useEffect, useMemo, type FC } from 'react';
 import { Dimensions, Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
-import { useVideo } from '../../providers';
-import {
-  usePlayback,
-  useVolume,
-  useProgress,
-  useBuffering,
-  useControlsVisibility,
-  useSettings,
-  usePlaybackRate,
-} from '../../hooks';
+import { useVideoSelector } from '../../providers';
+import { useVideoStore } from '../../providers/VideoProvider';
+import { useControlsController } from '../../providers/ControlsController';
+import { useProgressStore } from '../../providers/ProgressStore';
+import { usePlayback, useVolume, useBuffering, useSettings, usePlaybackRate } from '../../hooks';
 import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks, getFullscreenHeight } from '../../utils';
 import type { CustomVideoTrack } from '../../types';
 
@@ -59,13 +54,19 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   customVideoTracks,
   ...rest
 }) => {
-  const internalVideoRef = useRef<VideoRef>(null);
-  const { dispatch, state } = useVideo();
+  const { dispatch } = useVideoStore();
+  const config = useVideoSelector((state) => state.config);
+  const isFullscreen = useVideoSelector((state) => state.fullscreen);
+  const dimensions = useVideoSelector((state) => state.dimensions);
+  const videoLayoutHeight = useVideoSelector((state) => state.videoLayout.height);
   const { isPlaying, setPlaying } = usePlayback();
   const { muted, volume } = useVolume();
-  const { setCurrentTime, setDuration, seek, setPlayableDuration } = useProgress();
+  // Writes the position straight to the store: subscribing through `useProgress()` would
+  // re-render the video on every progress event
+  const progressStore = useProgressStore();
   const { setBuffering } = useBuffering();
-  const { showControls } = useControlsVisibility();
+  // The controller directly: `useControlsVisibility()` would re-render the video on every toggle
+  const { show: showControls } = useControlsController();
   const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const {
     videoTrack,
@@ -79,20 +80,24 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setVideoTrack,
   } = useSettings();
 
-  // Set the ref in the store once it's created
-  useEffect(() => {
-    if (internalVideoRef.current) {
-      dispatch({ type: 'SET_VIDEO_REF', payload: internalVideoRef });
-    }
-  }, [dispatch]);
+  // Attaches the player to the provider's ref. A player mounting under an existing provider (one at
+  // the app root, say) also starts with its controls up; the provider restarts them when playback
+  // starts or stops. A callback ref does both at mount without an effect.
+  const videoRef = useVideoSelector((state) => state.videoRef);
+  const attachVideo = useCallback(
+    (instance: VideoRef | null) => {
+      if (videoRef) videoRef.current = instance;
+      if (instance) showControls();
+    },
+    [videoRef, showControls]
+  );
 
   useEffect(() => {
-    showControls();
     const subscription = Dimensions.addEventListener('change', ({ window }) => {
       dispatch({ type: 'SET_DIMENSIONS', payload: { width: window.width, height: window.height } });
     });
     return () => subscription.remove();
-  }, [dispatch, showControls]);
+  }, [dispatch]);
 
   const {
     onLoad: userOnLoad,
@@ -108,14 +113,15 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   } = rest as Partial<ReactVideoProps>;
 
   const handleLoad = (data: OnLoadData) => {
-    setDuration(data.duration);
+    dispatch({ type: 'SET_DURATION', payload: data.duration });
     setBuffering(false);
     // Playing state outlives a source: the previous one ending pauses it, so a new source would start paused
-    if (state.config.autoPlay) setPlaying(true);
+    dispatch({ type: 'SET_ENDED', payload: false });
+    if (config.autoPlay) setPlaying(true);
 
     // Use custom tracks if configured, otherwise extract from video source
-    const useCustomAudio = state.config.useCustomAudioTracks;
-    const useCustomVideo = state.config.useCustomVideoTracks;
+    const useCustomAudio = config.useCustomAudioTracks;
+    const useCustomVideo = config.useCustomVideoTracks;
 
     // Handle audio tracks
     let audioTracksToUse;
@@ -162,15 +168,16 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     }
   };
   const handleProgress = (data: OnProgressData) => {
-    setCurrentTime(data.currentTime);
-    setPlayableDuration(data.playableDuration);
+    progressStore.update({ currentTime: data.currentTime, playableDuration: data.playableDuration });
   };
   const handleBuffer = (data: OnBufferData) => setBuffering(data.isBuffering);
   const handleError = (error: OnVideoErrorData) =>
     dispatch({ type: 'SET_ERROR', payload: error?.error?.errorString || 'An unknown error occurred' });
   const handleEnd = () => {
     setPlaying(false);
-    seek(0);
+    dispatch({ type: 'SET_ENDED', payload: true });
+    videoRef?.current?.seek(0);
+    progressStore.update({ currentTime: 0 });
     showControls();
   };
   const handleLayout = (event: { nativeEvent: { layout: LayoutRectangle } }) => {
@@ -178,28 +185,29 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     dispatch({ type: 'SET_VIDEO_LAYOUT', payload: layout });
   };
   const handlePlaybackRateChange = (data: OnPlaybackRateChangeData) => {
-    setPlaybackRate(data.playbackRate);
+    // A paused player reports a rate of 0. Keeping it would show "0x" and pass `rate={0}` back,
+    // which keeps the video still after it resumes; pausing is `isPlaying`'s job, not the rate's.
+    if (data.playbackRate > 0) setPlaybackRate(data.playbackRate);
   };
   const handlePictureInPictureStatusChanged = ({ isActive }: OnPictureInPictureStatusChangedData) => {
     dispatch({ type: 'SET_PICTURE_IN_PICTURE', payload: isActive });
     if (isActive) {
-      state.config.onEnterPictureInPicture?.();
+      config.onEnterPictureInPicture?.();
     } else {
-      state.config.onExitPictureInPicture?.();
+      config.onExitPictureInPicture?.();
     }
   };
   // iOS asks the app to restore its player UI when the user leaves picture-in-picture, and waits for
   // an answer. The player stays mounted, so report it restored right away, unless the app handles it.
   const handleRestoreUserInterfaceForPictureInPictureStop =
     userOnRestoreUserInterfaceForPictureInPictureStop ??
-    (() => internalVideoRef.current?.restoreUserInterfaceForPictureInPictureStopCompleted(true));
-  const isFullscreen = state.fullscreen;
+    (() => videoRef?.current?.restoreUserInterfaceForPictureInPictureStopCompleted(true));
   const selectedAudioTrackConfig =
     typeof audioTrack?.index === 'number' ? { type: SelectedTrackType.INDEX, value: audioTrack.index } : undefined;
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
-      height: isFullscreen ? getFullscreenHeight(state.dimensions, state.config.enableScreenRotation) : undefined,
+      height: isFullscreen ? getFullscreenHeight(dimensions, config.enableScreenRotation) : undefined,
       aspectRatio: isFullscreen ? undefined : 16 / 9,
       backgroundColor: 'black',
       position: 'absolute' as const,
@@ -207,7 +215,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
       left: 0,
       right: 0,
     }),
-    [isFullscreen, state.dimensions, state.config.enableScreenRotation]
+    [isFullscreen, dimensions, config.enableScreenRotation]
   );
 
   return (
@@ -217,11 +225,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         dispatch({ type: 'SET_VIDEO_WRAPPER_LAYOUT', payload: layout });
       }, userOnLayout)}
       style={{
-        height: state.videoLayout.height || 'auto',
+        height: videoLayoutHeight || 'auto',
         ...(Platform.OS === 'web' && { height: '100vh' as unknown as number }),
       }}>
       <RNVideo
-        ref={internalVideoRef}
+        ref={attachVideo}
         source={source}
         style={[videoStyle, style]}
         resizeMode={ResizeMode.CONTAIN}

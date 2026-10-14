@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UsePanGestureProps } from '../../types';
 
@@ -22,8 +22,7 @@ export const usePanGesture = ({
   onSwipeUp,
   onSwipeDown,
 }: UsePanGestureProps) => {
-  const { state } = useVideo();
-  const { dimensions } = state;
+  const dimensions = useVideoSelector((state) => state.dimensions);
   const verticalPanGesture = useMemo(
     () =>
       Gesture.Pan()

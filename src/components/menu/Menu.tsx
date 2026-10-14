@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode, type ReactElement } from 'react';
+import React, { createContext, useContext, useState, type ReactNode, type ReactElement } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,11 +11,11 @@ import {
   type TextProps,
   type StyleProp,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BaseIconButton } from '../common';
-import { useVideo, useVideoComponents } from '../../providers';
+import { useVideoSelector, useVideoComponents } from '../../providers';
 import { ContextBridge, useBridgedContexts } from '../../providers/ContextBridge';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
   withTiming,
   FadeIn,
@@ -172,11 +172,13 @@ export const Menu = {
       }
     };
 
-    useEffect(() => {
-      if (!isSettingsMenuVisible) {
-        setNavigationStack([initialView]);
-      }
-    }, [isSettingsMenuVisible, initialView]);
+    // Back to the first view when the menu closes, so it reopens there. Done during render: an effect
+    // would first commit a render with the old stack.
+    const [resetFor, setResetFor] = useState({ visible: isSettingsMenuVisible, initialView });
+    if (resetFor.visible !== isSettingsMenuVisible || resetFor.initialView !== initialView) {
+      setResetFor({ visible: isSettingsMenuVisible, initialView });
+      if (!isSettingsMenuVisible) setNavigationStack([initialView]);
+    }
 
     return (
       <MenuProvider
@@ -198,9 +200,7 @@ export const Menu = {
    * Trigger to open the menu.
    */
   Trigger: ({ size, color, style, renderSettingIcon }: SettingsButtonProps): ReactElement => {
-    const {
-      state: { theme },
-    } = useVideo();
+    const theme = useVideoSelector((state) => state.theme);
     const { openSettings } = useMenuContext();
     const SettingsIcon = renderSettingIcon || Settings;
     const iconSize = size ?? theme.iconSizes.md;
@@ -230,8 +230,7 @@ export const Menu = {
     ...props
   }: MenuHeaderProps): ReactElement => {
     const { currentView, navigationStack } = useMenuContext();
-    const { state } = useVideo();
-    const { theme } = state;
+    const theme = useVideoSelector((state) => state.theme);
 
     const displayTitle = title || (currentView === 'root' ? 'Settings' : currentView);
     const shouldShowBackButton = showBackButton && (navigationStack.length > 1 || currentView !== 'root');
@@ -265,8 +264,8 @@ export const Menu = {
     const { setSettingsMenuVisible } = useSettings();
     const { Sheet } = useVideoComponents();
     const contexts = useBridgedContexts();
-    const { state } = useVideo();
-    const { theme, portalHostName } = state;
+    const theme = useVideoSelector((state) => state.theme);
+    const portalHostName = useVideoSelector((state) => state.portalHostName);
 
     // Sheets render through portals that can sit outside the providers, so the toolkit's contexts
     // and the menu's own context are re-provided around the content.
@@ -278,13 +277,18 @@ export const Menu = {
         portalHost={portalHost || portalHostName}>
         <ContextBridge contexts={contexts}>
           <MenuProvider value={menuContext}>
-            {header ? header(currentView) : <Menu.Header />}
-            {/* When the sheet closes, the sub-view's exit animation is skipped. With Reanimated's
-                ENABLE_SHARED_ELEMENT_TRANSITIONS flag, a native sheet would otherwise stay mounted
-                waiting for that animation and leave its invisible window over the app. */}
-            <LayoutAnimationConfig skipExiting>
-              <View style={styles.contentBody}>{children}</View>
-            </LayoutAnimationConfig>
+            {/* A native sheet renders this in its own window, outside the app's
+                GestureHandlerRootView, where gesture-handler buttons (Close, Back) don't respond.
+                In the app's window a nested root does nothing. */}
+            <GestureHandlerRootView style={styles.gestureRoot}>
+              {header ? header(currentView) : <Menu.Header />}
+              {/* When the sheet closes, the sub-view's exit animation is skipped. With Reanimated's
+                  ENABLE_SHARED_ELEMENT_TRANSITIONS flag, a native sheet would otherwise stay mounted
+                  waiting for that animation and leave its invisible window over the app. */}
+              <LayoutAnimationConfig skipExiting>
+                <View style={styles.contentBody}>{children}</View>
+              </LayoutAnimationConfig>
+            </GestureHandlerRootView>
           </MenuProvider>
         </ContextBridge>
       </Sheet>
@@ -324,8 +328,7 @@ export const Menu = {
     ...props
   }: MenuItemProps): ReactElement => {
     const { navigateTo: ctxNavigate, closeSettings } = useMenuContext();
-    const { state } = useVideo();
-    const { theme } = state;
+    const theme = useVideoSelector((state) => state.theme);
 
     const handlePress = (): void => {
       onPress?.(value);
@@ -375,8 +378,7 @@ export const Menu = {
    * Label: Non-interactive text label for menu sections.
    */
   Label: ({ children, style, ...props }: MenuLabelProps): ReactElement => {
-    const { state } = useVideo();
-    const { theme } = state;
+    const theme = useVideoSelector((state) => state.theme);
 
     return (
       <Animated.Text
@@ -392,8 +394,7 @@ export const Menu = {
    * Separator: Horizontal line to separate menu sections.
    */
   Separator: ({ style, ...props }: MenuSeparatorProps): ReactElement => {
-    const { state } = useVideo();
-    const { theme } = state;
+    const theme = useVideoSelector((state) => state.theme);
 
     return (
       <AnimatedView
@@ -428,19 +429,14 @@ export const Menu = {
   }: MenuCheckboxItemProps): ReactElement => {
     const [internalChecked, setInternalChecked] = useState(checked ?? false);
     const isChecked = checked !== undefined ? checked : internalChecked;
-    const { state } = useVideo();
-    const { theme } = state;
-    const checkScale = useSharedValue(isChecked ? 1 : 0);
-
-    useEffect(() => {
-      checkScale.value = withTiming(isChecked ? 1 : 0, { duration: 150 });
-    }, [isChecked, checkScale]);
-
+    const theme = useVideoSelector((state) => state.theme);
+    // The worklet animates to the new scale on the UI thread whenever `isChecked` changes. The first
+    // render applies the end value without animating.
     const checkAnimatedStyle = useAnimatedStyle(
       () => ({
-        transform: [{ scale: checkScale.value }],
+        transform: [{ scale: withTiming(isChecked ? 1 : 0, { duration: 150 }) }],
       }),
-      [checkScale]
+      [isChecked]
     );
 
     const handlePress = (): void => {
@@ -562,6 +558,12 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
   contentBody: {
+    flexShrink: 1,
+    maxHeight: '100%',
+  },
+  // Passes the sheet's size through like the plain children it wraps: no `flex: 1` default,
+  // which would collapse sheets sized to their content
+  gestureRoot: {
     flexShrink: 1,
     maxHeight: '100%',
   },

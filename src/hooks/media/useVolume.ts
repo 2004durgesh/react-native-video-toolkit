@@ -1,6 +1,7 @@
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
+import { useVideoStore } from '../../providers/VideoProvider';
+import { useControlsController } from '../../providers/ControlsController';
 import { useCallback } from 'react';
-import { useControlsVisibility } from './useControlsVisibility';
 
 /**
  * Return type for the useVolume hook.
@@ -26,16 +27,18 @@ export interface UseVolumeReturn {
  * - `toggleMute`: A function to toggle the mute state of the video.
  */
 export const useVolume = (): UseVolumeReturn => {
-  const { state, dispatch } = useVideo();
-  const { showControls } = useControlsVisibility();
+  const volume = useVideoSelector((state) => state.volume);
+  const muted = useVideoSelector((state) => state.muted);
+  const { dispatch } = useVideoStore();
+  const { show: showControls } = useControlsController();
 
   /**
    * Sets the volume of the video.
    * @param volume - The volume to set, between 0 and 1.
    */
   const setVolume = useCallback(
-    (volume: number) => {
-      dispatch({ type: 'SET_VOLUME', payload: volume });
+    (nextVolume: number) => {
+      dispatch({ type: 'SET_VOLUME', payload: nextVolume });
     },
     [dispatch]
   );
@@ -44,20 +47,13 @@ export const useVolume = (): UseVolumeReturn => {
    * Toggles the mute state of the video.
    */
   const toggleMute = useCallback(() => {
-    // Calculate new state before dispatch to avoid stale closure
-    const newMutedState = !state.muted;
     dispatch({ type: 'TOGGLE_MUTE' });
-    if (newMutedState) {
-      showControls();
-    } else if (state.hideTimeoutRef) {
-      clearTimeout(state.hideTimeoutRef!);
-      showControls();
-    }
-  }, [dispatch, state.muted, state.hideTimeoutRef, showControls]);
+    showControls();
+  }, [dispatch, showControls]);
 
   return {
-    volume: state.volume,
-    muted: state.muted,
+    volume,
+    muted,
     setVolume,
     toggleMute,
   };

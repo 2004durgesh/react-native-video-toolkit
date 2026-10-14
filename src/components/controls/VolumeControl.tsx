@@ -1,6 +1,6 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVolume } from '../../hooks';
-import { useVideo, useVideoComponents } from '../../providers';
+import { useVideoSelector, useVideoComponents } from '../../providers';
 
 export interface VolumeControlProps {
   orientation?: 'horizontal' | 'vertical';
@@ -32,9 +32,7 @@ export const VolumeControl = ({
   onVolumeChange,
 }: VolumeControlProps): React.ReactElement => {
   const { volume, setVolume } = useVolume();
-  const {
-    state: { theme },
-  } = useVideo();
+  const theme = useVideoSelector((state) => state.theme);
   const { Slider } = useVideoComponents();
 
   const updateVolume = (newVolume: number) => {

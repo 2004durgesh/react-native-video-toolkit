@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigation } from 'expo-router';
 import type { BottomTabNavigationProp } from 'expo-router/tabs';
 import type { ParamListBase } from 'expo-router/react-navigation';
-import { useVideo } from 'react-native-video-toolkit';
+import { useVideoSelector } from 'react-native-video-toolkit';
 
 /**
  * Hides the tab bar while the player is fullscreen, so it doesn't cover the bottom controls.
@@ -10,11 +10,11 @@ import { useVideo } from 'react-native-video-toolkit';
  * screens' providers, so it can't read their fullscreen state itself.
  */
 export function useHideTabBarInFullscreen() {
-  const { state } = useVideo();
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
   const navigation = useNavigation<BottomTabNavigationProp<ParamListBase>>();
 
   useEffect(() => {
     // The tab bar uses the focused screen's `tabBarStyle`, and `undefined` brings back the default.
-    navigation.setOptions({ tabBarStyle: state.fullscreen ? { display: 'none' } : undefined });
-  }, [navigation, state.fullscreen]);
+    navigation.setOptions({ tabBarStyle: fullscreen ? { display: 'none' } : undefined });
+  }, [navigation, fullscreen]);
 }

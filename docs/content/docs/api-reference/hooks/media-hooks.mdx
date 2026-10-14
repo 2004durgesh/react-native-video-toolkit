@@ -58,6 +58,8 @@ export default MyBufferingIndicator;
 
 A hook for managing the visibility of the video player controls, including functions to show, hide, or toggle them.
 
+The functions are stable and shared by every caller: a `VideoProvider` runs one auto-hide timer, and showing controls that are already visible doesn't re-render anything.
+
 ### Usage
 
 ```tsx
@@ -235,6 +237,7 @@ export const MyComponent = () => {
 ```tsx
 interface UsePlaybackReturn {
   isPlaying: boolean;
+  ended: boolean;
   togglePlayPause: () => void;
   setPlaying: (isPlaying: boolean) => void;
 }
@@ -242,11 +245,12 @@ interface UsePlaybackReturn {
 
 ### Returns
 
-| Value             | Type                           | Description                                                          |
-| ----------------- | ------------------------------ | -------------------------------------------------------------------- |
-| `isPlaying`       | `boolean`                      | A boolean indicating whether the video is currently playing.         |
-| `togglePlayPause` | `() => void`                   | A function that toggles the video between playing and paused states. |
-| `setPlaying`      | `(isPlaying: boolean) => void` | A function that directly sets the playing state of the video.        |
+| Value             | Type                           | Description                                                                          |
+| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------ |
+| `isPlaying`       | `boolean`                      | A boolean indicating whether the video is currently playing.                         |
+| `ended`           | `boolean`                      | Whether playback reached the end. Cleared when it plays again or a new source loads. |
+| `togglePlayPause` | `() => void`                   | A function that toggles the video between playing and paused states.                 |
+| `setPlaying`      | `(isPlaying: boolean) => void` | A function that directly sets the playing state of the video.                        |
 
 [`<VideoPlayer.PlayPauseButton />`](../components/controls/play-button.mdx) uses this hook to provide a button for toggling playback. Handles tap
 gestures for toggling play/pause state.
@@ -315,6 +319,8 @@ export default MyPlaybackRateButton;
 ## `useProgress()`
 
 A hook for accessing and controlling the video's current playback time and duration.
+
+It's the way to read the playback position, which isn't in `useVideo().state`. The position changes on every progress event (twice a second while playing), so only the components that call `useProgress()` re-render with it.
 
 ### Usage
 

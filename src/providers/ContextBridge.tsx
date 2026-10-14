@@ -1,15 +1,19 @@
 import React, { useContext, type ContextType } from 'react';
-import { VideoContext } from './VideoProvider';
+import { VideoStoreContext } from './VideoProvider';
 import { ThemeContext } from './ThemeProvider';
 import { SettingsContext } from './SettingsProvider';
 import { ComponentsContext } from './ComponentsProvider';
+import { ProgressStoreContext } from './ProgressStore';
+import { ControlsControllerContext } from './ControlsController';
 
 /**
  * Snapshot of the toolkit's context values.
  * @internal
  */
 export interface BridgedContexts {
-  video: ContextType<typeof VideoContext>;
+  video: ContextType<typeof VideoStoreContext>;
+  progress: ContextType<typeof ProgressStoreContext>;
+  controls: ContextType<typeof ControlsControllerContext>;
   theme: ContextType<typeof ThemeContext>;
   settings: ContextType<typeof SettingsContext>;
   components: ContextType<typeof ComponentsContext>;
@@ -20,7 +24,9 @@ export interface BridgedContexts {
  * @internal
  */
 export const useBridgedContexts = (): BridgedContexts => ({
-  video: useContext(VideoContext),
+  video: useContext(VideoStoreContext),
+  progress: useContext(ProgressStoreContext),
+  controls: useContext(ControlsControllerContext),
   theme: useContext(ThemeContext),
   settings: useContext(SettingsContext),
   components: useContext(ComponentsContext),
@@ -38,11 +44,15 @@ export const ContextBridge: React.FC<{ contexts: BridgedContexts; children: Reac
   contexts,
   children,
 }) => (
-  <VideoContext.Provider value={contexts.video}>
-    <ThemeContext.Provider value={contexts.theme}>
-      <SettingsContext.Provider value={contexts.settings}>
-        <ComponentsContext.Provider value={contexts.components}>{children}</ComponentsContext.Provider>
-      </SettingsContext.Provider>
-    </ThemeContext.Provider>
-  </VideoContext.Provider>
+  <VideoStoreContext.Provider value={contexts.video}>
+    <ProgressStoreContext.Provider value={contexts.progress}>
+      <ControlsControllerContext.Provider value={contexts.controls}>
+        <ThemeContext.Provider value={contexts.theme}>
+          <SettingsContext.Provider value={contexts.settings}>
+            <ComponentsContext.Provider value={contexts.components}>{children}</ComponentsContext.Provider>
+          </SettingsContext.Provider>
+        </ThemeContext.Provider>
+      </ControlsControllerContext.Provider>
+    </ProgressStoreContext.Provider>
+  </VideoStoreContext.Provider>
 );

@@ -1,6 +1,6 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useBuffering } from '../../hooks';
-import { useVideo, useVideoComponents } from '../../providers';
+import { useVideoSelector, useVideoComponents } from '../../providers';
 
 export interface LoadingSpinnerProps {
   size?: 'small' | 'large';
@@ -19,9 +19,7 @@ export interface LoadingSpinnerProps {
  */
 export const LoadingSpinner = ({ size = 'large', color, style }: LoadingSpinnerProps): React.ReactElement | null => {
   const { buffering } = useBuffering();
-  const {
-    state: { theme },
-  } = useVideo();
+  const theme = useVideoSelector((state) => state.theme);
   const { Spinner } = useVideoComponents();
 
   const spinnerColor = color || theme.colors.spinner;

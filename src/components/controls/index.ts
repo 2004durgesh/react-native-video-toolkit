@@ -5,6 +5,7 @@ export { FullscreenButton } from './FullscreenButton';
 export { MuteButton } from './MuteButton';
 export { SettingsButton } from './SettingsButton';
 export { SubtitleToggleButton } from './SubtitleToggleButton';
+export { UpNext } from './UpNext';
 
 export type { PlayButtonProps } from './PlayButton';
 export type { ProgressBarProps } from './ProgressBar';
@@ -12,4 +13,5 @@ export type { VolumeControlProps } from './VolumeControl';
 export type { FullscreenButtonProps } from './FullscreenButton';
 export type { MuteButtonProps } from './MuteButton';
 export type { SettingsButtonProps } from './SettingsButton';
+export type { UpNextProps, UpNextLabels } from './UpNext';
 export { PictureInPictureButton } from './PictureInPictureButton';

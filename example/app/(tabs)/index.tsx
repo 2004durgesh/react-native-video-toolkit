@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-native-video';
-import { VideoPlayer, DefaultLayout, useVideo, VideoProvider } from 'react-native-video-toolkit';
+import { VideoPlayer, DefaultLayout, useVideoSelector, VideoProvider } from 'react-native-video-toolkit';
 import { APP_PORTAL_HOST } from '../../constants';
 import { useHideTabBarInFullscreen } from '../../components/useHideTabBarInFullscreen';
+import { PerfProfiler, PerfRun } from '../../perf/perfHarness';
 
 // Picture-in-picture needs native setup, so the button is opt-in (see the react-native-video plugin in app.json).
-const PLAYER_CONFIG = { enablePictureInPicture: true };
+const PLAYER_CONFIG = { enablePictureInPicture: true, enableFullscreen: false };
 
 const SUBTITLE_BASE_URL =
   'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
@@ -87,17 +88,20 @@ function VideoSourceSelector({
 }
 
 function Player({ source, title }: { source: ReactVideoProps['source']; title: string }) {
-  const { state } = useVideo();
+  // Only `fullscreen`: useVideo() would re-render on every player state change, every tap included
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
 
   return (
-    <View style={state.fullscreen ? styles.fullscreenContainer : styles.playerContainer}>
+    <View style={fullscreen ? styles.fullscreenContainer : styles.playerContainer}>
       <VideoPlayer
-        videoProps={{
-          onLoad: (e) => console.log(e),
-        }}
+        videoProps={
+          {
+            // onLoad: (e) => console.log(e),
+          }
+        }
         source={source}
         // style={{height:1000}}
-        containerStyle={state.fullscreen ? styles.fullscreenVideo : undefined}>
+        containerStyle={fullscreen ? styles.fullscreenVideo : undefined}>
         <DefaultLayout
           title={title}
           titleProps={{
@@ -120,11 +124,12 @@ function Player({ source, title }: { source: ReactVideoProps['source']; title: s
 function HomeContent() {
   const [selectedVideo, setSelectedVideo] = useState(0);
   const currentVideo = videoSources[selectedVideo]!;
-  const { state } = useVideo();
+  // Only `fullscreen`: useVideo() would re-render on every player state change, every tap included
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
   useHideTabBarInFullscreen();
 
   // Hide everything except video when in fullscreen
-  if (state.fullscreen) {
+  if (fullscreen) {
     return (
       <View style={styles.fullscreenWrapper}>
         <StatusBar hidden />
@@ -134,30 +139,34 @@ function HomeContent() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
+    <PerfProfiler id="Screen">
+      {/* Only does anything when Metro runs with EXPO_PUBLIC_PERF_RUN=1 (see perf/perfHarness.tsx) */}
+      <PerfRun />
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <StatusBar barStyle="light-content" backgroundColor="#000" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Video Toolkit Test</Text>
-        <Text style={styles.headerSubtitle}>Testing video playback features</Text>
-      </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Video Toolkit Test</Text>
+          <Text style={styles.headerSubtitle}>Testing video playback features</Text>
+        </View>
 
-      {/* Video Source Selector */}
-      <VideoSourceSelector selectedIndex={selectedVideo} onSelect={setSelectedVideo} />
+        {/* Video Source Selector */}
+        <VideoSourceSelector selectedIndex={selectedVideo} onSelect={setSelectedVideo} />
 
-      {/* Video Player */}
-      <Player key={selectedVideo} source={currentVideo.source} title={currentVideo.title} />
+        {/* Video Player */}
+        <Player key={selectedVideo} source={currentVideo.source} title={currentVideo.title} />
 
-      {/* Info Section */}
-      <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>Now Playing</Text>
-        <Text style={styles.infoText}>{currentVideo.title}</Text>
-        <Text style={styles.infoHint}>
-          • Double tap sides to seek{'\n'}• Tap to show/hide controls{'\n'}• Use fullscreen button to test fullscreen
-        </Text>
-      </View>
-    </SafeAreaView>
+        {/* Info Section */}
+        <View style={styles.infoSection}>
+          <Text style={styles.infoTitle}>Now Playing</Text>
+          <Text style={styles.infoText}>{currentVideo.title}</Text>
+          <Text style={styles.infoHint}>
+            • Double tap sides to seek{'\n'}• Tap to show/hide controls{'\n'}• Use fullscreen button to test fullscreen
+          </Text>
+        </View>
+      </SafeAreaView>
+    </PerfProfiler>
   );
 }
 

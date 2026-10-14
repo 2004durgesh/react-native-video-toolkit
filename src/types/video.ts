@@ -50,13 +50,9 @@ export interface VideoState {
    */
   isPlaying: boolean;
   /**
-   * The current time of the video in seconds.
+   * Whether playback reached the end of the source. Cleared when it plays again or a new source loads.
    */
-  currentTime: number;
-  /**
-   * The playable duration of the video in seconds.
-   */
-  playableDuration: number;
+  ended: boolean;
   /**
    * The duration of the video in seconds.
    */

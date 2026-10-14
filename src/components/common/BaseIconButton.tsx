@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
 import { BaseButton } from './BaseButton';
 
 interface BaseIconButtonProps {
@@ -28,9 +28,7 @@ export const BaseIconButton = ({
   onTap,
   style,
 }: BaseIconButtonProps): React.ReactElement => {
-  const {
-    state: { theme },
-  } = useVideo();
+  const theme = useVideoSelector((state) => state.theme);
 
   const iconSize = size ?? theme.iconSizes.md;
   const iconColor = color || theme.colors.iconNormal;

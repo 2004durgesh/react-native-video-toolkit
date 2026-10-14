@@ -1,4 +1,4 @@
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions, Platform, useWindowDimensions } from 'react-native';
 
 export interface RotationConfig {
   threshold?: number;
@@ -510,27 +510,11 @@ export function useShouldRotate(config: RotationConfig = {}) {
   // Import React dynamically to avoid issues on TV platforms that might not have hooks
   const React = require('react');
 
-  const [dimensions, setDimensions] = React.useState(() => {
-    const platform = config.platform === 'auto' ? detectPlatform() : config.platform;
-    return getDimensions(config.considerSafeArea || false, platform!);
-  });
-
-  React.useEffect(() => {
-    const platform = config.platform === 'auto' ? detectPlatform() : config.platform;
-
-    if (platform === 'tv') {
-      // TV dimensions typically don't change
-      return;
-    }
-
-    // Mobile orientation change listener
-    const subscription = Dimensions.addEventListener('change', ({ screen, window }) => {
-      const newDimensions = config.considerSafeArea ? window : screen;
-      setDimensions(newDimensions);
-    });
-
-    return () => subscription?.remove();
-  }, [config.platform, config.considerSafeArea]);
+  // Re-renders on rotation and resizes, through React Native's own subscription. The size used is
+  // the window's with `considerSafeArea`, otherwise the screen's, which changes along with it.
+  const windowSize = useWindowDimensions();
+  const platform = config.platform === 'auto' ? detectPlatform() : config.platform;
+  const dimensions = config.considerSafeArea ? windowSize : getDimensions(false, platform!);
 
   return React.useMemo(
     () => shouldRotate(dimensions.width, dimensions.height, config),

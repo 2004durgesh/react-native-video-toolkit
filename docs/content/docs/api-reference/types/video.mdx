@@ -37,8 +37,7 @@ The `VideoState` interface represents the current state of the video player.
 | Property           | Type      | Required | Default | Description                                         |
 | ------------------ | --------- | -------- | ------- | --------------------------------------------------- |
 | `isPlaying`        | `boolean` | Yes      | `false` | Whether the video is currently playing.             |
-| `currentTime`      | `number`  | Yes      | `0`     | The current playback time of the video.             |
-| `playableDuration` | `number`  | Yes      | `0`     | The playable duration of the video.                 |
+| `ended`            | `boolean` | Yes      | `false` | Whether playback reached the end of the source.     |
 | `duration`         | `number`  | Yes      | `0`     | The total duration of the video.                    |
 | `buffering`        | `boolean` | Yes      | `false` | Whether the video is currently buffering.           |
 | `muted`            | `boolean` | Yes      | `false` | Whether the video is currently muted.               |
@@ -47,6 +46,8 @@ The `VideoState` interface represents the current state of the video player.
 | `fullscreen`       | `boolean` | Yes      | `false` | Whether the video is currently in fullscreen.       |
 | `pictureInPicture` | `boolean` | Yes      | `false` | Whether the video is playing in picture-in-picture. |
 | `error`            | `string`  | Yes      | `null`  | The current error, if any.                          |
+
+The playback position (`currentTime` and `playableDuration`) isn't part of the state. Read it with [`useProgress()`](../hooks/media-hooks#useprogress): it changes on every progress event, and keeping it out of the state means only the components that call `useProgress()` re-render.
 
 ## `VideoPlayerConfig`
 

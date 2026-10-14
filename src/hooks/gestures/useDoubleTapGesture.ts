@@ -12,7 +12,7 @@ import {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseDoubleTapGestureProps } from '../../types';
-import { useVideo } from '../../providers';
+import { useProgressStore } from '../../providers/ProgressStore';
 
 const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
 
@@ -38,7 +38,7 @@ export const useDoubleTapGesture = ({
   onDoubleTapSeekEnd,
 }: UseDoubleTapGestureProps) => {
   const { width: screenWidth } = useWindowDimensions();
-  const { dispatch } = useVideo();
+  const progressStore = useProgressStore();
   const [isDoubleTap, setIsDoubleTap] = useState(false);
   const tapCount = useSharedValue(0);
   const lastTap = useRef(0);
@@ -130,7 +130,7 @@ export const useDoubleTapGesture = ({
         const newPosition = Math.max(currentTime + seekAmount, 0);
 
         videoRef.current.seek(newPosition);
-        scheduleOnRN(dispatch, { type: 'SET_CURRENT_TIME', payload: newPosition });
+        progressStore.update({ currentTime: newPosition });
 
         if (isConsecutive) {
           consecutiveTapCount.current[direction]++;
@@ -159,7 +159,7 @@ export const useDoubleTapGesture = ({
         console.error('Seek failed:', error);
       }
     },
-    [videoRef, doubleTapSeekInterval, showTapAnimation, dispatch]
+    [videoRef, doubleTapSeekInterval, showTapAnimation, progressStore]
   );
 
   const doubleTapGesture = useMemo(

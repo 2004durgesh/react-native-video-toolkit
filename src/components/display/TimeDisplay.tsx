@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { useProgress } from '../../hooks';
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
+import { useProgressValue } from '../../providers/ProgressStore';
 
 export interface TimeDisplayProps {
   type?: 'current' | 'duration' | 'both';
@@ -18,10 +18,10 @@ export interface TimeDisplayProps {
  * @returns {React.ReactElement} A component that displays video time information.
  */
 export const TimeDisplay = ({ type = 'both', fontSize = 14, color, style }: TimeDisplayProps): React.ReactElement => {
-  const { currentTime, duration } = useProgress();
-  const {
-    state: { theme },
-  } = useVideo();
+  // Whole seconds, which is all the display shows, so it re-renders once a second instead of on every progress event
+  const currentTime = useProgressValue((progress) => Math.floor(progress.currentTime));
+  const theme = useVideoSelector((state) => state.theme);
+  const duration = useVideoSelector((state) => state.duration);
 
   const textColor = color || theme.colors.textMain;
 

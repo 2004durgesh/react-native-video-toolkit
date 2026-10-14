@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
 import { isPictureInPictureSupported } from '../../utils/pictureInPicture';
 
 /**
@@ -36,8 +36,8 @@ export interface UsePictureInPictureReturn {
  * - `togglePictureInPicture`: A function to toggle picture-in-picture.
  */
 export const usePictureInPicture = (): UsePictureInPictureReturn => {
-  const { state } = useVideo();
-  const { videoRef, pictureInPicture } = state;
+  const videoRef = useVideoSelector((state) => state.videoRef);
+  const pictureInPicture = useVideoSelector((state) => state.pictureInPicture);
   const supported = useMemo(isPictureInPictureSupported, []);
 
   // The state follows react-native-video's `onPictureInPictureStatusChanged`, so these only ask.

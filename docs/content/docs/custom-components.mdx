@@ -131,6 +131,8 @@ export function NativeSheet({ open, onOpenChange, children, style }: SheetProps)
 
 One component serves both the progress bar and the volume control, and `variant` tells you which one is rendering it. Values are plain numbers: seconds for `progress`, `0` to `1` for `volume`. Call `onValueChange` while the user drags, and the toolkit seeks or changes the volume as the values arrive.
 
+With the default slider, the progress bar follows playback through Reanimated shared values on the UI thread, so it doesn't re-render while the video plays. A replacement gets the position as a plain `value`, so the progress bar re-renders it on every progress event, twice a second while playing.
+
 ```tsx
 import Slider from '@react-native-community/slider';
 import type { SliderProps } from 'react-native-video-toolkit';
@@ -167,7 +169,7 @@ export function NativeSlider({
 
 ### Replacing only one variant
 
-The defaults are exported, so you can keep the toolkit's slider for the progress bar and use your own for the volume:
+The defaults are exported, so you can keep the toolkit's slider for the progress bar and use your own for the volume. The progress bar skips re-renders only for `DefaultSlider` itself, so a wrapper like this one still re-renders on every progress event:
 
 ```tsx
 import { DefaultSlider, type SliderProps } from 'react-native-video-toolkit';

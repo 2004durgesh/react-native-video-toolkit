@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet, type TextProps } from 'react-native';
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
 
 export interface SubitleProps extends TextProps {
   text: string;
@@ -15,9 +15,7 @@ export interface SubitleProps extends TextProps {
  * @returns {React.ReactElement} A Text component displaying the subtitle.
  */
 export const Subtitle = ({ text, style, ...rest }: SubitleProps): React.ReactElement => {
-  const {
-    state: { theme },
-  } = useVideo();
+  const theme = useVideoSelector((state) => state.theme);
   return (
     <Text style={[styles.subtitle, { color: theme.colors.textMain }, style]} {...rest}>
       {text}

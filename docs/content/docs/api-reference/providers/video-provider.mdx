@@ -60,55 +60,51 @@ export const PlayerScreen = () => (
 
 ## State
 
-The `VideoProvider` manages the following state:
+The `VideoProvider` manages the following state. Read it with [`useVideoSelector()`](../hooks/provider-hooks#usevideoselector), which re-renders only when the part you select changes, or [`useVideo()`](../hooks/provider-hooks#usevideo), which re-renders on every change:
 
-| State                | Type                                                        | Description                                          |                                             |
-| -------------------- | ----------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------- |
-| `isPlaying`          | `boolean`                                                   | Whether the video is playing.                        |                                             |
-| `currentTime`        | `number`                                                    | The current time of the video in seconds.            |                                             |
-| `playableDuration`   | `number`                                                    | The playable duration of the video in seconds.       |                                             |
-| `duration`           | `number`                                                    | The duration of the video in seconds.                |                                             |
-| `buffering`          | `boolean`                                                   | Whether the video is buffering.                      |                                             |
-| `muted`              | `boolean`                                                   | Whether the video is muted.                          |                                             |
-| `volume`             | `number`                                                    | The volume of the video.                             |                                             |
-| `playbackRate`       | `number`                                                    | The playback rate of the video.                      |                                             |
-| `fullscreen`         | `boolean`                                                   | Whether the video is in fullscreen mode.             |                                             |
-| `error`              | `string  `                                                  | `null`                                               | An error message, if any.                   |
-| `config`             | [`VideoPlayerConfig`](../types/video.mdx#videoplayerconfig) | The configuration for the video player.              |                                             |
-| `theme`              | [`Theme`](../types/theme.mdx)                               | The theme for the video player.                      |                                             |
-| `videoRef`           | `React.RefObject<VideoRef>`                                 | `null`                                               | A ref to the video component.               |
-| `controlsVisible`    | `boolean`                                                   | `true`                                               | Whether the controls are currently visible. |
-| `hideTimeoutRef`     | `NodeJS.Timeout`                                            | `null`                                               | A timeout ref for hiding the controls.      |
-| `videoWrapperLayout` | `LayoutRectangle`                                           | The layout of the view wrapping the video component. |                                             |
-| `videoLayout`        | `LayoutRectangle`                                           | The layout of the video component.                   |                                             |
-| `dimensions`         | `{ width: number; height: number }`                         | The dimensions of the screen.                        |                                             |
+| State                | Type                                                        | Description                                                                                                        |                                             |
+| -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| `isPlaying`          | `boolean`                                                   | Whether the video is playing.                                                                                      |                                             |
+| `duration`           | `number`                                                    | The duration of the video in seconds.                                                                              |                                             |
+| `buffering`          | `boolean`                                                   | Whether the video is buffering.                                                                                    |                                             |
+| `muted`              | `boolean`                                                   | Whether the video is muted.                                                                                        |                                             |
+| `volume`             | `number`                                                    | The volume of the video.                                                                                           |                                             |
+| `playbackRate`       | `number`                                                    | The playback rate of the video.                                                                                    |                                             |
+| `fullscreen`         | `boolean`                                                   | Whether the video is in fullscreen mode.                                                                           |                                             |
+| `error`              | `string  `                                                  | `null`                                                                                                             | An error message, if any.                   |
+| `config`             | [`VideoPlayerConfig`](../types/video.mdx#videoplayerconfig) | The configuration for the video player.                                                                            |                                             |
+| `theme`              | [`Theme`](../types/theme.mdx)                               | The theme for the video player.                                                                                    |                                             |
+| `videoRef`           | `React.MutableRefObject<VideoRef \| null>`                  | A ref to the video component. It's set from the first render, and its `current` is `null` until the player mounts. |                                             |
+| `controlsVisible`    | `boolean`                                                   | `true`                                                                                                             | Whether the controls are currently visible. |
+| `videoWrapperLayout` | `LayoutRectangle`                                           | The layout of the view wrapping the video component.                                                               |                                             |
+| `videoLayout`        | `LayoutRectangle`                                           | The layout of the video component.                                                                                 |                                             |
+| `dimensions`         | `{ width: number; height: number }`                         | The dimensions of the screen.                                                                                      |                                             |
+
+The playback position (`currentTime` and `playableDuration`) isn't part of the state. Read it with [`useProgress()`](../hooks/media-hooks#useprogress): it changes on every progress event, and keeping it out of the state means only the components that call `useProgress()` re-render.
 
 ## Actions
 
 The `VideoProvider` handles the following actions:
 
-| Action                  | Payload                                                           | Description                                       |                                         |
-| ----------------------- | ----------------------------------------------------------------- | ------------------------------------------------- | --------------------------------------- |
-| `INITIALIZE`            | `{ theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> }` | Initializes the provider with a theme and config. |                                         |
-| `SET_THEME`             | `Partial<Theme>`                                                  | Sets the theme.                                   |                                         |
-| `SET_CONTROLS_VISIBLE`  | `boolean`                                                         | Sets the visible state of the controls.           |                                         |
-| `SET_VIDEO_REF`         | `React.RefObject<any>`                                            | Sets a ref to the video component.                |                                         |
-| `SHOW_CONTROLS`         |                                                                   | Shows the controls.                               |                                         |
-| `HIDE_CONTROLS`         |                                                                   | Hides the controls.                               |                                         |
-| `SEEK`                  | `number`                                                          | Seeks the video to a specific time.               |                                         |
-| `TOGGLE_PLAY_PAUSE`     |                                                                   | Toggles the play/pause state of the video.        |                                         |
-| `SET_VOLUME`            | `number`                                                          | Sets the volume of the video.                     |                                         |
-| `TOGGLE_MUTE`           |                                                                   | Toggles the mute state of the video.              |                                         |
-| `TOGGLE_FULLSCREEN`     |                                                                   | Toggles the fullscreen mode.                      |                                         |
-| `SET_PLAYING`           | `boolean`                                                         | Sets the playing state of the video.              |                                         |
-| `SET_CURRENT_TIME`      | `number`                                                          | Sets the current time of the video.               |                                         |
-| `SET_PLAYABLE_DURATION` | `number`                                                          | Sets the playable duration of the video.          |                                         |
-| `SET_DURATION`          | `number`                                                          | Sets the duration of the video.                   |                                         |
-| `SET_BUFFERING`         | `boolean`                                                         | Sets the buffering state of the video.            |                                         |
-| `SET_ERROR`             | `string    `                                                      | `null`                                            | Sets an error message.                  |
-| `SET_HIDE_TIMEOUT`      | `NodeJS.Timeout  `                                                | `null`                                            | Sets a timeout for hiding the controls. |
-| `SET_VIDEO_LAYOUT`      | `LayoutRectangle`                                                 | Sets the layout of the video component.           |                                         |
-| `SET_DIMENSIONS`        | `{ width: number; height: number }`                               | Sets the dimensions of the screen.                |                                         |
+| Action                 | Payload                                                           | Description                                       |                        |
+| ---------------------- | ----------------------------------------------------------------- | ------------------------------------------------- | ---------------------- |
+| `INITIALIZE`           | `{ theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> }` | Initializes the provider with a theme and config. |                        |
+| `SET_THEME`            | `Partial<Theme>`                                                  | Sets the theme.                                   |                        |
+| `SET_CONTROLS_VISIBLE` | `boolean`                                                         | Sets the visible state of the controls.           |                        |
+| `SET_VIDEO_REF`        | `React.RefObject<any>`                                            | Sets a ref to the video component.                |                        |
+| `SHOW_CONTROLS`        |                                                                   | Shows the controls.                               |                        |
+| `HIDE_CONTROLS`        |                                                                   | Hides the controls.                               |                        |
+| `SEEK`                 | `number`                                                          | Seeks the video to a specific time.               |                        |
+| `TOGGLE_PLAY_PAUSE`    |                                                                   | Toggles the play/pause state of the video.        |                        |
+| `SET_VOLUME`           | `number`                                                          | Sets the volume of the video.                     |                        |
+| `TOGGLE_MUTE`          |                                                                   | Toggles the mute state of the video.              |                        |
+| `TOGGLE_FULLSCREEN`    |                                                                   | Toggles the fullscreen mode.                      |                        |
+| `SET_PLAYING`          | `boolean`                                                         | Sets the playing state of the video.              |                        |
+| `SET_DURATION`         | `number`                                                          | Sets the duration of the video.                   |                        |
+| `SET_BUFFERING`        | `boolean`                                                         | Sets the buffering state of the video.            |                        |
+| `SET_ERROR`            | `string    `                                                      | `null`                                            | Sets an error message. |
+| `SET_VIDEO_LAYOUT`     | `LayoutRectangle`                                                 | Sets the layout of the video component.           |                        |
+| `SET_DIMENSIONS`       | `{ width: number; height: number }`                               | Sets the dimensions of the screen.                |                        |
 
 ## useVideo
 

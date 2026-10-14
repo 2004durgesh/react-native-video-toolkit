@@ -1,7 +1,7 @@
 import React, { useMemo, type ReactNode } from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
-import { useVideo, useVideoComponents } from '../../providers';
+import { useVideoSelector, useVideoComponents } from '../../providers';
 import type { PressFeedbackProps } from '../../types';
 
 interface BaseButtonProps extends Omit<PressFeedbackProps, 'children' | 'color'> {
@@ -18,9 +18,7 @@ interface BaseButtonProps extends Omit<PressFeedbackProps, 'children' | 'color'>
  * @returns {React.ReactElement} A touchable button with press feedback.
  */
 export const BaseButton = ({ children, onTap, ...props }: BaseButtonProps): React.ReactElement => {
-  const {
-    state: { theme },
-  } = useVideo();
+  const theme = useVideoSelector((state) => state.theme);
   const { PressFeedback } = useVideoComponents();
 
   const gesture = useMemo(

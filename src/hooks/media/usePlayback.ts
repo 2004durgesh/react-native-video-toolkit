@@ -1,5 +1,6 @@
-import { useVideo } from '../../providers';
-import { useControlsVisibility } from './useControlsVisibility';
+import { useVideoSelector } from '../../providers';
+import { useVideoStore } from '../../providers/VideoProvider';
+import { useControlsController } from '../../providers/ControlsController';
 import { useCallback } from 'react';
 
 /**
@@ -8,6 +9,10 @@ import { useCallback } from 'react';
 export interface UsePlaybackReturn {
   /** Whether the video is currently playing. */
   isPlaying: boolean;
+  /**
+   * Whether playback reached the end of the source. Cleared when it plays again or a new source loads.
+   */
+  ended: boolean;
   /** Toggles between play and pause. */
   togglePlayPause: () => void;
   /** Sets the playing state directly. */
@@ -23,37 +28,33 @@ export interface UsePlaybackReturn {
  * - `setPlaying`: A function to set the playing state directly.
  */
 export const usePlayback = (): UsePlaybackReturn => {
-  const { state, dispatch } = useVideo();
-  const { showControls } = useControlsVisibility();
+  const isPlaying = useVideoSelector((state) => state.isPlaying);
+  const ended = useVideoSelector((state) => state.ended);
+  const { dispatch } = useVideoStore();
+  const { show: showControls } = useControlsController();
 
   /**
    * Toggles the playback state of the video.
    */
   const togglePlayPause = useCallback(() => {
-    const willBePlaying = !state.isPlaying;
     dispatch({ type: 'TOGGLE_PLAY_PAUSE' });
-
-    if (willBePlaying) {
-      showControls();
-    } else if (state.hideTimeoutRef) {
-      clearTimeout(state.hideTimeoutRef);
-      showControls();
-    }
-  }, [dispatch, state.isPlaying, state.hideTimeoutRef, showControls]);
+    showControls();
+  }, [dispatch, showControls]);
 
   /**
    * Sets the playback state of the video.
    * @param isPlaying - A boolean indicating whether the video should be playing.
    */
   const setPlaying = useCallback(
-    (isPlaying: boolean) => {
-      dispatch({ type: 'SET_PLAYING', payload: isPlaying });
+    (playing: boolean) => {
+      dispatch({ type: 'SET_PLAYING', payload: playing });
     },
     [dispatch]
   );
 
   return {
-    isPlaying: state.isPlaying,
+    isPlaying,
+    ended,
     togglePlayPause,
     setPlaying,
   };

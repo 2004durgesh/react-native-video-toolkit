@@ -1,7 +1,8 @@
-import { useVideo } from '../../providers';
+import { useVideoSelector } from '../../providers';
+import { useVideoStore } from '../../providers/VideoProvider';
+import { useControlsController } from '../../providers/ControlsController';
 import { useCallback } from 'react';
 import { Platform } from 'react-native';
-import { useControlsVisibility } from './useControlsVisibility';
 import { NativeVideoToolkit } from '../../NativeVideoToolkit';
 import { useOrientation } from './useOrientation';
 
@@ -29,61 +30,59 @@ export interface UseFullscreenReturn {
  * - `exitFullscreen`: A function to exit fullscreen mode.
  */
 export const useFullscreen = (): UseFullscreenReturn => {
-  const { state, dispatch } = useVideo();
-  const { showControls } = useControlsVisibility();
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
+  const config = useVideoSelector((state) => state.config);
+  const { dispatch } = useVideoStore();
+  const { show: showControls } = useControlsController();
   const orientation = useOrientation();
 
   /**
    * Enters fullscreen mode with intelligent orientation handling
    */
   const enterFullscreen = useCallback(async () => {
-    if (state.fullscreen) return; // Already in fullscreen
+    if (fullscreen) return; // Already in fullscreen
 
     dispatch({ type: 'SET_FULLSCREEN', payload: true });
     showControls();
 
-    if (Platform.OS !== 'web' && state.config.enableScreenRotation) {
+    if (Platform.OS !== 'web' && config.enableScreenRotation) {
       await orientation.lockToLandscape();
     }
 
     NativeVideoToolkit.enterFullscreen();
-    state.config.onEnterFullscreen?.();
-  }, [dispatch, state.fullscreen, state.config, showControls, orientation]);
+    config.onEnterFullscreen?.();
+  }, [dispatch, fullscreen, config, showControls, orientation]);
 
   /**
    * Exits fullscreen mode with intelligent orientation handling
    */
   const exitFullscreen = useCallback(async () => {
-    if (!state.fullscreen) return; // Not in fullscreen
+    if (!fullscreen) return; // Not in fullscreen
 
     dispatch({ type: 'SET_FULLSCREEN', payload: false });
 
-    if (Platform.OS !== 'web' && state.config.enableScreenRotation) {
+    if (Platform.OS !== 'web' && config.enableScreenRotation) {
       await orientation.lockToPortrait();
     }
 
     NativeVideoToolkit.exitFullscreen();
-    state.config.onExitFullscreen?.();
-
-    if (state.hideTimeoutRef) {
-      clearTimeout(state.hideTimeoutRef);
-    }
+    config.onExitFullscreen?.();
     showControls();
-  }, [dispatch, state.fullscreen, state.hideTimeoutRef, state.config, showControls, orientation]);
+  }, [dispatch, fullscreen, config, showControls, orientation]);
 
   /**
    * Toggles fullscreen mode with intelligent orientation handling
    */
   const toggleFullscreen = useCallback(async () => {
-    if (state.fullscreen) {
+    if (fullscreen) {
       await exitFullscreen();
     } else {
       await enterFullscreen();
     }
-  }, [state.fullscreen, enterFullscreen, exitFullscreen]);
+  }, [fullscreen, enterFullscreen, exitFullscreen]);
 
   return {
-    fullscreen: state.fullscreen,
+    fullscreen: fullscreen,
     toggleFullscreen,
     enterFullscreen,
     exitFullscreen,

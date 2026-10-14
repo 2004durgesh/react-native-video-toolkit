@@ -83,7 +83,7 @@ const MyVideoPlayer = () => {
 
 <Callout type="info">
 
-- Progress is managed via the `useProgress` hook (provides `currentTime`, `duration`, `seek`).
+- With the default slider, the bar follows playback through shared values on the UI thread and doesn't re-render while the video plays. A custom [`Slider`](../../../custom-components#slider) gets the position from `useProgress()` as plain numbers, and re-renders on every progress event.
 - When sliding starts, `showControls()` is called so the UI remains visible during scrubbing.
 - Use `onSeekStart`, `onSeek`, and `onSeekEnd` callbacks to track user interactions.
 - Colors adapt automatically using the player's theme (`sliderTrackActive` for progress, `sliderTrackInactive` for track).

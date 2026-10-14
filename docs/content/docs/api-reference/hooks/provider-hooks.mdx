@@ -6,6 +6,8 @@ title: 'Provider Hooks'
 
 A hook to access the current video player state and dispatch actions to control the player. It provides access to the video player's state, a dispatch function to send actions, and a helper function to set the theme.
 
+The component re-renders on every change to the state, a tap that shows or hides the controls included. If you only need part of it, use [`useVideoSelector()`](#usevideoselector) instead.
+
 ### Usage
 
 ```tsx
@@ -27,12 +29,14 @@ const MyComponent = () => {
 ### Example
 
 ```tsx
-import { useVideo } from 'react-native-video-toolkit';
+import { useVideo, useProgress } from 'react-native-video-toolkit';
 import { View, Text, Button } from 'react-native';
 import React from 'react';
 
 const MyComponent = () => {
   const { state, dispatch } = useVideo();
+  // The playback position isn't in `state`; it comes from `useProgress()`
+  const { currentTime, seek } = useProgress();
 
   // Example: Toggle play/pause
   const handlePlayPause = () => {
@@ -41,18 +45,50 @@ const MyComponent = () => {
 
   // Example: Seek to a specific time
   const handleSeek = (time: number) => {
-    dispatch({ type: 'SEEK', payload: time });
+    seek(time);
   };
 
   return (
     <View>
-      <Text>Current Time: {state.currentTime}</Text>
+      <Text>Current Time: {currentTime}</Text>
       <Button onPress={handlePlayPause} title={state.isPlaying ? 'Pause' : 'Play'} />
       <Button onPress={handleThemeChange} title="Change Theme" />
     </View>
   );
 };
 ```
+
+## `useVideoSelector()`
+
+Subscribes to part of the video player state. The component re-renders only when the selected value changes, so a screen that reads `fullscreen` doesn't re-render on every tap or buffering change.
+
+### Usage
+
+```tsx
+import { useVideoSelector } from 'react-native-video-toolkit';
+
+const MyComponent = () => {
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
+  // ...
+};
+```
+
+### Parameters
+
+| Parameter  | Type                       | Required | Default     | Description                                                                                        |
+| ---------- | -------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------- |
+| `selector` | `(state: VideoState) => T` | Yes      | –           | Picks the value to subscribe to.                                                                   |
+| `isEqual`  | `(a: T, b: T) => boolean`  | No       | `Object.is` | Compares the new and previous selection. Pass one when the selector builds a new object each time. |
+
+### Returns
+
+| Type | Description                                                      |
+| ---- | ---------------------------------------------------------------- |
+| `T`  | The selected value. It keeps its identity while `isEqual` holds. |
+
+<Callout type="info">
+  The playback position isn't in the state. Read it with [`useProgress()`](./media-hooks#useprogress).
+</Callout>
 
 ## `useVideoComponents()`
 
