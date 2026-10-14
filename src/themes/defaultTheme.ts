@@ -28,6 +28,7 @@ export const defaultTheme: Theme = {
 
     // Overlays & Badges
     badgeBackground: hexToRgba('#121212', 0.6),
+    scrim: hexToRgba('#000000', 0.4),
 
     // Interaction / Feedback
     ripple: '#3A3A3A',

@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView, type StyleProp, type ViewStyle } from 'react-native';
+import { View, StyleSheet, ScrollView, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
 import { useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC, type ReactNode } from 'react';
@@ -19,6 +19,7 @@ import {
 } from '../components';
 import { PlatformUtils } from '../utils/orientation';
 export interface DefaultLayoutProps {
+  scrim?: boolean | ColorValue;
   title?: string;
   titleProps?: Omit<TitleProps, 'text'>;
   subtitle?: string;
@@ -112,6 +113,7 @@ const WhileBuffering = ({ children }: { children: ReactNode }) => {
  * @returns {React.ReactElement} The default layout component.
  */
 export const DefaultLayout: FC<DefaultLayoutProps> = ({
+  scrim = true,
   title,
   titleProps,
   subtitle,
@@ -142,6 +144,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
     <DevProfiler id="DefaultLayout">
       <>
         <Animated.View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
+          {scrim ? <VideoPlayer.Overlay withControls scrim={scrim} pointerEvents="none" /> : null}
           <VideoPlayer.Controls>
             <View style={[layoutStyles.column, { height: '100%', paddingHorizontal: 15 }]}>
               <FadingControls

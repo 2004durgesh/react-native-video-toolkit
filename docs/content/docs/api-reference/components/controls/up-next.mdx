@@ -7,6 +7,8 @@ description: 'A card that counts down to the next video once the current one end
 
 Render it inside `VideoPlayer`, after the layout, only when there is something to play next. It appears when the source ends, counts down, then calls `onPlayNext`. "Cancel" dismisses it; playing again or loading a new source hides it.
 
+It's a [`VideoPlayer.Overlay`](../display/video-overlay) with a darker tint that takes every tap while it shows, so build your own card the same way if you need a different layout.
+
 ```tsx
 import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
 

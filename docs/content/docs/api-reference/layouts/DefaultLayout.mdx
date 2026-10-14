@@ -24,13 +24,14 @@ export const Player = () => {
 
 ## Props
 
-| Prop            | Type                          | Default | Description                                                                |
-| --------------- | ----------------------------- | ------- | -------------------------------------------------------------------------- |
-| `title`         | `string`                      |         | The main title of the video, displayed in the top-left corner.             |
-| `titleProps`    | `Omit<TitleProps, 'text'>`    |         | Props to pass to the underlying `Title` component (e.g., for styling).     |
-| `subtitle`      | `string`                      |         | A subtitle or secondary text, displayed below the main title.              |
-| `subtitleProps` | `Omit<SubtitleProps, 'text'>` |         | Props to pass to the underlying `Subtitle` component (e.g., for styling).  |
-| `slots`         | `object`                      |         | An object that allows you to render custom components in predefined slots. |
+| Prop            | Type                          | Default | Description                                                                                                                                                                                                                                                    |
+| --------------- | ----------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`         | `string`                      |         | The main title of the video, displayed in the top-left corner.                                                                                                                                                                                                 |
+| `titleProps`    | `Omit<TitleProps, 'text'>`    |         | Props to pass to the underlying `Title` component (e.g., for styling).                                                                                                                                                                                         |
+| `subtitle`      | `string`                      |         | A subtitle or secondary text, displayed below the main title.                                                                                                                                                                                                  |
+| `subtitleProps` | `Omit<SubtitleProps, 'text'>` |         | Props to pass to the underlying `Subtitle` component (e.g., for styling).                                                                                                                                                                                      |
+| `slots`         | `object`                      |         | An object that allows you to render custom components in predefined slots.                                                                                                                                                                                     |
+| `scrim`         | `boolean \| ColorValue`       | `true`  | Tints the video while the controls are visible, so they stand out on bright frames. `true` uses the theme's `scrim` color, a color sets it, and `false` turns it off. It's a [`VideoPlayer.Overlay`](../components/display/video-overlay) behind the controls. |
 
 ### Slots
 

@@ -1,4 +1,4 @@
 {
   "title": "Display",
-  "pages": ["loading-spinner", "subtitle", "time-display", "title"]
+  "pages": ["loading-spinner", "subtitle", "time-display", "title", "video-overlay"]
 }

@@ -16,7 +16,7 @@ import { VideoSurface } from './core';
 import type { ReactVideoProps, AudioTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideoSelector } from '../providers';
-import { TimeDisplay, LoadingSpinner } from './display';
+import { TimeDisplay, LoadingSpinner, VideoOverlay } from './display';
 import { getFullscreenHeight } from '../utils';
 import { DevProfiler } from '../utils/DevProfiler';
 
@@ -158,6 +158,7 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
   SubtitleToggleButton,
   PictureInPictureButton,
   UpNext,
+  Overlay: VideoOverlay,
 });
 
 const styles = StyleSheet.create({

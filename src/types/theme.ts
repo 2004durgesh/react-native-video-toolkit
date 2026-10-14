@@ -28,6 +28,7 @@ export interface Theme {
 
     // Overlays & Badges
     badgeBackground: string;
+    scrim?: string;
 
     // Interaction / Feedback
     ripple: string;

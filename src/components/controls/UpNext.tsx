@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { BaseButton } from '../common';
+import { VideoOverlay } from '../display/VideoOverlay';
 
 /**
  * Text shown on the card, for translations.
@@ -45,6 +46,9 @@ export interface UpNextProps {
   style?: StyleProp<ViewStyle>;
 }
 
+/** Darker than the controls' tint, since the card covers the video. */
+const CARD_SCRIM = 'rgba(0, 0, 0, 0.7)';
+
 const DEFAULT_LABELS: UpNextLabels = {
   heading: 'Up next',
   playNow: 'Play now',
@@ -60,7 +64,7 @@ const DEFAULT_LABELS: UpNextLabels = {
  * source hides it.
  *
  * @param {UpNextProps} props - The props for the component.
- * @returns {React.ReactElement | null} The card while the source has ended, otherwise nothing.
+ * @returns {React.ReactElement} The card, built on `VideoPlayer.Overlay`; hidden until the source ends.
  */
 export const UpNext = ({
   title,
@@ -70,7 +74,7 @@ export const UpNext = ({
   onCancel,
   labels,
   style,
-}: UpNextProps): React.ReactElement | null => {
+}: UpNextProps): React.ReactElement => {
   const ended = useVideoSelector((state) => state.ended);
   const theme = useVideoSelector((state) => state.theme);
   const [dismissed, setDismissed] = useState(false);
@@ -101,8 +105,6 @@ export const UpNext = ({
     return () => clearTimeout(timer);
   }, [visible, secondsLeft]);
 
-  if (!visible) return null;
-
   const text = { ...DEFAULT_LABELS, ...labels };
   const playNow = () => {
     setDismissed(true);
@@ -114,7 +116,8 @@ export const UpNext = ({
   };
 
   return (
-    <View style={[styles.overlay, style]}>
+    // Stays mounted while hidden so it can fade out; the overlay takes no taps then
+    <VideoOverlay visible={visible} scrim={CARD_SCRIM} pointerEvents="auto" style={[styles.card, style]}>
       <Text style={[styles.heading, { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm }]}>
         {text.heading}
       </Text>
@@ -145,18 +148,16 @@ export const UpNext = ({
           </Text>
         </BaseButton>
       </View>
-    </View>
+    </VideoOverlay>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFill,
+  card: {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     paddingHorizontal: 24,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     ...(Platform.OS === 'web' && { zIndex: 20 }),
   },
   heading: {

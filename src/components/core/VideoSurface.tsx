@@ -100,6 +100,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   }, [dispatch]);
 
   const {
+    onLoadStart: userOnLoadStart,
     onLoad: userOnLoad,
     onProgress: userOnProgress,
     onBuffer: userOnBuffer,
@@ -112,6 +113,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     ...nativeProps
   } = rest as Partial<ReactVideoProps>;
 
+  const handleLoadStart = () => {
+    dispatch({ type: 'SET_ENDED', payload: false });
+    dispatch({ type: 'SET_DURATION', payload: 0 });
+    progressStore.update({ currentTime: 0, playableDuration: 0 });
+  };
   const handleLoad = (data: OnLoadData) => {
     dispatch({ type: 'SET_DURATION', payload: data.duration });
     setBuffering(false);
@@ -242,6 +248,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         selectedAudioTrack={selectedAudioTrackConfig}
         selectedTextTrack={{ type: SelectedTrackType.INDEX, value: textTrack?.index }}
         ignoreSilentSwitch="ignore"
+        onLoadStart={combineHandlers(handleLoadStart, userOnLoadStart)}
         onLoad={combineHandlers(handleLoad, userOnLoad)}
         onProgress={combineHandlers(handleProgress, userOnProgress)}
         onBuffer={combineHandlers(handleBuffer, userOnBuffer)}

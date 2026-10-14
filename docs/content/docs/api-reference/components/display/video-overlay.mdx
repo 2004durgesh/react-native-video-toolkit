@@ -1,0 +1,57 @@
+---
+title: 'Overlay'
+description: 'A full-size layer over the video for your own content, which can fade with the controls and tint the video'
+---
+
+## Usage
+
+`VideoPlayer.Overlay` covers the video with anything you render inside it: a card, a watermark, a gradient or a tint. Render it inside `VideoPlayer`, after the layout, so it sits above the video and the controls. It fades in and out with `visible`, and takes no taps while hidden.
+
+```tsx
+import { Text } from 'react-native';
+import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
+
+<VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+  <DefaultLayout title="Big Buck Bunny" />
+  <VideoPlayer.Overlay style={{ alignItems: 'flex-end', padding: 12 }}>
+    <Text style={{ color: 'white', opacity: 0.6 }}>LIVE</Text>
+  </VideoPlayer.Overlay>
+</VideoPlayer>;
+```
+
+By default it takes only taps on its own buttons and passes the rest to the player, so tapping the video still shows and hides the controls. Set `pointerEvents="auto"` for a card that covers the video and takes every tap, as [`UpNext`](../controls/up-next) does.
+
+---
+
+## Props
+
+| Prop            | Type                             | Required | Default      | Description                                                                                         |
+| --------------- | -------------------------------- | -------- | ------------ | --------------------------------------------------------------------------------------------------- |
+| `visible`       | `boolean`                        | No       | `true`       | Whether to show the overlay. It fades in and out, and takes no taps while hidden.                   |
+| `withControls`  | `boolean`                        | No       | `false`      | Show it only while the player's controls are visible, fading with them.                             |
+| `scrim`         | `boolean \| ColorValue`          | No       | `false`      | Tints the video behind the content. `true` uses the theme's `scrim` color; a color sets it.         |
+| `pointerEvents` | `'box-none' \| 'auto' \| 'none'` | No       | `'box-none'` | `'box-none'` takes only taps on its own buttons, `'auto'` takes every tap, and `'none'` takes none. |
+| `style`         | `StyleProp<ViewStyle>`           | No       | –            | Styles for the full-size layer, for example to center or position the content.                      |
+| `children`      | `ReactNode`                      | No       | –            | What to show.                                                                                       |
+
+## Controls that come and go with the player's
+
+With `withControls`, the overlay appears when the controls do. This adds a button to the controls without replacing the layout:
+
+```tsx
+<VideoPlayer source={source}>
+  <DefaultLayout />
+  <VideoPlayer.Overlay withControls style={{ justifyContent: 'center', alignItems: 'flex-end', padding: 16 }}>
+    <BaseButton onTap={skipIntro}>
+      <Text style={{ color: 'white' }}>Skip intro</Text>
+    </BaseButton>
+  </VideoPlayer.Overlay>
+</VideoPlayer>
+```
+
+`DefaultLayout` uses the same overlay for the tint behind its controls: `withControls`, `scrim`, and `pointerEvents="none"`. Turn it off or change its color with the layout's [`scrim`](../../layouts/DefaultLayout#props) prop.
+
+<Callout type="info">
+  On web the overlay shows and hides at once rather than fading: Reanimated's web animations drop `pointerEvents:
+  'box-none'`, so a full-size animated layer would take every click.
+</Callout>

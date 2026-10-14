@@ -87,7 +87,18 @@ function VideoSourceSelector({
   );
 }
 
-function Player({ source, title }: { source: ReactVideoProps['source']; title: string }) {
+function Player({
+  source,
+  title,
+  nextTitle,
+  onPlayNext,
+}: {
+  source: ReactVideoProps['source'];
+  title: string;
+  /** The next source in the list, offered by the up-next card when this one ends. */
+  nextTitle: string;
+  onPlayNext: () => void;
+}) {
   // Only `fullscreen`: useVideo() would re-render on every player state change, every tap included
   const fullscreen = useVideoSelector((state) => state.fullscreen);
 
@@ -116,6 +127,7 @@ function Player({ source, title }: { source: ReactVideoProps['source']; title: s
             }
           }
         />
+        <VideoPlayer.UpNext title={nextTitle} subtitle="Next in the list" onPlayNext={onPlayNext} />
       </VideoPlayer>
     </View>
   );
@@ -124,6 +136,10 @@ function Player({ source, title }: { source: ReactVideoProps['source']; title: s
 function HomeContent() {
   const [selectedVideo, setSelectedVideo] = useState(0);
   const currentVideo = videoSources[selectedVideo]!;
+  // The up-next card plays the next source in the list, wrapping around at the end
+  const nextIndex = (selectedVideo + 1) % videoSources.length;
+  const nextVideo = videoSources[nextIndex]!;
+  const playNext = () => setSelectedVideo(nextIndex);
   // Only `fullscreen`: useVideo() would re-render on every player state change, every tap included
   const fullscreen = useVideoSelector((state) => state.fullscreen);
   useHideTabBarInFullscreen();
@@ -133,7 +149,13 @@ function HomeContent() {
     return (
       <View style={styles.fullscreenWrapper}>
         <StatusBar hidden />
-        <Player key={selectedVideo} source={currentVideo.source} title={currentVideo.title} />
+        <Player
+          key={selectedVideo}
+          source={currentVideo.source}
+          title={currentVideo.title}
+          nextTitle={nextVideo.title}
+          onPlayNext={playNext}
+        />
       </View>
     );
   }
@@ -155,7 +177,13 @@ function HomeContent() {
         <VideoSourceSelector selectedIndex={selectedVideo} onSelect={setSelectedVideo} />
 
         {/* Video Player */}
-        <Player key={selectedVideo} source={currentVideo.source} title={currentVideo.title} />
+        <Player
+          key={selectedVideo}
+          source={currentVideo.source}
+          title={currentVideo.title}
+          nextTitle={nextVideo.title}
+          onPlayNext={playNext}
+        />
 
         {/* Info Section */}
         <View style={styles.infoSection}>
