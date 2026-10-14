@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, type ViewStyle } from 'react-native';
 import { useBuffering, useControlsVisibility, useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC } from 'react';
@@ -23,6 +23,7 @@ export interface DefaultLayoutProps {
   subtitle?: string;
   subtitleProps?: Omit<SubitleProps, 'text'>;
   slots?: {
+    beforeTitle?: React.ReactElement;
     beforeSettingsButton?: React.ReactElement;
     afterSettingsButton?: React.ReactElement;
     beforeSubtitleToggleButton?: React.ReactElement;
@@ -75,6 +76,9 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
     setAudioTrack,
   } = useSettings();
   const { controlsVisible } = useControlsVisibility();
+  // Faded-out controls stay mounted, so stop them taking touches: a tap meant to bring the controls back (or a swipe
+  // starting near an edge) would otherwise hit an invisible button or the progress bar
+  const hiddenControlsStyle: ViewStyle = { pointerEvents: controlsVisible ? 'box-none' : 'none' };
   const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const { supported: pictureInPictureSupported } = usePictureInPicture();
   const topControlsAnimatedStyle = useAnimatedStyle(() => {
@@ -128,11 +132,15 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 layoutStyles.topControls,
                 layoutStyles.row,
                 topControlsAnimatedStyle,
+                hiddenControlsStyle,
                 { padding: state.fullscreen ? 20 : 10, justifyContent: 'space-between' },
               ]}>
-              <View>
-                {title && <Title text={title} {...titleProps} />}
-                {subtitle && <Subtitle text={subtitle} {...subtitleProps} />}
+              <View style={[layoutStyles.row, styles.titleRow]}>
+                {slots?.beforeTitle && slots.beforeTitle}
+                <View style={styles.titleColumn}>
+                  {title && <Title text={title} {...titleProps} />}
+                  {subtitle && <Subtitle text={subtitle} {...subtitleProps} />}
+                </View>
               </View>
               <View style={[layoutStyles.row]}>
                 <View style={[layoutStyles.row]}>
@@ -287,7 +295,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 animated view's styles and drops `pointerEvents: 'box-none'`, so the overlay would
                 swallow taps meant for the top and bottom controls. */}
             <View style={layoutStyles.centerControls}>
-              <Animated.View style={centerControlsAnimatedStyle}>
+              <Animated.View style={[centerControlsAnimatedStyle, hiddenControlsStyle]}>
                 {!buffering ? (
                   <View style={layoutStyles.row}>
                     {slots?.beforeCenterPlayButton && slots.beforeCenterPlayButton}
@@ -301,6 +309,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               style={[
                 layoutStyles.bottomControls,
                 bottomControlsAnimatedStyle,
+                hiddenControlsStyle,
                 {
                   padding: state.fullscreen ? 20 : 10,
                 },
@@ -327,7 +336,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                   )}
                   <View style={[layoutStyles.row]}>
                     {slots?.beforeFullscreenButton && slots.beforeFullscreenButton}
-                    <VideoPlayer.FullscreenButton />
+                    {state.config.enableFullscreen && <VideoPlayer.FullscreenButton />}
                     {slots?.afterFullscreenButton && slots.afterFullscreenButton}
                   </View>
                   <View style={[layoutStyles.row]}>
@@ -362,5 +371,12 @@ const styles = StyleSheet.create({
   },
   menuRowLabel: {
     gap: 12,
+  },
+  titleRow: {
+    flexShrink: 1,
+    gap: 8,
+  },
+  titleColumn: {
+    flexShrink: 1,
   },
 });

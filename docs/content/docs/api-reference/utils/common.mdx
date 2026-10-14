@@ -140,6 +140,33 @@ const rgbaColor = hexToRgba('#FF0000', 0.5);
 // rgbaColor will be 'rgba(255, 0, 0, 0.5)'
 ```
 
+## `getFullscreenHeight`
+
+The player's height in fullscreen. With screen rotation on, fullscreen is landscape, so the height is the window's shorter side. That holds both before and after the rotation finishes, unlike a size measured in one orientation. `VideoPlayer` uses it to size the player in fullscreen.
+
+### Usage
+
+```tsx
+import { useWindowDimensions } from 'react-native';
+import { getFullscreenHeight } from 'react-native-video-toolkit';
+
+const { width, height } = useWindowDimensions();
+const fullscreenHeight = getFullscreenHeight({ width, height }, true);
+```
+
+### Parameters
+
+| Parameter    | Type                                | Required | Default | Description                                                                      |
+| ------------ | ----------------------------------- | -------- | ------- | -------------------------------------------------------------------------------- |
+| `dimensions` | `{ width: number; height: number }` | Yes      | –       | The window's size.                                                               |
+| `rotates`    | `boolean`                           | Yes      | –       | Whether fullscreen rotates to landscape, as it does with `enableScreenRotation`. |
+
+### Returns
+
+| Type     | Description                                                                               |
+| -------- | ----------------------------------------------------------------------------------------- |
+| `number` | The shorter side of `dimensions` when `rotates` is `true`, otherwise `dimensions.height`. |
+
 ## `isPictureInPictureSupported`
 
 Whether picture-in-picture can work here: the device supports it and the app is set up for it. On iOS that means the `audio` background mode; on Android, `android:supportsPictureInPicture` on the activity and the user not having turned picture-in-picture off for the app; on web, browser support. The iOS Simulator doesn't support picture-in-picture, so it returns `false` there.

@@ -45,6 +45,8 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   onLeftVerticalPan,
   onRightVerticalPan,
   onGlobalVerticalPan,
+  onSwipeUp,
+  onSwipeDown,
   children,
 }) => {
   const { state } = useVideo();
@@ -67,7 +69,13 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   });
   const { singleTapGesture } = useSingleTapGesture({ onSingleTap });
   const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture({ onLongPressStart, onLongPressEnd });
-  const { verticalPanGesture } = usePanGesture({ onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan });
+  const { verticalPanGesture } = usePanGesture({
+    onLeftVerticalPan,
+    onRightVerticalPan,
+    onGlobalVerticalPan,
+    onSwipeUp,
+    onSwipeDown,
+  });
   let composedGesture: ComposedGesture | TapGesture;
   if (config.enableDoubleTapGestures && config.enablePanGestures) {
     composedGesture = Gesture.Exclusive(doubleTapGesture, singleTapGesture, verticalPanGesture, longPressGesture);

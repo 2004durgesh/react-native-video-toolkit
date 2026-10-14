@@ -39,7 +39,7 @@ export const useFullscreen = (): UseFullscreenReturn => {
   const enterFullscreen = useCallback(async () => {
     if (state.fullscreen) return; // Already in fullscreen
 
-    dispatch({ type: 'TOGGLE_FULLSCREEN' });
+    dispatch({ type: 'SET_FULLSCREEN', payload: true });
     showControls();
 
     if (Platform.OS !== 'web' && state.config.enableScreenRotation) {
@@ -56,7 +56,7 @@ export const useFullscreen = (): UseFullscreenReturn => {
   const exitFullscreen = useCallback(async () => {
     if (!state.fullscreen) return; // Not in fullscreen
 
-    dispatch({ type: 'TOGGLE_FULLSCREEN' });
+    dispatch({ type: 'SET_FULLSCREEN', payload: false });
 
     if (Platform.OS !== 'web' && state.config.enableScreenRotation) {
       await orientation.lockToPortrait();

@@ -16,6 +16,7 @@ import type { ReactVideoProps, AudioTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideo } from '../providers';
 import { TimeDisplay, LoadingSpinner } from './display';
+import { getFullscreenHeight } from '../utils';
 
 /**
  * Props for the VideoPlayer component.
@@ -102,7 +103,9 @@ const VideoPlayerComponent = ({
       style={[
         {
           position: 'relative',
-          height: state.fullscreen ? state.videoLayout.width : state.videoLayout.height,
+          height: state.fullscreen
+            ? getFullscreenHeight(state.dimensions, state.config.enableScreenRotation)
+            : state.videoLayout.height,
           ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
         },
         containerStyle,

@@ -25,7 +25,7 @@ import {
   useSettings,
   usePlaybackRate,
 } from '../../hooks';
-import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks } from '../../utils';
+import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks, getFullscreenHeight } from '../../utils';
 import type { CustomVideoTrack } from '../../types';
 
 /**
@@ -110,6 +110,8 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const handleLoad = (data: OnLoadData) => {
     setDuration(data.duration);
     setBuffering(false);
+    // Playing state outlives a source: the previous one ending pauses it, so a new source would start paused
+    if (state.config.autoPlay) setPlaying(true);
 
     // Use custom tracks if configured, otherwise extract from video source
     const useCustomAudio = state.config.useCustomAudioTracks;
@@ -197,7 +199,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
-      height: isFullscreen ? state.dimensions.height : undefined,
+      height: isFullscreen ? getFullscreenHeight(state.dimensions, state.config.enableScreenRotation) : undefined,
       aspectRatio: isFullscreen ? undefined : 16 / 9,
       backgroundColor: 'black',
       position: 'absolute' as const,
@@ -205,7 +207,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
       left: 0,
       right: 0,
     }),
-    [isFullscreen, state.dimensions]
+    [isFullscreen, state.dimensions, state.config.enableScreenRotation]
   );
 
   return (

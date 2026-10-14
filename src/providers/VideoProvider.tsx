@@ -83,6 +83,7 @@ type Action =
   | { type: 'SET_VOLUME'; payload: number }
   | { type: 'TOGGLE_MUTE' }
   | { type: 'TOGGLE_FULLSCREEN' }
+  | { type: 'SET_FULLSCREEN'; payload: boolean }
   | { type: 'SET_PICTURE_IN_PICTURE'; payload: boolean }
   | { type: 'SET_PLAYING'; payload: boolean }
   | { type: 'SET_CURRENT_TIME'; payload: number }
@@ -182,6 +183,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return { ...state, muted: !state.muted };
     case 'TOGGLE_FULLSCREEN':
       return { ...state, fullscreen: !state.fullscreen };
+    case 'SET_FULLSCREEN':
+      return action.payload === state.fullscreen ? state : { ...state, fullscreen: action.payload };
     case 'SET_PICTURE_IN_PICTURE':
       return { ...state, pictureInPicture: action.payload };
     case 'SET_HIDE_TIMEOUT':

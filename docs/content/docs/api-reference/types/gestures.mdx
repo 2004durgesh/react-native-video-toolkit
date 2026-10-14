@@ -23,6 +23,8 @@ The `UsePanGestureProps` interface defines the props for the `usePanGesture` hoo
 | `onLeftVerticalPan`   | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a vertical pan gesture is detected on the left side of the screen.  |
 | `onRightVerticalPan`  | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a vertical pan gesture is detected on the right side of the screen. |
 | `onGlobalVerticalPan` | `(e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void` | No       | `undefined` | A callback function that is called when a vertical pan gesture is detected anywhere on the screen.          |
+| `onSwipeUp`           | `() => void`                                                     | No       | `undefined` | Called once when a vertical pan ends as an upward swipe (moved over 60 px or faster than 800 px/s).         |
+| `onSwipeDown`         | `() => void`                                                     | No       | `undefined` | Called once when a vertical pan ends as a downward swipe (moved over 60 px or faster than 800 px/s).        |
 
 <Callout type="error">
   If you use the `onGlobalVerticalPan` prop, it will override the `onLeftVerticalPan` and `onRightVerticalPan` props.

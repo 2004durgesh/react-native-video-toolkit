@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { RNOrientationDirector, Orientation } from '../../NativeOrientation';
 import {
   detectDeviceType,
@@ -294,18 +294,6 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
       console.error('[useOrientation] Failed to handle fullscreen exit:', error);
     }
   }, [orientationLocked, platformCapabilities.canControlOrientation, deviceType, lockToPortrait, unlockOrientation]);
-
-  // Cleanup effect
-  useEffect(() => {
-    return () => {
-      // Clean up orientation lock when component unmounts
-      if (orientationLocked && platformCapabilities.canControlOrientation) {
-        handleExitFullscreen().catch((error) => {
-          console.warn('[useOrientation] Cleanup failed:', error);
-        });
-      }
-    };
-  }, [orientationLocked, platformCapabilities.canControlOrientation, handleExitFullscreen]);
 
   return {
     // Device and platform information

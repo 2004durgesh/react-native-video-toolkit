@@ -10,12 +10,16 @@ import type { UseSingleTapGestureProps } from '../../types';
  * @returns An object with the following properties:
  * - `singleTapGesture`: The gesture handler for single taps.
  */
+const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
+
 export const useSingleTapGesture = ({ onSingleTap }: UseSingleTapGestureProps) => {
   const { toggleControls } = useControlsVisibility();
   const singleTapGesture = useMemo(
     () =>
       Gesture.Tap()
         .maxDuration(250)
+        // A moving finger is a swipe, not a tap; failing early lets the pan gestures take over
+        .maxDistance(TAP_MAX_DISTANCE)
         .numberOfTaps(1)
         .onEnd((event) => {
           'worklet';

@@ -46,6 +46,14 @@ export interface UsePanGestureProps {
    * A callback function that is called when a vertical pan gesture is performed anywhere on the screen.
    */
   onGlobalVerticalPan?: (e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void;
+  /**
+   * A callback function that is called once when a vertical pan ends as an upward swipe (far or fast enough).
+   */
+  onSwipeUp?: () => void;
+  /**
+   * A callback function that is called once when a vertical pan ends as a downward swipe (far or fast enough).
+   */
+  onSwipeDown?: () => void;
 }
 
 /**

@@ -14,6 +14,8 @@ import { scheduleOnRN } from 'react-native-worklets';
 import type { UseDoubleTapGestureProps } from '../../types';
 import { useVideo } from '../../providers';
 
+const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
+
 /**
  * A hook for handling double tap gestures to seek forward or backward in the video.
  *
@@ -165,6 +167,7 @@ export const useDoubleTapGesture = ({
       Gesture.Tap()
         .numberOfTaps(2)
         .maxDuration(250)
+        .maxDistance(TAP_MAX_DISTANCE)
         .onStart((event) => {
           const now = Date.now();
           const timeSinceLastTap = now - lastTap.current;

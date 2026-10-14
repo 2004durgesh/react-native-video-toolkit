@@ -4,6 +4,10 @@ import { useVideo } from '../../providers';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UsePanGestureProps } from '../../types';
 
+/** How far (px) or how fast (px/s) a vertical pan must end to count as a swipe. */
+const SWIPE_DISTANCE = 60;
+const SWIPE_VELOCITY = 800;
+
 /**
  * A hook for handling pan gestures to control video playback.
  *
@@ -11,7 +15,13 @@ import type { UsePanGestureProps } from '../../types';
  * @returns An object with the following properties:
  * - `verticalPanGesture`: The gesture handler for vertical pans.
  */
-export const usePanGesture = ({ onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan }: UsePanGestureProps) => {
+export const usePanGesture = ({
+  onLeftVerticalPan,
+  onRightVerticalPan,
+  onGlobalVerticalPan,
+  onSwipeUp,
+  onSwipeDown,
+}: UsePanGestureProps) => {
   const { state } = useVideo();
   const { dimensions } = state;
   const verticalPanGesture = useMemo(
@@ -30,8 +40,15 @@ export const usePanGesture = ({ onLeftVerticalPan, onRightVerticalPan, onGlobalV
           } else {
             if (onRightVerticalPan) scheduleOnRN(onRightVerticalPan, event);
           }
+        })
+        .onEnd((event) => {
+          'worklet';
+          const isUp = event.translationY < -SWIPE_DISTANCE || event.velocityY < -SWIPE_VELOCITY;
+          const isDown = event.translationY > SWIPE_DISTANCE || event.velocityY > SWIPE_VELOCITY;
+          if (isUp && onSwipeUp) scheduleOnRN(onSwipeUp);
+          else if (isDown && onSwipeDown) scheduleOnRN(onSwipeDown);
         }),
-    [onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan, dimensions.width]
+    [onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan, onSwipeUp, onSwipeDown, dimensions.width]
   );
 
   return {
