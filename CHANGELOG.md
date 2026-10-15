@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.0 (2026-10-15)
+
+* fix: fix player, track and gesture bugs, and the fullscreen double tap ([fa22473](https://github.com/2004durgesh/react-native-video-toolkit/commit/fa22473))
+* feat: add a video overlay and a tint behind the controls ([b22d60c](https://github.com/2004durgesh/react-native-video-toolkit/commit/b22d60c))
+* feat: add an up next card and a state selector, cut player re-renders ([7c1c739](https://github.com/2004durgesh/react-native-video-toolkit/commit/7c1c739))
+* feat: add swipe callbacks and a before title slot ([43c4be8](https://github.com/2004durgesh/react-native-video-toolkit/commit/43c4be8))
+
 ## <small>0.11.1 (2026-10-11)</small>
 
 * fix: skip menu exit animations when the sheet closes ([0f0d3d1](https://github.com/2004durgesh/react-native-video-toolkit/commit/0f0d3d1))
