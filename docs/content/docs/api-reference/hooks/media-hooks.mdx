@@ -117,6 +117,8 @@ export default MyCustomControl;
 
 A hook for managing the video player's fullscreen mode.
 
+With `enableScreenRotation` (the default), entering fullscreen locks the screen to landscape. Exiting returns phones to portrait and lets tablets and foldables rotate freely again. On web it fullscreens the player that called it, so a page can have several.
+
 ### Usage
 
 ```tsx

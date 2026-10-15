@@ -24,7 +24,7 @@ import Animated, {
   LayoutAnimationConfig,
 } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
-import { PlatformUtils } from '../../utils/orientation';
+import { PlatformUtils } from '../../utils/platform';
 import { type SettingsButtonProps } from '../controls';
 import { ChevronLeft, Close, Settings } from '../svgs';
 import { Title } from '../display';

@@ -1,4 +1,4 @@
-import React, { type FC, type ReactNode, useMemo } from 'react';
+import React, { type FC, type ReactNode, useEffect, useId, useMemo } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle, Platform, type ViewProps } from 'react-native';
 import {
   PlayButton,
@@ -16,9 +16,11 @@ import { VideoSurface } from './core';
 import type { ReactVideoProps, AudioTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideoSelector } from '../providers';
+import { useVideoStore } from '../providers/VideoProvider';
 import { TimeDisplay, LoadingSpinner, VideoOverlay } from './display';
 import { getFullscreenHeight } from '../utils';
 import { DevProfiler } from '../utils/DevProfiler';
+import { onBrowserFullscreenExit } from '../utils/webFullscreen';
 
 /**
  * Props for the VideoPlayer component.
@@ -79,6 +81,21 @@ const VideoPlayerComponent = ({
   customVideoTracks,
 }: VideoPlayerProps) => {
   // this is the root of all the things :)
+  // Each player's own id: web fullscreen finds the player around its video by this prefix, and a
+  // shared id made the first player on the page go fullscreen whichever button was pressed
+  const playerId = `video-player-${useId()}`;
+  const store = useVideoStore();
+
+  // Web: Esc or the browser's own control leaves fullscreen without the toolkit, so follow it
+  useEffect(
+    () =>
+      onBrowserFullscreenExit(() => {
+        if (!store.getState().fullscreen) return;
+        store.dispatch({ type: 'SET_FULLSCREEN', payload: false });
+        store.getState().config.onExitFullscreen?.();
+      }),
+    [store]
+  );
   const fullscreen = useVideoSelector((state) => state.fullscreen);
   const height = useVideoSelector((state) =>
     state.fullscreen
@@ -106,7 +123,7 @@ const VideoPlayerComponent = ({
 
   return (
     <View
-      id="video-player"
+      id={playerId}
       style={[
         {
           position: 'relative',
@@ -121,7 +138,7 @@ const VideoPlayerComponent = ({
             <VideoSurface
               {...videoProps}
               source={source}
-              style={videoStyle}
+              style={videoStyle ?? videoProps?.style}
               customAudioTracks={customAudioTracks}
               customVideoTracks={customVideoTracks}
             />

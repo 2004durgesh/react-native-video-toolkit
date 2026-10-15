@@ -159,37 +159,3 @@ import { getVideoControlsConfig } from 'react-native-video-toolkit';
 const config = getVideoControlsConfig(true, 'web');
 // config will be { showFullscreen: false, showSeekBar: true, ... }
 ```
-
-## `PlatformUtils`
-
-An object containing utility functions for platform detection.
-
-### Usage
-
-```tsx
-import { PlatformUtils } from 'react-native-video-toolkit';
-
-const isWeb = PlatformUtils.isWeb();
-```
-
-### Properties
-
-| Property      | Type            | Description                                         |
-| ------------- | --------------- | --------------------------------------------------- |
-| `isTV`        | `() => boolean` | Returns `true` if the platform is a TV.             |
-| `isWeb`       | `() => boolean` | Returns `true` if the platform is the web.          |
-| `isMobile`    | `() => boolean` | Returns `true` if the platform is mobile.           |
-| `isTVOS`      | `() => boolean` | Returns `true` if the platform is tvOS.             |
-| `isAndroidTV` | `() => boolean` | Returns `true` if the platform is Android TV.       |
-| `isBrowser`   | `() => boolean` | Returns `true` if the code is running in a browser. |
-| `isDesktop`   | `() => boolean` | Returns `true` if the device is a desktop.          |
-| `isTablet`    | `() => boolean` | Returns `true` if the device is a tablet.           |
-
-### Example
-
-```tsx
-import { PlatformUtils } from 'react-native-video-toolkit';
-
-const isWeb = PlatformUtils.isWeb();
-// isWeb will be true if the platform is web
-```

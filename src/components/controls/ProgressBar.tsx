@@ -33,10 +33,12 @@ const useProgressBarSlider = ({ height = 4, thumbWidth = 12, onSeekStart, onSeek
       onSeekStart?.();
     },
     onSlidingComplete: (val: number) => {
+      showControls();
       onSeekEnd?.(Math.round(val));
     },
     onValueChange: (val: number) => {
       const time = Math.round(val);
+      showControls();
       seek(time);
       onSeek?.(time);
     },

@@ -28,6 +28,8 @@ export const VolumeControl = ({
   width = 100,
   height = 4,
   thumbWidth = 12,
+  trackColor,
+  progressColor,
   style,
   onVolumeChange,
 }: VolumeControlProps): React.ReactElement => {
@@ -52,8 +54,8 @@ export const VolumeControl = ({
         thumbWidth={thumbWidth}
         width={width}
         colors={{
-          active: theme.colors.sliderTrackActive,
-          inactive: theme.colors.sliderTrackInactive,
+          active: progressColor ?? theme.colors.sliderTrackActive,
+          inactive: trackColor ?? theme.colors.sliderTrackInactive,
           thumb: theme.colors.sliderThumb,
         }}
       />

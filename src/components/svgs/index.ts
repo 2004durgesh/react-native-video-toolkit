@@ -17,3 +17,4 @@ export * from './Audio';
 export * from './Quality';
 export * from './SkipNext';
 export * from './SkipPrevious';
+export * from './IconShadow';

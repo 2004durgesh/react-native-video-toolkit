@@ -4,7 +4,6 @@ import RNVideo, {
   SelectedVideoTrackType,
   ViewType,
   type OnLoadData,
-  type OnPlaybackRateChangeData,
   type OnProgressData,
   type OnBufferData,
   type OnVideoErrorData,
@@ -22,6 +21,13 @@ import { useProgressStore } from '../../providers/ProgressStore';
 import { usePlayback, useVolume, useBuffering, useSettings, usePlaybackRate } from '../../hooks';
 import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks, getFullscreenHeight } from '../../utils';
 import type { CustomVideoTrack } from '../../types';
+
+/** The "Off" entry the toolkit adds to the subtitle list. */
+const OFF_TEXT_TRACK = { index: -1, title: 'Off', language: 'off', type: 'disabled' } as const;
+
+/** Whether two audio or text tracks are the same language (falling back to the title when unset). */
+const isSameLanguage = (a: { language?: string; title?: string }, b: { language?: string; title?: string }) =>
+  a.language ? a.language === b.language : !!a.title && a.title === b.title;
 
 /**
  * Props for the VideoSurface component.
@@ -67,7 +73,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const { setBuffering } = useBuffering();
   // The controller directly: `useControlsVisibility()` would re-render the video on every toggle
   const { show: showControls } = useControlsController();
-  const { playbackRate, setPlaybackRate } = usePlaybackRate();
+  const { playbackRate } = usePlaybackRate();
   const {
     videoTrack,
     audioTrack,
@@ -116,7 +122,13 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const handleLoadStart = () => {
     dispatch({ type: 'SET_ENDED', payload: false });
     dispatch({ type: 'SET_DURATION', payload: 0 });
+    dispatch({ type: 'SET_ERROR', payload: null });
     progressStore.update({ currentTime: 0, playableDuration: 0 });
+    // The previous source's tracks don't apply; `handleLoad` lists the new ones. The selections stay
+    // until then, so it can keep the viewer's languages.
+    setAvailableAudioTracks([]);
+    setAvailableVideoTracks([]);
+    setAvailableTextTracks([]);
   };
   const handleLoad = (data: OnLoadData) => {
     dispatch({ type: 'SET_DURATION', payload: data.duration });
@@ -153,33 +165,47 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setAvailableVideoTracks(videoTracksToUse);
 
     // Add an "Off" option for text tracks
-    setAvailableTextTracks(
-      [...dedupedTextTracks, { index: -1, title: 'Off', language: 'off', type: 'disabled' }].sort(
-        (a, b) => a.index - b.index
-      )
-    );
+    setAvailableTextTracks([...dedupedTextTracks, OFF_TEXT_TRACK].sort((a, b) => a.index - b.index));
 
-    // Select the first track by default if none is selected
-    if (!audioTrack && audioTracksToUse.length > 0) {
-      setAudioTrack(audioTracksToUse[0]!);
+    // The viewer's choices carry over to the next source, as the next episode keeps its audio and
+    // subtitle languages, when the new source has them; otherwise the defaults apply. Indexes are
+    // never reused: the same index can be another language, or missing, in the new source.
+    setAudioTrack(
+      (audioTrack && audioTracksToUse.find((track) => isSameLanguage(track, audioTrack))) ?? audioTracksToUse[0] ?? null
+    );
+    if (textTrack?.index === OFF_TEXT_TRACK.index) {
+      setTextTrack(OFF_TEXT_TRACK);
+    } else {
+      setTextTrack(
+        (textTrack && dedupedTextTracks.find((track) => isSameLanguage(track, textTrack))) ??
+          dedupedTextTracks[0] ??
+          null
+      );
     }
-    // Select the first track by default if none is selected
-    if (!textTrack && dedupedTextTracks.length > 0) {
-      setTextTrack(dedupedTextTracks[0]!);
-    }
-    // Select the track that matches the natural size, or the first one if none match
-    if (!videoTrack && videoTracksToUse.length > 0) {
-      const naturalSizeIndex = videoTracksToUse.findIndex((t) => t.height === data.naturalSize.height);
-      setVideoTrack(videoTracksToUse[naturalSizeIndex !== -1 ? naturalSizeIndex : 0]!);
+    if (useCustomVideo && customVideoTracks) {
+      // A custom list is the app's own, often with its own "Auto" entry: keep the chosen height, or
+      // start on the track matching the video's size
+      const sameHeight = videoTrack && videoTracksToUse.find((track) => track.height === videoTrack.height);
+      const natural = videoTracksToUse.find((track) => track.height === data.naturalSize.height);
+      setVideoTrack(sameHeight ?? natural ?? videoTracksToUse[0] ?? null);
+    } else {
+      // Adaptive ("Auto") unless the viewer picked a quality the new source also has. Selecting a
+      // resolution pins it, so starting on one would stop the quality from adapting all session.
+      setVideoTrack((videoTrack && videoTracksToUse.find((track) => track.height === videoTrack.height)) ?? null);
     }
   };
   const handleProgress = (data: OnProgressData) => {
     progressStore.update({ currentTime: data.currentTime, playableDuration: data.playableDuration });
   };
   const handleBuffer = (data: OnBufferData) => setBuffering(data.isBuffering);
-  const handleError = (error: OnVideoErrorData) =>
+  const handleError = (error: OnVideoErrorData) => {
     dispatch({ type: 'SET_ERROR', payload: error?.error?.errorString || 'An unknown error occurred' });
+    // Android reports buffering before the error and never that it stopped, so the spinner would stay
+    setBuffering(false);
+  };
   const handleEnd = () => {
+    // With `repeat`, the player loops by itself but still reports each pass as an end
+    if (nativeProps.repeat) return;
     setPlaying(false);
     dispatch({ type: 'SET_ENDED', payload: true });
     videoRef?.current?.seek(0);
@@ -189,11 +215,6 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const handleLayout = (event: { nativeEvent: { layout: LayoutRectangle } }) => {
     const { layout } = event.nativeEvent;
     dispatch({ type: 'SET_VIDEO_LAYOUT', payload: layout });
-  };
-  const handlePlaybackRateChange = (data: OnPlaybackRateChangeData) => {
-    // A paused player reports a rate of 0. Keeping it would show "0x" and pass `rate={0}` back,
-    // which keeps the video still after it resumes; pausing is `isPlaying`'s job, not the rate's.
-    if (data.playbackRate > 0) setPlaybackRate(data.playbackRate);
   };
   const handlePictureInPictureStatusChanged = ({ isActive }: OnPictureInPictureStatusChangedData) => {
     dispatch({ type: 'SET_PICTURE_IN_PICTURE', payload: isActive });
@@ -244,9 +265,18 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         muted={muted}
         rate={playbackRate}
         controls={false}
-        selectedVideoTrack={{ type: SelectedVideoTrackType.RESOLUTION, value: videoTrack?.height }}
+        selectedVideoTrack={
+          videoTrack
+            ? { type: SelectedVideoTrackType.RESOLUTION, value: videoTrack.height }
+            : { type: SelectedVideoTrackType.AUTO }
+        }
         selectedAudioTrack={selectedAudioTrackConfig}
-        selectedTextTrack={{ type: SelectedTrackType.INDEX, value: textTrack?.index }}
+        // "Off" is `DISABLED`, not index -1: react-native-video's iOS code reads `options[-1]` and crashes
+        selectedTextTrack={
+          textTrack && textTrack.index !== OFF_TEXT_TRACK.index
+            ? { type: SelectedTrackType.INDEX, value: textTrack.index }
+            : { type: SelectedTrackType.DISABLED }
+        }
         ignoreSilentSwitch="ignore"
         onLoadStart={combineHandlers(handleLoadStart, userOnLoadStart)}
         onLoad={combineHandlers(handleLoad, userOnLoad)}
@@ -254,7 +284,9 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         onBuffer={combineHandlers(handleBuffer, userOnBuffer)}
         onError={combineHandlers(handleError, userOnError)}
         onEnd={combineHandlers(handleEnd, userOnEnd)}
-        onPlaybackRateChange={combineHandlers(handlePlaybackRateChange, userOnPlaybackRateChange)}
+        // The rate isn't read back from the player: Android reports 1 or 0 for playing or paused
+        // (not the speed), so it reset 1.5x to 1x on every resume, and the toolkit sets the rate anyway
+        onPlaybackRateChange={userOnPlaybackRateChange}
         onPictureInPictureStatusChanged={combineHandlers(
           handlePictureInPictureStatusChanged,
           userOnPictureInPictureStatusChanged

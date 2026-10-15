@@ -184,7 +184,9 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
    * Safely unlock orientation
    */
   const unlockOrientation = useCallback(async (): Promise<boolean> => {
-    if (!platformCapabilities.canControlOrientation || !orientationLocked) {
+    // Not gated on this instance's `orientationLocked`: the lock is app-wide, and is often set by
+    // another instance (one button enters fullscreen, another exits it). Unlocking twice is harmless.
+    if (!platformCapabilities.canControlOrientation) {
       return false;
     }
 
@@ -202,7 +204,7 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
       console.error('[useOrientation] Failed to unlock orientation:', error);
       return false;
     }
-  }, [platformCapabilities.canControlOrientation, orientationLocked, lockToPortrait]);
+  }, [platformCapabilities.canControlOrientation, lockToPortrait]);
 
   /**
    * Get optimal fullscreen orientation strategy
@@ -274,7 +276,8 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
    * Handle orientation when exiting fullscreen
    */
   const handleExitFullscreen = useCallback(async (): Promise<void> => {
-    if (!orientationLocked || !platformCapabilities.canControlOrientation) {
+    // App-wide, like `unlockOrientation`: the instance that locked it may not be this one
+    if (!platformCapabilities.canControlOrientation) {
       return;
     }
 
@@ -293,7 +296,7 @@ export const useOrientation = (customConfig?: RotationConfig): UseOrientationRes
     } catch (error) {
       console.error('[useOrientation] Failed to handle fullscreen exit:', error);
     }
-  }, [orientationLocked, platformCapabilities.canControlOrientation, deviceType, lockToPortrait, unlockOrientation]);
+  }, [platformCapabilities.canControlOrientation, deviceType, lockToPortrait, unlockOrientation]);
 
   return {
     // Device and platform information

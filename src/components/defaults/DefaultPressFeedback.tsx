@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import Ripple from 'react-native-material-ripple';
-import { PlatformUtils } from '../../utils/orientation';
+import { PlatformUtils } from '../../utils/platform';
 import type { PressFeedbackProps } from '../../types';
 
 /**

@@ -8,7 +8,7 @@ import { useHideTabBarInFullscreen } from '../../components/useHideTabBarInFulls
 import { PerfProfiler, PerfRun } from '../../perf/perfHarness';
 
 // Picture-in-picture needs native setup, so the button is opt-in (see the react-native-video plugin in app.json).
-const PLAYER_CONFIG = { enablePictureInPicture: true, enableFullscreen: false };
+const PLAYER_CONFIG = { enablePictureInPicture: true };
 
 const SUBTITLE_BASE_URL =
   'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
@@ -144,37 +144,27 @@ function HomeContent() {
   const fullscreen = useVideoSelector((state) => state.fullscreen);
   useHideTabBarInFullscreen();
 
-  // Hide everything except video when in fullscreen
-  if (fullscreen) {
-    return (
-      <View style={styles.fullscreenWrapper}>
-        <StatusBar hidden />
-        <Player
-          key={selectedVideo}
-          source={currentVideo.source}
-          title={currentVideo.title}
-          nextTitle={nextVideo.title}
-          onPlayNext={playNext}
-        />
-      </View>
-    );
-  }
-
+  // Fullscreen hides everything but the player, in the same tree: returning a different tree for
+  // fullscreen remounted the player, which restarted the video from the beginning on every switch
   return (
     <PerfProfiler id="Screen">
       {/* Only does anything when Metro runs with EXPO_PUBLIC_PERF_RUN=1 (see perf/perfHarness.tsx) */}
       <PerfRun />
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <SafeAreaView style={fullscreen ? styles.fullscreenWrapper : styles.container} edges={fullscreen ? [] : ['top']}>
+        <StatusBar hidden={fullscreen} barStyle="light-content" backgroundColor="#000" />
 
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Video Toolkit Test</Text>
-          <Text style={styles.headerSubtitle}>Testing video playback features</Text>
-        </View>
+        {!fullscreen && (
+          <>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Video Toolkit Test</Text>
+              <Text style={styles.headerSubtitle}>Testing video playback features</Text>
+            </View>
 
-        {/* Video Source Selector */}
-        <VideoSourceSelector selectedIndex={selectedVideo} onSelect={setSelectedVideo} />
+            {/* Video Source Selector */}
+            <VideoSourceSelector selectedIndex={selectedVideo} onSelect={setSelectedVideo} />
+          </>
+        )}
 
         {/* Video Player */}
         <Player
@@ -186,13 +176,16 @@ function HomeContent() {
         />
 
         {/* Info Section */}
-        <View style={styles.infoSection}>
-          <Text style={styles.infoTitle}>Now Playing</Text>
-          <Text style={styles.infoText}>{currentVideo.title}</Text>
-          <Text style={styles.infoHint}>
-            • Double tap sides to seek{'\n'}• Tap to show/hide controls{'\n'}• Use fullscreen button to test fullscreen
-          </Text>
-        </View>
+        {!fullscreen && (
+          <View style={styles.infoSection}>
+            <Text style={styles.infoTitle}>Now Playing</Text>
+            <Text style={styles.infoText}>{currentVideo.title}</Text>
+            <Text style={styles.infoHint}>
+              • Double tap sides to seek{'\n'}• Tap to show/hide controls{'\n'}• Use fullscreen button to test
+              fullscreen
+            </Text>
+          </View>
+        )}
       </SafeAreaView>
     </PerfProfiler>
   );

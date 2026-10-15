@@ -22,7 +22,10 @@ export const usePanGesture = ({
   onSwipeUp,
   onSwipeDown,
 }: UsePanGestureProps) => {
-  const dimensions = useVideoSelector((state) => state.dimensions);
+  // The player's width, since `event.x` is relative to the player, which needn't fill the window;
+  // the window's width until the video has been laid out
+  const windowWidth = useVideoSelector((state) => state.dimensions.width);
+  const playerWidth = useVideoSelector((state) => state.videoLayout.width) || windowWidth;
   const verticalPanGesture = useMemo(
     () =>
       Gesture.Pan()
@@ -33,7 +36,7 @@ export const usePanGesture = ({
             scheduleOnRN(onGlobalVerticalPan, event);
             return;
           }
-          const side = event.x < dimensions.width / 2 ? 'left' : 'right';
+          const side = event.x < playerWidth / 2 ? 'left' : 'right';
           if (side === 'left') {
             if (onLeftVerticalPan) scheduleOnRN(onLeftVerticalPan, event);
           } else {
@@ -47,7 +50,7 @@ export const usePanGesture = ({
           if (isUp && onSwipeUp) scheduleOnRN(onSwipeUp);
           else if (isDown && onSwipeDown) scheduleOnRN(onSwipeDown);
         }),
-    [onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan, onSwipeUp, onSwipeDown, dimensions.width]
+    [onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan, onSwipeUp, onSwipeDown, playerWidth]
   );
 
   return {

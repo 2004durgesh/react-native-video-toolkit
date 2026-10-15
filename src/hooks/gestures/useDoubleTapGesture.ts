@@ -13,6 +13,8 @@ import {
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseDoubleTapGestureProps } from '../../types';
 import { useProgressStore } from '../../providers/ProgressStore';
+import { useVideoSelector } from '../../providers';
+import { useVideoStore } from '../../providers/VideoProvider';
 
 const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
 
@@ -37,11 +39,13 @@ export const useDoubleTapGesture = ({
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
 }: UseDoubleTapGestureProps) => {
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
+  // Which half was tapped is judged against the player, since `event.x` is relative to it and it
+  // needn't fill the window; the window's width until the video has been laid out
+  const playerWidth = useVideoSelector((state) => state.videoLayout.width) || windowWidth;
   const progressStore = useProgressStore();
+  const store = useVideoStore();
   const [isDoubleTap, setIsDoubleTap] = useState(false);
-  const tapCount = useSharedValue(0);
-  const lastTap = useRef(0);
   const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Animation values
@@ -71,11 +75,9 @@ export const useDoubleTapGesture = ({
   const rippleScale = useSharedValue(0);
   const rippleOpacity = useSharedValue(0.3);
 
-  // Separate dimensions for each ripple container
-  const forwardBoxWidth = useSharedValue(0);
-  const forwardBoxHeight = useSharedValue(0);
-  const backwardBoxWidth = useSharedValue(0);
-  const backwardBoxHeight = useSharedValue(0);
+  // Radius that covers each ripple container, measured once per tap rather than on every frame
+  const forwardRadius = useSharedValue(0);
+  const backwardRadius = useSharedValue(0);
 
   const backwardRippleRef = useAnimatedRef();
   const forwardRippleRef = useAnimatedRef();
@@ -117,49 +119,51 @@ export const useDoubleTapGesture = ({
   );
 
   const handleSeek = useCallback(
-    async (direction: 'forward' | 'backward') => {
+    (direction: 'forward' | 'backward') => {
       if (!videoRef?.current) return;
 
       const now = Date.now();
       const timeSinceLastTap = now - consecutiveTapCount.current.lastTapTime;
       const isConsecutive = timeSinceLastTap < 500 && direction === consecutiveTapCount.current.lastDirection;
 
-      try {
-        const currentTime = await videoRef.current.getCurrentPosition();
-        const seekAmount = direction === 'forward' ? doubleTapSeekInterval : -doubleTapSeekInterval;
-        const newPosition = Math.max(currentTime + seekAmount, 0);
+      // From the progress store, which already has the previous tap's seek, so quick taps add up.
+      // The player's own position can lag until a seek lands, and asking for it is a native round trip.
+      const { currentTime } = progressStore.getSnapshot();
+      const { duration } = store.getState();
+      const seekAmount = direction === 'forward' ? doubleTapSeekInterval : -doubleTapSeekInterval;
+      const newPosition = Math.max(
+        0,
+        duration > 0 ? Math.min(currentTime + seekAmount, duration) : currentTime + seekAmount
+      );
 
-        videoRef.current.seek(newPosition);
-        progressStore.update({ currentTime: newPosition });
+      videoRef.current.seek(newPosition);
+      progressStore.update({ currentTime: newPosition });
 
-        if (isConsecutive) {
-          consecutiveTapCount.current[direction]++;
-          setDoubleTapValue((prev) => ({
-            ...prev,
-            [direction]: doubleTapSeekInterval * (consecutiveTapCount.current[direction] + 1),
-          }));
-        } else {
-          consecutiveTapCount.current = {
-            forward: 0,
-            backward: 0,
-            lastDirection: direction,
-            lastTapTime: now,
-          };
-          setDoubleTapValue((prev) => ({
-            ...prev,
-            [direction]: doubleTapSeekInterval,
-          }));
-        }
-
-        consecutiveTapCount.current.lastDirection = direction;
-        consecutiveTapCount.current.lastTapTime = now;
-
-        scheduleOnRN(showTapAnimation, direction);
-      } catch (error) {
-        console.error('Seek failed:', error);
+      if (isConsecutive) {
+        consecutiveTapCount.current[direction]++;
+        setDoubleTapValue((prev) => ({
+          ...prev,
+          [direction]: doubleTapSeekInterval * (consecutiveTapCount.current[direction] + 1),
+        }));
+      } else {
+        consecutiveTapCount.current = {
+          forward: 0,
+          backward: 0,
+          lastDirection: direction,
+          lastTapTime: now,
+        };
+        setDoubleTapValue((prev) => ({
+          ...prev,
+          [direction]: doubleTapSeekInterval,
+        }));
       }
+
+      consecutiveTapCount.current.lastDirection = direction;
+      consecutiveTapCount.current.lastTapTime = now;
+
+      showTapAnimation(direction);
     },
-    [videoRef, doubleTapSeekInterval, showTapAnimation, progressStore]
+    [videoRef, doubleTapSeekInterval, showTapAnimation, progressStore, store]
   );
 
   const doubleTapGesture = useMemo(
@@ -169,31 +173,29 @@ export const useDoubleTapGesture = ({
         .maxDuration(250)
         .maxDistance(TAP_MAX_DISTANCE)
         .onStart((event) => {
-          const now = Date.now();
-          const timeSinceLastTap = now - lastTap.current;
-          lastTap.current = now;
-
-          if (timeSinceLastTap > 500) {
-            tapCount.value = 0;
-          }
-
           scheduleOnRN(setIsDoubleTap, true);
           if (onDoubleTapSeekStart) {
             scheduleOnRN(onDoubleTapSeekStart);
           }
 
-          const touchX = event.absoluteX;
-          const screenMidPoint = screenWidth / 2;
-          const direction = touchX < screenMidPoint ? 'backward' : 'forward';
+          const midPoint = playerWidth / 2;
+          const direction = event.x < midPoint ? 'backward' : 'forward';
           activeDirection.value = direction;
 
-          // Store touch coordinates for the specific direction
+          // The tap inside the ripple's container, which is offset from the player, so the ripple
+          // grows from the finger; and the radius that covers the container
+          const box = measure(direction === 'forward' ? forwardRippleRef : backwardRippleRef);
+          const originX = box ? box.x : direction === 'forward' ? midPoint : 0;
+          const originY = box ? box.y : 0;
+          const radius = box ? Math.sqrt(box.width ** 2 + box.height ** 2) : 0;
           if (direction === 'forward') {
-            forwardTranslateX.value = event.x - screenMidPoint;
-            forwardTranslateY.value = event.y;
+            forwardTranslateX.value = event.x - originX;
+            forwardTranslateY.value = event.y - originY;
+            if (radius) forwardRadius.value = radius;
           } else {
-            backwardTranslateX.value = event.x;
-            backwardTranslateY.value = event.y;
+            backwardTranslateX.value = event.x - originX;
+            backwardTranslateY.value = event.y - originY;
+            if (radius) backwardRadius.value = radius;
           }
 
           // Reset and start ripple animation
@@ -217,29 +219,23 @@ export const useDoubleTapGesture = ({
       forwardTranslateY,
       backwardTranslateX,
       backwardTranslateY,
+      forwardRippleRef,
+      backwardRippleRef,
+      forwardRadius,
+      backwardRadius,
       rippleScale,
       rippleOpacity,
       handleSeek,
-      tapCount,
       onDoubleTapSeekEnd,
-      screenWidth,
+      playerWidth,
     ]
   );
 
   const backwardAnimatedRipple = useAnimatedStyle(() => {
-    if (activeDirection.value !== 'backward') {
+    const radius = backwardRadius.value;
+    if (activeDirection.value !== 'backward' || radius === 0) {
       return { opacity: 0 };
     }
-
-    const boxLayout = measure(backwardRippleRef);
-    if (!boxLayout) return { opacity: 0 };
-
-    // Update dimensions
-    backwardBoxWidth.value = boxLayout.width;
-    backwardBoxHeight.value = boxLayout.height;
-
-    // Calculate radius to cover the entire container
-    const radius = Math.sqrt(backwardBoxWidth.value ** 2 + backwardBoxHeight.value ** 2);
     const diameter = radius * 2;
 
     return {
@@ -258,31 +254,13 @@ export const useDoubleTapGesture = ({
         { scale: rippleScale.value },
       ],
     };
-  }, [
-    backwardRippleRef,
-    activeDirection,
-    backwardBoxWidth,
-    backwardBoxHeight,
-    backwardTranslateX,
-    backwardTranslateY,
-    rippleOpacity,
-    rippleScale,
-  ]);
+  }, [activeDirection, backwardRadius, backwardTranslateX, backwardTranslateY, rippleOpacity, rippleScale]);
 
   const forwardAnimatedRipple = useAnimatedStyle(() => {
-    if (activeDirection.value !== 'forward') {
+    const radius = forwardRadius.value;
+    if (activeDirection.value !== 'forward' || radius === 0) {
       return { opacity: 0 };
     }
-
-    const boxLayout = measure(forwardRippleRef);
-    if (!boxLayout) return { opacity: 0 };
-
-    // Update dimensions
-    forwardBoxWidth.value = boxLayout.width;
-    forwardBoxHeight.value = boxLayout.height;
-
-    // Calculate radius to cover the entire container
-    const radius = Math.sqrt(forwardBoxWidth.value ** 2 + forwardBoxHeight.value ** 2);
     const diameter = radius * 2;
 
     return {
@@ -301,16 +279,7 @@ export const useDoubleTapGesture = ({
         { scale: rippleScale.value },
       ],
     };
-  }, [
-    forwardRippleRef,
-    activeDirection,
-    forwardBoxWidth,
-    forwardBoxHeight,
-    forwardTranslateX,
-    forwardTranslateY,
-    rippleOpacity,
-    rippleScale,
-  ]);
+  }, [activeDirection, forwardRadius, forwardTranslateX, forwardTranslateY, rippleOpacity, rippleScale]);
 
   // Inline animated styles to comply with hooks rules (no conditional/dynamic hook calls)
   const forwardAnimatedStyle = useAnimatedStyle(

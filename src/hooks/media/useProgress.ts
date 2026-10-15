@@ -66,7 +66,8 @@ export const useProgress = (): UseProgressReturn => {
 export const useProgressActions = () => {
   const videoRef = useVideoSelector((state) => state.videoRef);
   const duration = useVideoSelector((state) => state.duration);
-  const { dispatch } = useVideoStore();
+  const store = useVideoStore();
+  const { dispatch } = store;
   const progressStore = useProgressStore();
 
   /**
@@ -76,12 +77,15 @@ export const useProgressActions = () => {
   const seek = useCallback(
     (time: number) => {
       if (videoRef?.current) {
-        const newTime = Math.max(0, Math.min(time, duration));
+        // The duration now, not from the last render: a seek in `onLoad` (resuming) runs before the
+        // re-render that has the new duration. Unknown (0) doesn't clamp, or every seek would go to 0.
+        const { duration: currentDuration } = store.getState();
+        const newTime = Math.max(0, currentDuration > 0 ? Math.min(time, currentDuration) : time);
         videoRef.current.seek(newTime);
         progressStore.update({ currentTime: newTime });
       }
     },
-    [videoRef, duration, progressStore]
+    [videoRef, progressStore, store]
   );
 
   /**

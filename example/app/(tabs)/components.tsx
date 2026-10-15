@@ -110,52 +110,56 @@ function ComponentsContent({
     </View>
   );
 
-  if (state.fullscreen) {
-    return (
-      <View style={styles.fullscreenWrapper}>
-        <StatusBar hidden />
-        {player}
-      </View>
-    );
-  }
-
+  // Fullscreen hides everything but the player, in the same tree: returning a different tree for
+  // fullscreen remounted the player, which restarted the video from the beginning on every switch
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
+    <SafeAreaView
+      style={state.fullscreen ? styles.fullscreenWrapper : styles.container}
+      edges={state.fullscreen ? [] : ['top']}>
+      <StatusBar hidden={state.fullscreen} barStyle="light-content" backgroundColor="#000" />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Custom Components</Text>
-        <Text style={styles.headerSubtitle}>Bring your own sheet, slider, spinner and buttons</Text>
-      </View>
+      {!state.fullscreen && (
+        <>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Custom Components</Text>
+            <Text style={styles.headerSubtitle}>Bring your own sheet, slider, spinner and buttons</Text>
+          </View>
 
-      <Choice
-        title="Menu sheet"
-        options={(Object.keys(sheets) as SheetChoice[]).map((value) => ({ value, label: sheets[value].label }))}
-        selected={sheet}
-        onSelect={onSheetChange}
-      />
-      <Choice
-        title="Buffering spinner"
-        options={(Object.keys(spinners) as SpinnerChoice[]).map((value) => ({ value, label: spinners[value].label }))}
-        selected={spinner}
-        onSelect={onSpinnerChange}
-      />
-      <Choice
-        title="Slider and buttons"
-        options={[
-          { value: 'default', label: 'Default' },
-          { value: 'custom', label: 'Custom' },
-        ]}
-        selected={controls}
-        onSelect={onControlsChange}
-      />
+          <Choice
+            title="Menu sheet"
+            options={(Object.keys(sheets) as SheetChoice[]).map((value) => ({ value, label: sheets[value].label }))}
+            selected={sheet}
+            onSelect={onSheetChange}
+          />
+          <Choice
+            title="Buffering spinner"
+            options={(Object.keys(spinners) as SpinnerChoice[]).map((value) => ({
+              value,
+              label: spinners[value].label,
+            }))}
+            selected={spinner}
+            onSelect={onSpinnerChange}
+          />
+          <Choice
+            title="Slider and buttons"
+            options={[
+              { value: 'default', label: 'Default' },
+              { value: 'custom', label: 'Custom' },
+            ]}
+            selected={controls}
+            onSelect={onControlsChange}
+          />
+        </>
+      )}
 
       {player}
 
-      <Text style={styles.hint}>
-        Open the menu with the gear icon to see the sheet, and drag the progress bar or volume slider to see the slider.
-        The spinner shows while the video buffers, for example right after a seek.
-      </Text>
+      {!state.fullscreen && (
+        <Text style={styles.hint}>
+          Open the menu with the gear icon to see the sheet, and drag the progress bar or volume slider to see the
+          slider. The spinner shows while the video buffers, for example right after a seek.
+        </Text>
+      )}
     </SafeAreaView>
   );
 }

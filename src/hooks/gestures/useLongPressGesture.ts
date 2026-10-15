@@ -8,6 +8,7 @@ import {
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseLongPressGestureProps } from '../../types';
 import { usePlaybackRate } from '../media';
+import { useVideoStore } from '../../providers/VideoProvider';
 
 /**
  * A hook for handling long press gestures to temporarily increase playback rate.
@@ -17,7 +18,10 @@ import { usePlaybackRate } from '../media';
  */
 export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd }: UseLongPressGestureProps) => {
   const { setPlaybackRate } = usePlaybackRate();
+  const store = useVideoStore();
   const longPressGestureStarted = useRef(false);
+  // The rate picked before the 2x boost, so releasing goes back to it rather than to 1x
+  const rateBeforeBoost = useRef(1);
   const [isPlaybackRateIncreased, setIsPlaybackRateIncreased] = useState(false); // use this for any ui changes
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -38,12 +42,13 @@ export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd }: UseLon
 
       timeoutRef.current = setTimeout(() => {
         longPressGestureStarted.current = true;
+        rateBeforeBoost.current = store.getState().playbackRate;
         setIsPlaybackRateIncreased(true);
         onLongPressStart?.(event);
         setPlaybackRate(2);
       }, 2000);
     },
-    [onLongPressStart, setPlaybackRate]
+    [onLongPressStart, setPlaybackRate, store]
   );
 
   const endLongPress = useCallback(
@@ -53,7 +58,7 @@ export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd }: UseLon
         timeoutRef.current = null;
       }
       if (longPressGestureStarted.current) {
-        setPlaybackRate(1);
+        setPlaybackRate(rateBeforeBoost.current);
         onLongPressEnd?.(event);
         longPressGestureStarted.current = false;
         setIsPlaybackRateIncreased(false);

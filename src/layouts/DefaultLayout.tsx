@@ -17,7 +17,7 @@ import {
   Speed,
   Subtitles,
 } from '../components';
-import { PlatformUtils } from '../utils/orientation';
+import { PlatformUtils } from '../utils/platform';
 export interface DefaultLayoutProps {
   scrim?: boolean | ColorValue;
   title?: string;
@@ -50,6 +50,19 @@ export interface DefaultLayoutProps {
     afterCenterPlayButton?: React.ReactElement;
   };
 }
+
+/**
+ * Whether `track` is the selected one. The player's own tracks compare by index; custom tracks
+ * usually have no index, which made every row look selected, so they compare by height.
+ */
+const isSelectedVideoTrack = (
+  selected: { index?: number; height?: number } | null,
+  track: { index?: number; height?: number }
+) => {
+  if (!selected) return false;
+  if (selected.index !== undefined && track.index !== undefined) return selected.index === track.index;
+  return selected.height === track.height;
+};
 
 const touchStyles = StyleSheet.create({
   passThrough: { pointerEvents: 'box-none' },
@@ -180,7 +193,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                   <Audio size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
                                   <Title text="Audio" />
                                 </View>
-                                <Subtitle text={audioTrack ? (audioTrack.title! ?? audioTrack.language!) : 'None'} />
+                                <Subtitle text={audioTrack ? audioTrack.title || audioTrack.language || '' : 'None'} />
                               </View>
                             </Menu.Item>
                             <Menu.Item navigateTo="video">
@@ -190,7 +203,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                   <Title text="Video" />
                                 </View>
                                 <Subtitle
-                                  text={videoTrack ? ((videoTrack as any).label ?? videoTrack.height + 'p') : 'None'}
+                                  text={videoTrack ? (videoTrack as any).label || videoTrack.height + 'p' : 'Auto'}
                                 />
                               </View>
                             </Menu.Item>
@@ -200,7 +213,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                   <Subtitles size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
                                   <Title text="Captions" />
                                 </View>
-                                <Subtitle text={textTrack ? (textTrack.title! ?? textTrack.language!) : 'Off'} />
+                                <Subtitle text={textTrack ? textTrack.title || textTrack.language || '' : 'Off'} />
                               </View>
                             </Menu.Item>
                             <Menu.Item navigateTo="playbackRate">
@@ -223,7 +236,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                     onCheckedChange={() => {
                                       setAudioTrack(track);
                                     }}>
-                                    {track.title ?? track.language}
+                                    {track.title || track.language}
                                   </Menu.CheckboxItem>
                                 ))}
                               </ScrollView>
@@ -234,16 +247,22 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                             )}
                           </Menu.SubContent>
                           <Menu.SubContent viewId="video">
-                            {videoTracks.length > 0 ? (
+                            {videoTracks.length > 0 || !config.useCustomVideoTracks ? (
                               <ScrollView style={{ maxHeight: '100%' }}>
+                                {/* Adaptive quality, the default. A custom list brings its own "Auto" entry if it wants one. */}
+                                {!config.useCustomVideoTracks && (
+                                  <Menu.CheckboxItem checked={!videoTrack} onCheckedChange={() => setVideoTrack(null)}>
+                                    Auto
+                                  </Menu.CheckboxItem>
+                                )}
                                 {videoTracks.map((track) => (
                                   <Menu.CheckboxItem
-                                    key={track.index}
-                                    checked={videoTrack?.index === track.index}
+                                    key={`${track.width}x${track.height}-${track.codecs ?? ''}-${track.index ?? ''}`}
+                                    checked={isSelectedVideoTrack(videoTrack, track)}
                                     onCheckedChange={() => {
                                       setVideoTrack(track);
                                     }}>
-                                    {(track as any).label ?? track.height + 'p'}
+                                    {(track as any).label || track.height + 'p'}
                                   </Menu.CheckboxItem>
                                 ))}
                               </ScrollView>
@@ -263,7 +282,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                     onCheckedChange={() => {
                                       setTextTrack(track);
                                     }}>
-                                    {track.title ?? track.language}
+                                    {track.title || track.language}
                                   </Menu.CheckboxItem>
                                 ))}
                               </ScrollView>

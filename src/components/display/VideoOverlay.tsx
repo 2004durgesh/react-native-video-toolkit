@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useVideoSelector } from '../../providers';
-import { PlatformUtils } from '../../utils/orientation';
+import { PlatformUtils } from '../../utils/platform';
 
 /**
  * Props for the VideoOverlay component.

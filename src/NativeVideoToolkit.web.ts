@@ -11,7 +11,7 @@ export interface Spec {
    * Enters fullscreen mode.
    * @returns A promise that resolves to a boolean indicating whether the operation was successful.
    */
-  enterFullscreen(): Promise<boolean>;
+  enterFullscreen(element?: Element | null): Promise<boolean>;
   /**
    * Exits fullscreen mode.
    * @returns A promise that resolves to a boolean indicating whether the operation was successful.
@@ -34,11 +34,12 @@ export const NativeVideoToolkit: Spec = {
   /**
    * Request fullscreen on the #video-player element.
    */
-  enterFullscreen: async (): Promise<boolean> => {
+  enterFullscreen: async (element?: Element | null): Promise<boolean> => {
     try {
-      const videoSurface = document.getElementById('video-player');
+      // `useFullscreen` passes the player around its own video; each player has its own id
+      const videoSurface = element ?? document.querySelector('[id^="video-player"]');
       if (!videoSurface) {
-        console.error("No element found with id 'video-player'");
+        console.error('No video player element found');
         return false;
       }
 

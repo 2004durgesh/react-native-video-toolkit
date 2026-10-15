@@ -1,0 +1,36 @@
+---
+title: Platform
+description: Utility functions for detecting the platform the player runs on, such as web, TV or a tablet.
+---
+
+## `PlatformUtils`
+
+An object containing utility functions for platform detection.
+
+### Usage
+
+```tsx
+import { PlatformUtils } from 'react-native-video-toolkit';
+
+const isWeb = PlatformUtils.isWeb();
+```
+
+### Properties
+
+| Property      | Type            | Description                                                     |
+| ------------- | --------------- | --------------------------------------------------------------- |
+| `isTV`        | `() => boolean` | Returns `true` if the platform is a TV.                         |
+| `isWeb`       | `() => boolean` | Returns `true` if the platform is the web.                      |
+| `isMobile`    | `() => boolean` | Returns `true` if the platform is mobile (not a TV or the web). |
+| `isTVOS`      | `() => boolean` | Returns `true` if the platform is tvOS.                         |
+| `isAndroidTV` | `() => boolean` | Returns `true` if the platform is Android TV.                   |
+| `isTablet`    | `() => boolean` | Returns `true` if the screen's shorter side is at least 600 dp. |
+
+### Example
+
+```tsx
+import { PlatformUtils } from 'react-native-video-toolkit';
+
+const isWeb = PlatformUtils.isWeb();
+// isWeb will be true if the platform is web
+```

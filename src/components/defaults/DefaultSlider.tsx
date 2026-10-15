@@ -44,7 +44,10 @@ export const SliderView = ({
     }),
     [colors.active, colors.inactive, colors.thumb, colors.buffered]
   );
-  const containerStyle = useMemo(() => ({ height, width, borderRadius: height / 2 }), [height, width]);
+  const containerStyle = useMemo(() => ({ height, borderRadius: height / 2 }), [height]);
+  // A given width goes on the slider's own view, which awesome-slider measures to map touches; the
+  // track fills it. On the track, the touch area stayed wider than the track.
+  const sliderStyle = useMemo(() => (width !== undefined ? { width } : undefined), [width]);
 
   return (
     <Slider
@@ -59,6 +62,7 @@ export const SliderView = ({
       renderBubble={renderNoBubble}
       thumbWidth={thumbWidth}
       containerStyle={containerStyle}
+      style={sliderStyle}
     />
   );
 };

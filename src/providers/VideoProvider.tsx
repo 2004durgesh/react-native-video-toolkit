@@ -148,6 +148,12 @@ function isEqualOneLevel(a: unknown, b: unknown): boolean {
   });
 }
 
+/** The object without its `undefined` values, so spreading it over defaults keeps them. */
+function definedOnly<T extends object>(value: T | undefined): Partial<T> {
+  if (!value) return {};
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as Partial<T>;
+}
+
 const isSameRect = (a: LayoutRectangle, b: LayoutRectangle) =>
   a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 
@@ -165,14 +171,16 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
 
   switch (action.type) {
     case 'INITIALIZE': {
+      // `definedOnly`: an explicit `undefined` (`config={{ autoHideDelay: props.delay }}` without a
+      // delay) keeps the default instead of replacing it
       const theme = {
         ...defaultTheme,
-        ...action.payload.theme,
-        colors: { ...defaultTheme.colors, ...action.payload.theme?.colors },
-        fontSizes: { ...defaultTheme.fontSizes, ...action.payload.theme?.fontSizes },
-        animations: { ...defaultTheme.animations, ...action.payload.theme?.animations },
+        ...definedOnly(action.payload.theme),
+        colors: { ...defaultTheme.colors, ...definedOnly(action.payload.theme?.colors) },
+        fontSizes: { ...defaultTheme.fontSizes, ...definedOnly(action.payload.theme?.fontSizes) },
+        animations: { ...defaultTheme.animations, ...definedOnly(action.payload.theme?.animations) },
       };
-      const config = { ...defaultConfig, ...action.payload.config };
+      const config = { ...defaultConfig, ...definedOnly(action.payload.config) };
       // Inline config and theme objects arrive as new objects on every render of the parent
       if (isEqualOneLevel(theme, state.theme) && isEqualOneLevel(config, state.config)) return state;
       return { ...state, theme, config };

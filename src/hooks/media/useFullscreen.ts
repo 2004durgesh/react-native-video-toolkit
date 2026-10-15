@@ -4,6 +4,7 @@ import { useControlsController } from '../../providers/ControlsController';
 import { useCallback } from 'react';
 import { Platform } from 'react-native';
 import { NativeVideoToolkit } from '../../NativeVideoToolkit';
+import { requestPlayerFullscreen } from '../../utils/webFullscreen';
 import { useOrientation } from './useOrientation';
 
 /**
@@ -35,6 +36,7 @@ export const useFullscreen = (): UseFullscreenReturn => {
   const { dispatch } = useVideoStore();
   const { show: showControls } = useControlsController();
   const orientation = useOrientation();
+  const videoRef = useVideoSelector((state) => state.videoRef);
 
   /**
    * Enters fullscreen mode with intelligent orientation handling
@@ -49,9 +51,14 @@ export const useFullscreen = (): UseFullscreenReturn => {
       await orientation.lockToLandscape();
     }
 
-    NativeVideoToolkit.enterFullscreen();
+    if (Platform.OS === 'web') {
+      // The player around this video, since a page can have several
+      requestPlayerFullscreen(videoRef?.current);
+    } else {
+      NativeVideoToolkit.enterFullscreen();
+    }
     config.onEnterFullscreen?.();
-  }, [dispatch, fullscreen, config, showControls, orientation]);
+  }, [dispatch, fullscreen, config, showControls, orientation, videoRef]);
 
   /**
    * Exits fullscreen mode with intelligent orientation handling
@@ -62,7 +69,8 @@ export const useFullscreen = (): UseFullscreenReturn => {
     dispatch({ type: 'SET_FULLSCREEN', payload: false });
 
     if (Platform.OS !== 'web' && config.enableScreenRotation) {
-      await orientation.lockToPortrait();
+      // Phones go back to portrait; tablets and foldables rotate freely again
+      await orientation.handleExitFullscreen();
     }
 
     NativeVideoToolkit.exitFullscreen();

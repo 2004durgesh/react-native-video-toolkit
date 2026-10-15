@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { useVideoSelector } from '../../providers';
 import { isPictureInPictureSupported } from '../../utils/pictureInPicture';
 
@@ -35,10 +35,19 @@ export interface UsePictureInPictureReturn {
  * - `exitPictureInPicture`: A function to exit picture-in-picture.
  * - `togglePictureInPicture`: A function to toggle picture-in-picture.
  */
+/** Support doesn't change while mounted, so there's nothing to subscribe to. */
+const subscribeNever = () => () => {};
+const getUnsupported = () => false;
+
 export const usePictureInPicture = (): UsePictureInPictureReturn => {
   const videoRef = useVideoSelector((state) => state.videoRef);
   const pictureInPicture = useVideoSelector((state) => state.pictureInPicture);
-  const supported = useMemo(isPictureInPictureSupported, []);
+
+  const getSupported = useMemo(() => {
+    let checked: boolean | undefined;
+    return () => (checked ??= isPictureInPictureSupported());
+  }, []);
+  const supported = useSyncExternalStore(subscribeNever, getSupported, getUnsupported);
 
   // The state follows react-native-video's `onPictureInPictureStatusChanged`, so these only ask.
   const enterPictureInPicture = useCallback(() => {

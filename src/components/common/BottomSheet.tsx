@@ -9,7 +9,7 @@ import Animated, {
   SlideOutDown,
   SlideOutRight,
 } from 'react-native-reanimated';
-import { PlatformUtils } from '../../utils/orientation';
+import { PlatformUtils } from '../../utils/platform';
 
 /** Bottom sheets stop growing at 640 wide on large screens (Material guidance). */
 const SHEET_MAX_WIDTH = 640;
