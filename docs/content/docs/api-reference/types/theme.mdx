@@ -5,26 +5,30 @@ description: Types related to theming including color schemes, font sizes, icon 
 
 ### `colors`
 
-| Property              | Type     | Required | Description                                                                                                                                    |
-| --------------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `textMain`            | `string` | Yes      | Primary text color.                                                                                                                            |
-| `textSecondary`       | `string` | Yes      | Secondary text color.                                                                                                                          |
-| `iconNormal`          | `string` | Yes      | Default icon color.                                                                                                                            |
-| `iconActive`          | `string` | Yes      | Active icon state (e.g., CC turned on).                                                                                                        |
-| `sliderTrackActive`   | `string` | Yes      | Filled part of sliders (Progress/Volume).                                                                                                      |
-| `sliderTrackInactive` | `string` | Yes      | Unfilled part of sliders.                                                                                                                      |
-| `sliderTrackCache`    | `string` | Yes      | Buffered/loaded track color.                                                                                                                   |
-| `sliderThumb`         | `string` | Yes      | Draggable knob color.                                                                                                                          |
-| `menuBackground`      | `string` | Yes      | Menu sheet background color.                                                                                                                   |
-| `menuBorder`          | `string` | Yes      | Menu sheet outline color.                                                                                                                      |
-| `menuText`            | `string` | Yes      | Text color inside the menu.                                                                                                                    |
-| `menuSeparator`       | `string` | Yes      | Divider line color in the menu.                                                                                                                |
-| `badgeBackground`     | `string` | Yes      | Background for speed/seek badges (e.g., "2x").                                                                                                 |
-| `scrim`               | `string` | No       | Tint over the video while the controls are visible (`DefaultLayout`'s `scrim`) and for `VideoPlayer.Overlay`'s `scrim`. Defaults to 40% black. |
-| `ripple`              | `string` | Yes      | Ripple effect color for buttons.                                                                                                               |
-| `spinner`             | `string` | Yes      | Loading indicator color.                                                                                                                       |
-| `error`               | `string` | Yes      | Color for error states.                                                                                                                        |
-| `success`             | `string` | Yes      | Color for success states.                                                                                                                      |
+| Property                  | Type     | Required | Description                                                                                                                                    |
+| ------------------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `textMain`                | `string` | Yes      | Primary text color.                                                                                                                            |
+| `textSecondary`           | `string` | Yes      | Secondary text color.                                                                                                                          |
+| `iconNormal`              | `string` | Yes      | Default icon color.                                                                                                                            |
+| `iconActive`              | `string` | Yes      | Active icon state (e.g., CC turned on).                                                                                                        |
+| `sliderTrackActive`       | `string` | Yes      | Filled part of sliders (Progress/Volume).                                                                                                      |
+| `sliderTrackInactive`     | `string` | Yes      | Unfilled part of sliders.                                                                                                                      |
+| `sliderTrackCache`        | `string` | Yes      | Buffered/loaded track color.                                                                                                                   |
+| `sliderThumb`             | `string` | Yes      | Draggable knob color.                                                                                                                          |
+| `menuBackground`          | `string` | Yes      | Menu sheet background color.                                                                                                                   |
+| `menuBorder`              | `string` | Yes      | Menu sheet outline color.                                                                                                                      |
+| `menuText`                | `string` | Yes      | Text color inside the menu.                                                                                                                    |
+| `menuSeparator`           | `string` | Yes      | Divider line color in the menu.                                                                                                                |
+| `buttonPrimaryBackground` | `string` | No       | Fill of primary buttons, like `UpNext`'s "Play now". Defaults to the accent blue.                                                              |
+| `buttonPrimaryText`       | `string` | No       | Label color on primary buttons.                                                                                                                |
+| `buttonSecondaryBorder`   | `string` | No       | Outline of secondary buttons, like `UpNext`'s "Cancel".                                                                                        |
+| `buttonSecondaryText`     | `string` | No       | Label color on secondary buttons.                                                                                                              |
+| `badgeBackground`         | `string` | Yes      | Background for speed/seek badges (e.g., "2x").                                                                                                 |
+| `scrim`                   | `string` | No       | Tint over the video while the controls are visible (`DefaultLayout`'s `scrim`) and for `VideoPlayer.Overlay`'s `scrim`. Defaults to 40% black. |
+| `ripple`                  | `string` | Yes      | Ripple effect color for buttons.                                                                                                               |
+| `spinner`                 | `string` | Yes      | Loading indicator color.                                                                                                                       |
+| `error`                   | `string` | Yes      | Color for error states.                                                                                                                        |
+| `success`                 | `string` | Yes      | Color for success states.                                                                                                                      |
 
 ### `iconSizes`
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
+import { useControlsController } from '../../providers/ControlsController';
 import { BaseButton } from '../common';
 import { VideoOverlay } from '../display/VideoOverlay';
 
@@ -88,6 +89,12 @@ export const UpNext = ({
   }
   const visible = ended && !dismissed;
 
+  // The player shows its controls when a source ends; behind the card they'd show through its tint
+  const { show: showControls, hide: hideControls } = useControlsController();
+  useEffect(() => {
+    if (visible) hideControls();
+  }, [visible, hideControls]);
+
   // The latest callback, so a parent passing a new function each render doesn't restart the timer
   const onPlayNextRef = useRef(onPlayNext);
   useEffect(() => {
@@ -112,6 +119,8 @@ export const UpNext = ({
   };
   const cancel = () => {
     setDismissed(true);
+    // Back to the ended player, with its controls for replaying
+    showControls();
     onCancel?.();
   };
 
@@ -135,15 +144,21 @@ export const UpNext = ({
         {text.playingIn(secondsLeft)}
       </Text>
       <View style={styles.actions}>
-        <BaseButton onTap={cancel} style={[styles.button, { borderColor: theme.colors.menuBorder }]}>
-          <Text style={[styles.buttonLabel, { color: theme.colors.textMain, fontSize: theme.fontSizes.md }]}>
+        <BaseButton onTap={cancel} style={[styles.button, { borderColor: theme.colors.buttonSecondaryBorder }]}>
+          <Text style={[styles.buttonLabel, { color: theme.colors.buttonSecondaryText, fontSize: theme.fontSizes.md }]}>
             {text.cancel}
           </Text>
         </BaseButton>
         <BaseButton
           onTap={playNow}
-          style={[styles.button, { backgroundColor: theme.colors.iconActive, borderColor: theme.colors.iconActive }]}>
-          <Text style={[styles.buttonLabel, { color: theme.colors.textMain, fontSize: theme.fontSizes.md }]}>
+          style={[
+            styles.button,
+            {
+              backgroundColor: theme.colors.buttonPrimaryBackground,
+              borderColor: theme.colors.buttonPrimaryBackground,
+            },
+          ]}>
+          <Text style={[styles.buttonLabel, { color: theme.colors.buttonPrimaryText, fontSize: theme.fontSizes.md }]}>
             {text.playNow}
           </Text>
         </BaseButton>

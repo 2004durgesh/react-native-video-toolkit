@@ -26,6 +26,12 @@ export const defaultTheme: Theme = {
     menuText: '#FAFAFA',
     menuSeparator: '#3A3A3A',
 
+    // Buttons
+    buttonPrimaryBackground: '#5A9EE6',
+    buttonPrimaryText: '#FAFAFA',
+    buttonSecondaryBorder: '#3A3A3A',
+    buttonSecondaryText: '#FAFAFA',
+
     // Overlays & Badges
     badgeBackground: hexToRgba('#121212', 0.6),
     scrim: hexToRgba('#000000', 0.4),

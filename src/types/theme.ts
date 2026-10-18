@@ -26,6 +26,12 @@ export interface Theme {
     menuText: string;
     menuSeparator: string;
 
+    // Buttons (filled primary and outlined secondary, e.g. UpNext's "Play now" and "Cancel")
+    buttonPrimaryBackground?: string;
+    buttonPrimaryText?: string;
+    buttonSecondaryBorder?: string;
+    buttonSecondaryText?: string;
+
     // Overlays & Badges
     badgeBackground: string;
     scrim?: string;

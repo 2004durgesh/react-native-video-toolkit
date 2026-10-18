@@ -29,6 +29,52 @@ const OFF_TEXT_TRACK = { index: -1, title: 'Off', language: 'off', type: 'disabl
 const isSameLanguage = (a: { language?: string; title?: string }, b: { language?: string; title?: string }) =>
   a.language ? a.language === b.language : !!a.title && a.title === b.title;
 
+type LanguageTrack = { language?: string; title?: string; selected?: boolean };
+
+/** English name of a language code, for tracks labelled "English" rather than "en". Hermes may lack DisplayNames. */
+const languageName = (code: string): string | undefined => {
+  try {
+    const DisplayNames = (Intl as { DisplayNames?: new (...args: any[]) => { of: (code: string) => string } })
+      .DisplayNames;
+    if (DisplayNames) return new DisplayNames(['en'], { type: 'language' }).of(code).toLowerCase();
+  } catch {}
+  return code === 'en' ? 'english' : undefined;
+};
+
+/** The device's language, e.g. `en` for en-IN. */
+const DEVICE_LANGUAGE = (() => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0]!.toLowerCase();
+  } catch {
+    return 'en';
+  }
+})();
+const LANGUAGE_NAMES: Record<string, string | undefined> = {
+  [DEVICE_LANGUAGE]: languageName(DEVICE_LANGUAGE),
+  en: 'english',
+};
+
+/** Whether a track is in a language given as a code (`en`, `en-US`, `eng`) or a name (`English`, `English [CC]`). */
+const isInLanguage = (track: LanguageTrack, code: string) => {
+  const name = LANGUAGE_NAMES[code];
+  return [track.language, track.title].some((value) => {
+    const text = value?.toLowerCase();
+    if (!text) return false;
+    if (text === code || text.startsWith(`${code}-`) || text.startsWith(`${code}_`)) return true;
+    if (text.length === 3 && text.startsWith(code)) return true;
+    return !!name && text.startsWith(name);
+  });
+};
+
+/** The first track passing the earliest test, else the first track. */
+const pickTrack = <T extends LanguageTrack>(tracks: T[], tests: ((track: T) => boolean)[]): T | null => {
+  for (const test of tests) {
+    const match = tracks.find(test);
+    if (match) return match;
+  }
+  return tracks[0] ?? null;
+};
+
 /**
  * Props for the VideoSurface component.
  */
@@ -170,16 +216,28 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     // The viewer's choices carry over to the next source, as the next episode keeps its audio and
     // subtitle languages, when the new source has them; otherwise the defaults apply. Indexes are
     // never reused: the same index can be another language, or missing, in the new source.
+    // Defaults: the audio the player picked (the stream's default, often the original language), and
+    // subtitles in the device's language, then the player's pick, then English. `selected` is only
+    // trusted without an earlier choice, whose index the player may still be applying to this source.
+    const isDeviceLanguage = (track: LanguageTrack) => isInLanguage(track, DEVICE_LANGUAGE);
+    const isPlayerPick = (track: LanguageTrack) => !!track.selected;
     setAudioTrack(
-      (audioTrack && audioTracksToUse.find((track) => isSameLanguage(track, audioTrack))) ?? audioTracksToUse[0] ?? null
+      pickTrack(
+        audioTracksToUse,
+        audioTrack ? [(track) => isSameLanguage(track, audioTrack), isDeviceLanguage] : [isPlayerPick, isDeviceLanguage]
+      )
     );
     if (textTrack?.index === OFF_TEXT_TRACK.index) {
       setTextTrack(OFF_TEXT_TRACK);
     } else {
+      const isEnglish = (track: LanguageTrack) => isInLanguage(track, 'en');
       setTextTrack(
-        (textTrack && dedupedTextTracks.find((track) => isSameLanguage(track, textTrack))) ??
-          dedupedTextTracks[0] ??
-          null
+        pickTrack(
+          dedupedTextTracks,
+          textTrack
+            ? [(track) => isSameLanguage(track, textTrack), isDeviceLanguage, isEnglish]
+            : [isDeviceLanguage, isPlayerPick, isEnglish]
+        )
       );
     }
     if (useCustomVideo && customVideoTracks) {
