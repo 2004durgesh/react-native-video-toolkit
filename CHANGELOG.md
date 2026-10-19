@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.0 (2026-10-19)
+
+* feat: add caption menu slots, custom menu views and pinned caption tracks ([c513216](https://github.com/2004durgesh/react-native-video-toolkit/commit/c513216))
+* feat: default tracks to the device language and add theme colors for up next buttons ([6e3ce51](https://github.com/2004durgesh/react-native-video-toolkit/commit/6e3ce51))
+
 ## 0.12.0 (2026-10-15)
 
 * fix: fix player, track and gesture bugs, and the fullscreen double tap ([fa22473](https://github.com/2004durgesh/react-native-video-toolkit/commit/fa22473))
