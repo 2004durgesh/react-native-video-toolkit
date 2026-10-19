@@ -120,7 +120,11 @@ const MenuBackIcon = (props: IconProps): ReactElement => <ChevronLeft {...props}
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 export const MenuProvider = MenuContext.Provider;
 
-const useMenuContext = (): MenuContextType => {
+/**
+ * The settings menu's navigation (`navigateTo`, `goBack`, `closeSettings`, `currentView`), for custom controls in
+ * `DefaultLayout`'s menu slots and views. Only works inside the menu.
+ */
+export const useMenuContext = (): MenuContextType => {
   const context = useContext(MenuContext);
   if (!context) {
     throw new Error('Menu components must be used within a Menu.Root');

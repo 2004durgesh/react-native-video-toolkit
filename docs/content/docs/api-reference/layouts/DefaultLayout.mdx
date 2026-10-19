@@ -24,14 +24,15 @@ export const Player = () => {
 
 ## Props
 
-| Prop            | Type                          | Default | Description                                                                                                                                                                                                                                                    |
-| --------------- | ----------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `title`         | `string`                      |         | The main title of the video, displayed in the top-left corner.                                                                                                                                                                                                 |
-| `titleProps`    | `Omit<TitleProps, 'text'>`    |         | Props to pass to the underlying `Title` component (e.g., for styling).                                                                                                                                                                                         |
-| `subtitle`      | `string`                      |         | A subtitle or secondary text, displayed below the main title.                                                                                                                                                                                                  |
-| `subtitleProps` | `Omit<SubtitleProps, 'text'>` |         | Props to pass to the underlying `Subtitle` component (e.g., for styling).                                                                                                                                                                                      |
-| `slots`         | `object`                      |         | An object that allows you to render custom components in predefined slots.                                                                                                                                                                                     |
-| `scrim`         | `boolean \| ColorValue`       | `true`  | Tints the video while the controls are visible, so they stand out on bright frames. `true` uses the theme's `scrim` color, a color sets it, and `false` turns it off. It's a [`VideoPlayer.Overlay`](../components/display/video-overlay) behind the controls. |
+| Prop              | Type                            | Default | Description                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`           | `string`                        |         | The main title of the video, displayed in the top-left corner.                                                                                                                                                                                                 |
+| `titleProps`      | `Omit<TitleProps, 'text'>`      |         | Props to pass to the underlying `Title` component (e.g., for styling).                                                                                                                                                                                         |
+| `subtitle`        | `string`                        |         | A subtitle or secondary text, displayed below the main title.                                                                                                                                                                                                  |
+| `subtitleProps`   | `Omit<SubtitleProps, 'text'>`   |         | Props to pass to the underlying `Subtitle` component (e.g., for styling).                                                                                                                                                                                      |
+| `slots`           | `object`                        |         | An object that allows you to render custom components in predefined slots.                                                                                                                                                                                     |
+| `pinCaptionTrack` | `(track: TextTrack) => boolean` |         | Caption tracks it returns `true` for are listed first in the settings menu's Captions list, above "Off", e.g. subtitles your app added.                                                                                                                        |
+| `scrim`           | `boolean \| ColorValue`         | `true`  | Tints the video while the controls are visible, so they stand out on bright frames. `true` uses the theme's `scrim` color, a color sets it, and `false` turns it off. It's a [`VideoPlayer.Overlay`](../components/display/video-overlay) behind the controls. |
 
 ### Slots
 
@@ -43,25 +44,28 @@ The `slots` prop allows you to inject your own components or elements into speci
 
 Here are the available slots:
 
-| Slot                           | Description                                                                                           |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `beforeTitle`                  | Renders a component at the start of the top bar, before the title (e.g. a back button).               |
-| `beforeSettingsButton`         | Renders a component before the settings button.                                                       |
-| `afterSettingsButton`          | Renders a component after the settings button.                                                        |
-| `beforeSubtitleToggleButton`   | Renders a component before the subtitle toggle button.                                                |
-| `afterSubtitleToggleButton`    | Renders a component after the subtitle toggle button.                                                 |
-| `beforeProgressBar`            | Renders a component above the progress bar.                                                           |
-| `afterProgressBar`             | Renders a component below the progress bar.                                                           |
-| `beforeTimeDisplay`            | Renders a component before the time display.                                                          |
-| `afterTimeDisplay`             | Renders a component after the time display.                                                           |
-| `beforeMuteButton`             | Renders a component before the mute button.                                                           |
-| `afterMuteButton`              | Renders a component after the mute button.                                                            |
-| `beforePictureInPictureButton` | Renders a component before the picture-in-picture button (shown when `enablePictureInPicture` is on). |
-| `afterPictureInPictureButton`  | Renders a component after the picture-in-picture button.                                              |
-| `beforeFullscreenButton`       | Renders a component before the fullscreen button.                                                     |
-| `afterFullscreenButton`        | Renders a component after the fullscreen button.                                                      |
-| `beforeCenterPlayButton`       | Renders a component before the center play button.                                                    |
-| `afterCenterPlayButton`        | Renders a component after the center play button.                                                     |
+| Slot                           | Description                                                                                                                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `beforeTitle`                  | Renders a component at the start of the top bar, before the title (e.g. a back button).                                                                                  |
+| `beforeSettingsButton`         | Renders a component before the settings button.                                                                                                                          |
+| `afterSettingsButton`          | Renders a component after the settings button.                                                                                                                           |
+| `beforeSubtitleToggleButton`   | Renders a component before the subtitle toggle button.                                                                                                                   |
+| `afterSubtitleToggleButton`    | Renders a component after the subtitle toggle button.                                                                                                                    |
+| `beforeProgressBar`            | Renders a component above the progress bar.                                                                                                                              |
+| `afterProgressBar`             | Renders a component below the progress bar.                                                                                                                              |
+| `beforeTimeDisplay`            | Renders a component before the time display.                                                                                                                             |
+| `afterTimeDisplay`             | Renders a component after the time display.                                                                                                                              |
+| `beforeMuteButton`             | Renders a component before the mute button.                                                                                                                              |
+| `afterMuteButton`              | Renders a component after the mute button.                                                                                                                               |
+| `beforePictureInPictureButton` | Renders a component before the picture-in-picture button (shown when `enablePictureInPicture` is on).                                                                    |
+| `afterPictureInPictureButton`  | Renders a component after the picture-in-picture button.                                                                                                                 |
+| `beforeFullscreenButton`       | Renders a component before the fullscreen button.                                                                                                                        |
+| `afterFullscreenButton`        | Renders a component after the fullscreen button.                                                                                                                         |
+| `beforeCenterPlayButton`       | Renders a component before the center play button.                                                                                                                       |
+| `afterCenterPlayButton`        | Renders a component after the center play button.                                                                                                                        |
+| `beforeCaptionTracks`          | Renders rows above the tracks in the settings menu's Captions list, e.g. a `Menu.Item` that adds a subtitle file.                                                        |
+| `afterCaptionTracks`           | Renders rows below the tracks in the settings menu's Captions list.                                                                                                      |
+| `menuViews`                    | Extra views for the settings menu: `Menu.SubContent`s, opened by a `<Menu.Item navigateTo="viewId">` in another slot or view. The header shows the view ID, capitalized. |
 
 ## Examples
 

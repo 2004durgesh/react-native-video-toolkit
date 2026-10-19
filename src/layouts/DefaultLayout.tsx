@@ -1,4 +1,5 @@
 import { View, StyleSheet, ScrollView, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
+import type { TextTrack } from 'react-native-video';
 import { useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { type FC, type ReactNode } from 'react';
@@ -24,6 +25,7 @@ export interface DefaultLayoutProps {
   titleProps?: Omit<TitleProps, 'text'>;
   subtitle?: string;
   subtitleProps?: Omit<SubitleProps, 'text'>;
+  pinCaptionTrack?: (track: TextTrack) => boolean;
   slots?: {
     beforeTitle?: React.ReactElement;
     beforeSettingsButton?: React.ReactElement;
@@ -48,6 +50,9 @@ export interface DefaultLayoutProps {
     afterFullscreenButton?: React.ReactElement;
     beforeCenterPlayButton?: React.ReactElement;
     afterCenterPlayButton?: React.ReactElement;
+    beforeCaptionTracks?: React.ReactElement;
+    afterCaptionTracks?: React.ReactElement;
+    menuViews?: React.ReactElement;
   };
 }
 
@@ -131,6 +136,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   titleProps,
   subtitle,
   subtitleProps,
+  pinCaptionTrack,
   slots,
 }: DefaultLayoutProps): React.ReactElement => {
   const theme = useVideoSelector((state) => state.theme);
@@ -149,6 +155,10 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   } = useSettings();
   const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const { supported: pictureInPictureSupported } = usePictureInPicture();
+  // Pinned tracks go above "Off", which leads the rest
+  const captionTracks = pinCaptionTrack
+    ? [...textTracks.filter(pinCaptionTrack), ...textTracks.filter((track) => !pinCaptionTrack(track))]
+    : textTracks;
 
   const showPictureInPictureButton =
     config.enablePictureInPicture && pictureInPictureSupported && !PlatformUtils.isTV();
@@ -275,7 +285,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                           <Menu.SubContent viewId="captions">
                             {textTracks.length > 0 ? (
                               <ScrollView style={{ maxHeight: '100%' }}>
-                                {textTracks.map((track) => (
+                                {slots?.beforeCaptionTracks && slots.beforeCaptionTracks}
+                                {captionTracks.map((track) => (
                                   <Menu.CheckboxItem
                                     key={track.index}
                                     checked={textTrack?.index === track.index}
@@ -285,11 +296,16 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                     {track.title || track.language}
                                   </Menu.CheckboxItem>
                                 ))}
+                                {slots?.afterCaptionTracks && slots.afterCaptionTracks}
                               </ScrollView>
                             ) : (
-                              <View style={{ padding: 10 }}>
-                                <Subtitle text="No captions available" />
-                              </View>
+                              <>
+                                {slots?.beforeCaptionTracks && slots.beforeCaptionTracks}
+                                <View style={{ padding: 10 }}>
+                                  <Subtitle text="No captions available" />
+                                </View>
+                                {slots?.afterCaptionTracks && slots.afterCaptionTracks}
+                              </>
                             )}
                           </Menu.SubContent>
                           <Menu.SubContent viewId="playbackRate">
@@ -308,6 +324,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                               ))}
                             </ScrollView>
                           </Menu.SubContent>
+                          {slots?.menuViews && slots.menuViews}
                         </Menu.Content>
                       </Menu.Root>
                     </DevProfiler>
