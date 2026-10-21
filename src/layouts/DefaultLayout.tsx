@@ -50,6 +50,8 @@ export interface DefaultLayoutProps {
     afterFullscreenButton?: React.ReactElement;
     beforeCenterPlayButton?: React.ReactElement;
     afterCenterPlayButton?: React.ReactElement;
+    beforeMenuItems?: React.ReactElement;
+    afterMenuItems?: React.ReactElement;
     beforeCaptionTracks?: React.ReactElement;
     afterCaptionTracks?: React.ReactElement;
     menuViews?: React.ReactElement;
@@ -197,6 +199,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                         <Menu.Trigger />
                         <Menu.Content>
                           <Menu.SubContent viewId="root">
+                            {slots?.beforeMenuItems && slots.beforeMenuItems}
                             <Menu.Item navigateTo="audio">
                               <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
                                 <View style={[layoutStyles.row, styles.menuRowLabel]}>
@@ -235,6 +238,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                 <Subtitle text={`${playbackRate}x`} />
                               </View>
                             </Menu.Item>
+                            {slots?.afterMenuItems && slots.afterMenuItems}
                           </Menu.SubContent>
                           <Menu.SubContent viewId="audio">
                             {audioTracks.length > 0 ? (
