@@ -19,6 +19,7 @@ import {
   Subtitles,
 } from '../components';
 import { PlatformUtils } from '../utils/platform';
+import { trackLabel } from '../utils/common';
 export interface DefaultLayoutProps {
   scrim?: boolean | ColorValue;
   title?: string;
@@ -206,7 +207,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                   <Audio size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
                                   <Title text="Audio" />
                                 </View>
-                                <Subtitle text={audioTrack ? audioTrack.title || audioTrack.language || '' : 'None'} />
+                                <Subtitle text={audioTrack ? trackLabel(audioTrack) : 'None'} />
                               </View>
                             </Menu.Item>
                             <Menu.Item navigateTo="video">
@@ -226,7 +227,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                   <Subtitles size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
                                   <Title text="Captions" />
                                 </View>
-                                <Subtitle text={textTrack ? textTrack.title || textTrack.language || '' : 'Off'} />
+                                <Subtitle text={textTrack ? trackLabel(textTrack) : 'Off'} />
                               </View>
                             </Menu.Item>
                             <Menu.Item navigateTo="playbackRate">
@@ -250,7 +251,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                     onCheckedChange={() => {
                                       setAudioTrack(track);
                                     }}>
-                                    {track.title || track.language}
+                                    {trackLabel(track)}
                                   </Menu.CheckboxItem>
                                 ))}
                               </ScrollView>
@@ -297,7 +298,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                     onCheckedChange={() => {
                                       setTextTrack(track);
                                     }}>
-                                    {track.title || track.language}
+                                    {trackLabel(track)}
                                   </Menu.CheckboxItem>
                                 ))}
                                 {slots?.afterCaptionTracks && slots.afterCaptionTracks}
