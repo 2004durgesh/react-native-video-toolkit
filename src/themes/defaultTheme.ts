@@ -38,6 +38,7 @@ export const defaultTheme: Theme = {
 
     // Interaction / Feedback
     ripple: '#3A3A3A',
+    tvFocus: hexToRgba('#FFFFFF', 0.25),
     spinner: '#5A9EE6',
 
     // Status

@@ -26,6 +26,12 @@ export interface ProgressStore {
   subscribe: (listener: () => void) => () => void;
   update: (next: Partial<ProgressSnapshot>) => void;
   /**
+   * Shows a position without the player being there: while set, it's the current time, and
+   * playback doesn't move it. For scrubbing, which seeks once at the end. `null` goes back to
+   * following playback.
+   */
+  setPreview: (time: number | null) => void;
+  /**
    * The same values as shared values, for UI-thread readers such as the default slider, which then
    * follows playback without re-rendering.
    */
@@ -38,8 +44,17 @@ export interface ProgressStore {
  */
 export function createProgressStore(): ProgressStore {
   let snapshot: ProgressSnapshot = { currentTime: 0, playableDuration: 0 };
+  let preview: number | null = null;
   const listeners = new Set<() => void>();
   const shared = { currentTime: makeMutable(0), playableDuration: makeMutable(0) };
+
+  const publish = (currentTime: number, playableDuration: number) => {
+    if (currentTime === snapshot.currentTime && playableDuration === snapshot.playableDuration) return;
+    snapshot = { currentTime, playableDuration };
+    shared.currentTime.value = currentTime;
+    shared.playableDuration.value = playableDuration;
+    listeners.forEach((listener) => listener());
+  };
 
   return {
     getSnapshot: () => snapshot,
@@ -51,13 +66,14 @@ export function createProgressStore(): ProgressStore {
       };
     },
     update: (next) => {
-      const currentTime = next.currentTime ?? snapshot.currentTime;
       const playableDuration = next.playableDuration ?? snapshot.playableDuration;
-      if (currentTime === snapshot.currentTime && playableDuration === snapshot.playableDuration) return;
-      snapshot = { currentTime, playableDuration };
-      shared.currentTime.value = currentTime;
-      shared.playableDuration.value = playableDuration;
-      listeners.forEach((listener) => listener());
+      // A preview keeps its position until it's cleared
+      const currentTime = preview ?? next.currentTime ?? snapshot.currentTime;
+      publish(currentTime, playableDuration);
+    },
+    setPreview: (time) => {
+      preview = time;
+      if (time !== null) publish(time, snapshot.playableDuration);
     },
   };
 }

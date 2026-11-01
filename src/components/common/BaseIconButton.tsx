@@ -2,6 +2,7 @@ import React, { type ReactNode } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { BaseButton } from './BaseButton';
+import type { TVFocusTarget } from '../../tv/TVFocus';
 
 interface BaseIconButtonProps {
   IconComponent?: React.ElementType;
@@ -10,6 +11,8 @@ interface BaseIconButtonProps {
   color?: string;
   onTap: () => void;
   style?: StyleProp<ViewStyle>;
+  /** @internal On TV, the button the remote focuses when the controls come up. */
+  tvFocusTarget?: TVFocusTarget;
 }
 
 /**
@@ -27,6 +30,7 @@ export const BaseIconButton = ({
   color,
   onTap,
   style,
+  tvFocusTarget,
 }: BaseIconButtonProps): React.ReactElement => {
   const theme = useVideoSelector((state) => state.theme);
 
@@ -34,7 +38,7 @@ export const BaseIconButton = ({
   const iconColor = color || theme.colors.iconNormal;
 
   return (
-    <BaseButton onTap={onTap}>
+    <BaseButton onTap={onTap} tvFocusTarget={tvFocusTarget}>
       <View style={[styles.iconContainer, style]}>
         {icon ? icon : IconComponent ? <IconComponent size={iconSize} color={iconColor} /> : null}
       </View>

@@ -21,6 +21,8 @@ import { TimeDisplay, LoadingSpinner, VideoOverlay } from './display';
 import { getFullscreenHeight } from '../utils';
 import { DevProfiler } from '../utils/DevProfiler';
 import { onBrowserFullscreenExit } from '../utils/webFullscreen';
+import { TVPlayerFocus } from '../tv/TVPlayerFocus';
+import { PlatformUtils } from '../utils/platform';
 
 /**
  * Props for the VideoPlayer component.
@@ -143,7 +145,8 @@ const VideoPlayerComponent = ({
               customVideoTracks={customVideoTracks}
             />
           </DevProfiler>
-          {children}
+          {/* The TV remote drives the player through a focusable surface under the layout */}
+          {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
         </View>
       </GestureHandler>
     </View>

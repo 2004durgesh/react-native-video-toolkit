@@ -1,0 +1,56 @@
+---
+title: TV
+description: Using the player with a TV remote on Android TV.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+On a TV the player works with the remote out of the box: the D-pad moves between the controls, and left and right seek. You don't need extra props. It needs [react-native-tvos](https://github.com/react-native-tvos/react-native-tvos), the React Native fork for TV, in place of `react-native`. On phones, tablets and the web nothing changes.
+
+<Callout type="info">This covers Android TV. Apple TV isn't supported with the remote yet.</Callout>
+
+## The remote
+
+| Button                  | Controls hidden                                       | Controls visible                                       |
+| ----------------------- | ----------------------------------------------------- | ------------------------------------------------------ |
+| Select, up, down        | Shows the controls, with the play button focused      | Presses the focused control, or moves between controls |
+| Left, right             | Seeks 10 s and shows the controls on the progress bar | Seeks 10 s on the progress bar; moves between buttons  |
+| Hold left or right      | Scrubs, faster the longer it's held                   | Scrubs on the progress bar                             |
+| Back                    | Goes back as usual (to your app)                      | Hides the controls                                     |
+| Play/pause, play, pause | Plays or pauses, wherever the focus is                | Same                                                   |
+| Fast-forward, rewind    | Seeks 10 s, wherever the focus is                     | Same                                                   |
+
+A held left or right moves 10 s at a time, then 30 s, then 60 s, and the player seeks once on release. Any button press keeps the controls up, and they hide on the usual `autoHideDelay`.
+
+## Focus
+
+The focused control is highlighted with the theme's `tvFocus` color (25% white by default):
+
+```tsx
+import { VideoProvider, defaultTheme } from 'react-native-video-toolkit';
+
+<VideoProvider theme={{ colors: { ...defaultTheme.colors, tvFocus: 'rgba(90, 158, 230, 0.4)' } }}>
+  {/* ... */}
+</VideoProvider>;
+```
+
+While the controls are hidden the player itself holds the focus, so the remote drives it rather than moving to something else on the screen. Hidden controls can't be focused. If your app mounts a new player for the next episode, the new player takes over the focus from the old one.
+
+## Settings menu
+
+On TV the menu opens as a panel on the right instead of a bottom sheet. The remote moves into it as it opens, onto the selected row in each list, and back onto the row it came from. Back goes up one level and then closes the menu, and the focus returns to the settings button.
+
+If you pass your own [`Sheet`](./custom-components), the menu still moves the focus into its rows. A native sheet handles Back itself, usually by closing.
+
+## Up next
+
+When [`UpNext`](./api-reference/components/controls/up-next) appears while the player has the focus, "Play now" takes it. "Cancel" returns it to the play button.
+
+## Custom components
+
+- **`Slider`:** the player handles left and right itself and seeks; your slider only shows the position. A native slider (such as `@react-native-community/slider`) doesn't take the focus or the keys.
+- **`PressFeedback`:** not used on TV. Buttons show the focus highlight instead, as a press ripple means nothing with a remote.
+
+## Layout
+
+A TV screen is about 960×540 dp, so keep the player and its controls on screen. A player below other content can push its bottom controls under a tab bar, where the remote can still reach them but nobody can see them. Place other content beside the player, or make the screen scroll.

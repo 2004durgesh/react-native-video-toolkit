@@ -1,5 +1,5 @@
 import React, { useMemo, useState, type ComponentType } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import { Platform, View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   VideoPlayer,
@@ -119,40 +119,45 @@ function ComponentsContent({
       <StatusBar hidden={state.fullscreen} barStyle="light-content" />
 
       {!state.fullscreen && (
-        <>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Custom Components</Text>
-            <Text style={styles.headerSubtitle}>Bring your own sheet, slider, spinner and buttons</Text>
-          </View>
-
-          <Choice
-            title="Menu sheet"
-            options={(Object.keys(sheets) as SheetChoice[]).map((value) => ({ value, label: sheets[value].label }))}
-            selected={sheet}
-            onSelect={onSheetChange}
-          />
-          <Choice
-            title="Buffering spinner"
-            options={(Object.keys(spinners) as SpinnerChoice[]).map((value) => ({
-              value,
-              label: spinners[value].label,
-            }))}
-            selected={spinner}
-            onSelect={onSpinnerChange}
-          />
-          <Choice
-            title="Slider and buttons"
-            options={[
-              { value: 'default', label: 'Default' },
-              { value: 'custom', label: 'Custom' },
-            ]}
-            selected={controls}
-            onSelect={onControlsChange}
-          />
-        </>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Custom Components</Text>
+          <Text style={styles.headerSubtitle}>Bring your own sheet, slider, spinner and buttons</Text>
+        </View>
       )}
 
-      {player}
+      {/* On TV the choices sit beside the player, as stacked they pushed its controls off the screen */}
+      <View style={state.fullscreen ? styles.fullscreenWrapper : Platform.isTV ? styles.tvBody : undefined}>
+        {!state.fullscreen && (
+          <View style={Platform.isTV ? styles.tvChoices : undefined}>
+            <Choice
+              title="Menu sheet"
+              options={(Object.keys(sheets) as SheetChoice[]).map((value) => ({ value, label: sheets[value].label }))}
+              selected={sheet}
+              onSelect={onSheetChange}
+            />
+            <Choice
+              title="Buffering spinner"
+              options={(Object.keys(spinners) as SpinnerChoice[]).map((value) => ({
+                value,
+                label: spinners[value].label,
+              }))}
+              selected={spinner}
+              onSelect={onSpinnerChange}
+            />
+            <Choice
+              title="Slider and buttons"
+              options={[
+                { value: 'default', label: 'Default' },
+                { value: 'custom', label: 'Custom' },
+              ]}
+              selected={controls}
+              onSelect={onControlsChange}
+            />
+          </View>
+        )}
+
+        {player}
+      </View>
 
       {!state.fullscreen && (
         <Text style={styles.hint}>
@@ -255,7 +260,11 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   playerContainer: {
-    height: 220,
+    // The video's own shape: a fixed height cropped it on wide screens. On TV it leaves room for the rest.
+    aspectRatio: 16 / 9,
+    // On TV it fills the space beside the choices
+    flex: Platform.isTV ? 1 : undefined,
+    alignSelf: Platform.isTV ? 'flex-start' : undefined,
     marginHorizontal: 16,
     marginTop: 4,
     borderRadius: 12,
@@ -268,6 +277,12 @@ const styles = StyleSheet.create({
   },
   fullscreenVideo: {
     flex: 1,
+  },
+  tvBody: {
+    flexDirection: 'row',
+  },
+  tvChoices: {
+    width: '40%',
   },
   hint: {
     fontSize: 13,

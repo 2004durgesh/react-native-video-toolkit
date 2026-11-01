@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useVideoSelector } from '../../providers';
-import { PlatformUtils } from '../../utils/platform';
+import { PlatformUtils, webDependencies } from '../../utils/platform';
+import { ControlsFocusableContext } from '../../tv/TVFocus';
 
 /**
  * Props for the VideoOverlay component.
@@ -62,9 +63,21 @@ const useOverlay = ({
 
 const NativeVideoOverlay = (props: VideoOverlayProps): React.ReactElement => {
   const { shown, layerStyle, touchStyle } = useOverlay(props);
-  const fadeStyle = useAnimatedStyle(() => ({ opacity: withTiming(shown ? 1 : 0, { duration: 150 }) }), [shown]);
+  const fadeStyle = useAnimatedStyle(
+    () => ({ opacity: withTiming(shown ? 1 : 0, { duration: 150 }) }),
+    webDependencies([shown])
+  );
 
-  return <Animated.View style={[layerStyle, fadeStyle, touchStyle]}>{props.children}</Animated.View>;
+  return (
+    <Animated.View style={[layerStyle, fadeStyle, touchStyle]}>
+      {/* On TV a hidden overlay's buttons mustn't take the remote's focus either */}
+      {PlatformUtils.isTV() ? (
+        <ControlsFocusableContext.Provider value={shown}>{props.children}</ControlsFocusableContext.Provider>
+      ) : (
+        props.children
+      )}
+    </Animated.View>
+  );
 };
 
 // On web, Reanimated drops `pointerEvents: 'box-none'` from animated views, so a full-size one

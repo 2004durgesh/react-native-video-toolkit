@@ -1,5 +1,15 @@
-import React, { createContext, useContext, useState, type ReactNode, type ReactElement } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type ReactElement,
+} from 'react';
 import {
+  BackHandler,
   StyleSheet,
   View,
   Text,
@@ -10,9 +20,10 @@ import {
   type ViewProps,
   type TextProps,
   type StyleProp,
+  type HostInstance,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { BaseIconButton } from '../common';
+import { BaseButton, BaseIconButton } from '../common';
 import { useVideoSelector, useVideoComponents } from '../../providers';
 import { ContextBridge, useBridgedContexts } from '../../providers/ContextBridge';
 import Animated, {
@@ -24,7 +35,9 @@ import Animated, {
   LayoutAnimationConfig,
 } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
-import { PlatformUtils } from '../../utils/platform';
+import { PlatformUtils, webDependencies } from '../../utils/platform';
+import { DEFAULT_TV_FOCUS_COLOR, requestTVFocus, TRAP_FOCUS, TV_FOCUS_GUIDE, TVFocusContext } from '../../tv/TVFocus';
+import { useVideoStore } from '../../providers/VideoProvider';
 import { type SettingsButtonProps } from '../controls';
 import { ChevronLeft, Close, Settings } from '../svgs';
 import { Title } from '../display';
@@ -39,6 +52,11 @@ interface MenuContextType {
   navigateTo: (viewId: string) => void;
   goBack: () => void;
   currentView: string;
+  /**
+   * The view the menu last went back from, so on TV the row leading to it takes the focus again.
+   * @internal
+   */
+  returnedFrom?: string | null;
 }
 
 interface MenuRootProps {
@@ -72,6 +90,11 @@ interface MenuItemProps extends Omit<PressableProps, 'onPress'> {
   autoClose?: boolean;
   navigateTo?: string;
   onPress?: (value?: string) => void; // Custom handler signature
+  /**
+   * On TV, take the remote's focus as the view opens: the checked row of a submenu.
+   * @internal
+   */
+  tvPreferred?: boolean;
 }
 
 interface MenuLabelProps extends TextProps {
@@ -143,6 +166,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
  * scale), so we skip them on web while keeping them on native.
  */
 const IS_WEB = PlatformUtils.isWeb();
+const IS_TV = PlatformUtils.isTV();
 
 /**
  * Returns the given reanimated layout-animation config, or `undefined` on web
@@ -163,13 +187,16 @@ export const Menu = {
     const { openSettings, closeSettings, isSettingsMenuVisible } = useSettings();
     const [navigationStack, setNavigationStack] = useState<string[]>([initialView]);
     const currentView = navigationStack[navigationStack.length - 1] || initialView;
+    const [returnedFrom, setReturnedFrom] = useState<string | null>(null);
 
     const navigateTo = (viewId: string): void => {
+      setReturnedFrom(null);
       setNavigationStack((prev) => [...prev, viewId]);
     };
 
     const goBack = (): void => {
       if (navigationStack.length > 1) {
+        setReturnedFrom(currentView);
         setNavigationStack((prev) => prev.slice(0, -1));
       } else {
         closeSettings();
@@ -181,8 +208,33 @@ export const Menu = {
     const [resetFor, setResetFor] = useState({ visible: isSettingsMenuVisible, initialView });
     if (resetFor.visible !== isSettingsMenuVisible || resetFor.initialView !== initialView) {
       setResetFor({ visible: isSettingsMenuVisible, initialView });
-      if (!isSettingsMenuVisible) setNavigationStack([initialView]);
+      if (!isSettingsMenuVisible) {
+        setNavigationStack([initialView]);
+        setReturnedFrom(null);
+      }
     }
+
+    // On TV, Back goes back through the menu and then closes it, before the player sees it, and the
+    // remote returns to the settings button (the surface if the controls hid meanwhile)
+    const tvFocus = useContext(TVFocusContext);
+    const store = useVideoStore();
+    const goBackRef = useRef(goBack);
+    goBackRef.current = goBack;
+    useEffect(() => {
+      if (!IS_TV || !isSettingsMenuVisible) return;
+      let back: { remove: () => void } | null = null;
+      const frame = requestAnimationFrame(() => {
+        back = BackHandler.addEventListener('hardwareBackPress', () => {
+          goBackRef.current();
+          return true;
+        });
+      });
+      return () => {
+        cancelAnimationFrame(frame);
+        back?.remove();
+        tvFocus?.setTarget(store.getState().controlsVisible ? 'settings' : 'surface');
+      };
+    }, [isSettingsMenuVisible, tvFocus, store]);
 
     return (
       <MenuProvider
@@ -194,6 +246,7 @@ export const Menu = {
           navigateTo,
           goBack,
           currentView,
+          returnedFrom,
         }}>
         {children}
       </MenuProvider>
@@ -209,6 +262,23 @@ export const Menu = {
     const SettingsIcon = renderSettingIcon || Settings;
     const iconSize = size ?? theme.iconSizes.md;
     const iconColor = color || theme.colors.iconNormal;
+    const icon = typeof SettingsIcon === 'function' ? <SettingsIcon size={iconSize} color={iconColor} /> : SettingsIcon;
+
+    // On TV, a button like the other controls: highlighted when focused, and not focusable while
+    // the controls are faded out
+    if (PlatformUtils.isTV()) {
+      return (
+        <BaseButton
+          onTap={openSettings}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+          // The remote comes back here as the menu closes
+          tvFocusTarget="settings"
+          style={[styles.triggerButton, style]}>
+          {icon}
+        </BaseButton>
+      );
+    }
 
     return (
       <Pressable
@@ -216,7 +286,7 @@ export const Menu = {
         accessibilityRole="button"
         accessibilityLabel="Settings"
         style={[styles.triggerButton, style]}>
-        {typeof SettingsIcon === 'function' ? <SettingsIcon size={iconSize} color={iconColor} /> : SettingsIcon}
+        {icon}
       </Pressable>
     );
   },
@@ -271,6 +341,18 @@ export const Menu = {
     const theme = useVideoSelector((state) => state.theme);
     const portalHostName = useVideoSelector((state) => state.portalHostName);
 
+    // On TV, the remote goes into the menu as it opens and as each view opens, to the first row
+    // through the focus guide. A ref callback, as a sheet's portal can mount the body after this
+    // component's effects; keyed by the view, so each view attaches afresh. A row that should have the
+    // focus (the checked one, or the one the menu came back to) then takes it in its own effect.
+    const open = menuContext.isSettingsMenuVisible;
+    const focusBody = useCallback(
+      (body: HostInstance | null) => {
+        if (IS_TV && open && body) requestTVFocus(body);
+      },
+      [open]
+    );
+
     // Sheets render through portals that can sit outside the providers, so the toolkit's contexts
     // and the menu's own context are re-provided around the content.
     return (
@@ -285,13 +367,23 @@ export const Menu = {
                 GestureHandlerRootView, where gesture-handler buttons (Close, Back) don't respond.
                 In the app's window a nested root does nothing. */}
             <GestureHandlerRootView style={styles.gestureRoot}>
-              {header ? header(currentView) : <Menu.Header />}
-              {/* When the sheet closes, the sub-view's exit animation is skipped. With Reanimated's
-                  ENABLE_SHARED_ELEMENT_TRANSITIONS flag, a native sheet would otherwise stay mounted
-                  waiting for that animation and leave its invisible window over the app. */}
-              <LayoutAnimationConfig skipExiting>
-                <View style={styles.contentBody}>{children}</View>
-              </LayoutAnimationConfig>
+              {/* On TV the remote stays in the menu while it's open */}
+              <View style={styles.gestureRoot} collapsable={false} {...(IS_TV ? TRAP_FOCUS : null)}>
+                {header ? header(currentView) : <Menu.Header />}
+                {/* When the sheet closes, the sub-view's exit animation is skipped. With Reanimated's
+                    ENABLE_SHARED_ELEMENT_TRANSITIONS flag, a native sheet would otherwise stay mounted
+                    waiting for that animation and leave its invisible window over the app. */}
+                <LayoutAnimationConfig skipExiting>
+                  <View
+                    key={IS_TV ? currentView : undefined}
+                    ref={focusBody}
+                    style={styles.contentBody}
+                    collapsable={!IS_TV}
+                    {...(IS_TV ? TV_FOCUS_GUIDE : null)}>
+                    {children}
+                  </View>
+                </LayoutAnimationConfig>
+              </View>
             </GestureHandlerRootView>
           </MenuProvider>
         </ContextBridge>
@@ -329,10 +421,21 @@ export const Menu = {
     value,
     autoClose = true,
     navigateTo: navTo,
+    onFocus,
+    onBlur,
+    tvPreferred = false,
     ...props
   }: MenuItemProps): ReactElement => {
-    const { navigateTo: ctxNavigate, closeSettings } = useMenuContext();
+    const { navigateTo: ctxNavigate, closeSettings, returnedFrom } = useMenuContext();
     const theme = useVideoSelector((state) => state.theme);
+    // The TV remote focuses rows rather than hovering or pressing them, so show which one it's on
+    const [tvFocused, setTVFocused] = useState(false);
+    // And it lands on the selected row as a view opens, and back on the row it came from
+    const itemRef = useRef<HostInstance>(null);
+    const takesTVFocus = IS_TV && (tvPreferred || (navTo !== undefined && navTo === returnedFrom));
+    useEffect(() => {
+      if (takesTVFocus) requestTVFocus(itemRef.current);
+    }, [takesTVFocus]);
 
     const handlePress = (): void => {
       onPress?.(value);
@@ -356,7 +459,16 @@ export const Menu = {
 
     return (
       <AnimatedPressable
+        ref={itemRef}
         onPress={handlePress}
+        onFocus={(event) => {
+          if (IS_TV) setTVFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          if (IS_TV) setTVFocused(false);
+          onBlur?.(event);
+        }}
         style={[
           styles.item,
           style,
@@ -371,6 +483,7 @@ export const Menu = {
             transitionProperty: ['backgroundColor', 'transform'],
             transitionDuration: 100,
           },
+          tvFocused && { backgroundColor: theme.colors.tvFocus ?? DEFAULT_TV_FOCUS_COLOR },
         ]}
         {...props}>
         {renderChildren()}
@@ -440,7 +553,7 @@ export const Menu = {
       () => ({
         transform: [{ scale: withTiming(isChecked ? 1 : 0, { duration: 150 }) }],
       }),
-      [isChecked]
+      webDependencies([isChecked])
     );
 
     const handlePress = (): void => {
@@ -452,7 +565,13 @@ export const Menu = {
     };
 
     return (
-      <Menu.Item onPress={handlePress} style={style} textStyle={textStyle} autoClose={false} {...props}>
+      <Menu.Item
+        onPress={handlePress}
+        style={style}
+        textStyle={textStyle}
+        autoClose={false}
+        tvPreferred={isChecked}
+        {...props}>
         <View style={styles.radioItem}>
           <Text style={[styles.itemText, { color: theme.colors.menuText }, textStyle]}>{children}</Text>
           <AnimatedView style={IS_WEB ? undefined : checkAnimatedStyle}>

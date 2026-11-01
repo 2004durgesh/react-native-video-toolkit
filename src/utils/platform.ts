@@ -19,3 +19,11 @@ export const PlatformUtils = {
     return minDimension >= 600;
   },
 };
+
+/**
+ * A Reanimated hook's dependency list, on the web only. Native workletized callbacks track what they
+ * use by themselves, and Reanimated warns when a list is passed there.
+ * @internal
+ */
+export const webDependencies = <T extends readonly unknown[]>(dependencies: T): T | undefined =>
+  Platform.OS === 'web' ? dependencies : undefined;

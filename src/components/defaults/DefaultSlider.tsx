@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
 import type { SliderProps } from '../../types';
+import { webDependencies } from '../../utils/platform';
 
 /**
  * Props for {@link SliderView}: the slider props, with the value and the buffered value as shared
@@ -33,8 +34,8 @@ export const SliderView = ({
   width,
   colors,
 }: SliderViewProps): React.ReactElement => {
-  const min = useDerivedValue(() => minimumValue, [minimumValue]);
-  const max = useDerivedValue(() => maximumValue, [maximumValue]);
+  const min = useDerivedValue(() => minimumValue, webDependencies([minimumValue]));
+  const max = useDerivedValue(() => maximumValue, webDependencies([maximumValue]));
   const theme = useMemo(
     () => ({
       minimumTrackTintColor: colors.active,
@@ -80,8 +81,8 @@ export const DefaultSlider = ({
   ...rest
 }: SliderProps): React.ReactElement => {
   // react-native-awesome-slider works with shared values; derive them from the plain props.
-  const progress = useDerivedValue(() => value, [value]);
-  const cache = useDerivedValue(() => bufferedValue ?? 0, [bufferedValue]);
+  const progress = useDerivedValue(() => value, webDependencies([value]));
+  const cache = useDerivedValue(() => bufferedValue ?? 0, webDependencies([bufferedValue]));
 
   return <SliderView {...rest} progress={progress} cache={bufferedValue !== undefined ? cache : undefined} />;
 };

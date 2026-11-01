@@ -361,6 +361,9 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         progressUpdateInterval={500}
         onLayout={handleLayout}
         viewType={ViewType.TEXTURE}
+        // ExoPlayer's own view took the D-pad's focus on Android TV, under the toolkit's controls,
+        // and kept it: they're the ones to focus
+        focusable={false}
         subtitleStyle={{ paddingBottom: 50, fontSize: 20, opacity: 0.8 }}
         {...nativeProps}
       />

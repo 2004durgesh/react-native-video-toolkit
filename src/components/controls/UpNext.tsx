@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { useControlsController } from '../../providers/ControlsController';
 import { BaseButton } from '../common';
 import { VideoOverlay } from '../display/VideoOverlay';
+import { TVFocusContext, type TVFocusTarget } from '../../tv/TVFocus';
 
 /**
  * Text shown on the card, for translations.
@@ -89,11 +90,23 @@ export const UpNext = ({
   }
   const visible = ended && !dismissed;
 
+  // On TV, the remote follows the card: to "Play now" as it appears, and back to the player as it
+  // goes. Only while the player has the focus, so the card doesn't pull it from elsewhere.
+  const tvFocus = useContext(TVFocusContext);
+  const moveTVFocus = useCallback(
+    (target: TVFocusTarget) => {
+      if (tvFocus && tvFocus.getHolder() !== null) tvFocus.setTarget(target);
+    },
+    [tvFocus]
+  );
+
   // The player shows its controls when a source ends; behind the card they'd show through its tint
   const { show: showControls, hide: hideControls } = useControlsController();
   useEffect(() => {
-    if (visible) hideControls();
-  }, [visible, hideControls]);
+    if (!visible) return;
+    hideControls();
+    moveTVFocus('upNext');
+  }, [visible, hideControls, moveTVFocus]);
 
   // The latest callback, so a parent passing a new function each render doesn't restart the timer
   const onPlayNextRef = useRef(onPlayNext);
@@ -105,22 +118,26 @@ export const UpNext = ({
     if (!visible) return;
     if (secondsLeft <= 0) {
       setDismissed(true);
+      // The controls are hidden, so the remote goes to the player itself
+      moveTVFocus('surface');
       onPlayNextRef.current();
       return;
     }
     const timer = setTimeout(() => setSecondsLeft((seconds) => seconds - 1), 1000);
     return () => clearTimeout(timer);
-  }, [visible, secondsLeft]);
+  }, [visible, secondsLeft, moveTVFocus]);
 
   const text = { ...DEFAULT_LABELS, ...labels };
   const playNow = () => {
     setDismissed(true);
+    moveTVFocus('surface');
     onPlayNext();
   };
   const cancel = () => {
     setDismissed(true);
     // Back to the ended player, with its controls for replaying
     showControls();
+    moveTVFocus('play');
     onCancel?.();
   };
 
@@ -151,6 +168,8 @@ export const UpNext = ({
         </BaseButton>
         <BaseButton
           onTap={playNow}
+          // The TV remote lands here when the card appears
+          tvFocusTarget="upNext"
           style={[
             styles.button,
             {

@@ -38,6 +38,8 @@ export interface Theme {
 
     // Interaction / Feedback
     ripple: string;
+    /** Highlight behind the focused control on TV. */
+    tvFocus?: string;
     spinner: string;
 
     // Status

@@ -35,6 +35,8 @@ export const PlayButton = ({
       color={color}
       style={[styles.playButton, style]}
       onTap={togglePlayPause}
+      // The TV remote lands here when the controls come up
+      tvFocusTarget="play"
     />
   );
 };

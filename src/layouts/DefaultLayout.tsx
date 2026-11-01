@@ -18,7 +18,8 @@ import {
   Speed,
   Subtitles,
 } from '../components';
-import { PlatformUtils } from '../utils/platform';
+import { PlatformUtils, webDependencies } from '../utils/platform';
+import { ControlsFocusableContext, TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
 import { trackLabel } from '../utils/common';
 export interface DefaultLayoutProps {
   scrim?: boolean | ColorValue;
@@ -98,19 +99,27 @@ const FadingControls = ({
   const controlsVisible = useVideoSelector((state) => state.controlsVisible);
   const buffering = useVideoSelector((state) => showWhileBuffering && state.buffering);
   const visible = controlsVisible || buffering;
-  const animatedStyle = useAnimatedStyle(() => {
-    const easing = Easing.bezierFn(0.25, 0.1, 0.25, 1);
-    return {
-      opacity: withTiming(visible ? 1 : 0, { duration: 100, easing }),
-      transform: [{ translateY: withTiming(visible ? 0 : offsetY, { duration: 100, easing }) }],
-    };
-  }, [visible, offsetY]);
+  const animatedStyle = useAnimatedStyle(
+    () => {
+      const easing = Easing.bezierFn(0.25, 0.1, 0.25, 1);
+      return {
+        opacity: withTiming(visible ? 1 : 0, { duration: 100, easing }),
+        transform: [{ translateY: withTiming(visible ? 0 : offsetY, { duration: 100, easing }) }],
+      };
+    },
+    webDependencies([visible, offsetY])
+  );
 
   // Faded-out controls stay mounted, so stop them taking touches: a tap meant to bring the controls back (or a swipe
-  // starting near an edge) would otherwise hit an invisible button or the progress bar
+  // starting near an edge) would otherwise hit an invisible button or the progress bar. On TV, stop
+  // them taking the remote's focus for the same reason.
   return (
     <Animated.View style={[style, animatedStyle, controlsVisible ? touchStyles.passThrough : touchStyles.none]}>
-      {children}
+      {PlatformUtils.isTV() ? (
+        <ControlsFocusableContext.Provider value={controlsVisible}>{children}</ControlsFocusableContext.Provider>
+      ) : (
+        children
+      )}
     </Animated.View>
   );
 };
@@ -343,7 +352,11 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               <View style={layoutStyles.centerControls}>
                 <FadingControls showWhileBuffering>
                   <UnlessBuffering>
-                    <View style={layoutStyles.row}>
+                    {/* On TV, left and right stay on the centre controls rather than leaving the player */}
+                    <View
+                      style={layoutStyles.row}
+                      collapsable={false}
+                      {...(PlatformUtils.isTV() ? TRAP_FOCUS_HORIZONTAL : null)}>
                       {slots?.beforeCenterPlayButton && slots.beforeCenterPlayButton}
                       <DevProfiler id="PlayButton">
                         <VideoPlayer.PlayButton size={theme.iconSizes.lg} />

@@ -16,6 +16,7 @@ import type { UseDoubleTapGestureProps } from '../../types';
 import { useProgressStore } from '../../providers/ProgressStore';
 import { useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
+import { webDependencies } from '../../utils/platform';
 
 const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
 
@@ -264,55 +265,68 @@ export const useDoubleTapGesture = ({
   );
   const doubleTapGesture = useTapGesture(config);
 
-  const backwardAnimatedRipple = useAnimatedStyle(() => {
-    const radius = backwardRadius.value;
-    if (activeDirection.value !== 'backward' || radius === 0) {
-      return { opacity: 0 };
-    }
-    const diameter = radius * 2;
+  const backwardAnimatedRipple = useAnimatedStyle(
+    () => {
+      const radius = backwardRadius.value;
+      if (activeDirection.value !== 'backward' || radius === 0) {
+        return { opacity: 0 };
+      }
+      const diameter = radius * 2;
 
-    return {
-      width: diameter,
-      height: diameter,
-      borderRadius: radius,
-      backgroundColor: 'white',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      zIndex: 1,
-      opacity: rippleOpacity.value,
-      transform: [
-        { translateX: backwardTranslateX.value - radius },
-        { translateY: backwardTranslateY.value - radius },
-        { scale: rippleScale.value },
-      ],
-    };
-  }, [activeDirection, backwardRadius, backwardTranslateX, backwardTranslateY, rippleOpacity, rippleScale]);
+      return {
+        width: diameter,
+        height: diameter,
+        borderRadius: radius,
+        backgroundColor: 'white',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        zIndex: 1,
+        opacity: rippleOpacity.value,
+        transform: [
+          { translateX: backwardTranslateX.value - radius },
+          { translateY: backwardTranslateY.value - radius },
+          { scale: rippleScale.value },
+        ],
+      };
+    },
+    webDependencies([
+      activeDirection,
+      backwardRadius,
+      backwardTranslateX,
+      backwardTranslateY,
+      rippleOpacity,
+      rippleScale,
+    ])
+  );
 
-  const forwardAnimatedRipple = useAnimatedStyle(() => {
-    const radius = forwardRadius.value;
-    if (activeDirection.value !== 'forward' || radius === 0) {
-      return { opacity: 0 };
-    }
-    const diameter = radius * 2;
+  const forwardAnimatedRipple = useAnimatedStyle(
+    () => {
+      const radius = forwardRadius.value;
+      if (activeDirection.value !== 'forward' || radius === 0) {
+        return { opacity: 0 };
+      }
+      const diameter = radius * 2;
 
-    return {
-      width: diameter,
-      height: diameter,
-      borderRadius: radius,
-      backgroundColor: 'white',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      zIndex: 1,
-      opacity: rippleOpacity.value,
-      transform: [
-        { translateX: forwardTranslateX.value - radius },
-        { translateY: forwardTranslateY.value - radius },
-        { scale: rippleScale.value },
-      ],
-    };
-  }, [activeDirection, forwardRadius, forwardTranslateX, forwardTranslateY, rippleOpacity, rippleScale]);
+      return {
+        width: diameter,
+        height: diameter,
+        borderRadius: radius,
+        backgroundColor: 'white',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        zIndex: 1,
+        opacity: rippleOpacity.value,
+        transform: [
+          { translateX: forwardTranslateX.value - radius },
+          { translateY: forwardTranslateY.value - radius },
+          { scale: rippleScale.value },
+        ],
+      };
+    },
+    webDependencies([activeDirection, forwardRadius, forwardTranslateX, forwardTranslateY, rippleOpacity, rippleScale])
+  );
 
   // Inline animated styles to comply with hooks rules (no conditional/dynamic hook calls)
   const forwardAnimatedStyle = useAnimatedStyle(
@@ -320,7 +334,7 @@ export const useDoubleTapGesture = ({
       opacity: forwardOpacity.value,
       transform: [{ scale: scaleValue.value }],
     }),
-    [forwardOpacity, scaleValue]
+    webDependencies([forwardOpacity, scaleValue])
   );
 
   const backwardAnimatedStyle = useAnimatedStyle(
@@ -328,7 +342,7 @@ export const useDoubleTapGesture = ({
       opacity: backwardOpacity.value,
       transform: [{ scale: scaleValue.value }],
     }),
-    [backwardOpacity, scaleValue]
+    webDependencies([backwardOpacity, scaleValue])
   );
 
   return {

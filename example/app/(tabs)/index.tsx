@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
+import { Platform, View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideoSelector, VideoProvider } from 'react-native-video-toolkit';
@@ -254,7 +254,9 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   playerContainer: {
-    height: 220,
+    // The video's own shape: a fixed height cropped it on wide screens. On TV it leaves room for the rest.
+    aspectRatio: 16 / 9,
+    width: Platform.isTV ? '55%' : undefined,
     marginHorizontal: 16,
     borderRadius: 12,
     overflow: 'hidden',
