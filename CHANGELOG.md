@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0 (2026-11-01)
+
+* feat: add before and after menu item slots to the settings menu ([c17956f](https://github.com/2004durgesh/react-native-video-toolkit/commit/c17956f))
+* feat: drive the player with a tv remote on android tv ([23fdd00](https://github.com/2004durgesh/react-native-video-toolkit/commit/23fdd00))
+* chore: declare the example tabs for expo router 58 and regenerate its native projects for tv ([7c58808](https://github.com/2004durgesh/react-native-video-toolkit/commit/7c58808))
+* feat!: move gestures to gesture handler 3 hooks and bump to expo sdk 58 ([5bd2274](https://github.com/2004durgesh/react-native-video-toolkit/commit/5bd2274))
+* fix: name audio and caption tracks by their language when the player gives them no title ([bfe2074](https://github.com/2004durgesh/react-native-video-toolkit/commit/bfe2074))
+
+
+### BREAKING CHANGE
+
+* react-native-gesture-handler 3 or later is required
+
 ## 0.13.0 (2026-10-19)
 
 * feat: add caption menu slots, custom menu views and pinned caption tracks ([c513216](https://github.com/2004durgesh/react-native-video-toolkit/commit/c513216))
