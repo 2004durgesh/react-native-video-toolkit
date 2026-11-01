@@ -116,7 +116,7 @@ function ComponentsContent({
     <SafeAreaView
       style={state.fullscreen ? styles.fullscreenWrapper : styles.container}
       edges={state.fullscreen ? [] : ['top']}>
-      <StatusBar hidden={state.fullscreen} barStyle="light-content" backgroundColor="#000" />
+      <StatusBar hidden={state.fullscreen} barStyle="light-content" />
 
       {!state.fullscreen && (
         <>

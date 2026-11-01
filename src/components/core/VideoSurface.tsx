@@ -13,7 +13,15 @@ import RNVideo, {
   type VideoRef,
 } from 'react-native-video';
 import { useCallback, useEffect, useMemo, type FC } from 'react';
-import { Dimensions, Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  Dimensions,
+  Platform,
+  View,
+  type LayoutRectangle,
+  type ScaledSize,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { useControlsController } from '../../providers/ControlsController';
@@ -145,7 +153,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   );
 
   useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+    const subscription = Dimensions.addEventListener('change', ({ window }: { window: ScaledSize }) => {
       dispatch({ type: 'SET_DIMENSIONS', payload: { width: window.width, height: window.height } });
     });
     return () => subscription.remove();

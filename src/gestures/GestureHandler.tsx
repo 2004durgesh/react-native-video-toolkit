@@ -1,7 +1,7 @@
 import { useDoubleTapGesture, useLongPressGesture, usePanGesture, useSingleTapGesture } from '../hooks';
-import React, { useMemo, type FC, type ReactNode } from 'react';
+import React, { type FC, type ReactNode } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
-import { GestureDetector, Gesture, type ComposedGesture, type TapGesture } from 'react-native-gesture-handler';
+import { GestureDetector, useExclusiveGestures } from 'react-native-gesture-handler';
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { useVideoSelector } from '../providers';
 import type { GestureHandlerProps } from '../types';
@@ -60,7 +60,8 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   // then, and taps on it would also seek or toggle the controls behind it. Playing again turns
   // them back on.
   const ended = useVideoSelector((state) => state.ended);
-  const noGesture = useMemo(() => Gesture.Tap().enabled(false), []);
+  const doubleTapEnabled = !ended && Boolean(enableDoubleTapGestures);
+  const panEnabled = !ended && Boolean(enablePanGestures);
   const theme = useVideoSelector((state) => state.theme);
   const {
     doubleTapGesture,
@@ -77,36 +78,31 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
     doubleTapSeekInterval,
     onDoubleTapSeekStart,
     onDoubleTapSeekEnd,
+    enabled: doubleTapEnabled,
   });
-  const { singleTapGesture } = useSingleTapGesture({ onSingleTap });
-  const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture({ onLongPressStart, onLongPressEnd });
+  const { singleTapGesture } = useSingleTapGesture({ onSingleTap, enabled: !ended });
+  // The long press comes with the double tap or the pan, and is off when both are
+  const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture({
+    onLongPressStart,
+    onLongPressEnd,
+    enabled: doubleTapEnabled || panEnabled,
+  });
   const { verticalPanGesture } = usePanGesture({
     onLeftVerticalPan,
     onRightVerticalPan,
     onGlobalVerticalPan,
     onSwipeUp,
     onSwipeDown,
+    enabled: panEnabled,
   });
-  // Built once per change of its parts: a new gesture on every render made the detector reconfigure,
-  // and double taps and long presses re-render this as they run
-  const composedGesture = useMemo<ComposedGesture | TapGesture>(() => {
-    if (ended) return noGesture;
-    if (enableDoubleTapGestures && enablePanGestures) {
-      return Gesture.Exclusive(doubleTapGesture, singleTapGesture, verticalPanGesture, longPressGesture);
-    }
-    if (enableDoubleTapGestures) return Gesture.Exclusive(doubleTapGesture, singleTapGesture, longPressGesture);
-    if (enablePanGestures) return Gesture.Exclusive(verticalPanGesture, singleTapGesture, longPressGesture);
-    return singleTapGesture;
-  }, [
-    ended,
-    noGesture,
-    enableDoubleTapGestures,
-    enablePanGestures,
+  // In order of priority: each gesture waits for the ones before it to fail. Composing is a hook, so
+  // all four are always in; the ones turned off with `enabled` take no touches and hold none back.
+  const composedGesture = useExclusiveGestures(
     doubleTapGesture,
     singleTapGesture,
     verticalPanGesture,
-    longPressGesture,
-  ]);
+    longPressGesture
+  );
   return (
     <GestureDetector gesture={composedGesture}>
       <View style={StyleSheet.absoluteFill}>

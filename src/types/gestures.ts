@@ -1,17 +1,28 @@
 import type {
-  GestureStateChangeEvent,
   GestureTouchEvent,
-  GestureUpdateEvent,
-  PanGestureHandlerEventPayload,
-  TapGestureHandlerEventPayload,
+  LongPressGestureEvent,
+  PanGestureActiveEvent,
+  TapGestureEvent,
 } from 'react-native-gesture-handler';
 import type { VideoRef } from 'react-native-video';
 import type { RefObject } from 'react';
 
 /**
+ * Turns a gesture hook's gesture on and off.
+ */
+export interface GestureEnabledProps {
+  /**
+   * Whether the gesture recognizes touches. When off, the gestures composed with it act as if it
+   * weren't there.
+   * @default true
+   */
+  enabled?: boolean;
+}
+
+/**
  * Props for the useDoubleTapGesture hook.
  */
-export interface UseDoubleTapGestureProps {
+export interface UseDoubleTapGestureProps extends GestureEnabledProps {
   /**
    * A ref to the video component.
    */
@@ -33,19 +44,19 @@ export interface UseDoubleTapGestureProps {
 /**
  * Props for the usePanGesture hook.
  */
-export interface UsePanGestureProps {
+export interface UsePanGestureProps extends GestureEnabledProps {
   /**
    * A callback function that is called when a vertical pan gesture is performed on the left side of the screen.
    */
-  onLeftVerticalPan?: (e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void;
+  onLeftVerticalPan?: (e: PanGestureActiveEvent) => void;
   /**
    * A callback function that is called when a vertical pan gesture is performed on the right side of the screen.
    */
-  onRightVerticalPan?: (e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void;
+  onRightVerticalPan?: (e: PanGestureActiveEvent) => void;
   /**
    * A callback function that is called when a vertical pan gesture is performed anywhere on the screen.
    */
-  onGlobalVerticalPan?: (e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => void;
+  onGlobalVerticalPan?: (e: PanGestureActiveEvent) => void;
   /**
    * A callback function that is called once when a vertical pan ends as an upward swipe (far or fast enough).
    */
@@ -59,17 +70,17 @@ export interface UsePanGestureProps {
 /**
  * Props for the useSingleTapGesture hook.
  */
-export interface UseSingleTapGestureProps {
+export interface UseSingleTapGestureProps extends GestureEnabledProps {
   /**
    * A callback function that is called when a single tap gesture is performed anywhere on the screen.
    */
-  onSingleTap?: (e: GestureStateChangeEvent<TapGestureHandlerEventPayload>) => void;
+  onSingleTap?: (e: TapGestureEvent) => void;
 }
 
 /**
  * Props for the useLongPressGesture hook.
  */
-export interface UseLongPressGestureProps {
+export interface UseLongPressGestureProps extends GestureEnabledProps {
   /**
    * A callback function that is called when a long press gesture starts.
    */
@@ -78,7 +89,7 @@ export interface UseLongPressGestureProps {
   /**
    * A callback function that is called when a long press gesture ends.
    */
-  onLongPressEnd?: (e: GestureStateChangeEvent<TapGestureHandlerEventPayload>) => void;
+  onLongPressEnd?: (e: LongPressGestureEvent) => void;
 }
 
 /**
@@ -86,10 +97,10 @@ export interface UseLongPressGestureProps {
  */
 export interface GestureHandlerProps
   extends
-    Partial<UseDoubleTapGestureProps>,
-    Partial<UsePanGestureProps>,
-    Partial<UseSingleTapGestureProps>,
-    Partial<UseLongPressGestureProps> {
+    Partial<Omit<UseDoubleTapGestureProps, 'enabled'>>,
+    Partial<Omit<UsePanGestureProps, 'enabled'>>,
+    Partial<Omit<UseSingleTapGestureProps, 'enabled'>>,
+    Partial<Omit<UseLongPressGestureProps, 'enabled'>> {
   /**
    * The children to render inside the gesture handler.
    */

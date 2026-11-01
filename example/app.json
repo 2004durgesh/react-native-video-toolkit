@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme":"videotoolkit-example",
+    "scheme": "videotoolkit-example",
     "userInterfaceStyle": "light",
     "edgeToEdgeEnabled": true,
     "splash": {
@@ -29,8 +29,8 @@
     },
     "plugins": [
       "expo-router",
-       "react-native-orientation-director",
-       [
+      "react-native-orientation-director",
+      [
         "@react-native-tvos/config-tv",
         {
           "androidTVBanner": "./assets/images/icon-400x240.png",
@@ -46,19 +46,20 @@
         }
       ],
       [
-      "react-native-video",
-      {
-        "enableNotificationControls": true,
-        "enableBackgroundAudio": true,
-        "enableAndroidPictureInPicture": true,
-        "androidExtensions": {
-          "useExoplayerRtsp": true,
-          "useExoplayerSmoothStreaming": true,
-          "useExoplayerHls": true,
-          "useExoplayerDash": true
+        "react-native-video",
+        {
+          "enableNotificationControls": true,
+          "enableBackgroundAudio": true,
+          "enableAndroidPictureInPicture": true,
+          "androidExtensions": {
+            "useExoplayerRtsp": true,
+            "useExoplayerSmoothStreaming": true,
+            "useExoplayerHls": true,
+            "useExoplayerDash": true
+          }
         }
-      }
-    ]
+      ],
+      "expo-status-bar"
     ]
   }
 }

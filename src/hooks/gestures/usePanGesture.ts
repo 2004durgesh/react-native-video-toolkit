@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Gesture } from 'react-native-gesture-handler';
+import { usePanGesture as useGesturePan, type PanGestureConfig } from 'react-native-gesture-handler';
 import { useVideoSelector } from '../../providers';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UsePanGestureProps } from '../../types';
@@ -21,37 +21,41 @@ export const usePanGesture = ({
   onGlobalVerticalPan,
   onSwipeUp,
   onSwipeDown,
+  enabled = true,
 }: UsePanGestureProps) => {
   // The player's width, since `event.x` is relative to the player, which needn't fill the window;
   // the window's width until the video has been laid out
   const windowWidth = useVideoSelector((state) => state.dimensions.width);
   const playerWidth = useVideoSelector((state) => state.videoLayout.width) || windowWidth;
-  const verticalPanGesture = useMemo(
-    () =>
-      Gesture.Pan()
-        .activeOffsetY([-10, 10])
-        .onUpdate((event) => {
-          'worklet';
-          if (onGlobalVerticalPan) {
-            scheduleOnRN(onGlobalVerticalPan, event);
-            return;
-          }
-          const side = event.x < playerWidth / 2 ? 'left' : 'right';
-          if (side === 'left') {
-            if (onLeftVerticalPan) scheduleOnRN(onLeftVerticalPan, event);
-          } else {
-            if (onRightVerticalPan) scheduleOnRN(onRightVerticalPan, event);
-          }
-        })
-        .onEnd((event) => {
-          'worklet';
-          const isUp = event.translationY < -SWIPE_DISTANCE || event.velocityY < -SWIPE_VELOCITY;
-          const isDown = event.translationY > SWIPE_DISTANCE || event.velocityY > SWIPE_VELOCITY;
-          if (isUp && onSwipeUp) scheduleOnRN(onSwipeUp);
-          else if (isDown && onSwipeDown) scheduleOnRN(onSwipeDown);
-        }),
-    [onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan, onSwipeUp, onSwipeDown, playerWidth]
+  // Memoized: Gesture Handler sends the config to the native side whenever the object changes
+  const config = useMemo<PanGestureConfig>(
+    () => ({
+      enabled,
+      activeOffsetY: [-10, 10],
+      onUpdate: (event) => {
+        'worklet';
+        if (onGlobalVerticalPan) {
+          scheduleOnRN(onGlobalVerticalPan, event);
+          return;
+        }
+        const side = event.x < playerWidth / 2 ? 'left' : 'right';
+        if (side === 'left') {
+          if (onLeftVerticalPan) scheduleOnRN(onLeftVerticalPan, event);
+        } else {
+          if (onRightVerticalPan) scheduleOnRN(onRightVerticalPan, event);
+        }
+      },
+      onDeactivate: (event) => {
+        'worklet';
+        const isUp = event.translationY < -SWIPE_DISTANCE || event.velocityY < -SWIPE_VELOCITY;
+        const isDown = event.translationY > SWIPE_DISTANCE || event.velocityY > SWIPE_VELOCITY;
+        if (isUp && onSwipeUp) scheduleOnRN(onSwipeUp);
+        else if (isDown && onSwipeDown) scheduleOnRN(onSwipeDown);
+      },
+    }),
+    [enabled, onLeftVerticalPan, onRightVerticalPan, onGlobalVerticalPan, onSwipeUp, onSwipeDown, playerWidth]
   );
+  const verticalPanGesture = useGesturePan(config);
 
   return {
     verticalPanGesture,

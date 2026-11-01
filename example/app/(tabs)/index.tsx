@@ -151,7 +151,7 @@ function HomeContent() {
       {/* Only does anything when Metro runs with EXPO_PUBLIC_PERF_RUN=1 (see perf/perfHarness.tsx) */}
       <PerfRun />
       <SafeAreaView style={fullscreen ? styles.fullscreenWrapper : styles.container} edges={fullscreen ? [] : ['top']}>
-        <StatusBar hidden={fullscreen} barStyle="light-content" backgroundColor="#000" />
+        <StatusBar hidden={fullscreen} barStyle="light-content" />
 
         {!fullscreen && (
           <>

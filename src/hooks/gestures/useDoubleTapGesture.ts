@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useWindowDimensions } from 'react-native';
-import { Gesture } from 'react-native-gesture-handler';
+import { useWindowDimensions, type HostInstance } from 'react-native';
+import { useTapGesture, type TapGesture, type TapGestureConfig } from 'react-native-gesture-handler';
 import {
   measure,
   useAnimatedRef,
@@ -9,6 +9,7 @@ import {
   withSequence,
   withSpring,
   withTiming,
+  type AnimatedRef,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseDoubleTapGestureProps } from '../../types';
@@ -17,6 +18,31 @@ import { useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
 
 const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
+
+/**
+ * Return type for the useDoubleTapGesture hook. Written out rather than inferred: the refs' inferred
+ * type names an internal React Native type, which published type definitions can't refer to.
+ */
+export interface UseDoubleTapGestureReturn {
+  /** The gesture handler for double taps. */
+  doubleTapGesture: TapGesture;
+  /** Whether a double tap is in progress. */
+  isDoubleTap: boolean;
+  /** The seconds the current run of taps has seeked, forward and backward. */
+  doubleTapValue: { forward: number; backward: number };
+  /** A ref for the backward ripple animation container. */
+  backwardRippleRef: AnimatedRef<HostInstance>;
+  /** A ref for the forward ripple animation container. */
+  forwardRippleRef: AnimatedRef<HostInstance>;
+  /** The animated style for the backward ripple effect. */
+  backwardAnimatedRipple: ReturnType<typeof useAnimatedStyle>;
+  /** The animated style for the forward ripple effect. */
+  forwardAnimatedRipple: ReturnType<typeof useAnimatedStyle>;
+  /** The animated style for the forward seek label. */
+  forwardAnimatedStyle: ReturnType<typeof useAnimatedStyle>;
+  /** The animated style for the backward seek label. */
+  backwardAnimatedStyle: ReturnType<typeof useAnimatedStyle>;
+}
 
 /**
  * A hook for handling double tap gestures to seek forward or backward in the video.
@@ -38,7 +64,8 @@ export const useDoubleTapGesture = ({
   doubleTapSeekInterval = 10,
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
-}: UseDoubleTapGestureProps) => {
+  enabled = true,
+}: UseDoubleTapGestureProps): UseDoubleTapGestureReturn => {
   const { width: windowWidth } = useWindowDimensions();
   // Which half was tapped is judged against the player, since `event.x` is relative to it and it
   // needn't fill the window; the window's width until the video has been laid out
@@ -79,8 +106,8 @@ export const useDoubleTapGesture = ({
   const forwardRadius = useSharedValue(0);
   const backwardRadius = useSharedValue(0);
 
-  const backwardRippleRef = useAnimatedRef();
-  const forwardRippleRef = useAnimatedRef();
+  const backwardRippleRef = useAnimatedRef<HostInstance>();
+  const forwardRippleRef = useAnimatedRef<HostInstance>();
   const activeDirection = useSharedValue<'forward' | 'backward' | null>(null);
 
   const resetConsecutiveCount = useCallback(
@@ -166,53 +193,58 @@ export const useDoubleTapGesture = ({
     [videoRef, doubleTapSeekInterval, showTapAnimation, progressStore, store]
   );
 
-  const doubleTapGesture = useMemo(
-    () =>
-      Gesture.Tap()
-        .numberOfTaps(2)
-        .maxDuration(250)
-        .maxDistance(TAP_MAX_DISTANCE)
-        .onStart((event) => {
-          scheduleOnRN(setIsDoubleTap, true);
-          if (onDoubleTapSeekStart) {
-            scheduleOnRN(onDoubleTapSeekStart);
-          }
+  // Memoized: Gesture Handler sends the config to the native side whenever the object changes
+  const config = useMemo<TapGestureConfig>(
+    () => ({
+      enabled,
+      numberOfTaps: 2,
+      maxDuration: 250,
+      maxDistance: TAP_MAX_DISTANCE,
+      onActivate: (event) => {
+        'worklet';
+        scheduleOnRN(setIsDoubleTap, true);
+        if (onDoubleTapSeekStart) {
+          scheduleOnRN(onDoubleTapSeekStart);
+        }
 
-          const midPoint = playerWidth / 2;
-          const direction = event.x < midPoint ? 'backward' : 'forward';
-          activeDirection.value = direction;
+        const midPoint = playerWidth / 2;
+        const direction = event.x < midPoint ? 'backward' : 'forward';
+        activeDirection.value = direction;
 
-          // The tap inside the ripple's container, which is offset from the player, so the ripple
-          // grows from the finger; and the radius that covers the container
-          const box = measure(direction === 'forward' ? forwardRippleRef : backwardRippleRef);
-          const originX = box ? box.x : direction === 'forward' ? midPoint : 0;
-          const originY = box ? box.y : 0;
-          const radius = box ? Math.sqrt(box.width ** 2 + box.height ** 2) : 0;
-          if (direction === 'forward') {
-            forwardTranslateX.value = event.x - originX;
-            forwardTranslateY.value = event.y - originY;
-            if (radius) forwardRadius.value = radius;
-          } else {
-            backwardTranslateX.value = event.x - originX;
-            backwardTranslateY.value = event.y - originY;
-            if (radius) backwardRadius.value = radius;
-          }
+        // The tap inside the ripple's container, which is offset from the player, so the ripple
+        // grows from the finger; and the radius that covers the container
+        const box = measure(direction === 'forward' ? forwardRippleRef : backwardRippleRef);
+        const originX = box ? box.x : direction === 'forward' ? midPoint : 0;
+        const originY = box ? box.y : 0;
+        const radius = box ? Math.sqrt(box.width ** 2 + box.height ** 2) : 0;
+        if (direction === 'forward') {
+          forwardTranslateX.value = event.x - originX;
+          forwardTranslateY.value = event.y - originY;
+          if (radius) forwardRadius.value = radius;
+        } else {
+          backwardTranslateX.value = event.x - originX;
+          backwardTranslateY.value = event.y - originY;
+          if (radius) backwardRadius.value = radius;
+        }
 
-          // Reset and start ripple animation
-          rippleScale.value = 0;
-          rippleScale.value = withTiming(1, { duration: 500 });
-          rippleOpacity.value = 0.4;
+        // Reset and start ripple animation
+        rippleScale.value = 0;
+        rippleScale.value = withTiming(1, { duration: 500 });
+        rippleOpacity.value = 0.4;
 
-          scheduleOnRN(handleSeek, direction);
-        })
-        .onEnd(() => {
-          scheduleOnRN(setIsDoubleTap, false);
-          if (onDoubleTapSeekEnd) {
-            scheduleOnRN(onDoubleTapSeekEnd);
-          }
-          rippleOpacity.value = withTiming(0, { duration: 500 });
-        }),
+        scheduleOnRN(handleSeek, direction);
+      },
+      onDeactivate: () => {
+        'worklet';
+        scheduleOnRN(setIsDoubleTap, false);
+        if (onDoubleTapSeekEnd) {
+          scheduleOnRN(onDoubleTapSeekEnd);
+        }
+        rippleOpacity.value = withTiming(0, { duration: 500 });
+      },
+    }),
     [
+      enabled,
       onDoubleTapSeekStart,
       activeDirection,
       forwardTranslateX,
@@ -230,6 +262,7 @@ export const useDoubleTapGesture = ({
       playerWidth,
     ]
   );
+  const doubleTapGesture = useTapGesture(config);
 
   const backwardAnimatedRipple = useAnimatedStyle(() => {
     const radius = backwardRadius.value;

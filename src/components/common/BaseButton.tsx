@@ -1,5 +1,5 @@
 import React, { useMemo, type ReactNode } from 'react';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { GestureDetector, useTapGesture, type TapGestureConfig } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import { useVideoSelector, useVideoComponents } from '../../providers';
 import type { PressFeedbackProps } from '../../types';
@@ -21,17 +21,19 @@ export const BaseButton = ({ children, onTap, ...props }: BaseButtonProps): Reac
   const theme = useVideoSelector((state) => state.theme);
   const { PressFeedback } = useVideoComponents();
 
-  const gesture = useMemo(
-    () =>
-      Gesture.Tap()
-        .maxDuration(250)
-        .numberOfTaps(1)
-        .onEnd(() => {
-          'worklet';
-          scheduleOnRN(onTap);
-        }),
+  // Memoized: Gesture Handler sends the config to the native side whenever the object changes
+  const config = useMemo<TapGestureConfig>(
+    () => ({
+      maxDuration: 250,
+      numberOfTaps: 1,
+      onDeactivate: () => {
+        'worklet';
+        scheduleOnRN(onTap);
+      },
+    }),
     [onTap]
   );
+  const gesture = useTapGesture(config);
 
   return (
     <GestureDetector gesture={gesture}>

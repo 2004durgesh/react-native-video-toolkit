@@ -93,12 +93,12 @@ These props are passed through the [`gestureProps`](./types/gestures.mdx#gesture
 <Callout type="info">
 **Gesture Composition**
 
-The `GestureHandler` automatically composes gestures based on your app's configuration:
+The `GestureHandler` composes its gestures with `useExclusiveGestures(doubleTap, singleTap, pan, longPress)`, in order of priority: each waits for the ones before it to fail. Your app's configuration turns them on and off:
 
-- **All Enabled**: `Gesture.Exclusive(doubleTap, singleTap, pan,longPress)`
-- **Double-tap Only**: `Gesture.Exclusive(doubleTap, singleTap,longPress)`
-- **Pan Only**: `Gesture.Exclusive(pan, singleTap, longPress)`
-- **Single-tap Only**: `singleTap`
+- **All Enabled**: double tap, single tap, pan and long press
+- **Double-tap Only**: double tap, single tap and long press
+- **Pan Only**: pan, single tap and long press
+- **Single-tap Only**: single tap
 
 Enable/disable gestures via the `VideoProvider` config: `enableDoubleTapGestures` and `enablePanGestures`.
 
@@ -207,7 +207,7 @@ Provides animated ripple effects on the left and right sides of the screen durin
 ## Notes
 
 - **Underlying Component**: `GestureHandler` is automatically integrated into `VideoPlayer` - use `gestureProps` instead of wrapping manually
-- **Performance**: The component uses `Gesture.Exclusive()` to prevent conflicts between gesture types
+- **Performance**: The component uses `useExclusiveGestures()` to prevent conflicts between gesture types
 - **Platform Support**: Works on iOS, Android, and Web (with react-native-gesture-handler web support)
 - **Customization**: For advanced customization, consider using the individual gesture hooks directly
 - **Screen Zones**: Double-tap gestures are divided into left (backward) and right (forward) screen halves

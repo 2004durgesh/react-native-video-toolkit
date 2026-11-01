@@ -1,9 +1,9 @@
 import { useMemo, useRef, useCallback, useEffect, useState } from 'react';
 import {
-  Gesture,
-  type GestureStateChangeEvent,
+  useLongPressGesture as useGestureLongPress,
   type GestureTouchEvent,
-  type LongPressGestureHandlerEventPayload,
+  type LongPressGestureConfig,
+  type LongPressGestureEvent,
 } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseLongPressGestureProps } from '../../types';
@@ -16,7 +16,7 @@ import { useVideoStore } from '../../providers/VideoProvider';
  * @returns An object with the following properties:
  * - `longPressGesture`: The gesture handler for long presses.
  */
-export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd }: UseLongPressGestureProps) => {
+export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd, enabled = true }: UseLongPressGestureProps) => {
   const { setPlaybackRate } = usePlaybackRate();
   const store = useVideoStore();
   const longPressGestureStarted = useRef(false);
@@ -52,7 +52,7 @@ export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd }: UseLon
   );
 
   const endLongPress = useCallback(
-    (event: GestureStateChangeEvent<LongPressGestureHandlerEventPayload>) => {
+    (event: LongPressGestureEvent) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
@@ -67,19 +67,22 @@ export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd }: UseLon
     [onLongPressEnd, setPlaybackRate]
   );
 
-  const longPressGesture = useMemo(
-    () =>
-      Gesture.LongPress()
-        .onTouchesDown((event) => {
-          'worklet';
-          scheduleOnRN(startLongPress, event);
-        })
-        .onFinalize((event) => {
-          'worklet';
-          scheduleOnRN(endLongPress, event);
-        }),
-    [startLongPress, endLongPress]
+  // Memoized: Gesture Handler sends the config to the native side whenever the object changes
+  const config = useMemo<LongPressGestureConfig>(
+    () => ({
+      enabled,
+      onTouchesDown: (event) => {
+        'worklet';
+        scheduleOnRN(startLongPress, event);
+      },
+      onFinalize: (event) => {
+        'worklet';
+        scheduleOnRN(endLongPress, event);
+      },
+    }),
+    [enabled, startLongPress, endLongPress]
   );
+  const longPressGesture = useGestureLongPress(config);
 
   return { longPressGesture, isPlaybackRateIncreased };
 };
