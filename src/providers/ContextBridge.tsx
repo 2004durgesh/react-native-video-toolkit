@@ -5,6 +5,7 @@ import { SettingsContext } from './SettingsProvider';
 import { ComponentsContext } from './ComponentsProvider';
 import { ProgressStoreContext } from './ProgressStore';
 import { ControlsControllerContext } from './ControlsController';
+import { TestIDContext } from '../utils/testIDs';
 
 /**
  * Snapshot of the toolkit's context values.
@@ -17,6 +18,7 @@ export interface BridgedContexts {
   theme: ContextType<typeof ThemeContext>;
   settings: ContextType<typeof SettingsContext>;
   components: ContextType<typeof ComponentsContext>;
+  testID: ContextType<typeof TestIDContext>;
 }
 
 /**
@@ -30,6 +32,7 @@ export const useBridgedContexts = (): BridgedContexts => ({
   theme: useContext(ThemeContext),
   settings: useContext(SettingsContext),
   components: useContext(ComponentsContext),
+  testID: useContext(TestIDContext),
 });
 
 /**
@@ -49,7 +52,9 @@ export const ContextBridge: React.FC<{ contexts: BridgedContexts; children: Reac
       <ControlsControllerContext.Provider value={contexts.controls}>
         <ThemeContext.Provider value={contexts.theme}>
           <SettingsContext.Provider value={contexts.settings}>
-            <ComponentsContext.Provider value={contexts.components}>{children}</ComponentsContext.Provider>
+            <ComponentsContext.Provider value={contexts.components}>
+              <TestIDContext.Provider value={contexts.testID}>{children}</TestIDContext.Provider>
+            </ComponentsContext.Provider>
           </SettingsContext.Provider>
         </ThemeContext.Provider>
       </ControlsControllerContext.Provider>

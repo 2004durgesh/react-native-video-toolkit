@@ -24,14 +24,15 @@ import { ProgressBarUsageExample } from '@/components/examples/controls/progress
 
 ## Props
 
-| Prop          | Type                     | Required | Default | Description                                    |
-| ------------- | ------------------------ | -------- | ------- | ---------------------------------------------- |
-| `height`      | `number`                 | No       | `4`     | Height of the progress track (in px).          |
-| `thumbWidth`  | `number`                 | No       | `12`    | Width of the draggable thumb control.          |
-| `style`       | `StyleProp<ViewStyle>`   | No       | –       | Optional styles for the container.             |
-| `onSeekStart` | `() => void`             | No       | –       | Callback fired when the user starts seeking.   |
-| `onSeekEnd`   | `(time: number) => void` | No       | –       | Callback fired when the user finishes seeking. |
-| `onSeek`      | `(time: number) => void` | No       | –       | Callback fired when the seek position changes. |
+| Prop          | Type                     | Required | Default              | Description                                                           |
+| ------------- | ------------------------ | -------- | -------------------- | --------------------------------------------------------------------- |
+| `height`      | `number`                 | No       | `4`                  | Height of the progress track (in px).                                 |
+| `thumbWidth`  | `number`                 | No       | `12`                 | Width of the draggable thumb control.                                 |
+| `style`       | `StyleProp<ViewStyle>`   | No       | –                    | Optional styles for the container.                                    |
+| `onSeekStart` | `() => void`             | No       | –                    | Callback fired when the user starts seeking.                          |
+| `onSeekEnd`   | `(time: number) => void` | No       | –                    | Callback fired when the user finishes seeking.                        |
+| `onSeek`      | `(time: number) => void` | No       | –                    | Callback fired when the seek position changes.                        |
+| `testID`      | `string`                 | No       | `video-progress-bar` | Identifies the bar in end-to-end tests. See [Testing](/docs/testing). |
 
 ---
 

@@ -1,6 +1,7 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVolume } from '../../hooks';
 import { useVideoSelector, useVideoComponents } from '../../providers';
+import { useTestID } from '../../utils/testIDs';
 
 export interface VolumeControlProps {
   orientation?: 'horizontal' | 'vertical';
@@ -12,6 +13,11 @@ export interface VolumeControlProps {
   style?: StyleProp<ViewStyle>;
   /** Callback fired when the volume changes. */
   onVolumeChange?: (volume: number) => void;
+  /**
+   * Identifies the control in end-to-end tests.
+   * @default `video-volume`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 /**
@@ -32,7 +38,9 @@ export const VolumeControl = ({
   progressColor,
   style,
   onVolumeChange,
+  testID,
 }: VolumeControlProps): React.ReactElement => {
+  const controlTestID = useTestID('volume', testID);
   const { volume, setVolume } = useVolume();
   const theme = useVideoSelector((state) => state.theme);
   const { Slider } = useVideoComponents();
@@ -43,7 +51,7 @@ export const VolumeControl = ({
   };
 
   return (
-    <View style={style}>
+    <View style={style} testID={controlTestID}>
       <Slider
         variant="volume"
         value={volume}

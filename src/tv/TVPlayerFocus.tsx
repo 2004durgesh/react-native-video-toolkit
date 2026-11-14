@@ -6,6 +6,7 @@ import { useControlsController } from '../providers/ControlsController';
 import { useProgressStore } from '../providers/ProgressStore';
 import { addTVRemoteListener } from './tvRemote';
 import { createTVFocus, TRAP_FOCUS, TVFocusContext, tvPreferredFocus } from './TVFocus';
+import { useTestID } from '../utils/testIDs';
 
 /** How far the remote's left and right, and its rewind and fast-forward keys, seek, in seconds. */
 const SEEK_STEP = 10;
@@ -43,6 +44,7 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
   // From the focus state directly: this component provides it, so the context hook above it sees none
   const target = useSyncExternalStore(focus.subscribe, focus.getTarget, focus.getTarget);
   const surfacePreferred = target === 'surface' && !controlsVisible;
+  const surfaceTestID = useTestID('tv-surface');
 
   useEffect(() => {
     const clamp = (time: number) => {
@@ -171,6 +173,7 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
       <View style={StyleSheet.absoluteFill} collapsable={false} {...(controlsVisible ? null : TRAP_FOCUS)}>
         <Pressable
           style={StyleSheet.absoluteFill}
+          testID={surfaceTestID}
           focusable={!controlsVisible}
           {...tvPreferredFocus(surfacePreferred)}
           onFocus={() => {

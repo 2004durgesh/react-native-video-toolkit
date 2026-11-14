@@ -36,6 +36,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
 import { PlatformUtils, webDependencies } from '../../utils/platform';
+import { useTestID } from '../../utils/testIDs';
 import { DEFAULT_TV_FOCUS_COLOR, requestTVFocus, TRAP_FOCUS, TV_FOCUS_GUIDE, TVFocusContext } from '../../tv/TVFocus';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { type SettingsButtonProps } from '../controls';
@@ -73,12 +74,22 @@ interface MenuContentProps {
   sideOffset?: number;
   align?: 'start' | 'center' | 'end';
   alignOffset?: number;
+  /**
+   * Identifies the menu's content in end-to-end tests, for example to wait until it's open.
+   * @default `video-settings`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 interface MenuSubContentProps {
   viewId: string;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
+  /**
+   * Identifies the view in end-to-end tests.
+   * @default `video-settings-view-<viewId>`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 // FIXED: Omit onPress from PressableProps to avoid signature conflict
@@ -256,7 +267,8 @@ export const Menu = {
   /**
    * Trigger to open the menu.
    */
-  Trigger: ({ size, color, style, renderSettingIcon }: SettingsButtonProps): ReactElement => {
+  Trigger: ({ size, color, style, renderSettingIcon, testID }: SettingsButtonProps): ReactElement => {
+    const buttonTestID = useTestID('settings-button', testID);
     const theme = useVideoSelector((state) => state.theme);
     const { openSettings } = useMenuContext();
     const SettingsIcon = renderSettingIcon || Settings;
@@ -272,6 +284,7 @@ export const Menu = {
           onTap={openSettings}
           accessibilityRole="button"
           accessibilityLabel="Settings"
+          testID={buttonTestID}
           // The remote comes back here as the menu closes
           tvFocusTarget="settings"
           style={[styles.triggerButton, style]}>
@@ -285,6 +298,7 @@ export const Menu = {
         onPress={openSettings}
         accessibilityRole="button"
         accessibilityLabel="Settings"
+        testID={buttonTestID}
         style={[styles.triggerButton, style]}>
         {icon}
       </Pressable>
@@ -307,6 +321,7 @@ export const Menu = {
     const theme = useVideoSelector((state) => state.theme);
 
     const displayTitle = title || (currentView === 'root' ? 'Settings' : currentView);
+    const titleTestID = useTestID('settings-title');
     const shouldShowBackButton = showBackButton && (navigationStack.length > 1 || currentView !== 'root');
 
     return (
@@ -319,6 +334,7 @@ export const Menu = {
         {children || (
           <Title
             text={displayTitle}
+            testID={titleTestID}
             numberOfLines={1}
             style={[styles.headerTitle, { color: theme.colors.menuText }, titleStyle]}
           />
@@ -332,7 +348,8 @@ export const Menu = {
    * Content wrapper, rendered inside the `Sheet` from `VideoProvider`'s `components`
    * (a bottom sheet by default).
    */
-  Content: ({ children, sheetStyle, header, portalHost }: MenuContentProps): ReactElement => {
+  Content: ({ children, sheetStyle, header, portalHost, testID }: MenuContentProps): ReactElement => {
+    const contentTestID = useTestID('settings', testID);
     const menuContext = useMenuContext();
     const { currentView } = menuContext;
     const { setSettingsMenuVisible } = useSettings();
@@ -368,7 +385,11 @@ export const Menu = {
                 In the app's window a nested root does nothing. */}
             <GestureHandlerRootView style={styles.gestureRoot}>
               {/* On TV the remote stays in the menu while it's open */}
-              <View style={styles.gestureRoot} collapsable={false} {...(IS_TV ? TRAP_FOCUS : null)}>
+              <View
+                style={styles.gestureRoot}
+                collapsable={false}
+                testID={contentTestID}
+                {...(IS_TV ? TRAP_FOCUS : null)}>
                 {header ? header(currentView) : <Menu.Header />}
                 {/* When the sheet closes, the sub-view's exit animation is skipped. With Reanimated's
                     ENABLE_SHARED_ELEMENT_TRANSITIONS flag, a native sheet would otherwise stay mounted
@@ -394,14 +415,16 @@ export const Menu = {
   /**
    * SubContent: Conditionally renders content for a specific view ID with slide animation.
    */
-  SubContent: ({ viewId, children, style }: MenuSubContentProps): ReactElement | null => {
+  SubContent: ({ viewId, children, style, testID }: MenuSubContentProps): ReactElement | null => {
     const { currentView } = useMenuContext();
+    const viewTestID = useTestID(`settings-view-${viewId}`, testID);
 
     if (currentView !== viewId) return null;
 
     return (
       <AnimatedView
         key={viewId}
+        testID={viewTestID}
         style={[styles.subContent, style]}
         entering={webSafeAnimation(FadeInRight.duration(200))}
         exiting={webSafeAnimation(FadeOutLeft.duration(150))}>
@@ -592,17 +615,27 @@ export const Menu = {
   /*
    * Close: Button to close the menu.
    */
-  Close: ({ style, ...props }: MenuCloseProps): ReactElement => {
+  Close: ({ style, testID, ...props }: MenuCloseProps): ReactElement => {
     const { closeSettings } = useMenuContext();
-    return <BaseIconButton onTap={closeSettings} IconComponent={MenuCloseIcon} style={style} {...props} />;
+    const buttonTestID = useTestID('settings-close', testID ?? undefined);
+    return (
+      <BaseIconButton
+        onTap={closeSettings}
+        IconComponent={MenuCloseIcon}
+        style={style}
+        {...props}
+        testID={buttonTestID}
+      />
+    );
   },
 
   /*
    * Back: Button to navigate back in the menu stack.
    */
-  Back: ({ style, ...props }: MenuBackProps): ReactElement => {
+  Back: ({ style, testID, ...props }: MenuBackProps): ReactElement => {
     const { goBack, navigationStack } = useMenuContext();
     const canGoBack = navigationStack.length > 1;
+    const buttonTestID = useTestID('settings-back', testID ?? undefined);
     return (
       <BaseIconButton
         onTap={() => goBack()}
@@ -610,6 +643,7 @@ export const Menu = {
         disabled={!canGoBack}
         IconComponent={MenuBackIcon}
         {...props}
+        testID={buttonTestID}
       />
     );
   },

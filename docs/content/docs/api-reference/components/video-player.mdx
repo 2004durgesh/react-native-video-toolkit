@@ -48,16 +48,17 @@ export default function App() {
 
 ## Props
 
-| Prop                | Type                                                           | Required | Default | Description                                                                                                                       |
-| ------------------- | -------------------------------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `source`            | `ReactVideoProps['source']`                                    | Yes      | –       | Video source (`uri`, local file, or require). Uses the source type from `react-native-video`.                                     |
-| `children`          | `ReactNode`                                                    | No       | –       | Optional custom overlay or controls.                                                                                              |
-| `containerStyle`    | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the root container.                                                                                              |
-| `videoProps`        | `ReactVideoProps`                                              | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player.           |
-| `gestureProps`      | [`GestureHandlerProps`](../types/gestures#gesturehandlerprops) | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                                |
-| `videoStyle`        | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the [video](./core/video-surface.mdx) component.                                                                 |
-| `customAudioTracks` | `AudioTrack[]`                                                 | No       | –       | Custom audio tracks to use when `config.useCustomAudioTracks` is `true`.                                                          |
-| `customVideoTracks` | `CustomVideoTrack[]`                                           | No       | –       | Custom video tracks to use when `config.useCustomVideoTracks` is `true`. See [CustomVideoTrack](../types/video#customvideotrack). |
+| Prop                | Type                                                           | Required | Default | Description                                                                                                                                     |
+| ------------------- | -------------------------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source`            | `ReactVideoProps['source']`                                    | Yes      | –       | Video source (`uri`, local file, or require). Uses the source type from `react-native-video`.                                                   |
+| `children`          | `ReactNode`                                                    | No       | –       | Optional custom overlay or controls.                                                                                                            |
+| `containerStyle`    | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the root container.                                                                                                            |
+| `videoProps`        | `ReactVideoProps`                                              | No       | –       | Props passed to the underlying [`react-native-video`](https://github.com/react-native-video/react-native-video) player.                         |
+| `gestureProps`      | [`GestureHandlerProps`](../types/gestures#gesturehandlerprops) | No       | –       | Props for the built-in `GestureHandler` (e.g. double-tap to seek).                                                                              |
+| `videoStyle`        | `StyleProp<ViewStyle>`                                         | No       | –       | Style applied to the [video](./core/video-surface.mdx) component.                                                                               |
+| `customAudioTracks` | `AudioTrack[]`                                                 | No       | –       | Custom audio tracks to use when `config.useCustomAudioTracks` is `true`.                                                                        |
+| `customVideoTracks` | `CustomVideoTrack[]`                                           | No       | –       | Custom video tracks to use when `config.useCustomVideoTracks` is `true`. See [CustomVideoTrack](../types/video#customvideotrack).               |
+| `testID`            | `string`                                                       | No       | `video` | Identifies the player in end-to-end tests. Its parts' IDs start with it, so give each player on a screen its own. See [Testing](/docs/testing). |
 
 ---
 

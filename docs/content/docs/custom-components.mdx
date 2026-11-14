@@ -183,15 +183,15 @@ export function Slider(props: SliderProps) {
 
 ## Spinner
 
-Shown over the video while it buffers. `style` centers it, using its own `transform`; if your spinner animates a transform such as a rotation, put the animation on an inner view so the two don't clash.
+Shown over the video while it buffers. `style` centers it, using its own `transform`; if your spinner animates a transform such as a rotation, put the animation on an inner view so the two don't clash. Pass `testID` to your root view, so [tests](./testing) can wait for buffering to end.
 
 ```tsx
 import { View } from 'react-native';
 import type { SpinnerProps } from 'react-native-video-toolkit';
 
-export function Spinner({ size, color, style }: SpinnerProps) {
+export function Spinner({ size, color, style, testID }: SpinnerProps) {
   return (
-    <View style={style} pointerEvents="none">
+    <View style={style} pointerEvents="none" testID={testID}>
       <MyAnimatedRing size={size === 'large' ? 44 : 24} color={color} />
     </View>
   );

@@ -7,6 +7,6 @@ import type { SpinnerProps } from '../../types';
  * @param {SpinnerProps} props - The props for the spinner.
  * @returns {React.ReactElement} The spinner component.
  */
-export const DefaultSpinner = ({ size, color, style }: SpinnerProps): React.ReactElement => (
-  <ActivityIndicator size={size} color={color} style={style} />
+export const DefaultSpinner = ({ size, color, style, testID }: SpinnerProps): React.ReactElement => (
+  <ActivityIndicator size={size} color={color} style={style} testID={testID} />
 );

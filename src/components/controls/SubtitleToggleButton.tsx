@@ -2,13 +2,24 @@ import { BaseIconButton } from '../common';
 import { Subtitles, SubtitlesOff } from '../svgs';
 import { useSettings } from '../../hooks';
 import { useState } from 'react';
+import { useTestID } from '../../utils/testIDs';
+
+export interface SubtitleToggleButtonProps {
+  /**
+   * Identifies the button in end-to-end tests.
+   * @default `video-subtitles-button`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
+}
 
 /**
  * A button that toggles subtitles on and off.
  *
+ * @param {SubtitleToggleButtonProps} props - The props for the component.
  * @returns {React.ReactElement | null} The button, or nothing when the source has no subtitles.
  */
-export const SubtitleToggleButton = (): React.ReactElement | null => {
+export const SubtitleToggleButton = ({ testID }: SubtitleToggleButtonProps = {}): React.ReactElement | null => {
+  const buttonTestID = useTestID('subtitles-button', testID);
   const { textTrack, setTextTrack, textTracks } = useSettings();
   const [lastSelectedTrack, setLastSelectedTrack] = useState<any>(null);
 
@@ -40,7 +51,7 @@ export const SubtitleToggleButton = (): React.ReactElement | null => {
   };
 
   if (!hasSubtitles) return null;
-  return <BaseIconButton IconComponent={icon} onTap={handleToggle} />;
+  return <BaseIconButton IconComponent={icon} onTap={handleToggle} testID={buttonTestID} />;
 };
 
 export default SubtitleToggleButton;

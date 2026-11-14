@@ -11,6 +11,8 @@ interface BaseIconButtonProps {
   color?: string;
   onTap: () => void;
   style?: StyleProp<ViewStyle>;
+  /** Identifies the button in end-to-end tests. */
+  testID?: string;
   /** @internal On TV, the button the remote focuses when the controls come up. */
   tvFocusTarget?: TVFocusTarget;
 }
@@ -30,6 +32,7 @@ export const BaseIconButton = ({
   color,
   onTap,
   style,
+  testID,
   tvFocusTarget,
 }: BaseIconButtonProps): React.ReactElement => {
   const theme = useVideoSelector((state) => state.theme);
@@ -38,7 +41,7 @@ export const BaseIconButton = ({
   const iconColor = color || theme.colors.iconNormal;
 
   return (
-    <BaseButton onTap={onTap} tvFocusTarget={tvFocusTarget}>
+    <BaseButton onTap={onTap} testID={testID} tvFocusTarget={tvFocusTarget}>
       <View style={[styles.iconContainer, style]}>
         {icon ? icon : IconComponent ? <IconComponent size={iconSize} color={iconColor} /> : null}
       </View>

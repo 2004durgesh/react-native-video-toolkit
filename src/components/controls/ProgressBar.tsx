@@ -14,6 +14,7 @@ import {
   useTVPreferredFocus,
 } from '../../tv/TVFocus';
 import { PlatformUtils } from '../../utils/platform';
+import { useTestID } from '../../utils/testIDs';
 
 export interface ProgressBarProps {
   height?: number;
@@ -25,6 +26,11 @@ export interface ProgressBarProps {
   onSeekEnd?: (time: number) => void;
   /** Callback fired when the seek position changes. */
   onSeek?: (time: number) => void;
+  /**
+   * Identifies the bar in end-to-end tests.
+   * @default `video-progress-bar`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 /**
@@ -72,7 +78,7 @@ const SharedValueProgressBar = (props: ProgressBarProps): React.ReactElement => 
   const { progressStore } = useProgressActions();
 
   return (
-    <View style={[styles.container, props.style]}>
+    <View style={[styles.container, props.style]} testID={props.testID}>
       <SliderView
         {...slider}
         progress={progressStore.shared.currentTime}
@@ -91,7 +97,7 @@ const PropsProgressBar = (props: ProgressBarProps): React.ReactElement => {
   const { Slider } = useVideoComponents();
 
   return (
-    <View style={[styles.container, props.style]}>
+    <View style={[styles.container, props.style]} testID={props.testID}>
       <Slider {...slider} variant="progress" value={currentTime} bufferedValue={playableDuration} />
     </View>
   );
@@ -137,7 +143,13 @@ const TVProgressFocus = ({ children }: { children: ReactNode }): React.ReactElem
  */
 export const ProgressBar = (props: ProgressBarProps): React.ReactElement => {
   const { Slider } = useVideoComponents();
-  const bar = Slider === DefaultSlider ? <SharedValueProgressBar {...props} /> : <PropsProgressBar {...props} />;
+  const testID = useTestID('progress-bar', props.testID);
+  const bar =
+    Slider === DefaultSlider ? (
+      <SharedValueProgressBar {...props} testID={testID} />
+    ) : (
+      <PropsProgressBar {...props} testID={testID} />
+    );
   return PlatformUtils.isTV() ? <TVProgressFocus>{bar}</TVProgressFocus> : bar;
 };
 

@@ -1,0 +1,117 @@
+---
+title: Testing
+description: Find the player's controls, settings and up-next card in end-to-end tests by their testID.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Every part of the player has a `testID`, so end-to-end tests (Detox, Maestro, Playwright…) can find its buttons, read its times and drive its settings menu. You don't need to set anything: the IDs start with `video`.
+
+```ts
+// Detox
+await element(by.id('video-play-button')).tap();
+await element(by.id('video-settings-button')).tap();
+await element(by.id('video-settings-rate')).tap();
+await element(by.id('video-settings-rate-1.5')).tap();
+await element(by.id('video-settings-back')).tap();
+await expect(element(by.id('video-settings-rate-value'))).toHaveText('1.5x');
+```
+
+## The player and its controls
+
+| testID                            | What it is                                                                            |
+| --------------------------------- | ------------------------------------------------------------------------------------- |
+| `video`                           | The player. Tap it to show or hide the controls.                                      |
+| `video-surface`                   | The video itself.                                                                     |
+| `video-controls`                  | The layer that holds the controls.                                                    |
+| `video-controls-top`              | `DefaultLayout`'s top row: title, subtitles and settings buttons.                     |
+| `video-controls-center`           | `DefaultLayout`'s centre: the play button.                                            |
+| `video-controls-bottom`           | `DefaultLayout`'s bottom row: progress bar, time and buttons.                         |
+| `video-scrim`                     | The tint behind the controls.                                                         |
+| `video-title`, `video-subtitle`   | `DefaultLayout`'s title and subtitle.                                                 |
+| `video-play-button`               | Play/pause.                                                                           |
+| `video-mute-button`               | Mute.                                                                                 |
+| `video-fullscreen-button`         | Fullscreen.                                                                           |
+| `video-picture-in-picture-button` | Picture-in-picture.                                                                   |
+| `video-subtitles-button`          | Subtitles on/off.                                                                     |
+| `video-settings-button`           | Opens the settings menu.                                                              |
+| `video-progress-bar`              | The progress bar.                                                                     |
+| `video-volume`                    | The volume slider.                                                                    |
+| `video-time`                      | The time display. Read the times from `video-time-current` and `video-time-duration`. |
+| `video-loading`                   | The buffering spinner. Wait for it to disappear before checking playback.             |
+| `video-tv-surface`                | On TV, what holds the remote's focus while the controls are hidden.                   |
+
+## The settings menu
+
+The menu's IDs exist only while it's open. Tap `video-settings-button` first.
+
+| testID                                                                         | What it is                                                                                         |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `video-settings`                                                               | The open menu.                                                                                     |
+| `video-settings-title`                                                         | The menu's title.                                                                                  |
+| `video-settings-back`, `video-settings-close`                                  | The header's Back and Close buttons.                                                               |
+| `video-settings-view-root`                                                     | The first list. Each list is `video-settings-view-<viewId>`.                                       |
+| `video-settings-audio`, `-video`, `-captions`, `-rate`                         | The rows that open each list.                                                                      |
+| `video-settings-audio-value`, `-video-value`, `-captions-value`, `-rate-value` | The current choice shown on each row.                                                              |
+| `video-settings-audio-<index>`                                                 | An audio track, by its `index`.                                                                    |
+| `video-settings-video-auto`                                                    | Automatic quality.                                                                                 |
+| `video-settings-video-<height>p`                                               | A quality, such as `video-settings-video-720p`. A height listed twice gets `-2` on the second row. |
+| `video-settings-captions-off`                                                  | Captions off.                                                                                      |
+| `video-settings-captions-<index>`                                              | A caption track, by its `index`.                                                                   |
+| `video-settings-rate-<rate>`                                                   | A speed, such as `video-settings-rate-1.5`.                                                        |
+
+Choosing an option keeps the list open. Tap `video-settings-back` to return to the rows, or `video-settings-close` to close the menu.
+
+## The up-next card
+
+| testID                    | What it is       |
+| ------------------------- | ---------------- |
+| `video-up-next`           | The card.        |
+| `video-up-next-title`     | What plays next. |
+| `video-up-next-countdown` | "Playing in 5s". |
+| `video-up-next-play`      | Play now.        |
+| `video-up-next-cancel`    | Cancel.          |
+
+The card stays on the screen, hidden, until the video ends. Check that it's visible, not that it exists.
+
+## More than one player
+
+Two players with the default IDs share them, so a test can't tell them apart. Give each player its own `testID`, and the IDs of everything in it start with that instead of `video`:
+
+```tsx
+<VideoPlayer source={trailer} testID="trailer">
+  <DefaultLayout />
+</VideoPlayer>
+```
+
+The play button is then `trailer-play-button`, and the rate row `trailer-settings-rate`.
+
+You can also set a single part's ID with its own `testID` prop, for example `<VideoPlayer.PlayButton testID="hero-play" />`.
+
+## Your own components
+
+- **Your own controls** in a layout or slot don't get an ID. Give them a `testID` yourself.
+- **A custom `Spinner`** receives `testID`; pass it to your root view, or `video-loading` won't be found.
+- **A custom `PressFeedback`** receives each button's `testID` with its other view props; spread them onto your root view.
+- **Rows you add to the menu** with `Menu.Item` take a `testID` like any `Pressable`.
+
+## On each platform
+
+| Platform | Where the `testID` ends up          |
+| -------- | ----------------------------------- |
+| iOS      | The view's accessibility identifier |
+| Android  | The view's tag, which Detox matches |
+| Web      | A `data-testid` attribute           |
+
+## When a test can't find an ID
+
+- **A control is there but can't be tapped:** the controls hide after a few seconds of playback. They stay on the screen with no opacity and take no taps. Tap `video` to show them first.
+- **`video-subtitles-button` is missing:** the video has no subtitles, so the button isn't shown.
+- **`video-picture-in-picture-button` is missing:** picture-in-picture isn't set up or isn't supported on the device. See [`PictureInPictureButton`](./api-reference/components/controls/picture-in-picture-button).
+- **A menu ID is missing:** the menu is closed, or shows another list. Open it and the list first.
+- **Two elements match:** two players share the default IDs. See [More than one player](#more-than-one-player).
+
+<Callout type="info">
+  Track indexes come from the video, so `video-settings-audio-2` can be a different language in another video. Check the
+  row's text when the language matters.
+</Callout>

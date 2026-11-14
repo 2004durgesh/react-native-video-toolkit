@@ -49,11 +49,12 @@ Values are plain numbers. Call `onValueChange` while the user drags.
 
 ## `SpinnerProps`
 
-| Property | Type                   | Required | Description                                               |
-| -------- | ---------------------- | -------- | --------------------------------------------------------- |
-| `size`   | `'small' \| 'large'`   | Yes      | Requested size.                                           |
-| `color`  | `string`               | Yes      | Color from the theme, or `LoadingSpinner`'s `color` prop. |
-| `style`  | `StyleProp<ViewStyle>` | No       | Positioning style (centered over the video by default).   |
+| Property | Type                   | Required | Description                                                            |
+| -------- | ---------------------- | -------- | ---------------------------------------------------------------------- |
+| `size`   | `'small' \| 'large'`   | Yes      | Requested size.                                                        |
+| `color`  | `string`               | Yes      | Color from the theme, or `LoadingSpinner`'s `color` prop.              |
+| `style`  | `StyleProp<ViewStyle>` | No       | Positioning style (centered over the video by default).                |
+| `testID` | `string`               | No       | Identifies the spinner in end-to-end tests. Pass it to your root view. |
 
 ## `PressFeedbackProps`
 

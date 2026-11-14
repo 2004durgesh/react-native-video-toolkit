@@ -2,6 +2,7 @@ import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { usePictureInPicture } from '../../hooks';
 import { PictureInPicture, PictureInPictureExit } from '../svgs';
 import { BaseIconButton } from '../common';
+import { useTestID } from '../../utils/testIDs';
 
 export interface PictureInPictureButtonProps {
   size?: number;
@@ -9,6 +10,11 @@ export interface PictureInPictureButtonProps {
   style?: StyleProp<ViewStyle>;
   renderEnterIcon?: () => React.ReactNode;
   renderExitIcon?: () => React.ReactNode;
+  /**
+   * Identifies the button in end-to-end tests.
+   * @default `video-picture-in-picture-button`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 /**
@@ -25,7 +31,9 @@ export const PictureInPictureButton = ({
   style,
   renderEnterIcon,
   renderExitIcon,
+  testID,
 }: PictureInPictureButtonProps): React.ReactElement | null => {
+  const buttonTestID = useTestID('picture-in-picture-button', testID);
   const { pictureInPicture, supported, togglePictureInPicture } = usePictureInPicture();
 
   const EnterIcon = renderEnterIcon || PictureInPicture;
@@ -37,6 +45,7 @@ export const PictureInPictureButton = ({
 
   return (
     <BaseIconButton
+      testID={buttonTestID}
       IconComponent={pictureInPicture ? ExitIcon : EnterIcon}
       size={size}
       color={color}

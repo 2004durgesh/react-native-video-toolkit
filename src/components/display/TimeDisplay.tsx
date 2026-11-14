@@ -1,12 +1,19 @@
 import { Text, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { useProgressValue } from '../../providers/ProgressStore';
+import { useTestID } from '../../utils/testIDs';
 
 export interface TimeDisplayProps {
   type?: 'current' | 'duration' | 'both';
   fontSize?: number;
   color?: string;
   style?: StyleProp<ViewStyle>;
+  /**
+   * Identifies the display in end-to-end tests. The current time and the duration inside it get
+   * this followed by `-current` and `-duration`.
+   * @default `video-time`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 /**
@@ -17,7 +24,14 @@ export interface TimeDisplayProps {
  * @param {TimeDisplayProps} props - The props for the TimeDisplay component.
  * @returns {React.ReactElement} A component that displays video time information.
  */
-export const TimeDisplay = ({ type = 'both', fontSize = 14, color, style }: TimeDisplayProps): React.ReactElement => {
+export const TimeDisplay = ({
+  type = 'both',
+  fontSize = 14,
+  color,
+  style,
+  testID,
+}: TimeDisplayProps): React.ReactElement => {
+  const displayTestID = useTestID('time', testID);
   // Whole seconds, which is all the display shows, so it re-renders once a second instead of on every progress event
   const currentTime = useProgressValue((progress) => Math.floor(progress.currentTime));
   const theme = useVideoSelector((state) => state.theme);
@@ -46,21 +60,37 @@ export const TimeDisplay = ({ type = 'both', fontSize = 14, color, style }: Time
   const renderTime = () => {
     switch (type) {
       case 'current':
-        return <Text style={[styles.timeText, { fontSize, color: textColor }]}>{formatTime(currentTime)}</Text>;
+        return (
+          <Text testID={`${displayTestID}-current`} style={[styles.timeText, { fontSize, color: textColor }]}>
+            {formatTime(currentTime)}
+          </Text>
+        );
       case 'duration':
-        return <Text style={[styles.timeText, { fontSize, color: textColor }]}>{formatTime(duration)}</Text>;
+        return (
+          <Text testID={`${displayTestID}-duration`} style={[styles.timeText, { fontSize, color: textColor }]}>
+            {formatTime(duration)}
+          </Text>
+        );
       default:
         return (
           <>
-            <Text style={[styles.timeText, { fontSize, color: textColor }]}>{formatTime(currentTime)}</Text>
+            <Text testID={`${displayTestID}-current`} style={[styles.timeText, { fontSize, color: textColor }]}>
+              {formatTime(currentTime)}
+            </Text>
             <Text style={[styles.separator, { fontSize, color: textColor }]}>{' / '}</Text>
-            <Text style={[styles.timeText, { fontSize, color: textColor }]}>{formatTime(duration)}</Text>
+            <Text testID={`${displayTestID}-duration`} style={[styles.timeText, { fontSize, color: textColor }]}>
+              {formatTime(duration)}
+            </Text>
           </>
         );
     }
   };
 
-  return <View style={[styles.timeContainer, style]}>{renderTime()}</View>;
+  return (
+    <View style={[styles.timeContainer, style]} testID={displayTestID}>
+      {renderTime()}
+    </View>
+  );
 };
 
 export const styles = StyleSheet.create({

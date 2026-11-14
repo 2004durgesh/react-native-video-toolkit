@@ -35,6 +35,10 @@ export interface VideoOverlayProps {
    * Styles for the full-size layer, for example to center or position the content.
    */
   style?: StyleProp<ViewStyle>;
+  /**
+   * Identifies the overlay in end-to-end tests.
+   */
+  testID?: string;
   children?: ReactNode;
 }
 
@@ -69,7 +73,7 @@ const NativeVideoOverlay = (props: VideoOverlayProps): React.ReactElement => {
   );
 
   return (
-    <Animated.View style={[layerStyle, fadeStyle, touchStyle]}>
+    <Animated.View style={[layerStyle, fadeStyle, touchStyle]} testID={props.testID}>
       {/* On TV a hidden overlay's buttons mustn't take the remote's focus either */}
       {PlatformUtils.isTV() ? (
         <ControlsFocusableContext.Provider value={shown}>{props.children}</ControlsFocusableContext.Provider>
@@ -85,7 +89,11 @@ const NativeVideoOverlay = (props: VideoOverlayProps): React.ReactElement => {
 const WebVideoOverlay = (props: VideoOverlayProps): React.ReactElement => {
   const { shown, layerStyle, touchStyle } = useOverlay(props);
 
-  return <View style={[layerStyle, touchStyle, !shown && styles.hidden]}>{props.children}</View>;
+  return (
+    <View style={[layerStyle, touchStyle, !shown && styles.hidden]} testID={props.testID}>
+      {props.children}
+    </View>
+  );
 };
 
 /**

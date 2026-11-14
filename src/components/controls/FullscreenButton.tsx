@@ -2,6 +2,7 @@ import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useFullscreen } from '../../hooks';
 import { Maximize, Minimize } from '../svgs';
 import { BaseIconButton } from '../common';
+import { useTestID } from '../../utils/testIDs';
 
 export interface FullscreenButtonProps {
   size?: number;
@@ -9,6 +10,11 @@ export interface FullscreenButtonProps {
   style?: StyleProp<ViewStyle>;
   renderEnterIcon?: () => React.ReactNode;
   renderExitIcon?: () => React.ReactNode;
+  /**
+   * Identifies the button in end-to-end tests.
+   * @default `video-fullscreen-button`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 /**
@@ -23,7 +29,9 @@ export const FullscreenButton = ({
   style,
   renderEnterIcon,
   renderExitIcon,
+  testID,
 }: FullscreenButtonProps): React.ReactElement => {
+  const buttonTestID = useTestID('fullscreen-button', testID);
   const { fullscreen, toggleFullscreen } = useFullscreen();
 
   const EnterIcon = renderEnterIcon || Maximize;
@@ -31,6 +39,7 @@ export const FullscreenButton = ({
 
   return (
     <BaseIconButton
+      testID={buttonTestID}
       IconComponent={fullscreen ? ExitIcon : EnterIcon}
       size={size}
       color={color}

@@ -29,6 +29,7 @@ import { useProgressStore } from '../../providers/ProgressStore';
 import { usePlayback, useVolume, useBuffering, useSettings, usePlaybackRate } from '../../hooks';
 import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks, getFullscreenHeight } from '../../utils';
 import type { CustomVideoTrack } from '../../types';
+import { useTestID } from '../../utils/testIDs';
 
 /** The "Off" entry the toolkit adds to the subtitle list. */
 const OFF_TEXT_TRACK = { index: -1, title: 'Off', language: 'off', type: 'disabled' } as const;
@@ -297,6 +298,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     (() => videoRef?.current?.restoreUserInterfaceForPictureInPictureStopCompleted(true));
   const selectedAudioTrackConfig =
     typeof audioTrack?.index === 'number' ? { type: SelectedTrackType.INDEX, value: audioTrack.index } : undefined;
+  const surfaceTestID = useTestID('surface', nativeProps.testID);
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
@@ -317,6 +319,8 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         const { layout } = e.nativeEvent;
         dispatch({ type: 'SET_VIDEO_WRAPPER_LAYOUT', payload: layout });
       }, userOnLayout)}
+      // On the wrapper, as react-native-video's web player drops `testID`
+      testID={surfaceTestID}
       style={{
         height: videoLayoutHeight || 'auto',
         ...(Platform.OS === 'web' && { height: '100vh' as unknown as number }),
@@ -366,6 +370,8 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         focusable={false}
         subtitleStyle={{ paddingBottom: 50, fontSize: 20, opacity: 0.8 }}
         {...nativeProps}
+        // The wrapper has the ID, so a test finds the surface once
+        testID={undefined}
       />
     </View>
   );

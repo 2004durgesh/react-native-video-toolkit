@@ -113,6 +113,10 @@ export interface SpinnerProps {
    * Positioning style (centered over the video by default).
    */
   style?: StyleProp<ViewStyle>;
+  /**
+   * Identifies the spinner in end-to-end tests. Pass it to your root view.
+   */
+  testID?: string;
 }
 
 /**

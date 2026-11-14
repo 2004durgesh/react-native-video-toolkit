@@ -64,12 +64,13 @@ Header for the menu, with back/close buttons and a title.
 
 The bottom sheet wrapper for menu views. It slides up from the bottom and can be dismissed by tapping the backdrop, pressing the close button, or the Android hardware back button.
 
-| Prop         | Type                                 | Default | Required | Description                           |
-| ------------ | ------------------------------------ | ------- | -------- | ------------------------------------- |
-| `children`   | `ReactNode`                          |         | Yes      | Nested `Menu.SubContent` blocks.      |
-| `header`     | `(currentView: string) => ReactNode` |         | No       | Optional custom header renderer.      |
-| `sheetStyle` | `StyleProp<ViewStyle>`               | –       | No       | Custom style for the sheet container. |
-| `portalHost` | `string`                             | –       | No       | Portal host name for the sheet.       |
+| Prop         | Type                                 | Default          | Required | Description                                                                          |
+| ------------ | ------------------------------------ | ---------------- | -------- | ------------------------------------------------------------------------------------ |
+| `children`   | `ReactNode`                          |                  | Yes      | Nested `Menu.SubContent` blocks.                                                     |
+| `header`     | `(currentView: string) => ReactNode` |                  | No       | Optional custom header renderer.                                                     |
+| `sheetStyle` | `StyleProp<ViewStyle>`               | –                | No       | Custom style for the sheet container.                                                |
+| `portalHost` | `string`                             | –                | No       | Portal host name for the sheet.                                                      |
+| `testID`     | `string`                             | `video-settings` | No       | Identifies the menu content in end-to-end tests, for example to wait until it opens. |
 
 ---
 
@@ -78,11 +79,12 @@ The bottom sheet wrapper for menu views. It slides up from the bottom and can be
 Renders content for a specific `viewId`.
 Only visible when `currentView` matches.
 
-| Prop       | Type                   | Required | Description                           |
-| ---------- | ---------------------- | -------- | ------------------------------------- |
-| `viewId`   | `string`               | Yes      | ID to match against navigation stack. |
-| `children` | `ReactNode`            | Yes      | Sub-menu items.                       |
-| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the content view.    |
+| Prop       | Type                   | Required | Description                                                                          |
+| ---------- | ---------------------- | -------- | ------------------------------------------------------------------------------------ |
+| `viewId`   | `string`               | Yes      | ID to match against navigation stack.                                                |
+| `children` | `ReactNode`            | Yes      | Sub-menu items.                                                                      |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the content view.                                                   |
+| `testID`   | `string`               | No       | Identifies the view in end-to-end tests. Defaults to `video-settings-view-<viewId>`. |
 
 ---
 
@@ -156,10 +158,11 @@ If `checked` is not provided, it manages its own state.
 
 Button that closes the menu manually.
 
-| Prop       | Type                   | Required | Description                                                  |
-| ---------- | ---------------------- | -------- | ------------------------------------------------------------ |
-| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                 |
-| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component. |
+| Prop       | Type                   | Required | Description                                                                    |
+| ---------- | ---------------------- | -------- | ------------------------------------------------------------------------------ |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                                   |
+| `testID`   | `string`               | No       | Identifies the button in end-to-end tests. Defaults to `video-settings-close`. |
+| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component.                   |
 
 ---
 
@@ -167,10 +170,11 @@ Button that closes the menu manually.
 
 Button that navigates back in the menu stack.
 
-| Prop       | Type                   | Required | Description                                                  |
-| ---------- | ---------------------- | -------- | ------------------------------------------------------------ |
-| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                 |
-| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component. |
+| Prop       | Type                   | Required | Description                                                                   |
+| ---------- | ---------------------- | -------- | ----------------------------------------------------------------------------- |
+| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                                  |
+| `testID`   | `string`               | No       | Identifies the button in end-to-end tests. Defaults to `video-settings-back`. |
+| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component.                  |
 
 ---
 

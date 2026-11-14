@@ -23,6 +23,7 @@ import { DevProfiler } from '../utils/DevProfiler';
 import { onBrowserFullscreenExit } from '../utils/webFullscreen';
 import { TVPlayerFocus } from '../tv/TVPlayerFocus';
 import { PlatformUtils } from '../utils/platform';
+import { DEFAULT_VIDEO_TEST_ID, TestIDContext, useTestID } from '../utils/testIDs';
 
 /**
  * Props for the VideoPlayer component.
@@ -66,6 +67,12 @@ interface VideoPlayerProps extends ViewProps {
    * Only used when config.useCustomVideoTracks is true.
    */
   customVideoTracks?: CustomVideoTrack[];
+  /**
+   * Identifies the player in end-to-end tests. Its parts' IDs start with it, so two players on a
+   * screen don't share IDs: `video-play-button`, or `trailer-play-button` with `testID="trailer"`.
+   * @default 'video'
+   */
+  testID?: string;
 }
 
 /**
@@ -81,6 +88,7 @@ const VideoPlayerComponent = ({
   videoStyle,
   customAudioTracks,
   customVideoTracks,
+  testID = DEFAULT_VIDEO_TEST_ID,
 }: VideoPlayerProps) => {
   // this is the root of all the things :)
   // Each player's own id: web fullscreen finds the player around its video by this prefix, and a
@@ -124,32 +132,35 @@ const VideoPlayerComponent = ({
   }, [fullscreen]);
 
   return (
-    <View
-      id={playerId}
-      style={[
-        {
-          position: 'relative',
-          height,
-          ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
-        },
-        containerStyle,
-      ]}>
-      <GestureHandler {...gestureProps}>
-        <View style={innerViewStyle}>
-          <DevProfiler id="VideoSurface">
-            <VideoSurface
-              {...videoProps}
-              source={source}
-              style={videoStyle ?? videoProps?.style}
-              customAudioTracks={customAudioTracks}
-              customVideoTracks={customVideoTracks}
-            />
-          </DevProfiler>
-          {/* The TV remote drives the player through a focusable surface under the layout */}
-          {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
-        </View>
-      </GestureHandler>
-    </View>
+    <TestIDContext.Provider value={testID}>
+      <View
+        id={playerId}
+        testID={testID}
+        style={[
+          {
+            position: 'relative',
+            height,
+            ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
+          },
+          containerStyle,
+        ]}>
+        <GestureHandler {...gestureProps}>
+          <View style={innerViewStyle}>
+            <DevProfiler id="VideoSurface">
+              <VideoSurface
+                {...videoProps}
+                source={source}
+                style={videoStyle ?? videoProps?.style}
+                customAudioTracks={customAudioTracks}
+                customVideoTracks={customVideoTracks}
+              />
+            </DevProfiler>
+            {/* The TV remote drives the player through a focusable surface under the layout */}
+            {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
+          </View>
+        </GestureHandler>
+      </View>
+    </TestIDContext.Provider>
   );
 };
 
@@ -157,8 +168,21 @@ const VideoPlayerComponent = ({
  * A container for video controls.
  * This component is used to group controls together and position them on top of the video.
  */
-const VideoControls: FC<{ children?: ReactNode; style?: any }> = ({ children, style }) => {
-  return <View style={[styles.controlsContainer, style]}>{children}</View>;
+const VideoControls: FC<{
+  children?: ReactNode;
+  style?: any;
+  /**
+   * Identifies the controls in end-to-end tests.
+   * @default `video-controls`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
+}> = ({ children, style, testID }) => {
+  const controlsTestID = useTestID('controls', testID);
+  return (
+    <View style={[styles.controlsContainer, style]} testID={controlsTestID}>
+      {children}
+    </View>
+  );
 };
 
 /**

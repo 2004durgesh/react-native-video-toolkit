@@ -6,10 +6,10 @@ import type { SpinnerProps } from 'react-native-video-toolkit';
 /**
  * The platform's own buffering spinner through `@expo/ui`: SwiftUI's indeterminate `ProgressView`.
  */
-export function NativeSpinner({ size, color, style }: SpinnerProps) {
+export function NativeSpinner({ size, color, style, testID }: SpinnerProps) {
   // `style` centers the spinner over the video; the SwiftUI host sizes itself to the spinner.
   return (
-    <View style={style} pointerEvents="none">
+    <View style={style} pointerEvents="none" testID={testID}>
       <Host matchContents>
         <ProgressView modifiers={[controlSize(size === 'large' ? 'large' : 'regular'), tint(color)]} />
       </Host>

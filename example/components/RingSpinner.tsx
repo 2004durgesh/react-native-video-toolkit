@@ -13,7 +13,7 @@ import type { SpinnerProps } from 'react-native-video-toolkit';
 /**
  * A rotating ring drawn with Reanimated, shown while the video buffers.
  */
-export function RingSpinner({ size, color, style }: SpinnerProps) {
+export function RingSpinner({ size, color, style, testID }: SpinnerProps) {
   const rotation = useSharedValue(0);
   const diameter = size === 'large' ? 44 : 24;
 
@@ -28,7 +28,7 @@ export function RingSpinner({ size, color, style }: SpinnerProps) {
 
   // `style` centers the spinner with its own transform, so the rotation goes on an inner view.
   return (
-    <View style={style} pointerEvents="none">
+    <View style={style} pointerEvents="none" testID={testID}>
       <Animated.View
         style={[
           {

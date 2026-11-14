@@ -5,6 +5,7 @@ import { useControlsController } from '../../providers/ControlsController';
 import { BaseButton } from '../common';
 import { VideoOverlay } from '../display/VideoOverlay';
 import { TVFocusContext, type TVFocusTarget } from '../../tv/TVFocus';
+import { useTestID } from '../../utils/testIDs';
 
 /**
  * Text shown on the card, for translations.
@@ -46,6 +47,12 @@ export interface UpNextProps {
    * Styles for the full-size overlay.
    */
   style?: StyleProp<ViewStyle>;
+  /**
+   * Identifies the card in end-to-end tests. Its title, countdown and buttons get this followed by
+   * `-title`, `-countdown`, `-play` and `-cancel`.
+   * @default `video-up-next`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 /** Darker than the controls' tint, since the card covers the video. */
@@ -76,7 +83,9 @@ export const UpNext = ({
   onCancel,
   labels,
   style,
+  testID,
 }: UpNextProps): React.ReactElement => {
+  const cardTestID = useTestID('up-next', testID);
   const ended = useVideoSelector((state) => state.ended);
   const theme = useVideoSelector((state) => state.theme);
   const [dismissed, setDismissed] = useState(false);
@@ -143,11 +152,19 @@ export const UpNext = ({
 
   return (
     // Stays mounted while hidden so it can fade out; the overlay takes no taps then
-    <VideoOverlay visible={visible} scrim={CARD_SCRIM} pointerEvents="auto" style={[styles.card, style]}>
+    <VideoOverlay
+      visible={visible}
+      scrim={CARD_SCRIM}
+      pointerEvents="auto"
+      style={[styles.card, style]}
+      testID={cardTestID}>
       <Text style={[styles.heading, { color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm }]}>
         {text.heading}
       </Text>
-      <Text style={[styles.title, { color: theme.colors.textMain, fontSize: theme.fontSizes.lg }]} numberOfLines={2}>
+      <Text
+        testID={`${cardTestID}-title`}
+        style={[styles.title, { color: theme.colors.textMain, fontSize: theme.fontSizes.lg }]}
+        numberOfLines={2}>
         {title}
       </Text>
       {subtitle ? (
@@ -157,17 +174,23 @@ export const UpNext = ({
           {subtitle}
         </Text>
       ) : null}
-      <Text style={{ color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm }}>
+      <Text
+        testID={`${cardTestID}-countdown`}
+        style={{ color: theme.colors.textSecondary, fontSize: theme.fontSizes.sm }}>
         {text.playingIn(secondsLeft)}
       </Text>
       <View style={styles.actions}>
-        <BaseButton onTap={cancel} style={[styles.button, { borderColor: theme.colors.buttonSecondaryBorder }]}>
+        <BaseButton
+          onTap={cancel}
+          testID={`${cardTestID}-cancel`}
+          style={[styles.button, { borderColor: theme.colors.buttonSecondaryBorder }]}>
           <Text style={[styles.buttonLabel, { color: theme.colors.buttonSecondaryText, fontSize: theme.fontSizes.md }]}>
             {text.cancel}
           </Text>
         </BaseButton>
         <BaseButton
           onTap={playNow}
+          testID={`${cardTestID}-play`}
           // The TV remote lands here when the card appears
           tvFocusTarget="upNext"
           style={[

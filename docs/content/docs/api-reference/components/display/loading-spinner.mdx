@@ -24,11 +24,12 @@ import { LoadingSpinnerExample } from '@/components/examples/display/loading-spi
 
 ## Props
 
-| Prop    | Type                   | Required | Default               | Description                              |
-| ------- | ---------------------- | -------- | --------------------- | ---------------------------------------- |
-| `size`  | `'small' \| 'large'`   | No       | `'large'`             | Size of the spinner indicator.           |
-| `color` | `string`               | No       | Theme `spinner` color | Color of the spinner.                    |
-| `style` | `StyleProp<ViewStyle>` | No       | –                     | Custom styles for the spinner container. |
+| Prop     | Type                   | Required | Default               | Description                                                                                                         |
+| -------- | ---------------------- | -------- | --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `size`   | `'small' \| 'large'`   | No       | `'large'`             | Size of the spinner indicator.                                                                                      |
+| `color`  | `string`               | No       | Theme `spinner` color | Color of the spinner.                                                                                               |
+| `style`  | `StyleProp<ViewStyle>` | No       | –                     | Custom styles for the spinner container.                                                                            |
+| `testID` | `string`               | No       | `video-loading`       | Identifies the spinner in end-to-end tests, for example to wait until buffering ends. See [Testing](/docs/testing). |
 
 ---
 

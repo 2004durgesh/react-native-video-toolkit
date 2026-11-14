@@ -20,6 +20,7 @@ import {
 } from '../components';
 import { PlatformUtils, webDependencies } from '../utils/platform';
 import { ControlsFocusableContext, TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
+import { usePlayerTestID } from '../utils/testIDs';
 import { trackLabel } from '../utils/common';
 export interface DefaultLayoutProps {
   scrim?: boolean | ColorValue;
@@ -73,6 +74,20 @@ const isSelectedVideoTrack = (
   return selected.height === track.height;
 };
 
+/**
+ * Each quality's part of its `testID`: its height (`750p`), or `auto` for a custom list's entry with
+ * height 0. A height listed again gets `-2`, `-3`... so every row has its own ID.
+ */
+const videoTrackTestIDs = (tracks: { height?: number }[]): string[] => {
+  const seen = new Map<string, number>();
+  return tracks.map((track) => {
+    const base = track.height ? `${track.height}p` : 'auto';
+    const count = (seen.get(base) ?? 0) + 1;
+    seen.set(base, count);
+    return count === 1 ? base : `${base}-${count}`;
+  });
+};
+
 const touchStyles = StyleSheet.create({
   passThrough: { pointerEvents: 'box-none' },
   none: { pointerEvents: 'none' },
@@ -87,6 +102,7 @@ const FadingControls = ({
   offsetY = 0,
   showWhileBuffering = false,
   style,
+  testID,
   children,
 }: {
   /** How far the group slides out when hidden. */
@@ -94,6 +110,7 @@ const FadingControls = ({
   /** Keep it visible while buffering, for the centre controls. */
   showWhileBuffering?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
   children: ReactNode;
 }) => {
   const controlsVisible = useVideoSelector((state) => state.controlsVisible);
@@ -114,7 +131,9 @@ const FadingControls = ({
   // starting near an edge) would otherwise hit an invisible button or the progress bar. On TV, stop
   // them taking the remote's focus for the same reason.
   return (
-    <Animated.View style={[style, animatedStyle, controlsVisible ? touchStyles.passThrough : touchStyles.none]}>
+    <Animated.View
+      style={[style, animatedStyle, controlsVisible ? touchStyles.passThrough : touchStyles.none]}
+      testID={testID}>
       {PlatformUtils.isTV() ? (
         <ControlsFocusableContext.Provider value={controlsVisible}>{children}</ControlsFocusableContext.Provider>
       ) : (
@@ -167,6 +186,9 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   } = useSettings();
   const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const { supported: pictureInPictureSupported } = usePictureInPicture();
+  // IDs for end-to-end tests, starting with the player's `testID`: `video-settings-rate-1.5`
+  const id = usePlayerTestID();
+  const videoOptionIDs = videoTrackTestIDs(videoTracks);
   // Pinned tracks go above "Off", which leads the rest
   const captionTracks = pinCaptionTrack
     ? [...textTracks.filter(pinCaptionTrack), ...textTracks.filter((track) => !pinCaptionTrack(track))]
@@ -179,11 +201,14 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
     <DevProfiler id="DefaultLayout">
       <>
         <Animated.View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
-          {scrim ? <VideoPlayer.Overlay withControls scrim={scrim} pointerEvents="none" /> : null}
+          {scrim ? (
+            <VideoPlayer.Overlay withControls scrim={scrim} pointerEvents="none" testID={`${id}-scrim`} />
+          ) : null}
           <VideoPlayer.Controls>
             <View style={[layoutStyles.column, { height: '100%', paddingHorizontal: 15 }]}>
               <FadingControls
                 offsetY={-50}
+                testID={`${id}-controls-top`}
                 style={[
                   layoutStyles.topControls,
                   layoutStyles.row,
@@ -192,8 +217,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 <View style={[layoutStyles.row, styles.titleRow]}>
                   {slots?.beforeTitle && slots.beforeTitle}
                   <View style={styles.titleColumn}>
-                    {title && <Title text={title} {...titleProps} />}
-                    {subtitle && <Subtitle text={subtitle} {...subtitleProps} />}
+                    {title && <Title text={title} testID={`${id}-title`} {...titleProps} />}
+                    {subtitle && <Subtitle text={subtitle} testID={`${id}-subtitle`} {...subtitleProps} />}
                   </View>
                 </View>
                 <View style={[layoutStyles.row]}>
@@ -210,16 +235,19 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                         <Menu.Content>
                           <Menu.SubContent viewId="root">
                             {slots?.beforeMenuItems && slots.beforeMenuItems}
-                            <Menu.Item navigateTo="audio">
+                            <Menu.Item navigateTo="audio" testID={`${id}-settings-audio`}>
                               <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
                                 <View style={[layoutStyles.row, styles.menuRowLabel]}>
                                   <Audio size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
                                   <Title text="Audio" />
                                 </View>
-                                <Subtitle text={audioTrack ? trackLabel(audioTrack) : 'None'} />
+                                <Subtitle
+                                  text={audioTrack ? trackLabel(audioTrack) : 'None'}
+                                  testID={`${id}-settings-audio-value`}
+                                />
                               </View>
                             </Menu.Item>
-                            <Menu.Item navigateTo="video">
+                            <Menu.Item navigateTo="video" testID={`${id}-settings-video`}>
                               <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
                                 <View style={[layoutStyles.row, styles.menuRowLabel]}>
                                   <Quality size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
@@ -227,25 +255,29 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                 </View>
                                 <Subtitle
                                   text={videoTrack ? (videoTrack as any).label || videoTrack.height + 'p' : 'Auto'}
+                                  testID={`${id}-settings-video-value`}
                                 />
                               </View>
                             </Menu.Item>
-                            <Menu.Item navigateTo="captions">
+                            <Menu.Item navigateTo="captions" testID={`${id}-settings-captions`}>
                               <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
                                 <View style={[layoutStyles.row, styles.menuRowLabel]}>
                                   <Subtitles size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
                                   <Title text="Captions" />
                                 </View>
-                                <Subtitle text={textTrack ? trackLabel(textTrack) : 'Off'} />
+                                <Subtitle
+                                  text={textTrack ? trackLabel(textTrack) : 'Off'}
+                                  testID={`${id}-settings-captions-value`}
+                                />
                               </View>
                             </Menu.Item>
-                            <Menu.Item navigateTo="playbackRate">
+                            <Menu.Item navigateTo="playbackRate" testID={`${id}-settings-rate`}>
                               <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
                                 <View style={[layoutStyles.row, styles.menuRowLabel]}>
                                   <Speed size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
                                   <Title text="Rate" />
                                 </View>
-                                <Subtitle text={`${playbackRate}x`} />
+                                <Subtitle text={`${playbackRate}x`} testID={`${id}-settings-rate-value`} />
                               </View>
                             </Menu.Item>
                             {slots?.afterMenuItems && slots.afterMenuItems}
@@ -256,6 +288,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                 {audioTracks.map((track) => (
                                   <Menu.CheckboxItem
                                     key={track.index}
+                                    testID={`${id}-settings-audio-${track.index}`}
                                     checked={audioTrack?.index === track.index}
                                     onCheckedChange={() => {
                                       setAudioTrack(track);
@@ -275,13 +308,17 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                               <ScrollView style={{ maxHeight: '100%' }}>
                                 {/* Adaptive quality, the default. A custom list brings its own "Auto" entry if it wants one. */}
                                 {!config.useCustomVideoTracks && (
-                                  <Menu.CheckboxItem checked={!videoTrack} onCheckedChange={() => setVideoTrack(null)}>
+                                  <Menu.CheckboxItem
+                                    testID={`${id}-settings-video-auto`}
+                                    checked={!videoTrack}
+                                    onCheckedChange={() => setVideoTrack(null)}>
                                     Auto
                                   </Menu.CheckboxItem>
                                 )}
-                                {videoTracks.map((track) => (
+                                {videoTracks.map((track, i) => (
                                   <Menu.CheckboxItem
                                     key={`${track.width}x${track.height}-${track.codecs ?? ''}-${track.index ?? ''}`}
+                                    testID={`${id}-settings-video-${videoOptionIDs[i]}`}
                                     checked={isSelectedVideoTrack(videoTrack, track)}
                                     onCheckedChange={() => {
                                       setVideoTrack(track);
@@ -303,6 +340,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                 {captionTracks.map((track) => (
                                   <Menu.CheckboxItem
                                     key={track.index}
+                                    testID={`${id}-settings-captions-${track.index === -1 ? 'off' : track.index}`}
                                     checked={textTrack?.index === track.index}
                                     onCheckedChange={() => {
                                       setTextTrack(track);
@@ -327,6 +365,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                               {config.playbackRates.map((rate) => (
                                 <Menu.CheckboxItem
                                   key={rate}
+                                  testID={`${id}-settings-rate-${rate}`}
                                   checked={playbackRate === rate}
                                   onCheckedChange={(checked) => {
                                     if (checked) {
@@ -350,7 +389,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 animated view's styles and drops `pointerEvents: 'box-none'`, so the overlay would
                 swallow taps meant for the top and bottom controls. */}
               <View style={layoutStyles.centerControls}>
-                <FadingControls showWhileBuffering>
+                <FadingControls showWhileBuffering testID={`${id}-controls-center`}>
                   <UnlessBuffering>
                     {/* On TV, left and right stay on the centre controls rather than leaving the player */}
                     <View
@@ -368,6 +407,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               </View>
               <FadingControls
                 offsetY={50}
+                testID={`${id}-controls-bottom`}
                 style={[
                   layoutStyles.bottomControls,
                   {

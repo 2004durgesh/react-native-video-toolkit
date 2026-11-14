@@ -1,11 +1,17 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useBuffering } from '../../hooks';
 import { useVideoSelector, useVideoComponents } from '../../providers';
+import { useTestID } from '../../utils/testIDs';
 
 export interface LoadingSpinnerProps {
   size?: 'small' | 'large';
   color?: string;
   style?: StyleProp<ViewStyle>;
+  /**
+   * Identifies the spinner in end-to-end tests, for example to wait until buffering ends.
+   * @default `video-loading`, with the player's `testID` in place of `video`
+   */
+  testID?: string;
 }
 
 /**
@@ -17,7 +23,13 @@ export interface LoadingSpinnerProps {
  * @returns {React.ReactElement | null} The `Spinner` from `VideoProvider`'s `components` (an `ActivityIndicator`
  * by default) if buffering, otherwise `null`.
  */
-export const LoadingSpinner = ({ size = 'large', color, style }: LoadingSpinnerProps): React.ReactElement | null => {
+export const LoadingSpinner = ({
+  size = 'large',
+  color,
+  style,
+  testID,
+}: LoadingSpinnerProps): React.ReactElement | null => {
+  const spinnerTestID = useTestID('loading', testID);
   const { buffering } = useBuffering();
   const theme = useVideoSelector((state) => state.theme);
   const { Spinner } = useVideoComponents();
@@ -28,7 +40,7 @@ export const LoadingSpinner = ({ size = 'large', color, style }: LoadingSpinnerP
     return null;
   }
 
-  return <Spinner size={size} color={spinnerColor} style={[styles.spinner, style]} />;
+  return <Spinner size={size} color={spinnerColor} style={[styles.spinner, style]} testID={spinnerTestID} />;
 };
 
 const styles = StyleSheet.create({
