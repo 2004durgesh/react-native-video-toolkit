@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0 (2026-11-14)
+
+* feat: add test ids to every part of the player for end-to-end tests ([e219c60](https://github.com/2004durgesh/react-native-video-toolkit/commit/e219c60))
+
 ## 1.0.0 (2026-11-01)
 
 * feat: add before and after menu item slots to the settings menu ([c17956f](https://github.com/2004durgesh/react-native-video-toolkit/commit/c17956f))
