@@ -13,7 +13,7 @@ const PLAYER_CONFIG = { enablePictureInPicture: true };
 const SUBTITLE_BASE_URL =
   'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
 
-// English comes first: it's the default track, and the toolkit auto-selects the first text track.
+// Remote subtitle files. The toolkit picks the device's language, then English, then the first.
 const subtitleTracks: TextTracks = [
   { title: 'English', language: 'en', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/eng-2.vtt` },
   {
@@ -31,6 +31,20 @@ const subtitleTracks: TextTracks = [
   { title: 'Malay', language: 'ms', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/may-5.vtt` },
 ];
 
+// Subtitle files bundled with the app. `require()` gives an asset number, which the toolkit loads;
+// react-native-video's type only allows strings, hence the cast.
+const bundled = (file: number) => file as unknown as string;
+const localSubtitleTracks: TextTracks = [
+  { title: 'English', language: 'en', type: TextTrackType.VTT, uri: bundled(require('../../assets/subtitles/en.vtt')) },
+  { title: 'العربية', language: 'ar', type: TextTrackType.VTT, uri: bundled(require('../../assets/subtitles/ar.vtt')) },
+  {
+    title: 'हिन्दी',
+    language: 'hi',
+    type: TextTrackType.SUBRIP,
+    uri: bundled(require('../../assets/subtitles/hi.srt')),
+  },
+];
+
 const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
   {
     title: 'HLS - Tears of Steel',
@@ -40,8 +54,14 @@ const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
     },
   },
   {
+    // Subtitles from the stream's own WebVTT renditions, fetched and drawn by the toolkit
+    title: 'HLS - Bipbop (subtitles)',
+    source: {
+      uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
+    },
+  },
+  {
     title: 'MP4 - Big Buck Bunny',
-    // Sidecar subtitles go on an MP4: on iOS, react-native-video ignores them for .m3u8 sources.
     source: {
       uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
       textTracks: subtitleTracks,
@@ -53,11 +73,11 @@ const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
   },
   {
     title: 'local MP4',
-    source: { uri: require('../../../assets/test.mp4'), textTracks: subtitleTracks },
+    source: { uri: require('../../../assets/test.mp4'), textTracks: localSubtitleTracks },
   },
   {
     title: 'local MP4 (Vertical)',
-    source: { uri: require('../../../assets/vertical.mp4'), textTracks: subtitleTracks },
+    source: { uri: require('../../../assets/vertical.mp4'), textTracks: localSubtitleTracks },
   },
 ];
 

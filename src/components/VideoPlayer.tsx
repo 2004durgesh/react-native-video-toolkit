@@ -19,6 +19,7 @@ import { useVideoSelector } from '../providers';
 import { useVideoStore } from '../providers/VideoProvider';
 import { TimeDisplay, LoadingSpinner, VideoOverlay } from './display';
 import { getFullscreenHeight } from '../utils';
+import { Captions } from '../captions/Captions';
 import { DevProfiler } from '../utils/DevProfiler';
 import { onBrowserFullscreenExit } from '../utils/webFullscreen';
 import { TVPlayerFocus } from '../tv/TVPlayerFocus';
@@ -155,6 +156,8 @@ const VideoPlayerComponent = ({
                 customVideoTracks={customVideoTracks}
               />
             </DevProfiler>
+            {/* Subtitles the toolkit draws: over the video, under the layout's controls */}
+            <Captions />
             {/* The TV remote drives the player through a focusable surface under the layout */}
             {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
           </View>
@@ -203,6 +206,7 @@ export const VideoPlayer = Object.assign(VideoPlayerComponent, {
   PictureInPictureButton,
   UpNext,
   Overlay: VideoOverlay,
+  Captions,
 });
 
 const styles = StyleSheet.create({

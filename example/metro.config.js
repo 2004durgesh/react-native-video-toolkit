@@ -25,6 +25,9 @@ const config = getDefaultConfig(project);
 
 config.watchFolders = [root];
 
+// Subtitle files bundled with `require('./en.vtt')`
+config.resolver.assetExts = [...config.resolver.assetExts, 'vtt', 'srt'];
+
 config.resolver.blockList = [
   ...config.resolver.blockList,
   ...modules.map(

@@ -1,10 +1,19 @@
-import { View, StyleSheet, ScrollView, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  type ColorValue,
+  type LayoutChangeEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import type { TextTrack } from 'react-native-video';
 import { useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
-import { type FC, type ReactNode } from 'react';
+import { useEffect, type FC, type ReactNode } from 'react';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useVideoSelector } from '../providers';
+import { useVideoStore } from '../providers/VideoProvider';
 import {
   Menu,
   Subtitle,
@@ -103,8 +112,10 @@ const FadingControls = ({
   showWhileBuffering = false,
   style,
   testID,
+  onLayout,
   children,
 }: {
+  onLayout?: (event: LayoutChangeEvent) => void;
   /** How far the group slides out when hidden. */
   offsetY?: number;
   /** Keep it visible while buffering, for the centre controls. */
@@ -133,7 +144,8 @@ const FadingControls = ({
   return (
     <Animated.View
       style={[style, animatedStyle, controlsVisible ? touchStyles.passThrough : touchStyles.none]}
-      testID={testID}>
+      testID={testID}
+      onLayout={onLayout}>
       {PlatformUtils.isTV() ? (
         <ControlsFocusableContext.Provider value={controlsVisible}>{children}</ControlsFocusableContext.Provider>
       ) : (
@@ -187,6 +199,11 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const { supported: pictureInPictureSupported } = usePictureInPicture();
   // IDs for end-to-end tests, starting with the player's `testID`: `video-settings-rate-1.5`
+  // Subtitles sit above the bottom controls while they show; gone with the layout, they come back down
+  const { dispatch } = useVideoStore();
+  const reportControlsInset = (event: LayoutChangeEvent) =>
+    dispatch({ type: 'SET_CONTROLS_INSET', payload: Math.round(event.nativeEvent.layout.height) });
+  useEffect(() => () => dispatch({ type: 'SET_CONTROLS_INSET', payload: 0 }), [dispatch]);
   const id = usePlayerTestID();
   const videoOptionIDs = videoTrackTestIDs(videoTracks);
   // Pinned tracks go above "Off", which leads the rest
@@ -408,6 +425,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               <FadingControls
                 offsetY={50}
                 testID={`${id}-controls-bottom`}
+                // Its height, so subtitles move up above it while it shows
+                onLayout={reportControlsInset}
                 style={[
                   layoutStyles.bottomControls,
                   {

@@ -20,3 +20,4 @@ export * from './providers';
 export * from './themes';
 export * from './types';
 export * from './utils';
+export * from './captions';

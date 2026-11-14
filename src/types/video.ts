@@ -1,5 +1,6 @@
 // import type { ReactVideoSource } from 'react-native-video';
 import type { VideoTrack } from 'react-native-video';
+import type { CaptionError } from '../captions/types';
 
 // /**
 //  * Represents the source of the video to be played.
@@ -166,4 +167,25 @@ export interface VideoPlayerConfig {
    * A callback function that is called when the controls are shown.
    */
   onShowControls?: () => void;
+  /**
+   * Who draws subtitles from files (`source.textTracks`) and HLS subtitle renditions. `'custom'`:
+   * the toolkit, styled with `theme.captions`. `'native'`: react-native-video, as before.
+   * Subtitles embedded in MP4 or DASH files, and HLS closed captions, are always drawn natively.
+   * @default 'custom'
+   */
+  captionRenderer?: 'custom' | 'native';
+  /**
+   * Called when subtitles fail to load or parse. The video keeps playing without them.
+   */
+  onCaptionError?: (error: CaptionError) => void;
+  /**
+   * How often the player reports its position, in milliseconds. Subtitles stay in sync between
+   * reports, so this mostly sets how smoothly `useProgress()` updates.
+   * @default 250
+   */
+  progressUpdateInterval?: number;
+  /**
+   * Space to keep clear around subtitles, such as safe-area insets in fullscreen.
+   */
+  captionInsets?: { bottom?: number; left?: number; right?: number };
 }

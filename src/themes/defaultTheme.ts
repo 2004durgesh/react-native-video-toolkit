@@ -1,5 +1,26 @@
 import { hexToRgba } from '../utils';
-import type { Theme } from '../types';
+import type { CaptionsTheme, Theme } from '../types';
+
+/**
+ * The default subtitle style: white text on a dark box, readable on bright and dark video alike.
+ */
+export const defaultCaptionsTheme: CaptionsTheme = {
+  fontSize: 'auto',
+  fontWeight: '500',
+  color: '#FFFFFF',
+  lineHeightMultiplier: 1.4,
+  textAlign: 'center',
+  backgroundColor: hexToRgba('#000000', 0.75),
+  borderRadius: 4,
+  paddingHorizontal: 8,
+  paddingVertical: 2,
+  outlineWidth: 0,
+  outlineColor: '#000000',
+  position: 'video',
+  bottomMargin: 0.05,
+  maxWidth: 0.9,
+  maxLines: 3,
+};
 
 /**
  * The default theme for the video player.
@@ -60,4 +81,5 @@ export const defaultTheme: Theme = {
     normal: 250,
     slow: 600,
   },
+  captions: defaultCaptionsTheme,
 };

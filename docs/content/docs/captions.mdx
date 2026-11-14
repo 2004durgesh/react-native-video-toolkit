@@ -1,0 +1,133 @@
+---
+title: Subtitles
+description: Show WebVTT and SRT subtitles over the player, styled with your theme.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+The player draws subtitles itself, on top of the video, so they look the same on iOS, Android, web and TV and follow your theme. It reads WebVTT (`.vtt`) and SRT (`.srt`) files, and the WebVTT subtitles of HLS streams.
+
+## Add subtitle files
+
+Pass the files in `source.textTracks`:
+
+```tsx
+import { TextTrackType } from 'react-native-video';
+
+<VideoPlayer
+  source={{
+    uri: 'https://cdn.example.com/episode-5.mp4',
+    textTracks: [
+      { title: 'English', language: 'en', type: TextTrackType.VTT, uri: 'https://cdn.example.com/episode-5.en.vtt' },
+      { title: 'Español', language: 'es', type: TextTrackType.SUBRIP, uri: 'https://cdn.example.com/episode-5.es.srt' },
+    ],
+  }}>
+  <DefaultLayout />
+</VideoPlayer>;
+```
+
+A track's `uri` can be an `https://` URL, a `file://` path on the device, or a file bundled with `require('./episode-5.en.vtt')`. To bundle subtitle files, add their extensions to Metro's `assetExts`:
+
+```js
+// metro.config.js
+config.resolver.assetExts = [...config.resolver.assetExts, 'vtt', 'srt'];
+```
+
+Files can be UTF-8 or UTF-16. A file that isn't valid UTF-8 is read as Windows-1252, the usual encoding of older SRT files.
+
+## HLS streams
+
+For an HLS stream (`.m3u8`), the player reads the master playlist and lists its WebVTT subtitle renditions with the other tracks. It fetches their segments around the playhead as the video plays, with the stream's `headers`. Live streams' subtitles aren't supported.
+
+## Choose a track
+
+Viewers pick a track in the settings menu under **Captions**, or turn subtitles on and off with the subtitles button. In your own controls, use `useSettings()`'s `textTracks` and `setTextTrack`.
+
+When a video loads, the player turns on the track in the device's language, then the stream's default track, then English, then the first track. The viewer's choice carries over to the next video when it has the same language, and subtitles stay off if the viewer turned them off.
+
+## Style subtitles
+
+Set `theme.captions` on the provider. Any key you leave out keeps the default: white text on a dark box, which stays readable on bright and dark video.
+
+```tsx
+<VideoProvider theme={{ captions: { fontSize: 20, color: '#FFEB3B', backgroundColor: 'transparent', outlineWidth: 2 } }}>
+```
+
+| Key                                                          | Default              | What it does                                                                                                                 |
+| ------------------------------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `fontSize`                                                   | `'auto'`             | A number, or `'auto'`: 5.5% of the picture's height, from 12 to 28.                                                          |
+| `fontFamily`, `fontWeight`, `letterSpacing`, `textTransform` | system font, `'500'` | The text's font.                                                                                                             |
+| `color`                                                      | `#FFFFFF`            | The text's color.                                                                                                            |
+| `lineHeightMultiplier`                                       | `1.4`                | Line height as a multiple of the font size. Tall scripts such as Devanagari need room.                                       |
+| `textAlign`                                                  | `'center'`           | `'left'`, `'center'` or `'right'`.                                                                                           |
+| `backgroundColor`                                            | 75% black            | The box behind each cue. `'transparent'` for none.                                                                           |
+| `borderRadius`, `paddingHorizontal`, `paddingVertical`       | `4`, `8`, `2`        | The box's shape.                                                                                                             |
+| `outlineWidth`, `outlineColor`                               | `0`, black           | An outline around the letters.                                                                                               |
+| `shadowColor`, `shadowOffset`, `shadowRadius`                | none                 | A drop shadow behind the letters.                                                                                            |
+| `position`                                                   | `'video'`            | `'video'` keeps subtitles on the picture. `'bars'` puts them in the black bar under a letterboxed picture when there's room. |
+| `bottomMargin`                                               | `0.05`               | The gap under subtitles, as a share of the picture's height.                                                                 |
+| `maxWidth`                                                   | `0.9`                | The widest subtitles get, as a share of the picture's width.                                                                 |
+| `maxLines`                                                   | `3`                  | Lines per cue before the rest is cut off.                                                                                    |
+
+Changes apply straight away, without reloading the video.
+
+`<b>`, `<i>` and `<u>` in a cue show as bold, italic and underlined. Other tags, such as `<c.yellow>` and `<v Speaker>`, are removed. Right-to-left text, such as Arabic and Hebrew, is laid out right to left.
+
+## Keep subtitles clear of the controls
+
+Subtitles move up above `DefaultLayout`'s bottom controls while they show, and back down when they hide. With your own layout, tell them how far your controls reach up from the bottom of the player:
+
+```tsx
+<VideoPlayer source={source}>
+  <MyControls />
+  <VideoPlayer.Captions controlsInset={72} />
+</VideoPlayer>
+```
+
+To keep them clear of the notch and the home indicator in fullscreen, pass your safe-area insets as `config.captionInsets`, for example from `react-native-safe-area-context`:
+
+```tsx
+const insets = useSafeAreaInsets();
+
+<VideoProvider config={{ captionInsets: { bottom: insets.bottom, left: insets.left, right: insets.right } }}>
+```
+
+## When a file doesn't load
+
+The video keeps playing without subtitles, and `config.onCaptionError` gets the reason:
+
+```tsx
+<VideoProvider config={{ onCaptionError: (error) => console.warn(error.code, error.url, error.reason) }}>
+```
+
+| `code`               | Cause                                                                     |
+| -------------------- | ------------------------------------------------------------------------- |
+| `LOAD_FAILED`        | A network error or an error status, such as `HTTP 404`.                   |
+| `TIMEOUT`            | No response within 10 seconds.                                            |
+| `UNSUPPORTED_FORMAT` | Not WebVTT or SRT: a TTML file, an HTML error page, or a live HLS stream. |
+| `PARSE_FAILED`       | The file has text but no valid cue.                                       |
+
+Cues with broken timings are skipped, and the rest of the file still shows.
+
+## Limitations
+
+- **Subtitles embedded in an MP4 or DASH file, and HLS closed captions (CEA-608/708),** are drawn by the video player, not by the toolkit. They don't follow `theme.captions`.
+- **TTML files** aren't supported. Use the native renderer below.
+- **Picture-in-picture** shows no subtitles: the floating window only shows the video.
+- **The outline** is drawn as copies of the text shifted around it, so wide outlines look blocky. A `backgroundColor` box reads better.
+- **Cue settings** in WebVTT (`position`, `line`, `align`) are ignored: every cue is centred at the bottom.
+
+## Use the video player's own subtitles
+
+To have react-native-video draw subtitles instead, set `captionRenderer: 'native'`:
+
+```tsx
+<VideoProvider config={{ captionRenderer: 'native' }}>
+```
+
+`theme.captions` doesn't apply then, and subtitles don't show on web.
+
+<Callout type="info">
+  Moving from the native renderer: `videoProps.subtitleStyle` only styles subtitles the video player draws. Style the
+  toolkit's with `theme.captions`.
+</Callout>

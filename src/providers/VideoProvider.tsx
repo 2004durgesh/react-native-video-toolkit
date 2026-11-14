@@ -15,6 +15,7 @@ import { SettingsProvider } from './SettingsProvider';
 import { ComponentsProvider } from './ComponentsProvider';
 import { createProgressStore, ProgressStoreContext } from './ProgressStore';
 import { ControlsControllerContext, type ControlsController } from './ControlsController';
+import { CaptionsControllerContext, createCaptionsController } from '../captions/CaptionsController';
 import { PortalHost } from '@rn-primitives/portal';
 import type { VideoRef } from 'react-native-video';
 /**
@@ -33,6 +34,8 @@ const defaultConfig: VideoPlayerConfig = {
   playbackRates: [0.5, 1, 1.25, 1.5, 2],
   useCustomAudioTracks: false,
   useCustomVideoTracks: false,
+  captionRenderer: 'custom',
+  progressUpdateInterval: 250,
 };
 
 /**
@@ -64,6 +67,15 @@ interface VideoProviderState extends VideoState {
    * The layout of the video wrapper View.
    */
   videoWrapperLayout: LayoutRectangle;
+  /**
+   * The video's own size, from the loaded source; 0 until it loads.
+   */
+  naturalSize: { width: number; height: number };
+  /**
+   * How much of the player's bottom edge the layout's controls cover while visible, so subtitles
+   * can stay above them.
+   */
+  controlsInset: number;
   /**
    * The dimensions of the screen.
    */
@@ -98,6 +110,8 @@ type Action =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_VIDEO_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_VIDEO_WRAPPER_LAYOUT'; payload: LayoutRectangle }
+  | { type: 'SET_NATURAL_SIZE'; payload: { width: number; height: number } }
+  | { type: 'SET_CONTROLS_INSET'; payload: number }
   | { type: 'SET_DIMENSIONS'; payload: { width: number; height: number } }
   | { type: 'SET_PLAYBACK_RATE'; payload: number }
   | { type: 'SET_PORTAL_HOST_NAME'; payload: string };
@@ -123,6 +137,8 @@ const initialState: VideoProviderState = {
   controlsVisible: true,
   videoLayout: { x: 0, y: 0, width: 0, height: 0 },
   videoWrapperLayout: { x: 0, y: 0, width: 0, height: 0 },
+  naturalSize: { width: 0, height: 0 },
+  controlsInset: 0,
   dimensions: { width: Dimensions.get('window').width, height: Dimensions.get('window').height },
   portalHostName: 'default-portal-host',
 };
@@ -179,6 +195,7 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
         colors: { ...defaultTheme.colors, ...definedOnly(action.payload.theme?.colors) },
         fontSizes: { ...defaultTheme.fontSizes, ...definedOnly(action.payload.theme?.fontSizes) },
         animations: { ...defaultTheme.animations, ...definedOnly(action.payload.theme?.animations) },
+        captions: { ...defaultTheme.captions, ...definedOnly(action.payload.theme?.captions) },
       };
       const config = { ...defaultConfig, ...definedOnly(action.payload.config) };
       // Inline config and theme objects arrive as new objects on every render of the parent
@@ -222,6 +239,12 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return isSameRect(state.videoWrapperLayout, action.payload)
         ? state
         : { ...state, videoWrapperLayout: action.payload };
+    case 'SET_NATURAL_SIZE':
+      return state.naturalSize.width === action.payload.width && state.naturalSize.height === action.payload.height
+        ? state
+        : { ...state, naturalSize: action.payload };
+    case 'SET_CONTROLS_INSET':
+      return set('controlsInset', action.payload);
     case 'SET_DIMENSIONS':
       return state.dimensions.width === action.payload.width && state.dimensions.height === action.payload.height
         ? state
@@ -377,18 +400,32 @@ export const VideoProvider: React.FC<{
   // The playback position lives in its own store, so progress events don't re-render this context's consumers
   const [progressStore] = React.useState(createProgressStore);
 
+  // Works out which subtitle cues show, from the playback position and state
+  const [captions] = React.useState(() =>
+    createCaptionsController({
+      getTime: () => progressStore.getSnapshot().currentTime,
+      subscribeTime: progressStore.subscribe,
+      getPlayback: () => store.getState(),
+      subscribePlayback: store.subscribe,
+      onError: (error) => store.getState().config.onCaptionError?.(error),
+    })
+  );
+  useEffect(() => captions.start(), [captions]);
+
   return (
     <VideoStoreContext.Provider value={store}>
       <ProgressStoreContext.Provider value={progressStore}>
         <ControlsControllerContext.Provider value={controls}>
-          <ThemeProvider theme={storedTheme}>
-            <SettingsProvider>
-              <ComponentsProvider components={components}>
-                {children}
-                {portalHost ? null : <PortalHost name={portalHostName} />}
-              </ComponentsProvider>
-            </SettingsProvider>
-          </ThemeProvider>
+          <CaptionsControllerContext.Provider value={captions}>
+            <ThemeProvider theme={storedTheme}>
+              <SettingsProvider>
+                <ComponentsProvider components={components}>
+                  {children}
+                  {portalHost ? null : <PortalHost name={portalHostName} />}
+                </ComponentsProvider>
+              </SettingsProvider>
+            </ThemeProvider>
+          </CaptionsControllerContext.Provider>
         </ControlsControllerContext.Provider>
       </ProgressStoreContext.Provider>
     </VideoStoreContext.Provider>

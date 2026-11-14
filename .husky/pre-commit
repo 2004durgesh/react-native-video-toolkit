@@ -23,6 +23,8 @@ fi
 
 yarn typecheck
 
+yarn test --silent
+
 # rename README.md to README.mdx before formatting
 mv README.md README.mdx
 

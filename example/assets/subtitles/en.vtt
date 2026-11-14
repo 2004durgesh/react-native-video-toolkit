@@ -1,0 +1,36 @@
+WEBVTT
+
+NOTE Fixture for the toolkit's custom subtitles: tags, line breaks, an overlap, a long line.
+
+1
+00:00:00.000 --> 00:00:01.900
+Captions drawn by the toolkit
+
+2
+00:00:02.000 --> 00:00:03.900
+<b>Bold</b>, <i>italic</i> and <u>underlined</u>
+
+3
+00:00:04.000 --> 00:00:05.900
+Two lines,
+kept as written
+
+4
+00:00:06.000 --> 00:00:09.900
+A cue that overlaps the next one
+
+5
+00:00:07.000 --> 00:00:08.900
+<v Narrator>The overlapping cue
+
+6
+00:00:10.000 --> 00:00:12.900
+A much longer cue that keeps going so it has to wrap onto more than one line on a phone, and is cut after three lines if it ever gets that far, which this one tries to do on purpose
+
+7
+00:00:13.000 --> 00:00:14.900
+Tom &amp; Jerry &lt;3
+
+8
+00:00:15.000 --> 00:00:31.000
+The last cue, until the end

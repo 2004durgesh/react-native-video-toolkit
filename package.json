@@ -75,8 +75,11 @@
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.22.0",
     "@react-native-community/cli": "latest",
+    "@react-native/babel-preset": "0.88.0",
     "@react-native/eslint-config": "^0.73.1",
+    "@react-native/jest-preset": "0.88.0",
     "@release-it/conventional-changelog": "^9.0.2",
+    "@testing-library/react-native": "^14.1.0",
     "@types/jest": "^29.5.5",
     "@types/react": "^19.0.0",
     "@types/react-native-material-ripple": "^0.9.6",
@@ -103,6 +106,7 @@
     "react-native-web": "^0.21.4",
     "react-native-worklets": "0.13.0",
     "release-it": "latest",
+    "test-renderer": "^1.0.0",
     "turbo": "^1.10.7",
     "typescript": "^5.8.3"
   },
@@ -125,11 +129,24 @@
   ],
   "packageManager": "yarn@3.6.1",
   "jest": {
-    "preset": "react-native",
+    "preset": "@react-native/jest-preset",
+    "resolver": "<rootDir>/jest.resolver.js",
+    "setupFiles": [
+      "<rootDir>/node_modules/react-native-gesture-handler/jestSetup.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.test.[jt]s?(x)"
+    ],
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/docs/node_modules",
       "<rootDir>/lib/"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-native-reanimated|react-native-worklets|react-native-gesture-handler|react-native-video|react-native-svg|react-native-orientation-director|react-native-awesome-slider|react-native-material-ripple|@rn-primitives)/)"
     ]
   },
   "release-it": {

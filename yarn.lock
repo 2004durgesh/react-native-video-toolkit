@@ -1773,6 +1773,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/plugin-transform-react-jsx-self@npm:^7.24.7":
+  version: 7.29.7
+  resolution: "@babel/plugin-transform-react-jsx-self@npm:7.29.7"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.29.7
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 779cde890f36a0160585a357f0850951d9e18d72e960099e32544420252e983b54bfe4a7c81c39b1668ad588231771c97e6b9e59056b21e5cda0953f26db1286
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-transform-react-jsx-source@npm:^7.24.7":
+  version: 7.29.7
+  resolution: "@babel/plugin-transform-react-jsx-source@npm:7.29.7"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.29.7
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 286641d64bfd1d91eb8fcc3a6a5c48cc7b8e04268c79f3ee9902addc723652a4aa1d967278208d3b0ef03db381853d68eb25ae609e5a305421ff3d3fd5f3cb77
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-transform-react-jsx@npm:^7.25.2, @babel/plugin-transform-react-jsx@npm:^7.28.6, @babel/plugin-transform-react-jsx@npm:^7.29.7":
+  version: 7.29.7
+  resolution: "@babel/plugin-transform-react-jsx@npm:7.29.7"
+  dependencies:
+    "@babel/helper-annotate-as-pure": ^7.29.7
+    "@babel/helper-module-imports": ^7.29.7
+    "@babel/helper-plugin-utils": ^7.29.7
+    "@babel/plugin-syntax-jsx": ^7.29.7
+    "@babel/types": ^7.29.7
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: d50e5d6f12051c688280b118fc0cdc49f617f7c1f2c41b25733b606aa9a14d2dc84bc544163d115226b9d2cde9f147f49568350b9d100cb47988e5e76cf495c7
+  languageName: node
+  linkType: hard
+
 "@babel/plugin-transform-react-jsx@npm:^7.27.1":
   version: 7.28.6
   resolution: "@babel/plugin-transform-react-jsx@npm:7.28.6"
@@ -1785,21 +1822,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: e7d093b5ed6c06563e801d44d1212b451445d7600756efd7b8b8e6db4585c27fa8145176dcb3350968c59381af6c566dae9b6dc97ec15d2837493b238904d1c2
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-transform-react-jsx@npm:^7.28.6, @babel/plugin-transform-react-jsx@npm:^7.29.7":
-  version: 7.29.7
-  resolution: "@babel/plugin-transform-react-jsx@npm:7.29.7"
-  dependencies:
-    "@babel/helper-annotate-as-pure": ^7.29.7
-    "@babel/helper-module-imports": ^7.29.7
-    "@babel/helper-plugin-utils": ^7.29.7
-    "@babel/plugin-syntax-jsx": ^7.29.7
-    "@babel/types": ^7.29.7
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: d50e5d6f12051c688280b118fc0cdc49f617f7c1f2c41b25733b606aa9a14d2dc84bc544163d115226b9d2cde9f147f49568350b9d100cb47988e5e76cf495c7
   languageName: node
   linkType: hard
 
@@ -1827,7 +1849,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-regenerator@npm:^7.29.7":
+"@babel/plugin-transform-regenerator@npm:^7.24.7, @babel/plugin-transform-regenerator@npm:^7.29.7":
   version: 7.29.8
   resolution: "@babel/plugin-transform-regenerator@npm:7.29.8"
   dependencies:
@@ -4252,6 +4274,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jest/diff-sequences@npm:30.5.0":
+  version: 30.5.0
+  resolution: "@jest/diff-sequences@npm:30.5.0"
+  checksum: f6afafc9245e0326e03fa2136d9023b93ed4f3e491eb740c4ae66e267b2a47690ff61094a84ebc0a2e5fa9e0ae036ca24636176298698907d6848b89d85677e4
+  languageName: node
+  linkType: hard
+
 "@jest/environment@npm:^29.7.0":
   version: 29.7.0
   resolution: "@jest/environment@npm:29.7.0"
@@ -4297,6 +4326,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jest/get-type@npm:30.5.0":
+  version: 30.5.0
+  resolution: "@jest/get-type@npm:30.5.0"
+  checksum: 6b67e70f6c1cca6da153814542903b4c385447c7c5e029f8911402ca8a75fbd33a14cc0fff4c6ed7c6c629f6425fade605d6f32eb9516b52146a8640fd899773
+  languageName: node
+  linkType: hard
+
 "@jest/globals@npm:^29.7.0":
   version: 29.7.0
   resolution: "@jest/globals@npm:29.7.0"
@@ -4306,6 +4342,20 @@ __metadata:
     "@jest/types": ^29.6.3
     jest-mock: ^29.7.0
   checksum: 97dbb9459135693ad3a422e65ca1c250f03d82b2a77f6207e7fa0edd2c9d2015fbe4346f3dc9ebff1678b9d8da74754d4d440b7837497f8927059c0642a22123
+  languageName: node
+  linkType: hard
+
+"@jest/react-is-18@npm:react-is@^18.3.1, react-is@npm:^18.0.0":
+  version: 18.3.1
+  resolution: "react-is@npm:18.3.1"
+  checksum: e20fe84c86ff172fc8d898251b7cc2c43645d108bf96d0b8edf39b98f9a2cae97b40520ee7ed8ee0085ccc94736c4886294456033304151c3f94978cec03df21
+  languageName: node
+  linkType: hard
+
+"@jest/react-is-19@npm:react-is@^19.2.5":
+  version: 19.3.1
+  resolution: "react-is@npm:19.3.1"
+  checksum: e66f96e15807a8d5948502a026780b53ac95f993c5772f999e4e71ab591d5632fcc7f966abf6a8208ec6a2b880473ad61eb4767c332571422b2852e93f4750dc
   languageName: node
   linkType: hard
 
@@ -4343,6 +4393,15 @@ __metadata:
     node-notifier:
       optional: true
   checksum: 7eadabd62cc344f629024b8a268ecc8367dba756152b761bdcb7b7e570a3864fc51b2a9810cd310d85e0a0173ef002ba4528d5ea0329fbf66ee2a3ada9c40455
+  languageName: node
+  linkType: hard
+
+"@jest/schemas@npm:30.5.0":
+  version: 30.5.0
+  resolution: "@jest/schemas@npm:30.5.0"
+  dependencies:
+    "@sinclair/typebox": ^0.34.0
+  checksum: 9cce773d1e749e5a0c542321e5a3cd7593d9e29fde4f661996c2fbcdb14c2160a631428e04cd6619827c809c34607d1a388a571df9ee0997026782d098e80735
   languageName: node
   linkType: hard
 
@@ -6261,6 +6320,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native/babel-plugin-codegen@npm:0.88.0":
+  version: 0.88.0
+  resolution: "@react-native/babel-plugin-codegen@npm:0.88.0"
+  dependencies:
+    "@babel/traverse": ^7.29.0
+    "@react-native/codegen": 0.88.0
+  checksum: c6f20890beb8942836bc7a16c16a008411208d12857acc1433203c7a88607b7db872766921305c82b1d9bed9eff956d10f7ca6cd784ce5972283cc858c3110a8
+  languageName: node
+  linkType: hard
+
 "@react-native/babel-plugin-codegen@npm:0.88.1":
   version: 0.88.1
   resolution: "@react-native/babel-plugin-codegen@npm:0.88.1"
@@ -6268,6 +6337,49 @@ __metadata:
     "@babel/traverse": ^7.29.0
     "@react-native/codegen": 0.88.1
   checksum: 6e6853aa1dab79f911b2ec3ed6ae2079cbdbf47d37a626c9bc75c867952165f20f853119d3d9d7d6761e87a664871465d0c3c3ee6870d57f3f8475181b21f35c
+  languageName: node
+  linkType: hard
+
+"@react-native/babel-preset@npm:0.88.0":
+  version: 0.88.0
+  resolution: "@react-native/babel-preset@npm:0.88.0"
+  dependencies:
+    "@babel/core": ^7.25.2
+    "@babel/plugin-proposal-export-default-from": ^7.24.7
+    "@babel/plugin-syntax-dynamic-import": ^7.8.3
+    "@babel/plugin-syntax-export-default-from": ^7.24.7
+    "@babel/plugin-syntax-nullish-coalescing-operator": ^7.8.3
+    "@babel/plugin-syntax-optional-chaining": ^7.8.3
+    "@babel/plugin-transform-async-generator-functions": ^7.25.4
+    "@babel/plugin-transform-async-to-generator": ^7.24.7
+    "@babel/plugin-transform-block-scoping": ^7.25.0
+    "@babel/plugin-transform-class-properties": ^7.25.4
+    "@babel/plugin-transform-classes": ^7.25.4
+    "@babel/plugin-transform-destructuring": ^7.24.8
+    "@babel/plugin-transform-flow-strip-types": ^7.25.2
+    "@babel/plugin-transform-for-of": ^7.24.7
+    "@babel/plugin-transform-modules-commonjs": ^7.24.8
+    "@babel/plugin-transform-named-capturing-groups-regex": ^7.24.7
+    "@babel/plugin-transform-nullish-coalescing-operator": ^7.24.7
+    "@babel/plugin-transform-optional-catch-binding": ^7.24.7
+    "@babel/plugin-transform-optional-chaining": ^7.24.8
+    "@babel/plugin-transform-private-methods": ^7.24.7
+    "@babel/plugin-transform-private-property-in-object": ^7.24.7
+    "@babel/plugin-transform-react-display-name": ^7.24.7
+    "@babel/plugin-transform-react-jsx": ^7.25.2
+    "@babel/plugin-transform-react-jsx-self": ^7.24.7
+    "@babel/plugin-transform-react-jsx-source": ^7.24.7
+    "@babel/plugin-transform-regenerator": ^7.24.7
+    "@babel/plugin-transform-runtime": ^7.24.7
+    "@babel/plugin-transform-typescript": ^7.25.2
+    "@babel/plugin-transform-unicode-regex": ^7.24.7
+    "@react-native/babel-plugin-codegen": 0.88.0
+    babel-plugin-transform-flow-enums: ^0.0.2
+    flow-parser: 0.327.0
+    react-refresh: ^0.14.0
+  peerDependencies:
+    "@babel/core": "*"
+  checksum: ad9945ab98c72453aee1c5dcae25ec28f004bcb9e24ebf2165c3ff1754f3d7f07468bc22c8d127dea6d4521f25135da805adb5bbb755c16382556e9f02d850cc
   languageName: node
   linkType: hard
 
@@ -6522,10 +6634,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native/jest-preset@npm:0.88.0":
+  version: 0.88.0
+  resolution: "@react-native/jest-preset@npm:0.88.0"
+  dependencies:
+    "@jest/create-cache-key-function": ^29.7.0
+    "@react-native/js-polyfills": 0.88.0
+    babel-jest: ^29.7.0
+    jest-environment-node: ^29.7.0
+    regenerator-runtime: ^0.13.2
+  peerDependencies:
+    react: ^19.2.3
+  checksum: 6daa81ca84b2f4fe3f1bbd8c6e1eb084e6b56bcae1968933d66f9fe9846222fb48d111f5cfec5c001b6f80e134a043d96188a94c97101e07df2d97acb5ed5b4e
+  languageName: node
+  linkType: hard
+
 "@react-native/js-polyfills@npm:0.83.1":
   version: 0.83.1
   resolution: "@react-native/js-polyfills@npm:0.83.1"
   checksum: 1c3fbceac6371252d6e54f9e76b852bfaec7a7472455f9856467dd73a87b8445eda03fb38fc65bc9abd76606e6e52041c754db41f2a23c74dbf5e052e9af129a
+  languageName: node
+  linkType: hard
+
+"@react-native/js-polyfills@npm:0.88.0":
+  version: 0.88.0
+  resolution: "@react-native/js-polyfills@npm:0.88.0"
+  checksum: 81d49137f594b2ca4a3091e61ad66929834d02c21ff7677612ee5e112e7ac319e8de5dac28400ea94905d691aea7bbe9a09a9634eeab28c5dba46dc9cad211f6
   languageName: node
   linkType: hard
 
@@ -6820,6 +6954,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sinclair/typebox@npm:^0.34.0":
+  version: 0.34.52
+  resolution: "@sinclair/typebox@npm:0.34.52"
+  checksum: 4996f7e16431216d9998700d86645a3341a8036a020466414ec89dbbbbcc60e96d0ed04bd8c7ac4d145ced9aeba991bf2d7334b5b6b579b943e94d208a516c0e
+  languageName: node
+  linkType: hard
+
 "@sindresorhus/merge-streams@npm:^2.1.0":
   version: 2.3.0
   resolution: "@sindresorhus/merge-streams@npm:2.3.0"
@@ -7022,6 +7163,26 @@ __metadata:
     postcss: ^8.5.16
     tailwindcss: 4.3.3
   checksum: 63a3180dea98dfb853c763ae05474a0d6fbc8bd7bcb3629f1e83b5ea6c9a24cdbab16fa5df26fd638849d2e8e77c23054833d91de52044c0ea0b6fcb4626fe21
+  languageName: node
+  linkType: hard
+
+"@testing-library/react-native@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "@testing-library/react-native@npm:14.1.0"
+  dependencies:
+    jest-matcher-utils: ^30.4.1
+    picocolors: ^1.1.1
+    pretty-format: ^30.4.1
+    redent: ^3.0.0
+  peerDependencies:
+    jest: ">=29.0.0"
+    react: ">=19.0.0"
+    react-native: ">=0.78"
+    test-renderer: ^1.0.0
+  peerDependenciesMeta:
+    jest:
+      optional: true
+  checksum: c00bdf5f5355f619f0bdced365af40bdff614bb0fadd7f31b1ebae51516adbec5be331d5a9a360e63f3932dc2b9c610ded8b49d8d7f605d059f74038b415b382
   languageName: node
   linkType: hard
 
@@ -7312,6 +7473,15 @@ __metadata:
     "@types/react": "*"
     react-native: "*"
   checksum: 1c883bf7d951bf9e68f5c094ded56bde736d348b1b6146e73bbbfcfa5a64983ee15286a15b6c2b055ed816704bbbb8b45b6f7e8df0b1dcfcf5e9b821e6e37e76
+  languageName: node
+  linkType: hard
+
+"@types/react-reconciler@npm:~0.34.0":
+  version: 0.34.1
+  resolution: "@types/react-reconciler@npm:0.34.1"
+  peerDependencies:
+    "@types/react": "*"
+  checksum: e93308ab160661d8ab1cd4c47fa6f5278634d08d70f57d856ed044d96342ee908e247003e092f295e1e62a36bcfb5318c44e071712c84a4cf8864e2f9a81b5c8
   languageName: node
   linkType: hard
 
@@ -8389,7 +8559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-styles@npm:^5.0.0":
+"ansi-styles@npm:^5.0.0, ansi-styles@npm:^5.2.0":
   version: 5.2.0
   resolution: "ansi-styles@npm:5.2.0"
   checksum: d7f4e97ce0623aea6bc0d90dcd28881ee04cba06c570b97fd3391bd7a268eedfd9d5e2dd4fdcbdd82b8105df5faf6f24aaedc08eaf3da898e702db5948f63469
@@ -14664,6 +14834,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jest-diff@npm:30.5.2":
+  version: 30.5.2
+  resolution: "jest-diff@npm:30.5.2"
+  dependencies:
+    "@jest/diff-sequences": 30.5.0
+    "@jest/get-type": 30.5.0
+    chalk: ^4.1.2
+    pretty-format: 30.5.1
+  checksum: 56d162bd4a37c631f81ea00f5f108a0531496a59c2022d7d97214d77094a79f81e68ea16fbbd9a6115469a57ea403ba37fa135fe3c127123775964df7b1efaf2
+  languageName: node
+  linkType: hard
+
 "jest-diff@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-diff@npm:29.7.0"
@@ -14761,6 +14943,18 @@ __metadata:
     jest-get-type: ^29.6.3
     pretty-format: ^29.7.0
   checksum: d7259e5f995d915e8a37a8fd494cb7d6af24cd2a287b200f831717ba0d015190375f9f5dc35393b8ba2aae9b2ebd60984635269c7f8cff7d85b077543b7744cd
+  languageName: node
+  linkType: hard
+
+"jest-matcher-utils@npm:^30.4.1":
+  version: 30.5.2
+  resolution: "jest-matcher-utils@npm:30.5.2"
+  dependencies:
+    "@jest/get-type": 30.5.0
+    chalk: ^4.1.2
+    jest-diff: 30.5.2
+    pretty-format: 30.5.1
+  checksum: 0f5506fc810bbc43876bc6a15ff1ca11b97e06e6cdeff0ca67edb3d569052ccf479eac95e25ee7daf6ff52f2c03a3d92d33e8f0f237444cd24d94212cd7cf2f8
   languageName: node
   linkType: hard
 
@@ -18920,6 +19114,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pretty-format@npm:30.5.1, pretty-format@npm:^30.4.1":
+  version: 30.5.1
+  resolution: "pretty-format@npm:30.5.1"
+  dependencies:
+    "@jest/react-is-18": "npm:react-is@^18.3.1"
+    "@jest/react-is-19": "npm:react-is@^19.2.5"
+    "@jest/schemas": 30.5.0
+    ansi-styles: ^5.2.0
+  checksum: 0aee5a8a8318c2df834ec7949da34f914803316272a758722d9b2492f527375a887112aeca6f4f17c9a2f7592ce47c851fa6b281eaac25bb5a775caf826da8c1
+  languageName: node
+  linkType: hard
+
 "pretty-format@npm:^29.0.0, pretty-format@npm:^29.7.0":
   version: 29.7.0
   resolution: "pretty-format@npm:29.7.0"
@@ -19192,13 +19398,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^18.0.0":
-  version: 18.3.1
-  resolution: "react-is@npm:18.3.1"
-  checksum: e20fe84c86ff172fc8d898251b7cc2c43645d108bf96d0b8edf39b98f9a2cae97b40520ee7ed8ee0085ccc94736c4886294456033304151c3f94978cec03df21
-  languageName: node
-  linkType: hard
-
 "react-is@npm:^19.1.0":
   version: 19.2.3
   resolution: "react-is@npm:19.2.3"
@@ -19419,10 +19618,13 @@ __metadata:
     "@eslint/eslintrc": ^3.3.0
     "@eslint/js": ^9.22.0
     "@react-native-community/cli": latest
+    "@react-native/babel-preset": 0.88.0
     "@react-native/eslint-config": ^0.73.1
+    "@react-native/jest-preset": 0.88.0
     "@release-it/conventional-changelog": ^9.0.2
     "@rn-primitives/dialog": ^1.4.0
     "@rn-primitives/portal": ^1.4.0
+    "@testing-library/react-native": ^14.1.0
     "@types/jest": ^29.5.5
     "@types/react": ^19.0.0
     "@types/react-native-material-ripple": ^0.9.6
@@ -19451,12 +19653,13 @@ __metadata:
     react-native-web: ^0.21.4
     react-native-worklets: 0.13.0
     release-it: latest
+    test-renderer: ^1.0.0
     turbo: ^1.10.7
     typescript: ^5.8.3
   peerDependencies:
     react: "*"
     react-native: "*"
-    react-native-gesture-handler: ">=2.0.0"
+    react-native-gesture-handler: ">=3.0.0"
     react-native-orientation-director: ">=2.0.0"
     react-native-reanimated: ">=4.5.0"
     react-native-svg: ">=15.0.0"
@@ -19661,6 +19864,17 @@ __metadata:
   bin:
     react-native: cli.js
   checksum: 347cc6f675928ebfb2f7a29543118a6019b483648714e9c98a6b5c825d0de87b3e246534e4f2c56b66f0c89f08b0453ac3cd707b609d1e248e485931c934ad92
+  languageName: node
+  linkType: hard
+
+"react-reconciler@npm:~0.34.0":
+  version: 0.34.0
+  resolution: "react-reconciler@npm:0.34.0"
+  dependencies:
+    scheduler: ^0.28.0
+  peerDependencies:
+    react: ^19.3.0
+  checksum: 25cc57ba77bf8dad110b5df51edf87d8afcd601a44beec5e3acf88004c20d7b734079c7d95be155bf65c4e19b4add83fce3bd13985fe24b3e6daafafa945854b
   languageName: node
   linkType: hard
 
@@ -21545,6 +21759,18 @@ __metadata:
     glob: ^7.1.4
     minimatch: ^3.0.4
   checksum: 3b34a3d77165a2cb82b34014b3aba93b1c4637a5011807557dc2f3da826c59975a5ccad765721c4648b39817e3472789f9b0fa98fc854c5c1c7a1e632aacdc28
+  languageName: node
+  linkType: hard
+
+"test-renderer@npm:^1.0.0":
+  version: 1.3.1
+  resolution: "test-renderer@npm:1.3.1"
+  dependencies:
+    "@types/react-reconciler": ~0.34.0
+    react-reconciler: ~0.34.0
+  peerDependencies:
+    react: ^19.0.0
+  checksum: c4fac7285bb0419641c616739775a026627b2bb50d91e2fd3fe4ec7f56854afe5ce9c63cf5d910a509651409838deebd6cf4dfe56edd430cbce67f994fac4c54
   languageName: node
   linkType: hard
 

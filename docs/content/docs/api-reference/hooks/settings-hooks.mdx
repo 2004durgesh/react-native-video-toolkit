@@ -38,7 +38,7 @@ export const MyComponent = () => {
 | `closeSettings`           | `() => void`                                                      | A function to explicitly close the settings menu.                                               |
 | `setSettingsMenuVisible`  | `(visible: boolean) => void`                                      | A function to explicitly set the visibility of the settings menu.                               |
 
-When a new source loads, the viewer's choices carry over the way the next episode of a show keeps them: the audio and subtitle tracks stay on the same language when the new source has it, subtitles stay off if they were off, and a picked quality stays when the new source has the same height. Otherwise the first audio and subtitle tracks and Auto quality apply. Tracks never carry over by index, since the same index can be a different language in another source.
+When a new source loads, the viewer's choices carry over the way the next episode of a show keeps them: the audio and subtitle tracks stay on the same language when the new source has it, subtitles stay off if they were off, and a picked quality stays when the new source has the same height. Otherwise the audio the stream picks, subtitles in the device's language (then the stream's default, then English, then the first track) and Auto quality apply. Tracks never carry over by index, since the same index can be a different language in another source.
 
 ### Example
 
