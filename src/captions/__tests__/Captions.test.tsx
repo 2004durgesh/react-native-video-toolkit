@@ -7,7 +7,7 @@ import { Captions } from '../Captions';
 import { useCaptionsController, type CaptionTrackSource } from '../CaptionsController';
 import { clearCaptionCache } from '../load';
 import * as textModule from '../parse/text';
-import type { Theme } from '../../types';
+import type { Theme, VideoPlayerConfig } from '../../types';
 
 const VTT = [
   'WEBVTT',
@@ -23,7 +23,8 @@ interface Handle {
   select: (source: CaptionTrackSource | null) => void;
   seek: (seconds: number) => void;
   layout: (width: number, height: number, natural?: { width: number; height: number }) => void;
-  showControls: (visible: boolean, inset?: number) => void;
+  showControls: (visible: boolean, inset?: number, centerInset?: number) => void;
+  setFullscreen: (fullscreen: boolean) => void;
 }
 
 /** Reaches into the provider to drive it like the player would. */
@@ -40,18 +41,20 @@ const Driver = ({ handle }: { handle: Ref<Handle> }) => {
       });
       store.dispatch({ type: 'SET_NATURAL_SIZE', payload: natural });
     },
-    showControls: (visible, inset = 0) => {
+    showControls: (visible, inset = 0, centerInset = 0) => {
       store.dispatch({ type: 'SET_CONTROLS_INSET', payload: inset });
+      store.dispatch({ type: 'SET_CONTROLS_CENTER_INSET', payload: centerInset });
       store.dispatch({ type: 'SET_CONTROLS_VISIBLE', payload: visible });
     },
+    setFullscreen: (fullscreen) => store.dispatch({ type: 'SET_FULLSCREEN', payload: fullscreen }),
   }));
   return null;
 };
 
-const setUp = async (theme?: Partial<Theme>) => {
+const setUp = async (theme?: Partial<Theme>, config: Partial<VideoPlayerConfig> = {}) => {
   const handle = React.createRef<Handle>();
   const utils = await render(
-    <VideoProvider config={{ autoPlay: false }} theme={theme}>
+    <VideoProvider config={{ autoPlay: false, ...config }} theme={theme}>
       <Driver handle={handle} />
       <Captions />
     </VideoProvider>
@@ -162,6 +165,35 @@ describe('Captions', () => {
     );
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveStyle({ color: '#FFEB3B' });
     expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides while the controls show when there is no room under the centre controls', async () => {
+    const { player } = await setUp();
+    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await flush();
+    await act(() => player.seek(1.5));
+    const stack = () => screen.getByTestId('video-captions-cue-0').parent!.parent!;
+    await act(() => fireEvent(stack(), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 576, height: 32 } } }));
+    // Bottom controls 60 high, centre controls starting 150 up: room for the 32-high cue
+    await act(() => player.showControls(true, 60, 150));
+    expect(StyleSheet.flatten(stack().props.style).opacity).toBe(1);
+    // Centre controls starting 90 up: the lifted cue would reach under them
+    await act(() => player.showControls(true, 60, 90));
+    expect(StyleSheet.flatten(stack().props.style).opacity).toBe(0);
+    // Controls hidden: back at the bottom, shown
+    await act(() => player.showControls(false, 60, 90));
+    expect(StyleSheet.flatten(stack().props.style).opacity).toBe(1);
+  });
+
+  it('keeps clear of safe areas in fullscreen only', async () => {
+    const { player } = await setUp(undefined, { safeAreaInsets: { bottom: 34 } });
+    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await flush();
+    await act(() => player.seek(1.5));
+    const bottom = () => StyleSheet.flatten(screen.getByTestId('video-captions-cue-0').parent!.parent!.props.style).bottom;
+    expect(bottom()).toBe(18);
+    await act(() => player.setFullscreen(true));
+    expect(bottom()).toBe(18 + 34);
   });
 
   it('moves above the controls while they show (SUB-LAY-04)', async () => {

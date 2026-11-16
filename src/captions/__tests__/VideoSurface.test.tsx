@@ -42,7 +42,11 @@ const player = (config: Partial<VideoPlayerConfig>, playing: typeof source) => (
 
 const renderPlayer = (config: Partial<VideoPlayerConfig> = {}) => render(player(config, source));
 
-const loadVideo = async (textTracks: { index: number; language?: string; title?: string }[] = []) => {
+/** The player loads the video; `playing` also has it report its first position, as it does once it plays. */
+const loadVideo = async (
+  textTracks: { index: number; language?: string; title?: string }[] = [],
+  { playing = true }: { playing?: boolean } = {}
+) => {
   await act(() =>
     fireEvent(screen.getByTestId('video-captions'), 'layout', {
       nativeEvent: { layout: { x: 0, y: 0, width: 640, height: 360 } },
@@ -59,6 +63,11 @@ const loadVideo = async (textTracks: { index: number; language?: string; title?:
       textTracks,
     })
   );
+  if (playing) await reportProgress(0.5);
+};
+
+const reportProgress = async (currentTime: number) => {
+  await act(() => nativeVideo().props.onProgress?.({ currentTime, playableDuration: 10, seekableDuration: 60 }));
 };
 
 const flush = async () => {
@@ -125,6 +134,9 @@ describe('VideoSurface with the custom renderer', () => {
     expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
     release();
     await flush();
+    // Loaded, but the next video hasn't started: nothing over its loading screen
+    expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
+    await reportProgress(0.5);
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Next episode');
     // The previous video's file isn't loaded again on the way
     const fetched = (global.fetch as jest.Mock).mock.calls.map(([url]) => url);
@@ -137,8 +149,18 @@ describe('VideoSurface with the custom renderer', () => {
     await flush();
     await rerender(player({}, { ...source, uri: 'https://example.com/movie-720p.mp4' }));
     await flush();
+    await reportProgress(0.5);
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
     expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows no cue over a video that has loaded but not started', async () => {
+    await renderPlayer();
+    await loadVideo([], { playing: false });
+    await flush();
+    expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
+    await reportProgress(0.2);
+    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
   });
 
   it('uses the progress interval from the config (SUB-TIME-03)', async () => {

@@ -317,13 +317,15 @@ describe('CaptionsController', () => {
     player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
     await flush();
     player.report(0);
+    player.report(1.5);
+    expect(player.text()).toEqual(['One']);
+    player.report(0);
     player.controller.reset();
-    // The video is still loading: no cue runs ahead of it
+    // The video is still loading: no cue, even for 0, and none runs ahead of it
     player.advance(1500);
     expect(player.text()).toEqual([]);
     expect(jest.getTimerCount()).toBe(0);
-    player.report(0.2);
-    player.advance(1000);
+    player.report(1.2);
     expect(player.text()).toEqual(['One']);
     player.stop();
   });

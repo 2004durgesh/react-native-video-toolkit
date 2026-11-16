@@ -77,6 +77,11 @@ interface VideoProviderState extends VideoState {
    */
   controlsInset: number;
   /**
+   * How far up from the player's bottom edge the layout's centre controls start (the play button),
+   * so subtitles that don't fit under them can hide while the controls show. 0 when unknown.
+   */
+  controlsCenterInset: number;
+  /**
    * The dimensions of the screen.
    */
   dimensions: { width: number; height: number };
@@ -112,6 +117,7 @@ type Action =
   | { type: 'SET_VIDEO_WRAPPER_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_NATURAL_SIZE'; payload: { width: number; height: number } }
   | { type: 'SET_CONTROLS_INSET'; payload: number }
+  | { type: 'SET_CONTROLS_CENTER_INSET'; payload: number }
   | { type: 'SET_DIMENSIONS'; payload: { width: number; height: number } }
   | { type: 'SET_PLAYBACK_RATE'; payload: number }
   | { type: 'SET_PORTAL_HOST_NAME'; payload: string };
@@ -139,6 +145,7 @@ const initialState: VideoProviderState = {
   videoWrapperLayout: { x: 0, y: 0, width: 0, height: 0 },
   naturalSize: { width: 0, height: 0 },
   controlsInset: 0,
+  controlsCenterInset: 0,
   dimensions: { width: Dimensions.get('window').width, height: Dimensions.get('window').height },
   portalHostName: 'default-portal-host',
 };
@@ -245,6 +252,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
         : { ...state, naturalSize: action.payload };
     case 'SET_CONTROLS_INSET':
       return set('controlsInset', action.payload);
+    case 'SET_CONTROLS_CENTER_INSET':
+      return set('controlsCenterInset', action.payload);
     case 'SET_DIMENSIONS':
       return state.dimensions.width === action.payload.width && state.dimensions.height === action.payload.height
         ? state

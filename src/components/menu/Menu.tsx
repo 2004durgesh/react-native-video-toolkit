@@ -320,7 +320,9 @@ export const Menu = {
     const { currentView, navigationStack } = useMenuContext();
     const theme = useVideoSelector((state) => state.theme);
 
-    const displayTitle = title || (currentView === 'root' ? 'Settings' : currentView);
+    // A view id like `playbackRate` reads as "Playback Rate" (the title is capitalized)
+    const displayTitle =
+      title || (currentView === 'root' ? 'Settings' : currentView.replace(/([a-z])([A-Z])/g, '$1 $2'));
     const titleTestID = useTestID('settings-title');
     const shouldShowBackButton = showBackButton && (navigationStack.length > 1 || currentView !== 'root');
 

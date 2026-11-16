@@ -108,6 +108,37 @@ If you're using Expo, add the following to your `app.json` or `app.config.js` to
   [react-native-orientation-director](https://github.com/gladiuscode/react-native-orientation-director?tab=readme-ov-file#bare)
 </Callout>
 
+Fullscreen turns the screen to landscape. On iOS, the screen can only turn to orientations your app lists, so if your app is portrait-only, add the landscape ones for iOS:
+
+```json
+{
+  "expo": {
+    "orientation": "portrait",
+    "ios": {
+      "infoPlist": {
+        "UISupportedInterfaceOrientations": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
+      }
+    }
+  }
+}
+```
+
+For bare React Native, add `UIInterfaceOrientationLandscapeLeft` and `UIInterfaceOrientationLandscapeRight` to `UISupportedInterfaceOrientations` in `ios/<YourApp>/Info.plist`. Without them, fullscreen stays in portrait as a square at the top of the screen. To keep fullscreen in portrait on purpose, set `config.enableScreenRotation` to `false`.
+
+With landscape listed, iOS turns the whole app with the device. To keep it in portrait outside fullscreen, lock it when the app starts; leaving fullscreen locks phones to portrait again:
+
+```tsx
+import RNOrientationDirector, { Orientation } from 'react-native-orientation-director';
+
+useEffect(() => {
+  RNOrientationDirector.lockTo(Orientation.portrait);
+}, []);
+```
+
 </Step>
 
 <Step>

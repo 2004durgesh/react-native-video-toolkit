@@ -203,7 +203,17 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   const { dispatch } = useVideoStore();
   const reportControlsInset = (event: LayoutChangeEvent) =>
     dispatch({ type: 'SET_CONTROLS_INSET', payload: Math.round(event.nativeEvent.layout.height) });
-  useEffect(() => () => dispatch({ type: 'SET_CONTROLS_INSET', payload: 0 }), [dispatch]);
+  // ...and below the centre controls. They're centred in the player, so their gap to the bottom
+  // edge is their gap to the top.
+  const reportCenterInset = (event: LayoutChangeEvent) =>
+    dispatch({ type: 'SET_CONTROLS_CENTER_INSET', payload: Math.round(event.nativeEvent.layout.y) });
+  useEffect(
+    () => () => {
+      dispatch({ type: 'SET_CONTROLS_INSET', payload: 0 });
+      dispatch({ type: 'SET_CONTROLS_CENTER_INSET', payload: 0 });
+    },
+    [dispatch]
+  );
   const id = usePlayerTestID();
   const videoOptionIDs = videoTrackTestIDs(videoTracks);
   // Pinned tracks go above "Off", which leads the rest
@@ -406,7 +416,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 animated view's styles and drops `pointerEvents: 'box-none'`, so the overlay would
                 swallow taps meant for the top and bottom controls. */}
               <View style={layoutStyles.centerControls}>
-                <FadingControls showWhileBuffering testID={`${id}-controls-center`}>
+                <FadingControls showWhileBuffering testID={`${id}-controls-center`} onLayout={reportCenterInset}>
                   <UnlessBuffering>
                     {/* On TV, left and right stay on the centre controls rather than leaving the player */}
                     <View

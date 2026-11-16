@@ -185,7 +185,9 @@ export interface VideoPlayerConfig {
    */
   progressUpdateInterval?: number;
   /**
-   * Space to keep clear around subtitles, such as safe-area insets in fullscreen.
+   * The screen's safe-area insets, for example from `react-native-safe-area-context`'s
+   * `useSafeAreaInsets()`. Subtitles keep clear of them in fullscreen, and the default settings
+   * sheet keeps its last row above the bottom one (Android's navigation bar, the home indicator).
    */
-  captionInsets?: { bottom?: number; left?: number; right?: number };
+  safeAreaInsets?: { top?: number; bottom?: number; left?: number; right?: number };
 }

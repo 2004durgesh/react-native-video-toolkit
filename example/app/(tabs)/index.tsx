@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Platform, View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Button } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextTrackType, type ReactVideoProps, type TextTracks } from 'react-native-video';
 import { VideoPlayer, DefaultLayout, useVideoSelector, VideoProvider } from 'react-native-video-toolkit';
 import { APP_PORTAL_HOST } from '../../constants';
@@ -10,25 +10,15 @@ import { PerfProfiler, PerfRun } from '../../perf/perfHarness';
 // Picture-in-picture needs native setup, so the button is opt-in (see the react-native-video plugin in app.json).
 const PLAYER_CONFIG = { enablePictureInPicture: true };
 
-const SUBTITLE_BASE_URL =
-  'https://nwfah.stellarfrontier.website/anime/4b5ed938de41e4ff532c02c27dfd143a/7523240ff694934e2db9a9d558597f64/subtitles';
-
-// Remote subtitle files. The toolkit picks the device's language, then English, then the first.
-const subtitleTracks: TextTracks = [
-  { title: 'English', language: 'en', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/eng-2.vtt` },
+// A remote subtitle file, from Akamai's caption test content for Elephants Dream. Its host allows
+// cross-origin requests, so it loads on web too.
+const remoteSubtitleTracks: TextTracks = [
   {
-    title: 'Chinese (Chinese - (Simplified))',
-    language: 'zh',
+    title: 'English',
+    language: 'en',
     type: TextTrackType.VTT,
-    uri: `${SUBTITLE_BASE_URL}/chi-3.vtt`,
+    uri: 'https://dash.akamaized.net/akamai/test/caption_test/ElephantsDream/ElephantsDream_en.vtt',
   },
-  {
-    title: 'Chinese (Chinese - (Traditional))',
-    language: 'zh',
-    type: TextTrackType.VTT,
-    uri: `${SUBTITLE_BASE_URL}/chi-4.vtt`,
-  },
-  { title: 'Malay', language: 'ms', type: TextTrackType.VTT, uri: `${SUBTITLE_BASE_URL}/may-5.vtt` },
 ];
 
 // Subtitle files bundled with the app. `require()` gives an asset number, which the toolkit loads;
@@ -47,10 +37,11 @@ const localSubtitleTracks: TextTracks = [
 
 const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
   {
+    // Subtitle files bundled with the app, over a stream with no subtitles of its own
     title: 'HLS - Tears of Steel',
     source: {
       uri: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
-      textTracks: subtitleTracks,
+      textTracks: localSubtitleTracks,
     },
   },
   {
@@ -61,15 +52,19 @@ const videoSources: { title: string; source: ReactVideoProps['source'] }[] = [
     },
   },
   {
-    title: 'MP4 - Big Buck Bunny',
+    // A remote subtitle file, fetched and drawn by the toolkit
+    title: 'MP4 - Elephants Dream',
     source: {
-      uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      textTracks: subtitleTracks,
+      uri: 'https://archive.org/download/ElephantsDream/ed_1024_512kb.mp4',
+      textTracks: remoteSubtitleTracks,
     },
   },
   {
-    title: 'DASH - Test Stream',
-    source: { uri: 'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd', textTracks: subtitleTracks },
+    // Subtitles inside the stream (DASH), drawn by the video player
+    title: 'DASH - Elephants Dream',
+    source: {
+      uri: 'https://dash.akamaized.net/akamai/test/caption_test/ElephantsDream/elephants_dream_480p_heaac5_1_https.mpd',
+    },
   },
   {
     title: 'local MP4',
@@ -212,8 +207,11 @@ function HomeContent() {
 }
 
 export default function HomeScreen() {
+  // Subtitles keep clear of the notch in fullscreen, and the settings sheet of the navigation bar
+  const insets = useSafeAreaInsets();
+  const config = useMemo(() => ({ ...PLAYER_CONFIG, safeAreaInsets: insets }), [insets]);
   return (
-    <VideoProvider portalHost={APP_PORTAL_HOST} config={PLAYER_CONFIG}>
+    <VideoProvider portalHost={APP_PORTAL_HOST} config={config}>
       <HomeContent />
     </VideoProvider>
   );

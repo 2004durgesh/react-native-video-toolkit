@@ -32,6 +32,12 @@ export interface CaptionsProps {
    */
   controlsInset?: number;
   /**
+   * How far up from the player's bottom edge your centre controls (a play button) start while
+   * visible. Subtitles that don't fit between them and the bottom controls hide until the controls
+   * do. `DefaultLayout` reports its own; set this with a custom layout.
+   */
+  centerControlsInset?: number;
+  /**
    * Identifies the subtitles in end-to-end tests. Each cue on screen gets this followed by
    * `-cue-0`, `-cue-1`..., and its text that followed by `-text`.
    * @default `video-captions`, with the player's `testID` in place of `video`
@@ -153,19 +159,37 @@ const CueBox = ({
 
 /** Moves the subtitles up over the controls, animated on native. On web it jumps, as Reanimated's
  * web styles have been unreliable there. */
-const Lift = ({ lift, style, children }: { lift: number; style: StyleProp<ViewStyle>; children: ReactNode }) => {
+const Lift = ({
+  lift,
+  style,
+  onLayout,
+  children,
+}: {
+  lift: number;
+  style: StyleProp<ViewStyle>;
+  onLayout: (event: LayoutChangeEvent) => void;
+  children: ReactNode;
+}) => {
   const offset = useSharedValue(lift);
   useEffect(() => {
     offset.value = withTiming(lift, { duration: LIFT_DURATION });
   }, [lift, offset]);
   const animated = useAnimatedStyle(() => ({ transform: [{ translateY: offset.value > 0 ? -offset.value : 0 }] }));
   if (PlatformUtils.isWeb()) {
-    return <View style={[style, { transform: [{ translateY: lift > 0 ? -lift : 0 }] }]}>{children}</View>;
+    return (
+      <View style={[style, { transform: [{ translateY: lift > 0 ? -lift : 0 }] }]} onLayout={onLayout}>
+        {children}
+      </View>
+    );
   }
-  return <Animated.View style={[style, animated]}>{children}</Animated.View>;
+  return (
+    <Animated.View style={[style, animated]} onLayout={onLayout}>
+      {children}
+    </Animated.View>
+  );
 };
 
-const CaptionsLayer = ({ style, textStyle, controlsInset, testID }: CaptionsProps) => {
+const CaptionsLayer = ({ style, textStyle, controlsInset, centerControlsInset, testID }: CaptionsProps) => {
   const captions = useCaptionsController();
   // Re-renders only when the cues on screen change
   useSyncExternalStore(captions.subscribe, captions.getKey, captions.getKey);
@@ -178,10 +202,20 @@ const CaptionsLayer = ({ style, textStyle, controlsInset, testID }: CaptionsProp
     const { width, height } = event.nativeEvent.layout;
     setBox((previous) => (isSameSize(previous, { width, height }) ? previous : { width, height }));
   };
+  // The cues' own height, to tell whether they fit under the centre controls
+  const [stackHeight, setStackHeight] = useState(0);
+  const onStackLayout = (event: LayoutChangeEvent) => {
+    const height = Math.round(event.nativeEvent.layout.height);
+    setStackHeight((previous) => (previous === height ? previous : height));
+  };
   const natural = useVideoSelector((state) => state.naturalSize);
   const controlsVisible = useVideoSelector((state) => state.controlsVisible);
   const layoutInset = useVideoSelector((state) => state.controlsInset);
-  const insets = useVideoSelector((state) => state.config.captionInsets);
+  const layoutCenterInset = useVideoSelector((state) => state.controlsCenterInset);
+  // Safe areas only matter in fullscreen; inline, the player isn't at the screen's edges
+  const fullscreen = useVideoSelector((state) => state.fullscreen);
+  const safeArea = useVideoSelector((state) => state.config.safeAreaInsets);
+  const insets = fullscreen ? safeArea : undefined;
   const custom = useVideoSelector((state) => state.theme.captions);
   const theme: CaptionsTheme = { ...defaultCaptionsTheme, ...custom };
 
@@ -198,6 +232,13 @@ const CaptionsLayer = ({ style, textStyle, controlsInset, testID }: CaptionsProp
       : barBelow + margin) + (insets?.bottom ?? 0);
   const inset = controlsInset ?? layoutInset;
   const lift = controlsVisible && inset > 0 ? Math.max(0, inset + CONTROLS_GAP - bottom) : 0;
+  // Lifted, the cues must still end below the centre controls; when there's no room (a small
+  // player), they hide while the controls show rather than sit under the play button
+  const centerInset = centerControlsInset ?? layoutCenterInset;
+  const blocked =
+    controlsVisible &&
+    centerInset > 0 &&
+    (stackHeight === 0 || bottom + lift + stackHeight + CONTROLS_GAP > centerInset);
   const left = picture.x + (insets?.left ?? 0);
   const width = Math.max(0, picture.width - (insets?.left ?? 0) - (insets?.right ?? 0));
   const maxWidth = width * theme.maxWidth;
@@ -205,7 +246,10 @@ const CaptionsLayer = ({ style, textStyle, controlsInset, testID }: CaptionsProp
   return (
     <View style={styles.layer} testID={layerTestID} onLayout={onLayout}>
       {cues.length > 0 && width > 0 ? (
-        <Lift lift={lift} style={[styles.cues, { bottom, left, width }]}>
+        <Lift
+          lift={lift}
+          style={[styles.cues, { bottom, left, width }, blocked ? styles.hidden : styles.shown]}
+          onLayout={onStackLayout}>
           {cues.map((cue, i) => (
             <View key={`${cue.start}-${cue.end}-${i}`} style={{ maxWidth }}>
               <CueBox
@@ -278,6 +322,13 @@ const styles = StyleSheet.create({
   },
   box: {
     alignSelf: 'center',
+  },
+  // Set both ways: an animated view can keep a removed opacity
+  hidden: {
+    opacity: 0,
+  },
+  shown: {
+    opacity: 1,
   },
   outline: {
     ...StyleSheet.absoluteFill,

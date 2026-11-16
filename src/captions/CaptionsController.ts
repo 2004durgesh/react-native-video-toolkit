@@ -67,6 +67,8 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
   let appActive = true;
   // After returning from the background the last reported time is stale until the next report
   let awaitingReport = false;
+  // A new video is loading: no cues until the player reports its first position
+  let loading = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let selected: CaptionTrackSource | null = null;
   let generation = 0;
@@ -119,7 +121,7 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
     clearTimer();
     const time = mediaTime();
     hls?.setTime(time);
-    const hidden = !index || playback.ended || playback.pictureInPicture;
+    const hidden = !index || loading || playback.ended || playback.pictureInPicture;
     const next = hidden || !index ? [] : index.activeAt(time);
     const nextKey = next.map(idOf).join(',');
     if (nextKey !== key) {
@@ -146,6 +148,7 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
     const reported = options.getTime() * 1000;
     const predicted = mediaTime();
     awaitingReport = false;
+    loading = false;
     // A report a little behind the prediction keeps the prediction, so a cue that just changed
     // doesn't flash back; a seek, or anything further, takes the reported time
     const lagging = running() && reported < predicted && predicted - reported <= LAG_TOLERANCE;
@@ -222,12 +225,13 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
       }
     },
     /**
-     * A new video: call after the time is set back to its start. The time holds there until the
-     * player reports it, so cues don't run ahead while the video loads.
+     * A new video: call after the time is set back to its start. No cues show until the player
+     * reports its first position, so none run ahead of the video or show over its loading screen.
      */
     reset: () => {
       anchor = { time: options.getTime() * 1000, at: now() };
       awaitingReport = true;
+      loading = true;
       update();
     },
     /** Passes an error to `onCaptionError`, as the controller does for its own. */

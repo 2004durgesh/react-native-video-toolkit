@@ -1,5 +1,5 @@
 import React, { type FC, type ReactNode, useEffect, useId, useMemo } from 'react';
-import { View, StyleSheet, type StyleProp, type ViewStyle, Platform, type ViewProps } from 'react-native';
+import { BackHandler, View, StyleSheet, type StyleProp, type ViewStyle, Platform, type ViewProps } from 'react-native';
 import {
   PlayButton,
   ProgressBar,
@@ -25,6 +25,24 @@ import { onBrowserFullscreenExit } from '../utils/webFullscreen';
 import { TVPlayerFocus } from '../tv/TVPlayerFocus';
 import { PlatformUtils } from '../utils/platform';
 import { DEFAULT_VIDEO_TEST_ID, TestIDContext, useTestID } from '../utils/testIDs';
+import { useFullscreen } from '../hooks/media/useFullscreen';
+
+/**
+ * Android's back button leaves fullscreen, as in other video apps, instead of leaving the screen.
+ * A menu open over the player registers later, so back closes it first. Rendered only while in
+ * fullscreen, so the hook's subscriptions stay out of the player.
+ */
+const FullscreenBackHandler = () => {
+  const { exitFullscreen } = useFullscreen();
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      exitFullscreen();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [exitFullscreen]);
+  return null;
+};
 
 /**
  * Props for the VideoPlayer component.
@@ -158,6 +176,7 @@ const VideoPlayerComponent = ({
             </DevProfiler>
             {/* Subtitles the toolkit draws: over the video, under the layout's controls */}
             <Captions />
+            {fullscreen && Platform.OS === 'android' && !PlatformUtils.isTV() ? <FullscreenBackHandler /> : null}
             {/* The TV remote drives the player through a focusable surface under the layout */}
             {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
           </View>
