@@ -7,8 +7,9 @@ import {
 } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseLongPressGestureProps } from '../../types';
-import { usePlaybackRate } from '../media';
 import { useVideoStore } from '../../providers/VideoProvider';
+import { usePlayerCommands } from '../../providers/PlayerCommands';
+import { BOOSTED_RATE } from './tap';
 
 /**
  * A hook for handling long press gestures to temporarily increase playback rate.
@@ -17,12 +18,12 @@ import { useVideoStore } from '../../providers/VideoProvider';
  * - `longPressGesture`: The gesture handler for long presses.
  */
 export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd, enabled = true }: UseLongPressGestureProps) => {
-  const { setPlaybackRate } = usePlaybackRate();
+  const { setRate } = usePlayerCommands();
   const store = useVideoStore();
   const longPressGestureStarted = useRef(false);
   // The rate picked before the 2x boost, so releasing goes back to it rather than to 1x
   const rateBeforeBoost = useRef(1);
-  const [isPlaybackRateIncreased, setIsPlaybackRateIncreased] = useState(false); // use this for any ui changes
+  const [isPlaybackRateIncreased, setIsPlaybackRateIncreased] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     return () => {
@@ -45,10 +46,10 @@ export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd, enabled 
         rateBeforeBoost.current = store.getState().playbackRate;
         setIsPlaybackRateIncreased(true);
         onLongPressStart?.(event);
-        setPlaybackRate(2);
+        setRate(BOOSTED_RATE);
       }, 2000);
     },
-    [onLongPressStart, setPlaybackRate, store]
+    [onLongPressStart, setRate, store]
   );
 
   const endLongPress = useCallback(
@@ -58,13 +59,13 @@ export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd, enabled 
         timeoutRef.current = null;
       }
       if (longPressGestureStarted.current) {
-        setPlaybackRate(rateBeforeBoost.current);
+        setRate(rateBeforeBoost.current);
         onLongPressEnd?.(event);
         longPressGestureStarted.current = false;
         setIsPlaybackRateIncreased(false);
       }
     },
-    [onLongPressEnd, setPlaybackRate]
+    [onLongPressEnd, setRate]
   );
 
   // Memoized: Gesture Handler sends the config to the native side whenever the object changes

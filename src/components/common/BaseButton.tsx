@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { GestureDetector, useTapGesture, type TapGestureConfig } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
+import { TAP_MAX_DISTANCE, TAP_MAX_DURATION } from '../../hooks/gestures/tap';
 import { useVideoSelector, useVideoComponents } from '../../providers';
 import type { PressFeedbackProps } from '../../types';
 import {
@@ -31,7 +32,8 @@ const TouchBaseButton = ({ children, onTap, tvFocusTarget: _tvFocusTarget, ...pr
   // Memoized: Gesture Handler sends the config to the native side whenever the object changes
   const config = useMemo<TapGestureConfig>(
     () => ({
-      maxDuration: 250,
+      maxDuration: TAP_MAX_DURATION,
+      maxDistance: TAP_MAX_DISTANCE,
       numberOfTaps: 1,
       onDeactivate: () => {
         'worklet';

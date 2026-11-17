@@ -6,6 +6,7 @@ import { SettingsProvider } from './SettingsProvider';
 import { ComponentsProvider } from './ComponentsProvider';
 import { createProgressStore, ProgressStoreContext } from './ProgressStore';
 import { ControlsControllerContext, createControlsController } from './ControlsController';
+import { PlayerCommandsContext, createPlayerCommands } from './PlayerCommands';
 import { CaptionsControllerContext, createCaptionsController } from '../captions/CaptionsController';
 import { PortalHost } from '@rn-primitives/portal';
 import type { VideoRef } from 'react-native-video';
@@ -98,6 +99,7 @@ type Action =
   | { type: 'TOGGLE_PLAY_PAUSE' }
   | { type: 'SET_VOLUME'; payload: number }
   | { type: 'TOGGLE_MUTE' }
+  | { type: 'SET_MUTED'; payload: boolean }
   | { type: 'TOGGLE_FULLSCREEN' }
   | { type: 'SET_FULLSCREEN'; payload: boolean }
   | { type: 'SET_PICTURE_IN_PICTURE'; payload: boolean }
@@ -219,6 +221,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return set('volume', Math.max(0, Math.min(1, action.payload)));
     case 'TOGGLE_MUTE':
       return { ...state, muted: !state.muted };
+    case 'SET_MUTED':
+      return set('muted', action.payload);
     case 'TOGGLE_FULLSCREEN':
       return { ...state, fullscreen: !state.fullscreen };
     case 'SET_FULLSCREEN':
@@ -362,6 +366,9 @@ export const VideoProvider: React.FC<{
 
   // The playback position lives in its own store, so progress events don't re-render this context's consumers
   const [progressStore] = React.useState(createProgressStore);
+  const [commands] = React.useState(() =>
+    createPlayerCommands({ getState: store.getState, dispatch: store.dispatch, progress: progressStore, controls })
+  );
 
   // Works out which subtitle cues show, from the playback position and state
   const [captions] = React.useState(() =>
@@ -379,14 +386,16 @@ export const VideoProvider: React.FC<{
     <VideoStoreContext.Provider value={store}>
       <ProgressStoreContext.Provider value={progressStore}>
         <ControlsControllerContext.Provider value={controls}>
-          <CaptionsControllerContext.Provider value={captions}>
-            <SettingsProvider>
-              <ComponentsProvider components={components}>
-                {children}
-                {portalHost ? null : <PortalHost name={portalHostName} />}
-              </ComponentsProvider>
-            </SettingsProvider>
-          </CaptionsControllerContext.Provider>
+          <PlayerCommandsContext.Provider value={commands}>
+            <CaptionsControllerContext.Provider value={captions}>
+              <SettingsProvider>
+                <ComponentsProvider components={components}>
+                  {children}
+                  {portalHost ? null : <PortalHost name={portalHostName} />}
+                </ComponentsProvider>
+              </SettingsProvider>
+            </CaptionsControllerContext.Provider>
+          </PlayerCommandsContext.Provider>
         </ControlsControllerContext.Provider>
       </ProgressStoreContext.Provider>
     </VideoStoreContext.Provider>

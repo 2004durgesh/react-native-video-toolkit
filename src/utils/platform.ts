@@ -1,18 +1,15 @@
 import { Dimensions, Platform } from 'react-native';
 
 /**
- * Platform detection utilities
+ * Which platform the app runs on. The toolkit's one place for these checks.
  */
 export const PlatformUtils = {
   isTV: () => Platform.isTV,
   isWeb: () => Platform.OS === 'web',
+  isAndroid: () => Platform.OS === 'android',
   isMobile: () => !Platform.isTV && Platform.OS !== 'web',
-
-  // TV-specific
   isTVOS: () => Platform.OS === 'ios' && Platform.isTV,
   isAndroidTV: () => Platform.OS === 'android' && Platform.isTV,
-
-  // Mobile-specific
   isTablet: () => {
     const { width, height } = Dimensions.get('screen');
     const minDimension = Math.min(width, height);

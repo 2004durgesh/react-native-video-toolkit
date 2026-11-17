@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { RNOrientationDirector, Orientation } from '../../NativeOrientation';
+import { RNOrientationDirector, Orientation } from '../../fullscreen/director';
 import {
   detectDeviceType,
   getOptimalConfig,
@@ -10,320 +10,131 @@ import {
   type DeviceType,
 } from '../../utils';
 
+/**
+ * What this platform can do with the screen orientation.
+ * @deprecated Will be removed in 2.0.
+ */
 export interface OrientationCapabilities {
   canControlOrientation: boolean;
+  /** Always `true`. */
   supportsFullscreen: boolean;
   hasOrientationAPI: boolean;
   isTV: boolean;
   isMobile: boolean;
 }
 
+/**
+ * Whether to turn the screen for fullscreen, and why.
+ * @deprecated Will be removed in 2.0.
+ */
 export interface OrientationStrategy {
   shouldRotate: boolean;
   orientation: Orientation | null;
   reason: string;
 }
 
+/**
+ * Return type for the useOrientation hook.
+ * @deprecated Will be removed in 2.0.
+ */
 export interface UseOrientationResult {
-  // Device and platform information
   deviceType: DeviceType;
   platformCapabilities: OrientationCapabilities;
-
-  // Rotation detection
   shouldAutoRotate: boolean;
+  /** The same as `shouldAutoRotate`. */
   isLandscapeOptimal: boolean;
-
-  // Configuration
   rotationConfig: RotationConfig;
   controlsConfig: ReturnType<typeof getVideoControlsConfig>;
-
-  // Orientation state
+  /** Whether this hook locked the orientation. Another caller's lock isn't reflected. */
   orientationLocked: boolean;
-
-  // Actions
   lockToLandscape: () => Promise<boolean>;
   lockToPortrait: () => Promise<boolean>;
   unlockOrientation: () => Promise<boolean>;
   getFullscreenStrategy: () => OrientationStrategy;
-
-  // Fullscreen-specific orientation handlers
   handleEnterFullscreen: () => Promise<void>;
   handleExitFullscreen: () => Promise<void>;
 }
 
 /**
- * A comprehensive hook for handling device orientation and rotation logic.
+ * Device detection and screen orientation locking, as fullscreen used to do it.
  *
- * @description This hook encapsulates all orientation-related functionality including
- * device detection, platform capabilities, rotation strategies, and orientation control.
- * It provides a clean interface for components that need orientation awareness.
- *
- * **Key Features:**
- * - Auto-detects device type and platform capabilities
- * - Provides intelligent rotation strategies for different scenarios
- * - Handles orientation locking/unlocking with proper error handling
- * - Offers fullscreen-optimized orientation management
- * - Includes reactive rotation detection based on screen dimensions
- * - Supports custom configuration overrides
- *
- * **Device-Specific Behavior:**
- * - **Phones**: Prefer landscape for media consumption
- * - **Tablets**: Conditional rotation based on content and current orientation
- * - **Foldables**: Adaptive behavior for different folded states
- * - **TV**: No rotation (always landscape)
- *
- * @param customConfig Optional custom rotation configuration
- * @returns Comprehensive orientation management interface
- *
- * @example
- * ```typescript
- * const orientation = useOrientation();
- *
- * // Check if device should rotate for current content
- * if (orientation.shouldAutoRotate) {
- *   await orientation.lockToLandscape();
- * }
- *
- * // Get fullscreen strategy
- * const strategy = orientation.getFullscreenStrategy();
- * console.log(`Should rotate: ${strategy.shouldRotate}, Reason: ${strategy.reason}`);
- *
- * // Handle fullscreen with automatic orientation
- * await orientation.handleEnterFullscreen();
- * ```
+ * @deprecated Fullscreen handles the orientation itself (`useFullscreen`, `config.enableScreenRotation`).
+ * To lock the orientation yourself, use react-native-orientation-director directly. Will be removed in 2.0.
+ * @param customConfig - Options for the rotation check; the device's defaults when left out.
+ * @returns The device's details and orientation controls.
  */
 export const useOrientation = (customConfig?: RotationConfig): UseOrientationResult => {
-  // Device and platform detection
   const deviceType = useMemo(() => detectDeviceType(), []);
   const rotationConfig = useMemo(() => customConfig || getOptimalConfig(), [customConfig]);
-
-  // Platform capabilities
   const platformCapabilities = useMemo<OrientationCapabilities>(
     () => ({
       canControlOrientation: !PlatformUtils.isWeb() && !PlatformUtils.isTV(),
       supportsFullscreen: true,
-      // @ts-ignore
-      hasOrientationAPI: !PlatformUtils.isWeb() || (typeof screen !== 'undefined' && 'orientation' in screen),
+      hasOrientationAPI: !PlatformUtils.isWeb() || 'orientation' in ((globalThis as { screen?: object }).screen ?? {}),
       isTV: PlatformUtils.isTV(),
       isMobile: PlatformUtils.isMobile(),
     }),
     []
   );
-
-  // Reactive rotation detection
   const shouldAutoRotate = useShouldRotate(rotationConfig);
-  const isLandscapeOptimal = shouldAutoRotate;
-
-  // Video controls configuration
   const controlsConfig = useMemo(
     () => getVideoControlsConfig(shouldAutoRotate, rotationConfig.platform),
     [shouldAutoRotate, rotationConfig.platform]
   );
-
-  // Orientation state
   const [orientationLocked, setOrientationLocked] = useState(false);
+  const { canControlOrientation } = platformCapabilities;
 
-  //   // Debug logging
-  //   // useEffect(() => {
-  //   //     console.log('[useOrientation] Initialized:', {
-  //   //       deviceType,
-  //   //       shouldAutoRotate,
-  //   //       platformCapabilities,
-  //   //       rotationConfig,
-  //   //     });
-  //   // }, [deviceType, shouldAutoRotate, platformCapabilities, rotationConfig, enableLogging]);
-
-  /**
-   * Safely lock orientation to landscape
-   */
-  const lockToLandscape = useCallback(async (): Promise<boolean> => {
-    if (!platformCapabilities.canControlOrientation) {
-      return false;
-    }
-
-    try {
-      if (RNOrientationDirector.isLockableOrientation(Orientation.landscape)) {
-        RNOrientationDirector.lockTo(Orientation.landscape);
-        setOrientationLocked(true);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      console.error('[useOrientation] Failed to lock to landscape:', error);
-      setOrientationLocked(false);
-      return false;
-    }
-  }, [platformCapabilities.canControlOrientation]);
-
-  /**
-   * Safely lock orientation to portrait
-   */
-  const lockToPortrait = useCallback(async (): Promise<boolean> => {
-    if (!platformCapabilities.canControlOrientation) {
-      return false;
-    }
-
-    try {
-      if (RNOrientationDirector.isLockableOrientation(Orientation.portrait)) {
-        RNOrientationDirector.lockTo(Orientation.portrait);
-        setOrientationLocked(true);
-        return true;
-      } else {
-        console.warn('[useOrientation] Portrait orientation is not lockable');
-        return false;
-      }
-    } catch (error) {
-      console.error('[useOrientation] Failed to lock to portrait:', error);
-      setOrientationLocked(false);
-      return false;
-    }
-  }, [platformCapabilities.canControlOrientation]);
-
-  /**
-   * Safely unlock orientation
-   */
-  const unlockOrientation = useCallback(async (): Promise<boolean> => {
-    // Not gated on this instance's `orientationLocked`: the lock is app-wide, and is often set by
-    // another instance (one button enters fullscreen, another exits it). Unlocking twice is harmless.
-    if (!platformCapabilities.canControlOrientation) {
-      return false;
-    }
-
-    try {
-      // Check if unlock method exists, otherwise fall back to portrait lock
-      if (typeof RNOrientationDirector.unlock === 'function') {
-        RNOrientationDirector.unlock();
-      } else {
-        // Fallback: lock to portrait as "unlocked" state
-        await lockToPortrait();
-      }
-      setOrientationLocked(false);
+  const lockTo = useCallback(
+    async (orientation: Orientation): Promise<boolean> => {
+      if (!canControlOrientation || !RNOrientationDirector.isLockableOrientation(orientation)) return false;
+      RNOrientationDirector.lockTo(orientation);
+      setOrientationLocked(true);
       return true;
-    } catch (error) {
-      console.error('[useOrientation] Failed to unlock orientation:', error);
-      return false;
-    }
-  }, [platformCapabilities.canControlOrientation, lockToPortrait]);
+    },
+    [canControlOrientation]
+  );
+  const lockToLandscape = useCallback(() => lockTo(Orientation.landscape), [lockTo]);
+  const lockToPortrait = useCallback(() => lockTo(Orientation.portrait), [lockTo]);
+  const unlockOrientation = useCallback(async (): Promise<boolean> => {
+    if (!canControlOrientation) return false;
+    RNOrientationDirector.unlock();
+    setOrientationLocked(false);
+    return true;
+  }, [canControlOrientation]);
 
-  /**
-   * Get optimal fullscreen orientation strategy
-   */
   const getFullscreenStrategy = useCallback((): OrientationStrategy => {
-    // TV: No orientation changes needed
-    if (platformCapabilities.isTV) {
-      return { shouldRotate: false, orientation: null, reason: 'TV platform' };
+    if (platformCapabilities.isTV) return { shouldRotate: false, orientation: null, reason: 'TV platform' };
+    if (!canControlOrientation)
+      return { shouldRotate: false, orientation: null, reason: 'Orientation control disabled' };
+    if (shouldAutoRotate || deviceType === 'phone') {
+      return { shouldRotate: true, orientation: Orientation.landscape, reason: `Landscape suits a ${deviceType}` };
     }
+    return { shouldRotate: false, orientation: null, reason: `A ${deviceType} keeps its orientation` };
+  }, [platformCapabilities.isTV, canControlOrientation, shouldAutoRotate, deviceType]);
 
-    // Mobile: Smart orientation detection
-    if (platformCapabilities.canControlOrientation) {
-      // Check if current screen dimensions benefit from landscape
-      if (shouldAutoRotate) {
-        return {
-          shouldRotate: true,
-          orientation: Orientation.landscape,
-          reason: `Device ${deviceType} benefits from landscape (auto-detected)`,
-        };
-      }
-
-      // Device-specific defaults
-      switch (deviceType) {
-        case 'phone':
-          return {
-            shouldRotate: true,
-            orientation: Orientation.landscape,
-            reason: 'Phone - landscape optimal for video',
-          };
-
-        case 'tablet':
-          return {
-            shouldRotate: shouldAutoRotate,
-            orientation: shouldAutoRotate ? Orientation.landscape : null,
-            reason: 'Tablet - conditional rotation based on dimensions',
-          };
-
-        case 'foldable':
-          return {
-            shouldRotate: shouldAutoRotate,
-            orientation: shouldAutoRotate ? Orientation.landscape : null,
-            reason: 'Foldable - adaptive based on current state',
-          };
-
-        default:
-          return {
-            shouldRotate: shouldAutoRotate,
-            orientation: shouldAutoRotate ? Orientation.landscape : null,
-            reason: 'Unknown device - conservative approach',
-          };
-      }
-    }
-
-    return { shouldRotate: false, orientation: null, reason: 'Orientation control disabled' };
-  }, [platformCapabilities, shouldAutoRotate, deviceType]);
-
-  /**
-   * Handle orientation when entering fullscreen
-   */
-  const handleEnterFullscreen = useCallback(async (): Promise<void> => {
-    const strategy = getFullscreenStrategy();
-
-    if (strategy.shouldRotate && strategy.orientation) {
-      await lockToLandscape();
-    }
+  const handleEnterFullscreen = useCallback(async () => {
+    if (getFullscreenStrategy().shouldRotate) await lockToLandscape();
   }, [getFullscreenStrategy, lockToLandscape]);
 
-  /**
-   * Handle orientation when exiting fullscreen
-   */
-  const handleExitFullscreen = useCallback(async (): Promise<void> => {
-    // App-wide, like `unlockOrientation`: the instance that locked it may not be this one
-    if (!platformCapabilities.canControlOrientation) {
-      return;
-    }
-
-    try {
-      // Device-specific exit strategy
-      if (deviceType === 'phone') {
-        // Phones typically return to portrait
-        await lockToPortrait();
-      } else if (deviceType === 'tablet' || deviceType === 'foldable') {
-        // Tablets and foldables: try to unlock or fall back to portrait
-        await unlockOrientation();
-      } else {
-        // Default: restore to portrait
-        await lockToPortrait();
-      }
-    } catch (error) {
-      console.error('[useOrientation] Failed to handle fullscreen exit:', error);
-    }
-  }, [platformCapabilities.canControlOrientation, deviceType, lockToPortrait, unlockOrientation]);
+  const handleExitFullscreen = useCallback(async () => {
+    if (!canControlOrientation) return;
+    if (deviceType === 'tablet' || deviceType === 'foldable') await unlockOrientation();
+    else await lockToPortrait();
+  }, [canControlOrientation, deviceType, lockToPortrait, unlockOrientation]);
 
   return {
-    // Device and platform information
     deviceType,
     platformCapabilities,
-
-    // Rotation detection
     shouldAutoRotate,
-    isLandscapeOptimal,
-
-    // Configuration
+    isLandscapeOptimal: shouldAutoRotate,
     rotationConfig,
     controlsConfig,
-
-    // Orientation state
     orientationLocked,
-
-    // Actions
     lockToLandscape,
     lockToPortrait,
     unlockOrientation,
     getFullscreenStrategy,
-
-    // Fullscreen-specific handlers
     handleEnterFullscreen,
     handleExitFullscreen,
   };
 };
-
-export default useOrientation;

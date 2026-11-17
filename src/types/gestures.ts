@@ -24,9 +24,10 @@ export interface GestureEnabledProps {
  */
 export interface UseDoubleTapGestureProps extends GestureEnabledProps {
   /**
-   * A ref to the video component.
+   * Ignored: the hook seeks the player's own video.
+   * @deprecated Leave it out; it will be removed in 2.0.
    */
-  videoRef: RefObject<VideoRef> | null;
+  videoRef?: RefObject<VideoRef> | null;
   /**
    * The interval in seconds to seek forward or backward when double tapping.
    */

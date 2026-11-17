@@ -4,6 +4,7 @@ import { SettingsContext } from './SettingsProvider';
 import { ComponentsContext } from './ComponentsProvider';
 import { ProgressStoreContext } from './ProgressStore';
 import { ControlsControllerContext } from './ControlsController';
+import { PlayerCommandsContext } from './PlayerCommands';
 import { TestIDContext } from '../utils/testIDs';
 
 /**
@@ -14,6 +15,7 @@ export interface BridgedContexts {
   video: ContextType<typeof VideoStoreContext>;
   progress: ContextType<typeof ProgressStoreContext>;
   controls: ContextType<typeof ControlsControllerContext>;
+  commands: ContextType<typeof PlayerCommandsContext>;
   settings: ContextType<typeof SettingsContext>;
   components: ContextType<typeof ComponentsContext>;
   testID: ContextType<typeof TestIDContext>;
@@ -27,6 +29,7 @@ export const useBridgedContexts = (): BridgedContexts => ({
   video: useContext(VideoStoreContext),
   progress: useContext(ProgressStoreContext),
   controls: useContext(ControlsControllerContext),
+  commands: useContext(PlayerCommandsContext),
   settings: useContext(SettingsContext),
   components: useContext(ComponentsContext),
   testID: useContext(TestIDContext),
@@ -47,11 +50,13 @@ export const ContextBridge: React.FC<{ contexts: BridgedContexts; children: Reac
   <VideoStoreContext.Provider value={contexts.video}>
     <ProgressStoreContext.Provider value={contexts.progress}>
       <ControlsControllerContext.Provider value={contexts.controls}>
-        <SettingsContext.Provider value={contexts.settings}>
-          <ComponentsContext.Provider value={contexts.components}>
-            <TestIDContext.Provider value={contexts.testID}>{children}</TestIDContext.Provider>
-          </ComponentsContext.Provider>
-        </SettingsContext.Provider>
+        <PlayerCommandsContext.Provider value={contexts.commands}>
+          <SettingsContext.Provider value={contexts.settings}>
+            <ComponentsContext.Provider value={contexts.components}>
+              <TestIDContext.Provider value={contexts.testID}>{children}</TestIDContext.Provider>
+            </ComponentsContext.Provider>
+          </SettingsContext.Provider>
+        </PlayerCommandsContext.Provider>
       </ControlsControllerContext.Provider>
     </ProgressStoreContext.Provider>
   </VideoStoreContext.Provider>

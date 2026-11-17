@@ -2,6 +2,7 @@ import React, { useEffect, useState, useSyncExternalStore, type ReactNode } from
 import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
 import { useVideoSelector } from '../providers';
 import { useVideoStore } from '../providers/VideoProvider';
+import { usePlayerCommands } from '../providers/PlayerCommands';
 import { useControlsController } from '../providers/ControlsController';
 import { useProgressStore } from '../providers/ProgressStore';
 import { addTVRemoteListener } from './tvRemote';
@@ -39,6 +40,7 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
   const store = useVideoStore();
   const progressStore = useProgressStore();
   const controls = useControlsController();
+  const commands = usePlayerCommands();
   const [focus] = useState(createTVFocus);
   const controlsVisible = useVideoSelector((state) => state.controlsVisible);
   // From the focus state directly: this component provides it, so the context hook above it sees none
@@ -47,17 +49,6 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
   const surfaceTestID = useTestID('tv-surface');
 
   useEffect(() => {
-    const clamp = (time: number) => {
-      const { duration } = store.getState();
-      return Math.max(0, duration > 0 ? Math.min(time, duration) : time);
-    };
-    const seekTo = (time: number) => {
-      store.getState().videoRef?.current?.seek(time);
-      progressStore.update({ currentTime: time });
-    };
-    const seekBy = (seconds: number) => seekTo(clamp(progressStore.getSnapshot().currentTime + seconds));
-    const togglePlay = () => store.dispatch({ type: 'TOGGLE_PLAY_PAUSE' });
-
     // Holding left or right: the thumb and the time move on a timer, and the player seeks once on
     // release, rather than a seek on every step at a stream that would buffer each one
     let scrub: { startedAt: number; time: number; timer: ReturnType<typeof setInterval> } | null = null;
@@ -67,7 +58,7 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
       const { time } = scrub;
       scrub = null;
       progressStore.setPreview(null);
-      if (commit) seekTo(time);
+      if (commit) commands.seek(time);
     };
     const startScrub = (direction: 1 | -1) => {
       endScrub(true);
@@ -76,7 +67,7 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
         if (!scrub) return;
         // The player lost the focus without a release, so stop where it got to
         if (focus.getHolder() === null) return endScrub(true);
-        scrub.time = clamp(scrub.time + direction * scrubStep(Date.now() - startedAt));
+        scrub.time = commands.clampTime(scrub.time + direction * scrubStep(Date.now() - startedAt));
         progressStore.setPreview(scrub.time);
         controls.show();
       };
@@ -101,15 +92,15 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
       if (eventKeyAction === 0) return;
       switch (eventType) {
         case 'playPause':
-          togglePlay();
+          commands.togglePlay();
           return controls.show();
         case 'play':
         case 'pause':
-          store.dispatch({ type: 'SET_PLAYING', payload: eventType === 'play' });
+          commands.setPlaying(eventType === 'play');
           return controls.show();
         case 'fastForward':
         case 'rewind':
-          seekBy(eventType === 'fastForward' ? SEEK_STEP : -SEEK_STEP);
+          commands.seekBy(eventType === 'fastForward' ? SEEK_STEP : -SEEK_STEP);
           return controls.show();
       }
       const holder = focus.getHolder();
@@ -117,13 +108,13 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
       if (holder === null) return;
       const direction = eventType === 'left' ? -1 : eventType === 'right' ? 1 : 0;
       if (holder === 'surface') {
-        if (direction !== 0) seekBy(direction * SEEK_STEP);
+        if (direction !== 0) commands.seekBy(direction * SEEK_STEP);
         else if (!SHOW_CONTROLS_KEYS.has(eventType)) return;
         // Batched with showing the controls, so the target is focusable when it's focused
         focus.setTarget(direction !== 0 ? 'progress' : 'play');
       } else if (holder === 'progress') {
-        if (direction !== 0) seekBy(direction * SEEK_STEP);
-        else if (eventType === 'select') togglePlay();
+        if (direction !== 0) commands.seekBy(direction * SEEK_STEP);
+        else if (eventType === 'select') commands.togglePlay();
       }
       // Any press keeps the controls up
       controls.show();
@@ -164,7 +155,7 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
       back.remove();
       if (focus.hadFocusRecently()) focusHandedOffAt = Date.now();
     };
-  }, [store, progressStore, controls, focus]);
+  }, [store, progressStore, controls, commands, focus]);
 
   return (
     <TVFocusContext.Provider value={focus}>

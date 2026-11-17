@@ -1,6 +1,7 @@
 import { useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { useProgressStore } from '../../providers/ProgressStore';
+import { usePlayerCommands } from '../../providers/PlayerCommands';
 import { useCallback, useSyncExternalStore } from 'react';
 
 /**
@@ -15,11 +16,11 @@ export interface UseProgressReturn {
   playableDuration: number;
   /** Seeks to a specific time in the video. */
   seek: (time: number) => void;
-  /** Sets the current time of the video (internal use). */
+  /** @deprecated The player sets the position itself. Will be removed in 2.0. */
   setCurrentTime: (time: number) => void;
-  /** Sets the duration of the video (internal use). */
+  /** @deprecated The player sets the duration itself. Will be removed in 2.0. */
   setDuration: (duration: number) => void;
-  /** Sets the playable duration of the video (internal use). */
+  /** @deprecated The player sets the playable duration itself. Will be removed in 2.0. */
   setPlayableDuration: (playableDuration: number) => void;
 }
 
@@ -33,94 +34,34 @@ export interface UseProgressReturn {
  * - `currentTime`: The current time of the video in seconds.
  * - `playableDuration`: The playable duration of the video in seconds.
  * - `duration`: The duration of the video in seconds.
- * - `seek`: A function to seek to a specific time in the video.
- * - `setCurrentTime`: A function to set the current time of the video.
- * - `setPlayableDuration`: A function to set the playable duration of the video.
- * - `setDuration`: A function to set the duration of the video.
+ * - `seek`: A function to seek to a specific time in the video, within its duration.
  */
 export const useProgress = (): UseProgressReturn => {
-  const actions = useProgressActions();
+  const duration = useVideoSelector((state) => state.duration);
+  const progressStore = useProgressStore();
+  const commands = usePlayerCommands();
+  const { dispatch } = useVideoStore();
   // The third argument is the snapshot for server rendering, which React requires there
   const { currentTime, playableDuration } = useSyncExternalStore(
-    actions.progressStore.subscribe,
-    actions.progressStore.getSnapshot,
-    actions.progressStore.getSnapshot
+    progressStore.subscribe,
+    progressStore.getSnapshot,
+    progressStore.getSnapshot
   );
+
+  const setCurrentTime = useCallback((time: number) => progressStore.update({ currentTime: time }), [progressStore]);
+  const setPlayableDuration = useCallback(
+    (playable: number) => progressStore.update({ playableDuration: playable }),
+    [progressStore]
+  );
+  const setDuration = useCallback((next: number) => dispatch({ type: 'SET_DURATION', payload: next }), [dispatch]);
 
   return {
     currentTime,
-    duration: actions.duration,
+    duration,
     playableDuration,
-    seek: actions.seek,
-    setCurrentTime: actions.setCurrentTime,
-    setDuration: actions.setDuration,
-    setPlayableDuration: actions.setPlayableDuration,
+    seek: commands.seek,
+    setCurrentTime,
+    setDuration,
+    setPlayableDuration,
   };
-};
-
-/**
- * `useProgress()` without the position, so it doesn't re-render on progress events. For toolkit
- * controls that read the position elsewhere (the progress bar's shared values).
- * @internal
- */
-export const useProgressActions = () => {
-  const videoRef = useVideoSelector((state) => state.videoRef);
-  const duration = useVideoSelector((state) => state.duration);
-  const store = useVideoStore();
-  const { dispatch } = store;
-  const progressStore = useProgressStore();
-
-  /**
-   * Seeks to a specific time in the video.
-   * @param time - The time to seek to in seconds.
-   */
-  const seek = useCallback(
-    (time: number) => {
-      if (videoRef?.current) {
-        // The duration now, not from the last render: a seek in `onLoad` (resuming) runs before the
-        // re-render that has the new duration. Unknown (0) doesn't clamp, or every seek would go to 0.
-        const { duration: currentDuration } = store.getState();
-        const newTime = Math.max(0, currentDuration > 0 ? Math.min(time, currentDuration) : time);
-        videoRef.current.seek(newTime);
-        progressStore.update({ currentTime: newTime });
-      }
-    },
-    [videoRef, progressStore, store]
-  );
-
-  /**
-   * Sets the current time of the video.
-   * @param time - The time to set in seconds.
-   */
-  const setCurrentTime = useCallback(
-    (time: number) => {
-      progressStore.update({ currentTime: time });
-    },
-    [progressStore]
-  );
-
-  /**
-   * Sets the playable duration of the video.
-   * @param playableDuration - The playable duration to set in seconds.
-   */
-
-  const setPlayableDuration = useCallback(
-    (nextPlayableDuration: number) => {
-      progressStore.update({ playableDuration: nextPlayableDuration });
-    },
-    [progressStore]
-  );
-
-  /**
-   * Sets the duration of the video.
-   * @param duration - The duration to set in seconds.
-   */
-  const setDuration = useCallback(
-    (duration: number) => {
-      dispatch({ type: 'SET_DURATION', payload: duration });
-    },
-    [dispatch]
-  );
-
-  return { duration, seek, setCurrentTime, setDuration, setPlayableDuration, progressStore };
 };

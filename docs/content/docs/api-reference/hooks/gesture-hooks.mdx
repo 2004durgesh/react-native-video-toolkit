@@ -159,9 +159,7 @@ A hook for handling double tap gestures to seek forward or backward in the video
 import { useDoubleTapGesture } from 'react-native-video-toolkit';
 
 export const Player = () => {
-  const { doubleTapGesture } = useDoubleTapGesture({
-    videoRef: videoRef,
-  });
+  const { doubleTapGesture } = useDoubleTapGesture({ doubleTapSeekInterval: 10 });
   return (
     <GestureDetector gesture={doubleTapGesture}>
       <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} />
@@ -172,13 +170,13 @@ export const Player = () => {
 
 ### Props
 
-| Prop                    | Type                     | Default     | Description                                                       |
-| ----------------------- | ------------------------ | ----------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `videoRef`              | `React.RefObject<Video>` | `required`  | A ref to the `Video` component from `react-native-video`.         |
-| `doubleTapSeekInterval` | `number`                 | `10`        | The number of seconds to seek forward or backward.                |
-| `onDoubleTapSeekStart`  | `() => void`             | `undefined` | A callback function that is called when a double tap seek starts. |
-| `onDoubleTapSeekEnd`    | `() => void`             | `undefined` | A callback function that is called when a double tap seek ends.   |
-| `enabled`               | `boolean`                | No          | `true`                                                            | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
+| Prop                    | Type                     | Default     | Description                                                                            |
+| ----------------------- | ------------------------ | ----------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `videoRef`              | `React.RefObject<Video>` | `undefined` | Deprecated and ignored: the hook seeks the player's own video. Will be removed in 2.0. |
+| `doubleTapSeekInterval` | `number`                 | `10`        | The number of seconds to seek forward or backward.                                     |
+| `onDoubleTapSeekStart`  | `() => void`             | `undefined` | A callback function that is called when a double tap seek starts.                      |
+| `onDoubleTapSeekEnd`    | `() => void`             | `undefined` | A callback function that is called when a double tap seek ends.                        |
+| `enabled`               | `boolean`                | No          | `true`                                                                                 | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
 
 ### Returns
 
@@ -200,15 +198,13 @@ export const Player = () => {
 import { useDoubleTapGesture } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { VideoPlayer } from 'react-native-video-toolkit';
-import React, { useRef } from 'react';
+import React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 const MyVideoPlayer = () => {
-  const videoRef = useRef(null);
   const { doubleTapGesture, isDoubleTap, doubleTapValue, forwardAnimatedStyle, backwardAnimatedStyle } =
     useDoubleTapGesture({
-      videoRef,
       doubleTapSeekInterval: 15,
       onDoubleTapSeekStart: () => console.log('Double tap seek started'),
       onDoubleTapSeekEnd: () => console.log('Double tap seek ended'),
@@ -216,7 +212,7 @@ const MyVideoPlayer = () => {
 
   return (
     <GestureDetector gesture={doubleTapGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} videoRef={videoRef}>
+      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
         {isDoubleTap && (
           <>
             <Animated.View style={forwardAnimatedStyle}>

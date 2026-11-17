@@ -10,7 +10,7 @@ import type { UseSingleTapGestureProps } from '../../types';
  * @returns An object with the following properties:
  * - `singleTapGesture`: The gesture handler for single taps.
  */
-const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
+import { TAP_MAX_DISTANCE, TAP_MAX_DURATION } from './tap';
 
 export const useSingleTapGesture = ({ onSingleTap, enabled = true }: UseSingleTapGestureProps) => {
   // The controller directly: `useControlsVisibility()` would re-render this on every toggle
@@ -19,8 +19,7 @@ export const useSingleTapGesture = ({ onSingleTap, enabled = true }: UseSingleTa
   const config = useMemo<TapGestureConfig>(
     () => ({
       enabled,
-      maxDuration: 250,
-      // A moving finger is a swipe, not a tap; failing early lets the pan gestures take over
+      maxDuration: TAP_MAX_DURATION,
       maxDistance: TAP_MAX_DISTANCE,
       numberOfTaps: 1,
       onDeactivate: (event) => {

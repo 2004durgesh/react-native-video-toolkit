@@ -6,20 +6,15 @@ import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { useVideoSelector } from '../providers';
 import type { GestureHandlerProps } from '../types';
 import { PlatformUtils } from '../utils/platform';
+import { BOOSTED_RATE, DEFAULT_SEEK_INTERVAL } from '../hooks/gestures/tap';
 
 // Reanimated's entering and exiting animations have crashed on web, so the 2x badge just appears there
 const IS_WEB = PlatformUtils.isWeb();
 
-/**
- * A component that displays the seek time text.
- */
 export const SeekText: FC<{ children: ReactNode }> = ({ children }) => {
   return <Text style={styles.seekText}>{children}</Text>;
 };
 
-/**
- * A component that displays an overlayed view.
- */
 export const OverlayedView = React.forwardRef<
   any,
   {
@@ -35,12 +30,11 @@ export const OverlayedView = React.forwardRef<
 });
 
 /**
- * A component that handles gestures for the video player.
- *
- * This component is responsible for handling single-tap, double-tap, and pan gestures.
+ * The player's gestures: a tap toggles the controls, a double tap on either half seeks, vertical
+ * pans and swipes call your handlers, and a long press plays at 2x until released.
  */
 export const GestureHandler: FC<GestureHandlerProps> = ({
-  doubleTapSeekInterval = 10,
+  doubleTapSeekInterval = DEFAULT_SEEK_INTERVAL,
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
   onSingleTap,
@@ -53,7 +47,6 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   onSwipeDown,
   children,
 }) => {
-  const videoRef = useVideoSelector((state) => state.videoRef);
   const enableDoubleTapGestures = useVideoSelector((state) => state.config.enableDoubleTapGestures);
   const enablePanGestures = useVideoSelector((state) => state.config.enablePanGestures);
   // While the source has ended the player's gestures are off: an UpNext card covers the video
@@ -65,7 +58,6 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
   const theme = useVideoSelector((state) => state.theme);
   const {
     doubleTapGesture,
-    isDoubleTap,
     doubleTapValue,
     backwardRippleRef,
     forwardRippleRef,
@@ -74,7 +66,6 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
     forwardAnimatedStyle,
     backwardAnimatedStyle,
   } = useDoubleTapGesture({
-    videoRef,
     doubleTapSeekInterval,
     onDoubleTapSeekStart,
     onDoubleTapSeekEnd,
@@ -111,7 +102,7 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
             entering={IS_WEB ? undefined : FadeInUp.duration(250)}
             exiting={IS_WEB ? undefined : FadeOutDown.duration(200)}
             style={[styles.badgeContainer]}>
-            <Text style={[styles.badgeText, { backgroundColor: theme.colors.badgeBackground }]}>2x</Text>
+            <Text style={[styles.badgeText, { backgroundColor: theme.colors.badgeBackground }]}>{BOOSTED_RATE}x</Text>
           </Animated.View>
         )}
         <OverlayedView ref={backwardRippleRef} style={styles.backwardSide}>
@@ -156,7 +147,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
     overflow: 'hidden',
     borderRadius: '50%',
-    // backgroundColor: 'red', //for debugging purposes
   },
   backwardSide: {
     left: '-27.5%',

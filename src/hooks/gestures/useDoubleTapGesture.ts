@@ -14,11 +14,9 @@ import {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseDoubleTapGestureProps } from '../../types';
-import { useProgressStore } from '../../providers/ProgressStore';
-import { useVideoStore } from '../../providers/VideoProvider';
+import { usePlayerCommands } from '../../providers/PlayerCommands';
 import { webDependencies } from '../../utils/platform';
-
-const TAP_MAX_DISTANCE = 10; // Maximum distance in pixels for a tap gesture
+import { DEFAULT_SEEK_INTERVAL, TAP_MAX_DISTANCE, TAP_MAX_DURATION } from './tap';
 
 /**
  * Return type for the useDoubleTapGesture hook. Written out rather than inferred: the refs' inferred
@@ -61,24 +59,20 @@ export interface UseDoubleTapGestureReturn {
  * - `backwardAnimatedStyle`: The animated style for the backward seek animation.
  */
 export const useDoubleTapGesture = ({
-  videoRef,
-  doubleTapSeekInterval = 10,
+  doubleTapSeekInterval = DEFAULT_SEEK_INTERVAL,
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
   enabled = true,
 }: UseDoubleTapGestureProps): UseDoubleTapGestureReturn => {
   const playerWidth = usePlayerWidth();
-  const progressStore = useProgressStore();
-  const store = useVideoStore();
+  const commands = usePlayerCommands();
   const [isDoubleTap, setIsDoubleTap] = useState(false);
   const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Animation values
   const forwardOpacity = useSharedValue(0);
   const backwardOpacity = useSharedValue(0);
   const scaleValue = useSharedValue(1);
 
-  // Separate counters for consecutive taps
   const consecutiveTapCount = useRef({
     forward: 0,
     backward: 0,
@@ -91,7 +85,6 @@ export const useDoubleTapGesture = ({
     backward: 0,
   });
 
-  // Ripple effect states - separate for each direction
   const forwardTranslateX = useSharedValue(0);
   const forwardTranslateY = useSharedValue(0);
   const backwardTranslateX = useSharedValue(0);
@@ -136,33 +129,19 @@ export const useDoubleTapGesture = ({
 
       scaleValue.value = withSequence(withSpring(1.2), withSpring(1));
 
-      animationTimeoutRef.current = setTimeout(() => {
-        scheduleOnRN(resetConsecutiveCount, direction);
-      }, 1000);
+      animationTimeoutRef.current = setTimeout(() => resetConsecutiveCount(direction), 1000);
     },
     [forwardOpacity, backwardOpacity, scaleValue, resetConsecutiveCount]
   );
 
   const handleSeek = useCallback(
     (direction: 'forward' | 'backward') => {
-      if (!videoRef?.current) return;
+      const seekAmount = direction === 'forward' ? doubleTapSeekInterval : -doubleTapSeekInterval;
+      if (!commands.seekBy(seekAmount)) return;
 
       const now = Date.now();
       const timeSinceLastTap = now - consecutiveTapCount.current.lastTapTime;
       const isConsecutive = timeSinceLastTap < 500 && direction === consecutiveTapCount.current.lastDirection;
-
-      // From the progress store, which already has the previous tap's seek, so quick taps add up.
-      // The player's own position can lag until a seek lands, and asking for it is a native round trip.
-      const { currentTime } = progressStore.getSnapshot();
-      const { duration } = store.getState();
-      const seekAmount = direction === 'forward' ? doubleTapSeekInterval : -doubleTapSeekInterval;
-      const newPosition = Math.max(
-        0,
-        duration > 0 ? Math.min(currentTime + seekAmount, duration) : currentTime + seekAmount
-      );
-
-      videoRef.current.seek(newPosition);
-      progressStore.update({ currentTime: newPosition });
 
       if (isConsecutive) {
         consecutiveTapCount.current[direction]++;
@@ -188,7 +167,7 @@ export const useDoubleTapGesture = ({
 
       showTapAnimation(direction);
     },
-    [videoRef, doubleTapSeekInterval, showTapAnimation, progressStore, store]
+    [commands, doubleTapSeekInterval, showTapAnimation]
   );
 
   // Memoized: Gesture Handler sends the config to the native side whenever the object changes
@@ -196,7 +175,7 @@ export const useDoubleTapGesture = ({
     () => ({
       enabled,
       numberOfTaps: 2,
-      maxDuration: 250,
+      maxDuration: TAP_MAX_DURATION,
       maxDistance: TAP_MAX_DISTANCE,
       onActivate: (event) => {
         'worklet';
@@ -225,7 +204,6 @@ export const useDoubleTapGesture = ({
           if (radius) backwardRadius.value = radius;
         }
 
-        // Reset and start ripple animation
         rippleScale.value = 0;
         rippleScale.value = withTiming(1, { duration: 500 });
         rippleOpacity.value = 0.4;

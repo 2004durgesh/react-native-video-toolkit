@@ -1,6 +1,6 @@
 export { useBuffering, type UseBufferingReturn } from './useBuffering';
 export { useControlsVisibility, type UseControlsVisibilityReturn } from './useControlsVisibility';
-export { useFullscreen, type UseFullscreenReturn } from './useFullscreen';
+export { useFullscreen, type UseFullscreenReturn } from '../../fullscreen/useFullscreen';
 export { useOrientation } from './useOrientation';
 export { usePlayback, type UsePlaybackReturn } from './usePlayback';
 export { useProgress, type UseProgressReturn } from './useProgress';

@@ -1,4 +1,5 @@
 /// <reference lib="dom" />
+import { PLAYER_ID_PREFIX } from './fullscreen/playerId';
 /**
  * @file NativeVideoToolkit.web.ts
  * @description This file provides a web implementation of the NativeVideoToolkit module.
@@ -36,8 +37,8 @@ export const NativeVideoToolkit: Spec = {
    */
   enterFullscreen: async (element?: Element | null): Promise<boolean> => {
     try {
-      // `useFullscreen` passes the player around its own video; each player has its own id
-      const videoSurface = element ?? document.querySelector('[id^="video-player"]');
+      // The player around the caller's own video; without one, the first player on the page
+      const videoSurface = element ?? document.querySelector(`[id^="${PLAYER_ID_PREFIX}"]`);
       if (!videoSurface) {
         console.error('No video player element found');
         return false;

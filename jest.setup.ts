@@ -19,6 +19,7 @@ jest.mock('react-native-orientation-director', () => ({
   default: {
     lockTo: jest.fn(),
     unlock: jest.fn(),
+    isLockableOrientation: jest.fn(() => true),
     getInterfaceOrientation: jest.fn(async () => 1),
     getDeviceOrientation: jest.fn(async () => 1),
     listenForInterfaceOrientationChanges: jest.fn(() => ({ remove: jest.fn() })),

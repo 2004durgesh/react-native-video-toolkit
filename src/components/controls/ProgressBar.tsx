@@ -1,7 +1,8 @@
 import { useContext, useState, type ReactNode } from 'react';
 import { Pressable, View, StyleSheet, type ViewStyle, type StyleProp } from 'react-native';
 import { useProgress } from '../../hooks';
-import { useProgressActions } from '../../hooks/media/useProgress';
+import { usePlayerCommands } from '../../providers/PlayerCommands';
+import { useProgressStore } from '../../providers/ProgressStore';
 import { useVideoSelector, useVideoComponents } from '../../providers';
 import { useControlsController } from '../../providers/ControlsController';
 import { DefaultSlider, SliderView } from '../defaults/DefaultSlider';
@@ -36,7 +37,8 @@ export interface ProgressBarProps {
  * Everything the slider gets except the position, shared by both ways of rendering the bar.
  */
 const useProgressBarSlider = ({ height = 4, thumbWidth = 12, onSeekStart, onSeekEnd, onSeek }: ProgressBarProps) => {
-  const { duration, seek } = useProgressActions();
+  const duration = useVideoSelector((state) => state.duration);
+  const { seek } = usePlayerCommands();
   const { show: showControls } = useControlsController();
   const theme = useVideoSelector((state) => state.theme);
 
@@ -74,7 +76,7 @@ const useProgressBarSlider = ({ height = 4, thumbWidth = 12, onSeekStart, onSeek
  */
 const SharedValueProgressBar = (props: ProgressBarProps): React.ReactElement => {
   const slider = useProgressBarSlider(props);
-  const { progressStore } = useProgressActions();
+  const progressStore = useProgressStore();
 
   return (
     <View style={[styles.container, props.style]} testID={props.testID}>

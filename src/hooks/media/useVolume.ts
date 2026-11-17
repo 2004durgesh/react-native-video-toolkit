@@ -1,7 +1,5 @@
 import { useVideoSelector } from '../../providers';
-import { useVideoStore } from '../../providers/VideoProvider';
-import { useControlsController } from '../../providers/ControlsController';
-import { useCallback } from 'react';
+import { usePlayerCommands } from '../../providers/PlayerCommands';
 
 /**
  * Return type for the useVolume hook.
@@ -29,32 +27,12 @@ export interface UseVolumeReturn {
 export const useVolume = (): UseVolumeReturn => {
   const volume = useVideoSelector((state) => state.volume);
   const muted = useVideoSelector((state) => state.muted);
-  const { dispatch } = useVideoStore();
-  const { show: showControls } = useControlsController();
-
-  /**
-   * Sets the volume of the video.
-   * @param volume - The volume to set, between 0 and 1.
-   */
-  const setVolume = useCallback(
-    (nextVolume: number) => {
-      dispatch({ type: 'SET_VOLUME', payload: nextVolume });
-    },
-    [dispatch]
-  );
-
-  /**
-   * Toggles the mute state of the video.
-   */
-  const toggleMute = useCallback(() => {
-    dispatch({ type: 'TOGGLE_MUTE' });
-    showControls();
-  }, [dispatch, showControls]);
+  const commands = usePlayerCommands();
 
   return {
     volume,
     muted,
-    setVolume,
-    toggleMute,
+    setVolume: commands.setVolume,
+    toggleMute: commands.toggleMute,
   };
 };

@@ -1,7 +1,5 @@
 import { useVideoSelector } from '../../providers';
-import { useVideoStore } from '../../providers/VideoProvider';
-import { useControlsController } from '../../providers/ControlsController';
-import { useCallback } from 'react';
+import { usePlayerCommands } from '../../providers/PlayerCommands';
 
 /**
  * Return type for the usePlayback hook.
@@ -30,32 +28,12 @@ export interface UsePlaybackReturn {
 export const usePlayback = (): UsePlaybackReturn => {
   const isPlaying = useVideoSelector((state) => state.isPlaying);
   const ended = useVideoSelector((state) => state.ended);
-  const { dispatch } = useVideoStore();
-  const { show: showControls } = useControlsController();
-
-  /**
-   * Toggles the playback state of the video.
-   */
-  const togglePlayPause = useCallback(() => {
-    dispatch({ type: 'TOGGLE_PLAY_PAUSE' });
-    showControls();
-  }, [dispatch, showControls]);
-
-  /**
-   * Sets the playback state of the video.
-   * @param isPlaying - A boolean indicating whether the video should be playing.
-   */
-  const setPlaying = useCallback(
-    (playing: boolean) => {
-      dispatch({ type: 'SET_PLAYING', payload: playing });
-    },
-    [dispatch]
-  );
+  const commands = usePlayerCommands();
 
   return {
     isPlaying,
     ended,
-    togglePlayPause,
-    setPlaying,
+    togglePlayPause: commands.togglePlay,
+    setPlaying: commands.setPlaying,
   };
 };

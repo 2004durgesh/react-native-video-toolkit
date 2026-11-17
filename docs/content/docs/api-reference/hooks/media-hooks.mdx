@@ -3,6 +3,8 @@ title: 'Media Hooks'
 description: Hooks for managing media state, buffering, playback controls, and video properties.
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
 ## `useBuffering()`
 
 A hook to check and control the video's buffering state.
@@ -151,13 +153,6 @@ interface UseFullscreenReturn {
 | `exitFullscreen`   | `() => Promise<void>` | A function that exits fullscreen mode. No-op if not in fullscreen. Handles screen orientation unlocking automatically.                                       |
 
 [`<VideoPlayer.FullscreenButton />`](../components/controls/fullscreen-button.mdx) uses this hook to provide a button for toggling fullscreen mode.
-Handles tap gestures for toggling fullscreen mode.
-
-<Callout type="warn">
-  This hooks calls the useOrientation hook internally to manage screen orientation when entering/exiting fullscreen
-  mode. If you are also using the useOrientation hook in your component, ensure that both hooks are configured
-  consistently to avoid conflicts.
-</Callout>
 
 ### Example
 
@@ -457,7 +452,13 @@ export default MyVolumeControl;
 
 ## `useOrientation()`
 
-A comprehensive hook for handling device orientation and rotation logic.
+<Callout type="warning">
+  Deprecated. Fullscreen turns the screen by itself (see `useFullscreen` and `config.enableScreenRotation`), and the
+  toolkit no longer uses this hook. To lock the orientation yourself, use react-native-orientation-director directly.
+  `useOrientation` will be removed in 2.0.
+</Callout>
+
+A hook for handling device orientation and rotation logic.
 
 ### Usage
 

@@ -23,6 +23,7 @@ import { usePlayback, useVolume, useBuffering, useSettings, usePlaybackRate } fr
 import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks, getFullscreenHeight } from '../../utils';
 import type { CustomVideoTrack } from '../../types';
 import { useTestID } from '../../utils/testIDs';
+import { usePlayerCommands } from '../../providers/PlayerCommands';
 import { useCaptionsController } from '../../captions/CaptionsController';
 import { isHlsUrl, loadHlsSubtitleRenditions } from '../../captions/hls';
 import { captionError, isCaptionError } from '../../captions/errors';
@@ -157,6 +158,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   // The toolkit draws subtitle files and HLS subtitles itself, unless the app asks for the player's
   const customCaptions = captionRenderer !== 'native';
   const captions = useCaptionsController();
+  const commands = usePlayerCommands();
 
   // Attaches the player to the provider's ref. A player mounting under an existing provider (one at
   // the app root, say) also starts with its controls up; the provider restarts them when playback
@@ -401,8 +403,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     if (nativeProps.repeat) return;
     setPlaying(false);
     dispatch({ type: 'SET_ENDED', payload: true });
-    videoRef?.current?.seek(0);
-    progressStore.update({ currentTime: 0 });
+    commands.seek(0);
     showControls();
   };
   const handleLayout = (event: { nativeEvent: { layout: LayoutRectangle } }) => {
