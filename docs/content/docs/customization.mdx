@@ -35,7 +35,7 @@ The `VideoPlayer` component uses a **compound component pattern**, meaning it ex
 ## Theming
 
 The library provides a flexible **theming system** to easily customize colors, fonts, sizing, and other visual elements.
-Custom themes should be of type [`Theme`](./api-reference/types/theme).
+Pass `VideoProvider` a [`ThemeOverrides`](./api-reference/types/theme#themeoverrides): any group or key you leave out keeps its default.
 
 <CodePreviewTabs preview={<ThemeSelectorExample />}>
 
@@ -58,7 +58,7 @@ The `VideoProvider` and `VideoPlayer` accept various props to configure their be
 
 | Prop         | Type                                                                           | Required | Default | Description                                                                                                                                       |
 | ------------ | ------------------------------------------------------------------------------ | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `theme`      | [`Theme`](./api-reference/types/theme)                                         | No       | –       | Custom theme object for colors, fonts, sizing, etc.                                                                                               |
+| `theme`      | [`ThemeOverrides`](./api-reference/types/theme#themeoverrides)                 | No       | –       | Custom theme object for colors, fonts, sizing, etc.                                                                                               |
 | `config`     | [`VideoPlayerConfig`](./api-reference/types/video#videoplayerconfig)           | No       | –       | Configuration options for player behavior.                                                                                                        |
 | `components` | [`Partial<VideoComponents>`](./api-reference/types/components#videocomponents) | No       | –       | Your own sheet, sliders, spinner and press feedback. See [Custom Components](./custom-components).                                                |
 | `portalHost` | `string`                                                                       | No       | –       | Open the settings sheet in a [`VideoPortalHost`](./api-reference/providers/video-provider#videoportalhost) you render, e.g. above your navigator. |
@@ -107,11 +107,8 @@ const customVideoTracks: CustomVideoTrack[] = [
   { height: 480, label: '480p SD' },
 ];
 
-<VideoProvider
-  config={{
-    useCustomAudioTracks: true, // Enable custom audio tracks
-    useCustomVideoTracks: true, // Enable custom video tracks
-  }}>
+// Passing a list replaces the source's own tracks in the settings menu
+<VideoProvider>
   <VideoPlayer
     source={{ uri: 'https://example.com/video.m3u8' }}
     customAudioTracks={customAudioTracks}

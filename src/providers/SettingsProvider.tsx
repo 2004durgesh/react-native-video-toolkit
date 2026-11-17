@@ -1,21 +1,18 @@
-import React, { createContext, useReducer, useContext, type Dispatch, type ReactNode, type FC } from 'react';
+import React, { createContext, useReducer, useContext, useMemo, type Dispatch, type ReactNode, type FC } from 'react';
 import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
 import type { CustomVideoTrack } from '../types';
 
-/**
- * Represents the state of the SettingsProvider.
- */
 interface SettingsProviderState {
   /**
    * Whether the settings menu is visible.
    */
   isSettingsMenuVisible: boolean;
   /**
-   * The current video videoTrack setting.
+   * The selected video track.
    */
   videoTrack: CustomVideoTrack | VideoTrack | null;
   /**
-   * The list of available video videoTracks.
+   * The video tracks to choose from.
    */
   videoTracks: (CustomVideoTrack | VideoTrack)[];
   /**
@@ -47,9 +44,6 @@ interface SettingsProviderState {
   playbackRate: number;
 }
 
-/**
- * Represents the actions that can be dispatched to the settings reducer.
- */
 type SettingsAction =
   | { type: 'SET_VIDEO_TRACK'; payload: CustomVideoTrack | VideoTrack | null }
   /** `custom` says whether the list is the app's own; left out, that stays as it was. */
@@ -62,9 +56,6 @@ type SettingsAction =
   | { type: 'OPEN_SETTINGS_SHEET' }
   | { type: 'CLOSE_SETTINGS_SHEET' };
 
-/**
- * The initial state for the SettingsProvider.
- */
 const initialSettingsState: SettingsProviderState = {
   isSettingsMenuVisible: false,
   videoTrack: null,
@@ -77,9 +68,6 @@ const initialSettingsState: SettingsProviderState = {
   playbackRate: 1,
 };
 
-/**
- * The reducer for the settings state.
- */
 function settingsReducer(state: SettingsProviderState, action: SettingsAction): SettingsProviderState {
   switch (action.type) {
     case 'SET_VIDEO_TRACK':
@@ -105,10 +93,7 @@ function settingsReducer(state: SettingsProviderState, action: SettingsAction): 
   }
 }
 
-/**
- * The context for the video player settings.
- * @internal
- */
+/** @internal */
 export const SettingsContext = createContext<
   | {
       state: SettingsProviderState;
@@ -132,20 +117,21 @@ interface MenuOpenState {
 export const MenuOpenStateContext = createContext<MenuOpenState | null>(null);
 
 /**
- * The provider component for the video player settings.
- * This component provides the settings state to all its children.
+ * Holds the player's audio, video and text tracks, and whether the settings menu is open.
+ * Rendered by `VideoProvider`; you don't need to render it.
  */
 export const SettingsProvider: FC<{
   children: ReactNode;
 }> = ({ children }) => {
   const [state, dispatch] = useReducer(settingsReducer, initialSettingsState);
+  // Memoized, so a VideoProvider render with no settings change doesn't re-render every consumer
+  const value = useMemo(() => ({ state, dispatch }), [state]);
 
-  return <SettingsContext.Provider value={{ state, dispatch }}>{children}</SettingsContext.Provider>;
+  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };
 
 /**
- * A hook to use the settings context.
- * This hook provides access to the settings state and dispatch function.
+ * Returns the nearest `VideoProvider`'s settings state, and `dispatch` to change it.
  */
 export const useSettingsContext = () => {
   const context = useContext(SettingsContext);

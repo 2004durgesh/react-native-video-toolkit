@@ -63,7 +63,7 @@ export const useDoubleTapGesture = ({
   onDoubleTapSeekStart,
   onDoubleTapSeekEnd,
   enabled = true,
-}: UseDoubleTapGestureProps): UseDoubleTapGestureReturn => {
+}: UseDoubleTapGestureProps = {}): UseDoubleTapGestureReturn => {
   const playerWidth = usePlayerWidth();
   const commands = usePlayerCommands();
   const [isDoubleTap, setIsDoubleTap] = useState(false);

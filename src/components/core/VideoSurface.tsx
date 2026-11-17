@@ -19,7 +19,7 @@ import { useSettingsContext, useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { useControlsController } from '../../providers/ControlsController';
 import { useProgressStore } from '../../providers/ProgressStore';
-import { usePlayback, useVolume, useBuffering, useSettings, usePlaybackRate } from '../../hooks';
+import { useVolume, useSettings, usePlaybackRate } from '../../hooks';
 import { combineHandlers } from '../../utils/common';
 import { getFullscreenHeight } from '../../fullscreen/height';
 import { dedupeLanguageTracks, dedupeVideoTracks } from '../../tracks/dedupe';
@@ -66,12 +66,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const isFullscreen = useVideoSelector((state) => state.fullscreen);
   const dimensions = useVideoSelector((state) => state.dimensions);
   const videoLayoutHeight = useVideoSelector((state) => state.videoLayout.height);
-  const { isPlaying, setPlaying } = usePlayback();
+  const isPlaying = useVideoSelector((state) => state.isPlaying);
   const { muted, volume } = useVolume();
   // Writes the position straight to the store: subscribing through `useProgress()` would
   // re-render the video on every progress event
   const progressStore = useProgressStore();
-  const { setBuffering } = useBuffering();
   // The controller directly: `useControlsVisibility()` would re-render the video on every toggle
   const { show: showControls } = useControlsController();
   const { playbackRate } = usePlaybackRate();
@@ -141,10 +140,10 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
 
   const handleLoad = (data: OnLoadData) => {
     dispatch({ type: 'SET_DURATION', payload: data.duration });
-    setBuffering(false);
+    dispatch({ type: 'SET_BUFFERING', payload: false });
     // Playing state outlives a source: the previous one ending pauses it, so a new source would start paused
     dispatch({ type: 'SET_ENDED', payload: false });
-    if (store.getState().config.autoPlay) setPlaying(true);
+    if (store.getState().config.autoPlay) commands.setPlaying(true);
 
     const audioTracksToUse = customAudioTracks ?? dedupeLanguageTracks(data.audioTracks);
     const videoTracksToUse: (CustomVideoTrack | VideoTrack)[] =
@@ -175,16 +174,16 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const handleProgress = (data: OnProgressData) => {
     progressStore.report({ currentTime: data.currentTime, playableDuration: data.playableDuration });
   };
-  const handleBuffer = (data: OnBufferData) => setBuffering(data.isBuffering);
+  const handleBuffer = (data: OnBufferData) => dispatch({ type: 'SET_BUFFERING', payload: data.isBuffering });
   const handleError = (error: OnVideoErrorData) => {
     dispatch({ type: 'SET_ERROR', payload: error?.error?.errorString || 'An unknown error occurred' });
     // Android reports buffering before the error and never that it stopped, so the spinner would stay
-    setBuffering(false);
+    dispatch({ type: 'SET_BUFFERING', payload: false });
   };
   const handleEnd = () => {
     // With `repeat`, the player loops by itself but still reports each pass as an end
     if (nativeProps.repeat) return;
-    setPlaying(false);
+    commands.setPlaying(false);
     dispatch({ type: 'SET_ENDED', payload: true });
     commands.seek(0);
     showControls();
@@ -217,7 +216,6 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const surfaceTestID = useTestID('surface', nativeProps.testID);
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
       height: isFullscreen ? getFullscreenHeight(dimensions, enableScreenRotation) : undefined,
       aspectRatio: isFullscreen ? undefined : 16 / 9,
       backgroundColor: 'black',

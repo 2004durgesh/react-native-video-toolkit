@@ -8,9 +8,9 @@ export type DeviceType = 'phone' | 'tablet' | 'foldable' | 'tv' | 'unknown';
 /** @internal */
 export const deviceType = (): DeviceType => {
   if (PlatformUtils.isTV()) return 'tv';
+  if (PlatformUtils.isTablet()) return 'tablet';
   const { width, height } = Dimensions.get('screen');
   const shorter = Math.min(width, height);
-  if (shorter >= 600) return 'tablet';
   if (Math.max(width, height) / shorter > 2.5) return 'foldable';
   return shorter >= 300 ? 'phone' : 'unknown';
 };

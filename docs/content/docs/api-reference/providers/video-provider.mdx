@@ -18,7 +18,7 @@ export const VideoPlayerComponent = () => <VideoProvider>{/* Your video player c
 | Prop         | Type                                                              | Default    | Description                                                                                                                                         |
 | ------------ | ----------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `config`     | `Partial<VideoPlayerConfig>`                                      | `{}`       | The configuration for the video player.                                                                                                             |
-| `theme`      | `Partial<Theme>`                                                  | `{}`       | The theme for the video player.                                                                                                                     |
+| `theme`      | [`ThemeOverrides`](../types/theme#themeoverrides)                 | `{}`       | The theme for the video player. Any group or key left out keeps its default.                                                                        |
 | `components` | [`Partial<VideoComponents>`](../types/components#videocomponents) | `{}`       | Replacements for the sheet, sliders, spinner and press feedback the player renders. See [Custom Components](../../custom-components).               |
 | `portalHost` | `string`                                                          | –          | Name of a [`VideoPortalHost`](#videoportalhost) to open the settings sheet in. When left out, the provider renders its own host after its children. |
 | `children`   | `ReactNode`                                                       | `required` | The children to render.                                                                                                                             |
@@ -86,24 +86,30 @@ The playback position (`currentTime` and `playableDuration`) isn't part of the s
 
 The `VideoProvider` handles the following actions:
 
-| Action                 | Payload                                                           | Description                                                                           |                        |
-| ---------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------- |
-| `INITIALIZE`           | `{ theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> }` | Initializes the provider with a theme and config.                                     |                        |
-| `SET_CONTROLS_VISIBLE` | `boolean`                                                         | Sets the visible state of the controls.                                               |                        |
-| `SET_VIDEO_REF`        | `React.RefObject<any>`                                            | Deprecated: the provider owns the video's ref. Will be removed in 2.0.                |                        |
-| `SHOW_CONTROLS`        |                                                                   | Shows the controls.                                                                   |                        |
-| `HIDE_CONTROLS`        |                                                                   | Hides the controls.                                                                   |                        |
-| `SEEK`                 | `number`                                                          | Deprecated: does nothing. Use `useProgress().seek`. Will be removed in 2.0.           |                        |
-| `TOGGLE_PLAY_PAUSE`    |                                                                   | Toggles the play/pause state of the video.                                            |                        |
-| `SET_VOLUME`           | `number`                                                          | Sets the volume of the video.                                                         |                        |
-| `TOGGLE_MUTE`          |                                                                   | Toggles the mute state of the video.                                                  |                        |
-| `TOGGLE_FULLSCREEN`    |                                                                   | Deprecated: skips the screen rotation. Use `useFullscreen()`. Will be removed in 2.0. |                        |
-| `SET_PLAYING`          | `boolean`                                                         | Sets the playing state of the video.                                                  |                        |
-| `SET_DURATION`         | `number`                                                          | Sets the duration of the video.                                                       |                        |
-| `SET_BUFFERING`        | `boolean`                                                         | Sets the buffering state of the video.                                                |                        |
-| `SET_ERROR`            | `string    `                                                      | `null`                                                                                | Sets an error message. |
-| `SET_VIDEO_LAYOUT`     | `LayoutRectangle`                                                 | Sets the layout of the video component.                                               |                        |
-| `SET_DIMENSIONS`       | `{ width: number; height: number }`                               | Sets the dimensions of the screen.                                                    |                        |
+| Action                 | Payload                                                           | Description                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `INITIALIZE`           | `{ theme?: ThemeOverrides; config?: Partial<VideoPlayerConfig> }` | Initializes the provider with a theme and config.                                                                           |
+| `SET_CONTROLS_VISIBLE` | `boolean`                                                         | Sets the visible state of the controls, without the auto-hide timer or the `onShowControls` and `onHideControls` callbacks. |
+| `SET_VIDEO_REF`        | `React.RefObject<any>`                                            | Deprecated: the provider owns the video's ref. Will be removed in 2.0.                                                      |
+| `SHOW_CONTROLS`        |                                                                   | Deprecated: skips the auto-hide timer and the callbacks. Use `useControlsVisibility()`. Will be removed in 2.0.             |
+| `HIDE_CONTROLS`        |                                                                   | Deprecated: skips the callbacks. Use `useControlsVisibility()`. Will be removed in 2.0.                                     |
+| `SEEK`                 | `number`                                                          | Deprecated: does nothing. Use `useProgress().seek`. Will be removed in 2.0.                                                 |
+| `TOGGLE_PLAY_PAUSE`    |                                                                   | Toggles the play/pause state of the video.                                                                                  |
+| `SET_VOLUME`           | `number`                                                          | Sets the volume of the video.                                                                                               |
+| `TOGGLE_MUTE`          |                                                                   | Toggles the mute state of the video.                                                                                        |
+| `TOGGLE_FULLSCREEN`    |                                                                   | Deprecated: skips the screen rotation. Use `useFullscreen()`. Will be removed in 2.0.                                       |
+| `SET_PLAYING`          | `boolean`                                                         | Sets the playing state of the video.                                                                                        |
+| `SET_DURATION`         | `number`                                                          | Sets the duration of the video.                                                                                             |
+| `SET_BUFFERING`        | `boolean`                                                         | Sets the buffering state of the video.                                                                                      |
+| `SET_ERROR`            | `string \| null`                                                  | Sets an error message.                                                                                                      |
+| `SET_VIDEO_LAYOUT`     | `LayoutRectangle`                                                 | Sets the layout of the video component.                                                                                     |
+| `SET_DIMENSIONS`       | `{ width: number; height: number }`                               | Sets the dimensions of the screen.                                                                                          |
+
+<Callout type="warn">
+  To show or hide the controls, use [`useControlsVisibility()`](../hooks/media-hooks#usecontrolsvisibility). A
+  `SET_CONTROLS_VISIBLE` you dispatch yourself doesn't start the auto-hide timer, so controls shown during playback stay
+  up, and it doesn't call `onShowControls` or `onHideControls`.
+</Callout>
 
 ## useVideo
 

@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import type { VideoPlayerConfig, VideoState, Theme, VideoComponents, ResolvedConfig, ResolvedTheme } from '../types';
+import type {
+  VideoPlayerConfig,
+  VideoState,
+  ThemeOverrides,
+  VideoComponents,
+  ResolvedConfig,
+  ResolvedTheme,
+} from '../types';
 import { defaultTheme } from '../themes';
 import { type LayoutRectangle, type ScaledSize, Dimensions } from 'react-native';
 import { SettingsProvider } from './SettingsProvider';
@@ -76,9 +83,12 @@ interface VideoProviderState extends VideoState {
 
 /** @internal */
 type Action =
-  | { type: 'INITIALIZE'; payload: { theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> } }
+  | { type: 'INITIALIZE'; payload: { theme?: ThemeOverrides; config?: Partial<VideoPlayerConfig> } }
+  /** @deprecated The provider owns the video's ref. Will be removed in 2.0. */
   | { type: 'SET_VIDEO_REF'; payload: React.RefObject<any> }
+  /** @deprecated Skips the auto-hide timer and the callbacks. Use `useControlsVisibility()`. Will be removed in 2.0. */
   | { type: 'SHOW_CONTROLS' }
+  /** @deprecated Skips the callbacks. Use `useControlsVisibility()`. Will be removed in 2.0. */
   | { type: 'HIDE_CONTROLS' }
   | { type: 'SET_CONTROLS_VISIBLE'; payload: boolean }
   /** @deprecated Does nothing, and never did. Use `useProgress().seek`. Will be removed in 2.0. */
@@ -87,6 +97,7 @@ type Action =
   | { type: 'SET_VOLUME'; payload: number }
   | { type: 'TOGGLE_MUTE' }
   | { type: 'SET_MUTED'; payload: boolean }
+  /** @deprecated Skips the screen rotation. Use `useFullscreen()`. Will be removed in 2.0. */
   | { type: 'TOGGLE_FULLSCREEN' }
   | { type: 'SET_FULLSCREEN'; payload: boolean }
   | { type: 'SET_PICTURE_IN_PICTURE'; payload: boolean }
@@ -287,7 +298,7 @@ export const VideoProvider: React.FC<{
    * Colors and sizes for the player's controls and subtitles, over `defaultTheme`. Anything left out
    * keeps its default, and changes apply while the player runs.
    */
-  theme?: Partial<Theme>;
+  theme?: ThemeOverrides;
   /**
    * Replacements for the components the toolkit renders internally (the menu `Sheet`, the
    * `Slider`, the buffering `Spinner` and the buttons' `PressFeedback`). Anything left out uses the

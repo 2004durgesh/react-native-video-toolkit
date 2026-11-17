@@ -4,7 +4,7 @@ import { act, render } from '@testing-library/react-native';
 import { VideoProvider, useVideo, useVideoSelector, useTheme } from '../index';
 import { useControlsVisibility } from '../../hooks';
 import { defaultCaptionsTheme, defaultTheme } from '../../themes';
-import type { Theme, VideoPlayerConfig } from '../../types';
+import type { Theme, ThemeOverrides, VideoPlayerConfig } from '../../types';
 
 type Probe = { state: ReturnType<typeof useVideo>['state']; dispatch: ReturnType<typeof useVideo>['dispatch'] };
 
@@ -16,7 +16,7 @@ const Inspector = ({ handle }: { handle: Ref<Probe & { controls: ReturnType<type
   return null;
 };
 
-const setUp = async (props: { config?: Partial<VideoPlayerConfig>; theme?: Partial<Theme> } = {}) => {
+const setUp = async (props: { config?: Partial<VideoPlayerConfig>; theme?: ThemeOverrides } = {}) => {
   const handle = React.createRef<Probe & { controls: ReturnType<typeof useControlsVisibility> }>();
   const tree = (next: typeof props) => (
     <VideoProvider config={next.config} theme={next.theme}>
@@ -35,7 +35,7 @@ describe('VideoProvider state', () => {
   it('merges config and theme props over the defaults, and applies changes live', async () => {
     const { handle, rerender } = await setUp({
       config: { autoHideDelay: 1000 },
-      theme: { colors: { textMain: '#FF0000' } as Theme['colors'] },
+      theme: { colors: { textMain: '#FF0000' } },
     });
     expect(handle.current!.state.config.autoHideDelay).toBe(1000);
     expect(handle.current!.state.config.autoPlay).toBe(true);
@@ -47,7 +47,7 @@ describe('VideoProvider state', () => {
   });
 
   it('merges every partial theme group over its defaults', async () => {
-    const { handle } = await setUp({ theme: { iconSizes: { lg: 40 } as Theme['iconSizes'], captions: { color: '#FF0' } } });
+    const { handle } = await setUp({ theme: { iconSizes: { lg: 40 }, captions: { color: '#FF0' } } });
     expect(handle.current!.state.theme.iconSizes).toEqual({ ...defaultTheme.iconSizes, lg: 40 });
     expect(handle.current!.state.theme.captions).toEqual({ ...defaultCaptionsTheme, color: '#FF0' });
   });
@@ -74,7 +74,7 @@ describe('VideoProvider state', () => {
 
   it('keeps the same state for an equal inline config and theme, so nothing re-renders', async () => {
     const config = { autoHideDelay: 1000, playbackRates: [1, 2] };
-    const theme = { colors: { textMain: '#FF0000' } as Theme['colors'] };
+    const theme = { colors: { textMain: '#FF0000' } };
     const { handle, rerender } = await setUp({ config, theme });
     const before = handle.current!.state;
     await rerender({ config: { ...config, playbackRates: [1, 2] }, theme: { colors: { ...theme.colors } } });
@@ -122,7 +122,7 @@ describe('VideoProvider state', () => {
       return null;
     };
     await render(
-      <VideoProvider theme={{ colors: { textMain: '#123456' } as Theme['colors'] }}>
+      <VideoProvider theme={{ colors: { textMain: '#123456' } }}>
         <Reader />
       </VideoProvider>
     );
@@ -131,18 +131,31 @@ describe('VideoProvider state', () => {
 });
 
 describe('VideoProvider controls', () => {
-  it('hides the controls after the delay while playing, and reports showing and hiding', async () => {
+  it('hides the controls after the delay while playing', async () => {
     jest.useFakeTimers();
-    const onShowControls = jest.fn();
-    const onHideControls = jest.fn();
-    const { handle } = await setUp({ config: { autoHideDelay: 1000, onShowControls, onHideControls } });
+    const { handle } = await setUp({ config: { autoHideDelay: 1000 } });
     expect(handle.current!.state.controlsVisible).toBe(true);
-    expect(onShowControls).toHaveBeenCalled();
     await act(() => jest.advanceTimersByTime(999));
     expect(handle.current!.state.controlsVisible).toBe(true);
     await act(() => jest.advanceTimersByTime(1));
     expect(handle.current!.state.controlsVisible).toBe(false);
+  });
+
+  it('reports showing and hiding only when the controls change', async () => {
+    jest.useFakeTimers();
+    const onShowControls = jest.fn();
+    const onHideControls = jest.fn();
+    const { handle } = await setUp({ config: { autoHideDelay: 1000, onShowControls, onHideControls } });
+    // The controls start visible
+    expect(onShowControls).not.toHaveBeenCalled();
+
+    await act(() => handle.current!.controls.hideControls());
+    await act(() => handle.current!.controls.hideControls());
     expect(onHideControls).toHaveBeenCalledTimes(1);
+
+    await act(() => handle.current!.controls.showControls());
+    await act(() => handle.current!.controls.showControls());
+    expect(onShowControls).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the controls up while paused', async () => {

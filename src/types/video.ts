@@ -2,8 +2,7 @@ import type { VideoTrack } from 'react-native-video';
 import type { CaptionError } from '../captions/types';
 
 /**
- * A video quality you list yourself, through `VideoPlayer`'s `customVideoTracks` with
- * `config.useCustomVideoTracks`.
+ * A video quality you list yourself, through `VideoPlayer`'s `customVideoTracks`.
  */
 export interface CustomVideoTrack extends Partial<VideoTrack> {
   /**
@@ -125,13 +124,13 @@ export interface VideoPlayerConfig {
    */
   playbackRates: number[];
   /**
-   * Lists `customAudioTracks` instead of the source's own.
-   * @deprecated Passing `customAudioTracks` to `VideoPlayer` turns them on by itself. Will be removed in 2.0.
+   * Has no effect: passing `customAudioTracks` to `VideoPlayer` turns them on.
+   * @deprecated Will be removed in 2.0.
    */
   useCustomAudioTracks?: boolean;
   /**
-   * Lists `customVideoTracks` instead of the source's own.
-   * @deprecated Passing `customVideoTracks` to `VideoPlayer` turns them on by itself. Will be removed in 2.0.
+   * Has no effect: passing `customVideoTracks` to `VideoPlayer` turns them on.
+   * @deprecated Will be removed in 2.0.
    */
   useCustomVideoTracks?: boolean;
   /**

@@ -23,7 +23,7 @@ export const usePanGesture = ({
   onSwipeUp,
   onSwipeDown,
   enabled = true,
-}: UsePanGestureProps) => {
+}: UsePanGestureProps = {}) => {
   const playerWidth = usePlayerWidth();
   // Memoized: Gesture Handler sends the config to the native side whenever the object changes
   const config = useMemo<PanGestureConfig>(

@@ -61,9 +61,10 @@ export const pickTextTrack = <T extends LanguageTrack>(
 };
 
 /**
- * The audio track for a newly listed source: the viewer's language when they chose one and the
- * source has it; otherwise the player's pick (often the original language), then the device's.
- * `previous` is only a language here: the player may still be applying its index to this source.
+ * The audio track for a newly listed source. Without an earlier track: the player's pick (often the
+ * original language), then the device's language. With one: its language, then the device's.
+ * Otherwise the first track. The player's `selected` isn't trusted after an earlier choice, since it
+ * can still reflect the previous source's index.
  */
 export const pickAudioTrack = <T extends LanguageTrack>(
   tracks: T[],

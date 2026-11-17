@@ -5,12 +5,16 @@ description: The SettingsProvider is a component that manages the state of the v
 
 ## Usage
 
-To use the `SettingsProvider`, you need to wrap your component with it. This is usually done in the component that contains the video player.
+`VideoProvider` renders the `SettingsProvider`; you don't need to render it. To read or change the settings, call [`useSettings()`](../hooks/settings-hooks#usesettings) or `useSettingsContext()` anywhere below the `VideoProvider`.
 
 ```tsx
-import { SettingsProvider } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
+import { useSettings } from 'react-native-video-toolkit';
 
-export const VideoPlayerComponent = () => <SettingsProvider>{/* Your video player content */}</SettingsProvider>;
+const AudioLanguage = () => {
+  const { audioTrack } = useSettings();
+  return <Text>{audioTrack?.language ?? 'Default'}</Text>;
+};
 ```
 
 ## State

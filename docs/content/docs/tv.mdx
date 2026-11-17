@@ -27,11 +27,9 @@ A held left or right moves 10 s at a time, then 30 s, then 60 s, and the player 
 The focused control is highlighted with the theme's `tvFocus` color (25% white by default):
 
 ```tsx
-import { VideoProvider, defaultTheme } from 'react-native-video-toolkit';
+import { VideoProvider } from 'react-native-video-toolkit';
 
-<VideoProvider theme={{ colors: { ...defaultTheme.colors, tvFocus: 'rgba(90, 158, 230, 0.4)' } }}>
-  {/* ... */}
-</VideoProvider>;
+<VideoProvider theme={{ colors: { tvFocus: 'rgba(90, 158, 230, 0.4)' } }}>{/* ... */}</VideoProvider>;
 ```
 
 While the controls are hidden the player itself holds the focus, so the remote drives it rather than moving to something else on the screen. Hidden controls can't be focused. If your app mounts a new player for the next episode, the new player takes over the focus from the old one.

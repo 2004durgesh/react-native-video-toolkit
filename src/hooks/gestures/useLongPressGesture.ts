@@ -16,8 +16,13 @@ import { BOOSTED_RATE } from './tap';
  *
  * @returns An object with the following properties:
  * - `longPressGesture`: The gesture handler for long presses.
+ * - `isPlaybackRateIncreased`: Whether a long press is holding playback at the boosted rate.
  */
-export const useLongPressGesture = ({ onLongPressStart, onLongPressEnd, enabled = true }: UseLongPressGestureProps) => {
+export const useLongPressGesture = ({
+  onLongPressStart,
+  onLongPressEnd,
+  enabled = true,
+}: UseLongPressGestureProps = {}) => {
   const { setRate } = usePlayerCommands();
   const store = useVideoStore();
   const longPressGestureStarted = useRef(false);

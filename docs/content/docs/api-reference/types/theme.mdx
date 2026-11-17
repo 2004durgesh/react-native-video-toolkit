@@ -60,3 +60,11 @@ Deprecated: no component reads these durations. They will be removed in 2.0.
 ### `captions`
 
 How the subtitles the toolkit draws look: font, color, box, outline, shadow and position. Every key is optional; see [Subtitles](../../captions#style-subtitles) for the keys and defaults.
+
+### `ThemeOverrides`
+
+The type of `VideoProvider`'s `theme` prop. It has the same groups as `Theme`, but every group and every key in it is optional: anything you leave out keeps its default.
+
+```tsx
+<VideoProvider theme={{ colors: { sliderTrackActive: '#E50914' }, iconSizes: { lg: 32 } }}>{/* ... */}</VideoProvider>
+```

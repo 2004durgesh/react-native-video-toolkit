@@ -11,7 +11,7 @@ import { TAP_MAX_DISTANCE, TAP_MAX_DURATION } from './tap';
  * @returns An object with the following properties:
  * - `singleTapGesture`: The gesture handler for single taps.
  */
-export const useSingleTapGesture = ({ onSingleTap, enabled = true }: UseSingleTapGestureProps) => {
+export const useSingleTapGesture = ({ onSingleTap, enabled = true }: UseSingleTapGestureProps = {}) => {
   // The controller directly: `useControlsVisibility()` would re-render this on every toggle
   const { toggle: toggleControls } = useControlsController();
   // Memoized: Gesture Handler sends the config to the native side whenever the object changes

@@ -113,6 +113,19 @@ export interface Theme {
 }
 
 /**
+ * The `theme` you pass to `VideoProvider`: any group, and any key within a group. Keys left out
+ * keep their defaults.
+ */
+export interface ThemeOverrides {
+  colors?: Partial<Theme['colors']>;
+  iconSizes?: Partial<Theme['iconSizes']>;
+  fontSizes?: Partial<Theme['fontSizes']>;
+  /** @deprecated Not used by the toolkit; will be removed in 2.0. */
+  animations?: Partial<Theme['animations']>;
+  captions?: Partial<CaptionsTheme>;
+}
+
+/**
  * The theme after the provider merges in the defaults: every color and caption style is set.
  * @internal
  */

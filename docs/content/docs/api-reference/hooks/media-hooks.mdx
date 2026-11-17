@@ -317,7 +317,7 @@ export default MyPlaybackRateButton;
 
 A hook for accessing and controlling the video's current playback time and duration.
 
-It's the way to read the playback position, which isn't in `useVideo().state`. The position changes on every progress event (twice a second while playing), so only the components that call `useProgress()` re-render with it.
+It's the way to read the playback position, which isn't in `useVideo().state`. The position changes on every progress event (`config.progressUpdateInterval`, 250 ms by default), so only the components that call `useProgress()` re-render with it.
 
 ### Usage
 

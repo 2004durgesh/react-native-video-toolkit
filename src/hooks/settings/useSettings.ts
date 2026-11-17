@@ -32,9 +32,6 @@ export const useSettings = () => {
   const { state, dispatch } = useSettingsContext();
   const menu = useContext(MenuOpenStateContext);
 
-  /**
-   * Directly sets the settings menu visibility.
-   */
   const setSettingsMenuVisible = useCallback(
     (visible: boolean) => {
       if (menu) {
@@ -46,20 +43,10 @@ export const useSettings = () => {
     [menu, dispatch]
   );
 
-  /**
-   * Opens the settings menu.
-   */
   const openSettings = useCallback(() => setSettingsMenuVisible(true), [setSettingsMenuVisible]);
 
-  /**
-   * Closes the settings menu.
-   */
   const closeSettings = useCallback(() => setSettingsMenuVisible(false), [setSettingsMenuVisible]);
 
-  /**
-   * Sets the video videoTrack.
-   * @param newVideoTrack - The new video videoTrack (e.g., 'auto', '1080p', '720p').
-   */
   const setVideoTrack = useCallback(
     (newVideoTrack: CustomVideoTrack | VideoTrack | null) => {
       dispatch({ type: 'SET_VIDEO_TRACK', payload: newVideoTrack });
@@ -67,10 +54,6 @@ export const useSettings = () => {
     [dispatch]
   );
 
-  /**
-   * Sets the available video tracks list.
-   * @param videoTracks - An array of available video tracks.
-   */
   const setAvailableVideoTracks = useCallback(
     (videoTracks: (CustomVideoTrack | VideoTrack)[]) => {
       dispatch({ type: 'SET_AVAILABLE_VIDEO_TRACKS', payload: videoTracks });
@@ -78,10 +61,6 @@ export const useSettings = () => {
     [dispatch]
   );
 
-  /**
-   * Sets the audio track.
-   * @param newAudioTrack - The new audio track (e.g., 'english', 'spanish').
-   */
   const setAudioTrack = useCallback(
     (newAudioTrack: AudioTrack | null) => {
       dispatch({ type: 'SET_AUDIO_TRACK', payload: newAudioTrack });
@@ -89,10 +68,6 @@ export const useSettings = () => {
     [dispatch]
   );
 
-  /**
-   * Sets the available audio tracks list.
-   * @param audioTracks - An array of available audio tracks.
-   */
   const setAvailableAudioTracks = useCallback(
     (audioTracks: AudioTrack[]) => {
       dispatch({ type: 'SET_AVAILABLE_AUDIO_TRACKS', payload: audioTracks });
@@ -100,10 +75,6 @@ export const useSettings = () => {
     [dispatch]
   );
 
-  /**
-   * Sets the available text/subtitle tracks list.
-   * @param textTracks - An array of available text tracks.
-   */
   const setAvailableTextTracks = useCallback(
     (textTracks: TextTrack[]) => {
       dispatch({ type: 'SET_AVAILABLE_TEXT_TRACKS', payload: textTracks });
@@ -111,10 +82,6 @@ export const useSettings = () => {
     [dispatch]
   );
 
-  /**
-   * Sets the text track.
-   * @param newTextTrack - The new text track (e.g., 'off', 'english', 'french').
-   */
   const setTextTrack = useCallback(
     (newTextTrack: TextTrack | null) => {
       dispatch({ type: 'SET_TEXT_TRACK', payload: newTextTrack });

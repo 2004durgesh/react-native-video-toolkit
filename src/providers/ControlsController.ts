@@ -41,17 +41,19 @@ export const createControlsController = ({ getState, subscribe, setVisible }: Co
     if (timer) clearTimeout(timer);
     timer = null;
   };
+  // The callbacks fire only when the visibility flips; showing visible controls just restarts the timer
   const hide = () => {
+    const state = getState();
     cancelHide();
     setVisible(false);
-    getState().config.onHideControls?.();
+    if (state.controlsVisible) state.config.onHideControls?.();
   };
   const show = () => {
     const state = getState();
     cancelHide();
     setVisible(true);
     if (state.config.autoHideControls && state.isPlaying) timer = setTimeout(hide, state.config.autoHideDelay);
-    state.config.onShowControls?.();
+    if (!state.controlsVisible) state.config.onShowControls?.();
   };
   const toggle = () => (getState().controlsVisible ? hide() : show());
 
