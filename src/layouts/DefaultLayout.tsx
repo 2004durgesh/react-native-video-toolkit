@@ -1,36 +1,24 @@
 import {
   View,
   StyleSheet,
-  ScrollView,
   type ColorValue,
   type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 import type { TextTrack } from 'react-native-video';
-import { useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
+import { usePictureInPicture } from '../hooks';
 import Animated from 'react-native-reanimated';
 import { useState, useSyncExternalStore, type FC, type ReactNode } from 'react';
 import { FocusableWhenShown, fadeAccessibility, fadeTouchStyle, useFadeStyle } from '../components/common/fade';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useVideoSelector } from '../providers';
-import {
-  Menu,
-  Subtitle,
-  Title,
-  VideoPlayer,
-  type TitleProps,
-  type SubitleProps,
-  Audio,
-  Quality,
-  Speed,
-  Subtitles,
-} from '../components';
+import { Subtitle, Title, VideoPlayer, type TitleProps, type SubitleProps } from '../components';
+import { SettingsMenu } from '../components/menu/SettingsMenu';
 import { PlatformUtils } from '../utils/platform';
 import { TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
 import { usePlayerTestID } from '../utils/testIDs';
-import { trackLabel, videoTrackLabel } from '../tracks/labels';
-import { isOffTrack, isSelectedVideoTrack } from '../tracks/selection';
+
 export interface DefaultLayoutProps {
   scrim?: boolean | ColorValue;
   title?: string;
@@ -112,20 +100,6 @@ const LayoutCaptions = ({ frames }: { frames: ReturnType<typeof createControlsFr
 };
 
 /**
- * Each quality's part of its `testID`: its height (`750p`), or `auto` for a custom list's entry with
- * height 0. A height listed again gets `-2`, `-3`... so every row has its own ID.
- */
-const videoTrackTestIDs = (tracks: { height?: number }[]): string[] => {
-  const seen = new Map<string, number>();
-  return tracks.map((track) => {
-    const base = track.height ? `${track.height}p` : 'auto';
-    const count = (seen.get(base) ?? 0) + 1;
-    seen.set(base, count);
-    return count === 1 ? base : `${base}-${count}`;
-  });
-};
-
-/**
  * Fades and slides a group of controls with the controls' visibility. These wrappers are the only
  * part of the layout that reads `controlsVisible`, so a tap re-renders them but not the controls
  * inside: those are elements the layout already created.
@@ -164,6 +138,15 @@ const UnlessBuffering = ({ children }: { children: ReactNode }) => {
 };
 
 /**
+ * Renders the children only where picture-in-picture works, reading that itself so the layout doesn't
+ * re-render as picture-in-picture starts and stops.
+ */
+const WhenPictureInPictureSupported = ({ children }: { children: ReactNode }) => {
+  const { supported } = usePictureInPicture();
+  return supported ? <>{children}</> : null;
+};
+
+/**
  * A predefined layout for the video player.
  *
  * @param {DefaultLayoutProps} props - The props for the component.
@@ -178,36 +161,14 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   pinCaptionTrack,
   slots,
 }: DefaultLayoutProps): React.ReactElement => {
-  const theme = useVideoSelector((state) => state.theme);
+  const playIconSize = useVideoSelector((state) => state.theme.iconSizes.lg);
   const enablePictureInPicture = useVideoSelector((state) => state.config.enablePictureInPicture);
-  const useCustomVideoTracks = useVideoSelector((state) => state.config.useCustomVideoTracks);
-  const playbackRates = useVideoSelector((state) => state.config.playbackRates);
   const enableFullscreen = useVideoSelector((state) => state.config.enableFullscreen);
   const fullscreen = useVideoSelector((state) => state.fullscreen);
-  const {
-    videoTracks,
-    textTracks,
-    audioTracks,
-    videoTrack,
-    textTrack,
-    audioTrack,
-    setVideoTrack,
-    setTextTrack,
-    setAudioTrack,
-  } = useSettings();
-  const { playbackRate, setPlaybackRate } = usePlaybackRate();
-  const { supported: pictureInPictureSupported } = usePictureInPicture();
   // Where the controls sit, so the layout's subtitles go between the centre and bottom controls
   const [frames] = useState(createControlsFrames);
-  // IDs for end-to-end tests, starting with the player's `testID`: `video-settings-rate-1.5`
+  // IDs for end-to-end tests start with the player's `testID`: `video-controls-top`
   const id = usePlayerTestID();
-  const videoOptionIDs = videoTrackTestIDs(videoTracks);
-  // Pinned tracks go above "Off", which leads the rest
-  const captionTracks = pinCaptionTrack
-    ? [...textTracks.filter(pinCaptionTrack), ...textTracks.filter((track) => !pinCaptionTrack(track))]
-    : textTracks;
-
-  const showPictureInPictureButton = enablePictureInPicture && pictureInPictureSupported;
 
   return (
     <DevProfiler id="DefaultLayout">
@@ -246,156 +207,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                   <View style={[layoutStyles.row]}>
                     {slots?.beforeSettingsButton && slots.beforeSettingsButton}
                     <DevProfiler id="Menu">
-                      <Menu.Root>
-                        <Menu.Trigger />
-                        <Menu.Content>
-                          <Menu.SubContent viewId="root">
-                            {slots?.beforeMenuItems && slots.beforeMenuItems}
-                            <Menu.Item navigateTo="audio" testID={`${id}-settings-audio`}>
-                              <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                                <View style={[layoutStyles.row, styles.menuRowLabel]}>
-                                  <Audio size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
-                                  <Title text="Audio" />
-                                </View>
-                                <Subtitle
-                                  text={audioTrack ? trackLabel(audioTrack) : 'None'}
-                                  testID={`${id}-settings-audio-value`}
-                                />
-                              </View>
-                            </Menu.Item>
-                            <Menu.Item navigateTo="video" testID={`${id}-settings-video`}>
-                              <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                                <View style={[layoutStyles.row, styles.menuRowLabel]}>
-                                  <Quality size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
-                                  <Title text="Video" />
-                                </View>
-                                <Subtitle
-                                  text={videoTrack ? videoTrackLabel(videoTrack) : 'Auto'}
-                                  testID={`${id}-settings-video-value`}
-                                />
-                              </View>
-                            </Menu.Item>
-                            <Menu.Item navigateTo="captions" testID={`${id}-settings-captions`}>
-                              <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                                <View style={[layoutStyles.row, styles.menuRowLabel]}>
-                                  <Subtitles size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
-                                  <Title text="Captions" />
-                                </View>
-                                <Subtitle
-                                  text={textTrack ? trackLabel(textTrack) : 'Off'}
-                                  testID={`${id}-settings-captions-value`}
-                                />
-                              </View>
-                            </Menu.Item>
-                            <Menu.Item navigateTo="playbackRate" testID={`${id}-settings-rate`}>
-                              <View style={[layoutStyles.row, { justifyContent: 'space-between' }]}>
-                                <View style={[layoutStyles.row, styles.menuRowLabel]}>
-                                  <Speed size={theme.iconSizes.sm} color={theme.colors.menuText} shadow={false} />
-                                  <Title text="Rate" />
-                                </View>
-                                <Subtitle text={`${playbackRate}x`} testID={`${id}-settings-rate-value`} />
-                              </View>
-                            </Menu.Item>
-                            {slots?.afterMenuItems && slots.afterMenuItems}
-                          </Menu.SubContent>
-                          <Menu.SubContent viewId="audio">
-                            {audioTracks.length > 0 ? (
-                              <ScrollView style={{ maxHeight: '100%' }}>
-                                {audioTracks.map((track) => (
-                                  <Menu.CheckboxItem
-                                    key={track.index}
-                                    testID={`${id}-settings-audio-${track.index}`}
-                                    checked={audioTrack?.index === track.index}
-                                    onCheckedChange={() => {
-                                      setAudioTrack(track);
-                                    }}>
-                                    {trackLabel(track)}
-                                  </Menu.CheckboxItem>
-                                ))}
-                              </ScrollView>
-                            ) : (
-                              <View style={{ padding: 10 }}>
-                                <Subtitle text="No audio tracks available" />
-                              </View>
-                            )}
-                          </Menu.SubContent>
-                          <Menu.SubContent viewId="video">
-                            {videoTracks.length > 0 || !useCustomVideoTracks ? (
-                              <ScrollView style={{ maxHeight: '100%' }}>
-                                {/* Adaptive quality, the default. A custom list brings its own "Auto" entry if it wants one. */}
-                                {!useCustomVideoTracks && (
-                                  <Menu.CheckboxItem
-                                    testID={`${id}-settings-video-auto`}
-                                    checked={!videoTrack}
-                                    onCheckedChange={() => setVideoTrack(null)}>
-                                    Auto
-                                  </Menu.CheckboxItem>
-                                )}
-                                {videoTracks.map((track, i) => (
-                                  <Menu.CheckboxItem
-                                    key={`${track.width}x${track.height}-${track.codecs ?? ''}-${track.index ?? ''}`}
-                                    testID={`${id}-settings-video-${videoOptionIDs[i]}`}
-                                    checked={isSelectedVideoTrack(videoTrack, track)}
-                                    onCheckedChange={() => {
-                                      setVideoTrack(track);
-                                    }}>
-                                    {videoTrackLabel(track)}
-                                  </Menu.CheckboxItem>
-                                ))}
-                              </ScrollView>
-                            ) : (
-                              <View style={{ padding: 10 }}>
-                                <Subtitle text="No video tracks available" />
-                              </View>
-                            )}
-                          </Menu.SubContent>
-                          <Menu.SubContent viewId="captions">
-                            {textTracks.length > 0 ? (
-                              <ScrollView style={{ maxHeight: '100%' }}>
-                                {slots?.beforeCaptionTracks && slots.beforeCaptionTracks}
-                                {captionTracks.map((track) => (
-                                  <Menu.CheckboxItem
-                                    key={track.index}
-                                    testID={`${id}-settings-captions-${isOffTrack(track) ? 'off' : track.index}`}
-                                    checked={textTrack?.index === track.index}
-                                    onCheckedChange={() => {
-                                      setTextTrack(track);
-                                    }}>
-                                    {trackLabel(track)}
-                                  </Menu.CheckboxItem>
-                                ))}
-                                {slots?.afterCaptionTracks && slots.afterCaptionTracks}
-                              </ScrollView>
-                            ) : (
-                              <>
-                                {slots?.beforeCaptionTracks && slots.beforeCaptionTracks}
-                                <View style={{ padding: 10 }}>
-                                  <Subtitle text="No captions available" />
-                                </View>
-                                {slots?.afterCaptionTracks && slots.afterCaptionTracks}
-                              </>
-                            )}
-                          </Menu.SubContent>
-                          <Menu.SubContent viewId="playbackRate">
-                            <ScrollView style={{ maxHeight: '100%' }}>
-                              {playbackRates.map((rate) => (
-                                <Menu.CheckboxItem
-                                  key={rate}
-                                  testID={`${id}-settings-rate-${rate}`}
-                                  checked={playbackRate === rate}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setPlaybackRate(rate);
-                                    }
-                                  }}>
-                                  {rate}x
-                                </Menu.CheckboxItem>
-                              ))}
-                            </ScrollView>
-                          </Menu.SubContent>
-                          {slots?.menuViews && slots.menuViews}
-                        </Menu.Content>
-                      </Menu.Root>
+                      <SettingsMenu pinCaptionTrack={pinCaptionTrack} slots={slots} />
                     </DevProfiler>
                     {slots?.afterSettingsButton && slots.afterSettingsButton}
                   </View>
@@ -419,7 +231,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                       {...(PlatformUtils.isTV() ? TRAP_FOCUS_HORIZONTAL : null)}>
                       {slots?.beforeCenterPlayButton && slots.beforeCenterPlayButton}
                       <DevProfiler id="PlayButton">
-                        <VideoPlayer.PlayButton size={theme.iconSizes.lg} />
+                        <VideoPlayer.PlayButton size={playIconSize} />
                       </DevProfiler>
                       {slots?.afterCenterPlayButton && slots.afterCenterPlayButton}
                     </View>
@@ -454,12 +266,14 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                   </View>
                   <View style={layoutStyles.spacer} />
                   <View style={[layoutStyles.row]}>
-                    {showPictureInPictureButton && (
-                      <View style={[layoutStyles.row]}>
-                        {slots?.beforePictureInPictureButton && slots.beforePictureInPictureButton}
-                        <VideoPlayer.PictureInPictureButton />
-                        {slots?.afterPictureInPictureButton && slots.afterPictureInPictureButton}
-                      </View>
+                    {enablePictureInPicture && (
+                      <WhenPictureInPictureSupported>
+                        <View style={[layoutStyles.row]}>
+                          {slots?.beforePictureInPictureButton && slots.beforePictureInPictureButton}
+                          <VideoPlayer.PictureInPictureButton />
+                          {slots?.afterPictureInPictureButton && slots.afterPictureInPictureButton}
+                        </View>
+                      </WhenPictureInPictureSupported>
                     )}
                     <View style={[layoutStyles.row]}>
                       {slots?.beforeFullscreenButton && slots.beforeFullscreenButton}
@@ -516,9 +330,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: 'space-between',
-  },
-  menuRowLabel: {
-    gap: 12,
   },
   titleRow: {
     flexShrink: 1,

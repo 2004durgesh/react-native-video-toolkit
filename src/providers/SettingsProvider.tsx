@@ -19,6 +19,12 @@ interface SettingsProviderState {
    */
   videoTracks: (CustomVideoTrack | VideoTrack)[];
   /**
+   * Whether `videoTracks` is the app's own list (`customVideoTracks`), which brings its own "Auto"
+   * entry if it wants one, rather than the player's.
+   * @internal
+   */
+  isCustomVideoList: boolean;
+  /**
    * The current audio track setting.
    */
   audioTrack: AudioTrack | null;
@@ -46,7 +52,8 @@ interface SettingsProviderState {
  */
 type SettingsAction =
   | { type: 'SET_VIDEO_TRACK'; payload: CustomVideoTrack | VideoTrack | null }
-  | { type: 'SET_AVAILABLE_VIDEO_TRACKS'; payload: (CustomVideoTrack | VideoTrack)[] }
+  /** `custom` says whether the list is the app's own; left out, that stays as it was. */
+  | { type: 'SET_AVAILABLE_VIDEO_TRACKS'; payload: (CustomVideoTrack | VideoTrack)[]; custom?: boolean }
   | { type: 'SET_AUDIO_TRACK'; payload: AudioTrack | null }
   | { type: 'SET_AVAILABLE_AUDIO_TRACKS'; payload: AudioTrack[] }
   | { type: 'SET_TEXT_TRACK'; payload: TextTrack | null }
@@ -62,6 +69,7 @@ const initialSettingsState: SettingsProviderState = {
   isSettingsMenuVisible: false,
   videoTrack: null,
   videoTracks: [],
+  isCustomVideoList: false,
   audioTrack: null,
   audioTracks: [],
   textTrack: null,
@@ -77,7 +85,7 @@ function settingsReducer(state: SettingsProviderState, action: SettingsAction): 
     case 'SET_VIDEO_TRACK':
       return { ...state, videoTrack: action.payload };
     case 'SET_AVAILABLE_VIDEO_TRACKS':
-      return { ...state, videoTracks: action.payload };
+      return { ...state, videoTracks: action.payload, isCustomVideoList: action.custom ?? state.isCustomVideoList };
     case 'SET_AUDIO_TRACK':
       return { ...state, audioTrack: action.payload };
     case 'SET_AVAILABLE_AUDIO_TRACKS':
@@ -108,6 +116,20 @@ export const SettingsContext = createContext<
     }
   | undefined
 >(undefined);
+
+/** @internal */
+interface MenuOpenState {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+/**
+ * The open state of the menu around a component: the nearest `Menu.Root`'s, which provides it. Inside
+ * a menu, the settings-menu functions of `useSettings()` act on it, so the settings button
+ * (`Menu.Trigger`) opens the menu it's in; elsewhere they act on the settings menu.
+ * @internal
+ */
+export const MenuOpenStateContext = createContext<MenuOpenState | null>(null);
 
 /**
  * The provider component for the video player settings.

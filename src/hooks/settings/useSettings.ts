@@ -1,6 +1,7 @@
 import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
 import { useSettingsContext } from '../../providers';
-import { useCallback } from 'react';
+import { MenuOpenStateContext } from '../../providers/SettingsProvider';
+import { useCallback, useContext } from 'react';
 import type { CustomVideoTrack } from '../../types';
 
 /**
@@ -23,37 +24,37 @@ import type { CustomVideoTrack } from '../../types';
  * - `openSettings`: A function to open the settings menu.
  * - `closeSettings`: A function to close the settings menu.
  * - `setSettingsMenuVisible`: A function to directly set the settings menu visibility.
+ *
+ * Inside a `Menu.Root`, the last four act on that menu instead, so the settings button opens the
+ * menu around it.
  */
 export const useSettings = () => {
   const { state, dispatch } = useSettingsContext();
-
-  /**
-   * Opens the settings menu.
-   */
-  const openSettings = useCallback(() => {
-    dispatch({ type: 'OPEN_SETTINGS_SHEET' });
-  }, [dispatch]);
-
-  /**
-   * Closes the settings menu.
-   */
-  const closeSettings = useCallback(() => {
-    dispatch({ type: 'CLOSE_SETTINGS_SHEET' });
-  }, [dispatch]);
+  const menu = useContext(MenuOpenStateContext);
 
   /**
    * Directly sets the settings menu visibility.
    */
   const setSettingsMenuVisible = useCallback(
     (visible: boolean) => {
-      if (visible) {
-        dispatch({ type: 'OPEN_SETTINGS_SHEET' });
+      if (menu) {
+        menu.setOpen(visible);
       } else {
-        dispatch({ type: 'CLOSE_SETTINGS_SHEET' });
+        dispatch({ type: visible ? 'OPEN_SETTINGS_SHEET' : 'CLOSE_SETTINGS_SHEET' });
       }
     },
-    [dispatch]
+    [menu, dispatch]
   );
+
+  /**
+   * Opens the settings menu.
+   */
+  const openSettings = useCallback(() => setSettingsMenuVisible(true), [setSettingsMenuVisible]);
+
+  /**
+   * Closes the settings menu.
+   */
+  const closeSettings = useCallback(() => setSettingsMenuVisible(false), [setSettingsMenuVisible]);
 
   /**
    * Sets the video videoTrack.
@@ -134,7 +135,7 @@ export const useSettings = () => {
     textTracks: state.textTracks,
     setTextTrack,
     setAvailableTextTracks,
-    isSettingsMenuVisible: state.isSettingsMenuVisible,
+    isSettingsMenuVisible: menu ? menu.open : state.isSettingsMenuVisible,
     openSettings,
     closeSettings,
     setSettingsMenuVisible,

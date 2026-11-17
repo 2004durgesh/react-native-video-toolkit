@@ -57,36 +57,51 @@ export type TVFocusHolder = 'surface' | 'progress' | 'button' | null;
 
 /** @internal */
 export interface TVFocus {
-  /** Reported by the player's focusable views as they gain and lose focus. */
-  setHolder: (holder: TVFocusHolder) => void;
+  /**
+   * Reported by the player's focusable views as they gain and lose focus, with the target the view
+   * answers to, if any.
+   */
+  setHolder: (holder: TVFocusHolder, target?: TVFocusTarget) => void;
   getHolder: () => TVFocusHolder;
   /** Whether the player has the focus, or lost it a moment ago (as its views unmount). */
   hadFocusRecently: () => boolean;
   /** The view that should take focus next. Views read it as `hasTVPreferredFocus`. */
   getTarget: () => TVFocusTarget | null;
   setTarget: (target: TVFocusTarget | null) => void;
+  /**
+   * Sends the remote back into the player after something outside it, such as a menu, had it: to
+   * the control with a target that had it last while the controls show, else to the surface.
+   */
+  returnFocus: () => void;
   subscribe: (listener: () => void) => () => void;
 }
 
-/** @internal */
-export const createTVFocus = (): TVFocus => {
+/**
+ * Creates a player's TV focus state. `controlsVisible` tells `returnFocus` whether the controls show.
+ * @internal
+ */
+export const createTVFocus = (controlsVisible: () => boolean = () => true): TVFocus => {
   let holder: TVFocusHolder = null;
   let lostAt = 0;
   let target: TVFocusTarget | null = null;
+  let lastTarget: TVFocusTarget | null = null;
   const listeners = new Set<() => void>();
+  const setTarget = (next: TVFocusTarget | null) => {
+    if (next === target) return;
+    target = next;
+    listeners.forEach((listener) => listener());
+  };
   return {
-    setHolder: (next) => {
+    setHolder: (next, nextTarget) => {
       if (holder !== null && next === null) lostAt = Date.now();
       holder = next;
+      if (nextTarget) lastTarget = nextTarget;
     },
     getHolder: () => holder,
     hadFocusRecently: () => holder !== null || Date.now() - lostAt < 500,
     getTarget: () => target,
-    setTarget: (next) => {
-      if (next === target) return;
-      target = next;
-      listeners.forEach((listener) => listener());
-    },
+    setTarget,
+    returnFocus: () => setTarget(controlsVisible() ? (lastTarget ?? 'play') : 'surface'),
     subscribe: (listener) => {
       listeners.add(listener);
       return () => {
@@ -148,7 +163,7 @@ export const useTVFocusable = (
       ...tvPreferredFocus(focusable && preferred),
       onFocus: () => {
         setFocused(true);
-        focus?.setHolder(holder);
+        focus?.setHolder(holder, target);
       },
       onBlur: () => {
         setFocused(false);

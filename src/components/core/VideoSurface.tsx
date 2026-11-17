@@ -15,7 +15,7 @@ import RNVideo, {
 } from 'react-native-video';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, type FC } from 'react';
 import { Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
-import { useVideoSelector } from '../../providers';
+import { useSettingsContext, useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { useControlsController } from '../../providers/ControlsController';
 import { useProgressStore } from '../../providers/ProgressStore';
@@ -35,14 +35,12 @@ import { useCaptionTracks } from '../../captions/useCaptionTracks';
  */
 interface VideoSurfaceProps extends ReactVideoProps {
   /**
-   * Custom audio tracks to use instead of auto-extracting from video source.
-   * Only used when config.useCustomAudioTracks is true.
+   * Audio tracks to list instead of the source's own. Passing them turns custom audio tracks on.
    */
   customAudioTracks?: AudioTrack[];
   /**
-   * Custom video tracks to use instead of auto-extracting from video source.
-   * Only used when config.useCustomVideoTracks is true.
-   * Supports CustomVideoTrack with label and uri fields for better UX.
+   * Qualities to list instead of the source's own, with a `label` to show and an optional `uri`.
+   * Passing them turns custom video tracks on.
    */
   customVideoTracks?: CustomVideoTrack[];
 }
@@ -77,8 +75,12 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   // The controller directly: `useControlsVisibility()` would re-render the video on every toggle
   const { show: showControls } = useControlsController();
   const { playbackRate } = usePlaybackRate();
-  const { videoTrack, audioTrack, setAvailableVideoTracks, setAvailableAudioTracks, setAudioTrack, setVideoTrack } =
-    useSettings();
+  const { videoTrack, audioTrack, setAvailableAudioTracks, setAudioTrack, setVideoTrack } = useSettings();
+  const { dispatch: settingsDispatch } = useSettingsContext();
+  // The app's own lists, when it passes them, replace the source's tracks
+  const customVideo = !!customVideoTracks;
+  const listVideoTracks = (tracks: (CustomVideoTrack | VideoTrack)[]) =>
+    settingsDispatch({ type: 'SET_AVAILABLE_VIDEO_TRACKS', payload: tracks, custom: customVideo });
   const captions = useCaptionsController();
   const commands = usePlayerCommands();
 
@@ -125,7 +127,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     progressStore.update({ currentTime: 0, playableDuration: 0 });
     captions.reset();
     setAvailableAudioTracks([]);
-    setAvailableVideoTracks([]);
+    listVideoTracks([]);
     textTracks.startSource();
   };
   const startSourceRef = useRef(startSource);
@@ -142,14 +144,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setBuffering(false);
     // Playing state outlives a source: the previous one ending pauses it, so a new source would start paused
     dispatch({ type: 'SET_ENDED', payload: false });
-    const config = store.getState().config;
-    if (config.autoPlay) setPlaying(true);
+    if (store.getState().config.autoPlay) setPlaying(true);
 
-    const customVideo = !!(config.useCustomVideoTracks && customVideoTracks);
-    const audioTracksToUse =
-      config.useCustomAudioTracks && customAudioTracks ? customAudioTracks : dedupeLanguageTracks(data.audioTracks);
+    const audioTracksToUse = customAudioTracks ?? dedupeLanguageTracks(data.audioTracks);
     const videoTracksToUse: (CustomVideoTrack | VideoTrack)[] =
-      customVideo && customVideoTracks ? customVideoTracks : dedupeVideoTracks(data.videoTracks);
+      customVideoTracks ?? dedupeVideoTracks(data.videoTracks);
 
     // The size the picture is drawn at, for placing subtitles on it. A portrait video can report its
     // stored, unrotated size.
@@ -160,7 +159,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     });
 
     setAvailableAudioTracks(audioTracksToUse);
-    setAvailableVideoTracks(videoTracksToUse);
+    listVideoTracks(videoTracksToUse);
 
     // The player's own text tracks (embedded ones, or every one with the native renderer)
     textTracks.onPlayerTracks(data.textTracks);

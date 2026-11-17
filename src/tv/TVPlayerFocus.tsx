@@ -41,7 +41,7 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
   const progressStore = useProgressStore();
   const controls = useControlsController();
   const commands = usePlayerCommands();
-  const [focus] = useState(createTVFocus);
+  const [focus] = useState(() => createTVFocus(() => store.getState().controlsVisible));
   const controlsVisible = useVideoSelector((state) => state.controlsVisible);
   // From the focus state directly: this component provides it, so the context hook above it sees none
   const target = useSyncExternalStore(focus.subscribe, focus.getTarget, focus.getTarget);

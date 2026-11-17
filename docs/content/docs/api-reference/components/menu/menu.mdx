@@ -26,17 +26,30 @@ import { MenuExample } from '@/components/examples/menu/menu';
 
 ### `Menu.Root`
 
-Wraps all menu components and manages the navigation stack.
+Wraps all menu components, and holds the menu's open state and its navigation stack. Each menu opens on its own: its `Menu.Trigger` opens it, or you control it with `open` and `onOpenChange`.
 
-| Prop          | Type     | Default  | Required | Description                    |
-| ------------- | -------- | -------- | -------- | ------------------------------ |
-| `initialView` | `string` | `"root"` | No       | The first viewId in the stack. |
+| Prop           | Type                      | Default      | Required | Description                                                                               |
+| -------------- | ------------------------- | ------------ | -------- | ----------------------------------------------------------------------------------------- |
+| `initialView`  | `string`                  | `"root"`     | No       | The first viewId in the stack.                                                            |
+| `title`        | `string`                  | `"Settings"` | No       | The menu's title, shown in the header on its first view.                                  |
+| `open`         | `boolean`                 | –            | No       | Whether the menu is open, to control it yourself. Left out, the menu keeps its own state. |
+| `onOpenChange` | `(open: boolean) => void` | –            | No       | Called with `true` when the menu asks to open, and `false` when it asks to close.         |
+
+To open your own menu from `VideoPlayer.SettingsButton` or `useSettings().openSettings` outside it, bind it to the settings menu's state:
+
+```tsx
+const { isSettingsMenuVisible, setSettingsMenuVisible } = useSettings();
+
+<Menu.Root open={isSettingsMenuVisible} onOpenChange={setSettingsMenuVisible}>
+  {/* ... */}
+</Menu.Root>;
+```
 
 ---
 
 ### `Menu.Trigger`
 
-The button that opens the menu: the same component as `VideoPlayer.SettingsButton`.
+The button that opens the menu around it: the same component as `VideoPlayer.SettingsButton`. Inside a `Menu.Root`, `useSettings()`'s `openSettings`, `closeSettings`, `setSettingsMenuVisible` and `isSettingsMenuVisible` act on that menu, so the settings button opens the menu it's in.
 
 | Prop       | Type                  | Required | Description                           |
 | ---------- | --------------------- | -------- | ------------------------------------- |
@@ -58,6 +71,8 @@ Header for the menu, with back/close buttons and a title.
 | `children`        | `ReactNode`            | -       | No       | Custom content to render inside the header. |
 | `...props`        | `ViewProps`            | –       | No       | Additional props for the header container.  |
 
+Without `title`, the header shows the current view's title: the label of the row that opened it (see `Menu.Item`'s `title`), the menu's `title` on its first view, or else the view's ID, capitalized. The back button shows when there's a view to go back to.
+
 ---
 
 ### `Menu.Content`
@@ -71,6 +86,11 @@ The bottom sheet wrapper for menu views. It slides up from the bottom and can be
 | `sheetStyle` | `StyleProp<ViewStyle>`               | –                | No       | Custom style for the sheet container.                                                |
 | `portalHost` | `string`                             | –                | No       | Portal host name for the sheet.                                                      |
 | `testID`     | `string`                             | `video-settings` | No       | Identifies the menu content in end-to-end tests, for example to wait until it opens. |
+
+<Callout type="warn">
+  `side`, `sideOffset`, `align` and `alignOffset` are deprecated: they have no effect, as the `Sheet` places the menu.
+  They will be removed in 2.0.
+</Callout>
 
 ---
 
@@ -92,16 +112,17 @@ Only visible when `currentView` matches.
 
 Basic clickable row. Can either close the menu or navigate to a sub-view.
 
-| Prop         | Type                       | Default | Required | Description                                                             |
-| ------------ | -------------------------- | ------- | -------- | ----------------------------------------------------------------------- |
-| `onPress`    | `(value?: string) => void` | –       | No       | Action when pressed.                                                    |
-| `navigateTo` | `string`                   | –       | No       | If set, navigates to this sub-view.                                     |
-| `autoClose`  | `boolean`                  | `true`  | No       | If true, closes menu after press (ignored if `navigateTo` is provided). |
-| `disabled`   | `boolean`                  | `false` | No       | Disables interaction.                                                   |
-| `value`      | `string`                   | –       | No       | Optional value passed to `onPress`.                                     |
-| `style`      | `StyleProp<ViewStyle>`     | –       | No       | Custom style for the item container.                                    |
-| `textStyle`  | `StyleProp<TextStyle>`     | –       | No       | Custom style for the item text (if children is a string).               |
-| `children`   | `ReactNode`                | Yes     | –        | The content of the item.                                                |
+| Prop         | Type                       | Default | Required | Description                                                                                                          |
+| ------------ | -------------------------- | ------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `onPress`    | `(value?: string) => void` | –       | No       | Action when pressed.                                                                                                 |
+| `navigateTo` | `string`                   | –       | No       | If set, navigates to this sub-view.                                                                                  |
+| `title`      | `string`                   | –       | No       | Title of the view `navigateTo` opens. Defaults to the row's text when its children are a string, else the view's ID. |
+| `autoClose`  | `boolean`                  | `true`  | No       | If true, closes menu after press (ignored if `navigateTo` is provided).                                              |
+| `disabled`   | `boolean`                  | `false` | No       | Disables interaction.                                                                                                |
+| `value`      | `string`                   | –       | No       | Optional value passed to `onPress`.                                                                                  |
+| `style`      | `StyleProp<ViewStyle>`     | –       | No       | Custom style for the item container.                                                                                 |
+| `textStyle`  | `StyleProp<TextStyle>`     | –       | No       | Custom style for the item text (if children is a string).                                                            |
+| `children`   | `ReactNode`                | Yes     | –        | The content of the item.                                                                                             |
 
 ---
 
@@ -150,7 +171,29 @@ Toggleable option with a check indicator.
 | `onCheckedChange` | `(checked: boolean) => void` |         | No       | Called when toggled.                                          |
 | `...props`        | `MenuItemProps`              | -       | No       | All other props from the `Menu.Item` component are supported. |
 
-If `checked` is not provided, it manages its own state.
+If `checked` is not provided, it manages its own state. For a list where one option is chosen, use `Menu.RadioItem`.
+
+---
+
+### `Menu.RadioItem`
+
+One option of a list where one is chosen, with a check mark while selected. Pressing it keeps the menu open.
+
+| Prop       | Type            | Default | Required | Description                                                   |
+| ---------- | --------------- | ------- | -------- | ------------------------------------------------------------- |
+| `selected` | `boolean`       |         | Yes      | Whether this is the chosen option.                            |
+| `onSelect` | `() => void`    |         | Yes      | Called when pressed, whether it's chosen already or not.      |
+| `...props` | `MenuItemProps` | -       | No       | All other props from the `Menu.Item` component are supported. |
+
+```tsx
+<Menu.SubContent viewId="quality">
+  {qualities.map((quality) => (
+    <Menu.RadioItem key={quality} selected={quality === current} onSelect={() => setCurrent(quality)}>
+      {quality}
+    </Menu.RadioItem>
+  ))}
+</Menu.SubContent>
+```
 
 ---
 
@@ -182,12 +225,19 @@ Button that navigates back in the menu stack.
 
 The menu's navigation, for your own controls inside it, such as a button in a `DefaultLayout` menu slot or one of its `menuViews`. It throws outside the menu.
 
-| Field           | Type                       | Description                                   |
-| --------------- | -------------------------- | --------------------------------------------- |
-| `navigateTo`    | `(viewId: string) => void` | Opens a `Menu.SubContent` by its `viewId`.    |
-| `goBack`        | `() => void`               | Returns to the previous view.                 |
-| `closeSettings` | `() => void`               | Closes the menu.                              |
-| `currentView`   | `string`                   | The `viewId` showing now (`'root'` at first). |
+| Field                   | Type                                       | Description                                                                    |
+| ----------------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
+| `navigateTo`            | `(viewId: string, title?: string) => void` | Opens a `Menu.SubContent` by its `viewId`, titled `title` in the header.       |
+| `goBack`                | `() => void`                               | Returns to the previous view, or closes the menu on its first view.            |
+| `closeSettings`         | `() => void`                               | Closes the menu.                                                               |
+| `openSettings`          | `() => void`                               | Opens the menu.                                                                |
+| `isSettingsMenuVisible` | `boolean`                                  | Whether the menu is open.                                                      |
+| `currentView`           | `string`                                   | The `viewId` showing now (`'root'` at first).                                  |
+| `currentTitle`          | `string`                                   | The current view's title, as the header shows it. Useful in a custom `header`. |
+
+<Callout type="warn">
+  `MenuProvider` is deprecated: `Menu.Root` provides the menu's context. It will be removed in 2.0.
+</Callout>
 
 ---
 
