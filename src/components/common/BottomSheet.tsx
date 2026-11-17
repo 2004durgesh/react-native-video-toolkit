@@ -9,7 +9,7 @@ import Animated, {
   SlideOutDown,
   SlideOutRight,
 } from 'react-native-reanimated';
-import { PlatformUtils } from '../../utils/platform';
+import { PlatformUtils, webSafeAnimation } from '../../utils/platform';
 
 /** Bottom sheets stop growing at 640 wide on large screens (Material guidance). */
 const SHEET_MAX_WIDTH = 640;
@@ -104,18 +104,6 @@ const BottomSheetPortal = ({ children, hostName, forceMount }: BottomSheetPortal
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-/**
- * react-native-reanimated's web layout-animation path is unstable in some
- * bundler setups (it throws "Cannot convert undefined or null to object" when
- * resolving the DOM node). The sheet/overlay transitions are polish, so we skip
- * them on web while keeping them on native.
- *
- * @template T
- * @param {T} animation - The layout animation config (e.g. `FadeIn.duration(200)`).
- * @returns {T | undefined} The animation on native, or `undefined` on web.
- */
-const webSafeAnimation = <T,>(animation: T): T | undefined => (PlatformUtils.isWeb() ? undefined : animation);
 
 /**
  * Normalizes a style prop before it is flattened.

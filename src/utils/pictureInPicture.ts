@@ -1,4 +1,5 @@
 import NativeVideoToolkit from '../NativeVideoToolkit';
+import { PlatformUtils } from './platform';
 
 /**
  * Whether picture-in-picture can work here: the device supports it and the app is set up for it
@@ -11,6 +12,8 @@ import NativeVideoToolkit from '../NativeVideoToolkit';
  * @returns {boolean} Whether picture-in-picture is supported.
  */
 export const isPictureInPictureSupported = (): boolean => {
+  // TVs have no picture-in-picture
+  if (PlatformUtils.isTV()) return false;
   try {
     return typeof NativeVideoToolkit.isPictureInPictureSupported === 'function'
       ? NativeVideoToolkit.isPictureInPictureSupported()

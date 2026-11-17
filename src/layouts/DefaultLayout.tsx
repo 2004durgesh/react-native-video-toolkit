@@ -9,15 +9,15 @@ import {
 } from 'react-native';
 import type { TextTrack } from 'react-native-video';
 import { useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
-import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { useState, useSyncExternalStore, type FC, type ReactNode } from 'react';
+import { FocusableWhenShown, fadeAccessibility, fadeTouchStyle, useFadeStyle } from '../components/common/fade';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useVideoSelector } from '../providers';
 import {
   Menu,
   Subtitle,
   Title,
-  CommonLayoutStyles as layoutStyles,
   VideoPlayer,
   type TitleProps,
   type SubitleProps,
@@ -26,8 +26,8 @@ import {
   Speed,
   Subtitles,
 } from '../components';
-import { PlatformUtils, webDependencies } from '../utils/platform';
-import { ControlsFocusableContext, TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
+import { PlatformUtils } from '../utils/platform';
+import { TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
 import { usePlayerTestID } from '../utils/testIDs';
 import { trackLabel, videoTrackLabel } from '../tracks/labels';
 import { isOffTrack, isSelectedVideoTrack } from '../tracks/selection';
@@ -125,11 +125,6 @@ const videoTrackTestIDs = (tracks: { height?: number }[]): string[] => {
   });
 };
 
-const touchStyles = StyleSheet.create({
-  passThrough: { pointerEvents: 'box-none' },
-  none: { pointerEvents: 'none' },
-});
-
 /**
  * Fades and slides a group of controls with the controls' visibility. These wrappers are the only
  * part of the layout that reads `controlsVisible`, so a tap re-renders them but not the controls
@@ -137,7 +132,6 @@ const touchStyles = StyleSheet.create({
  */
 const FadingControls = ({
   offsetY = 0,
-  showWhileBuffering = false,
   style,
   testID,
   onLayout,
@@ -146,39 +140,19 @@ const FadingControls = ({
   onLayout?: (event: LayoutChangeEvent) => void;
   /** How far the group slides out when hidden. */
   offsetY?: number;
-  /** Keep it visible while buffering, for the centre controls. */
-  showWhileBuffering?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
   children: ReactNode;
 }) => {
-  const controlsVisible = useVideoSelector((state) => state.controlsVisible);
-  const buffering = useVideoSelector((state) => showWhileBuffering && state.buffering);
-  const visible = controlsVisible || buffering;
-  const animatedStyle = useAnimatedStyle(
-    () => {
-      const easing = Easing.bezierFn(0.25, 0.1, 0.25, 1);
-      return {
-        opacity: withTiming(visible ? 1 : 0, { duration: 100, easing }),
-        transform: [{ translateY: withTiming(visible ? 0 : offsetY, { duration: 100, easing }) }],
-      };
-    },
-    webDependencies([visible, offsetY])
-  );
-
-  // Faded-out controls stay mounted, so stop them taking touches: a tap meant to bring the controls back (or a swipe
-  // starting near an edge) would otherwise hit an invisible button or the progress bar. On TV, stop
-  // them taking the remote's focus for the same reason.
+  const shown = useVideoSelector((state) => state.controlsVisible);
+  const fadeStyle = useFadeStyle(shown, offsetY);
   return (
     <Animated.View
-      style={[style, animatedStyle, controlsVisible ? touchStyles.passThrough : touchStyles.none]}
+      style={[style, fadeStyle, fadeTouchStyle(shown)]}
       testID={testID}
-      onLayout={onLayout}>
-      {PlatformUtils.isTV() ? (
-        <ControlsFocusableContext.Provider value={controlsVisible}>{children}</ControlsFocusableContext.Provider>
-      ) : (
-        children
-      )}
+      onLayout={onLayout}
+      {...fadeAccessibility(shown)}>
+      <FocusableWhenShown shown={shown}>{children}</FocusableWhenShown>
     </Animated.View>
   );
 };
@@ -187,12 +161,6 @@ const FadingControls = ({
 const UnlessBuffering = ({ children }: { children: ReactNode }) => {
   const buffering = useVideoSelector((state) => state.buffering);
   return buffering ? null : <>{children}</>;
-};
-
-/** Renders the children only while buffering. */
-const WhileBuffering = ({ children }: { children: ReactNode }) => {
-  const buffering = useVideoSelector((state) => state.buffering);
-  return buffering ? <>{children}</> : null;
 };
 
 /**
@@ -239,12 +207,12 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
     ? [...textTracks.filter(pinCaptionTrack), ...textTracks.filter((track) => !pinCaptionTrack(track))]
     : textTracks;
 
-  const showPictureInPictureButton = enablePictureInPicture && pictureInPictureSupported && !PlatformUtils.isTV();
+  const showPictureInPictureButton = enablePictureInPicture && pictureInPictureSupported;
 
   return (
     <DevProfiler id="DefaultLayout">
       <>
-        <Animated.View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
+        <View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
           {scrim ? (
             <VideoPlayer.Overlay withControls scrim={scrim} pointerEvents="none" testID={`${id}-scrim`} />
           ) : null}
@@ -438,7 +406,6 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 swallow taps meant for the top and bottom controls. */}
               <View style={layoutStyles.centerControls}>
                 <FadingControls
-                  showWhileBuffering
                   testID={`${id}-controls-center`}
                   onLayout={(event) => {
                     const { y, height } = event.nativeEvent.layout;
@@ -509,17 +476,37 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               </FadingControls>
             </View>
           </VideoPlayer.Controls>
-        </Animated.View>
-        {/* Separate loading spinner that's always visible when buffering */}
-        <WhileBuffering>
-          <View style={[styles.baseStyle, { pointerEvents: 'none' }]}>
-            <VideoPlayer.LoadingSpinner />
-          </View>
-        </WhileBuffering>
+        </View>
+        {/* The spinner shows itself only while buffering */}
+        <View style={[styles.baseStyle, { pointerEvents: 'none' }]}>
+          <VideoPlayer.LoadingSpinner />
+        </View>
       </>
     </DevProfiler>
   );
 };
+
+/** Where DefaultLayout puts its controls: bars at the top and bottom, the play button centred. */
+const layoutStyles = StyleSheet.create({
+  topControls: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
+  },
+  centerControls: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'box-none',
+    zIndex: 9999,
+  },
+  bottomControls: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 },
+  row: { flexDirection: 'row', alignItems: 'center' },
+  column: { flexDirection: 'column' },
+  spacer: { flex: 1 },
+});
 
 const styles = StyleSheet.create({
   baseStyle: {

@@ -1,64 +1,33 @@
-import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { usePictureInPicture } from '../../hooks';
 import { PictureInPicture, PictureInPictureExit } from '../svgs';
-import { BaseIconButton } from '../common';
-import { useTestID } from '../../utils/testIDs';
+import { IconControl, type IconControlProps, type IconRenderer } from '../common/IconControl';
 
-export interface PictureInPictureButtonProps {
-  size?: number;
-  color?: string;
-  style?: StyleProp<ViewStyle>;
-  renderEnterIcon?: () => React.ReactNode;
-  renderExitIcon?: () => React.ReactNode;
-  /**
-   * Identifies the button in end-to-end tests.
-   * @default `video-picture-in-picture-button`, with the player's `testID` in place of `video`
-   */
-  testID?: string;
+export interface PictureInPictureButtonProps extends IconControlProps {
+  renderEnterIcon?: IconRenderer;
+  renderExitIcon?: IconRenderer;
 }
 
 /**
- * A button that moves the video into a floating picture-in-picture window and back.
- * Renders nothing where picture-in-picture can't work (see `isPictureInPictureSupported`).
- * Picture-in-picture needs native setup; see `usePictureInPicture`.
+ * A button that enters and exits picture-in-picture. Renders nothing where picture-in-picture
+ * isn't supported.
  *
  * @param {PictureInPictureButtonProps} props - The props for the component.
- * @returns {React.ReactElement | null} - The picture-in-picture button, or `null` when unsupported.
+ * @returns {React.ReactElement | null} The picture-in-picture button, or nothing.
  */
 export const PictureInPictureButton = ({
-  size,
-  color,
-  style,
   renderEnterIcon,
   renderExitIcon,
-  testID,
+  ...props
 }: PictureInPictureButtonProps): React.ReactElement | null => {
-  const buttonTestID = useTestID('picture-in-picture-button', testID);
   const { pictureInPicture, supported, togglePictureInPicture } = usePictureInPicture();
-
-  const EnterIcon = renderEnterIcon || PictureInPicture;
-  const ExitIcon = renderExitIcon || PictureInPictureExit;
-
-  if (!supported) {
-    return null;
-  }
-
+  if (!supported) return null;
   return (
-    <BaseIconButton
-      testID={buttonTestID}
-      IconComponent={pictureInPicture ? ExitIcon : EnterIcon}
-      size={size}
-      color={color}
-      style={[styles.pictureInPictureButton, style]}
+    <IconControl
+      {...props}
+      part="picture-in-picture-button"
+      icon={pictureInPicture ? (renderExitIcon ?? PictureInPictureExit) : (renderEnterIcon ?? PictureInPicture)}
+      label={pictureInPicture ? 'Exit picture in picture' : 'Picture in picture'}
       onTap={togglePictureInPicture}
     />
   );
 };
-
-const styles = StyleSheet.create({
-  pictureInPictureButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-});

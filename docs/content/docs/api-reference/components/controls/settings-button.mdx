@@ -24,13 +24,15 @@ import { SettingsButtonUsageExample } from '@/components/examples/controls/setti
 
 ## Props
 
-| Prop                | Type                    | Required | Default                 | Description                                                              |
-| ------------------- | ----------------------- | -------- | ----------------------- | ------------------------------------------------------------------------ |
-| `size`              | `number`                | No       | –                       | Size of the icon.                                                        |
-| `color`             | `string`                | No       | –                       | Color of the icon.                                                       |
-| `style`             | `StyleProp<ViewStyle>`  | No       | –                       | Optional styles for the button container.                                |
-| `renderSettingIcon` | `() => React.ReactNode` | No       | Gear icon (`Settings`)  | Custom render function for the settings icon.                            |
-| `testID`            | `string`                | No       | `video-settings-button` | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+| Prop                | Type                   | Required | Default                 | Description                                                              |
+| ------------------- | ---------------------- | -------- | ----------------------- | ------------------------------------------------------------------------ |
+| `size`              | `number`               | No       | –                       | Size of the icon.                                                        |
+| `color`             | `string`               | No       | –                       | Color of the icon.                                                       |
+| `style`             | `StyleProp<ViewStyle>` | No       | –                       | Optional styles for the button container.                                |
+| `renderSettingIcon` | `IconRenderer`         | No       | Gear icon (`Settings`)  | Custom render function for the settings icon.                            |
+| `testID`            | `string`               | No       | `video-settings-button` | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+
+`IconRenderer` is a component that receives `size` and `color`, like the toolkit's own icons, or an element you've already sized.
 
 ---
 

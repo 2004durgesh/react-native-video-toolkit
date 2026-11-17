@@ -1,53 +1,28 @@
-import { StyleSheet } from 'react-native';
 import { useSettings } from '../../hooks';
 import { Settings } from '../svgs';
-import { BaseIconButton } from '../common/BaseIconButton';
-import { useTestID } from '../../utils/testIDs';
+import { IconControl, type IconControlProps, type IconRenderer } from '../common/IconControl';
 
-export interface SettingsButtonProps {
-  size?: number;
-  color?: string;
-  style?: any;
-  renderSettingIcon?: () => React.ReactNode;
-  /**
-   * Identifies the button in end-to-end tests.
-   * @default `video-settings-button`, with the player's `testID` in place of `video`
-   */
-  testID?: string;
+export interface SettingsButtonProps extends IconControlProps {
+  renderSettingIcon?: IconRenderer;
 }
 
 /**
- * A button that opens the settings menu.
+ * A button that opens the settings menu. `Menu.Trigger` is the same button.
  *
  * @param {SettingsButtonProps} props - The props for the component.
- * @returns {React.ReactElement} - The settings button component.
+ * @returns {React.ReactElement} The settings button component.
  */
-export const SettingsButton = ({
-  size,
-  color,
-  style,
-  renderSettingIcon,
-  testID,
-}: SettingsButtonProps): React.ReactElement => {
-  const buttonTestID = useTestID('settings-button', testID);
+export const SettingsButton = ({ renderSettingIcon, ...props }: SettingsButtonProps): React.ReactElement => {
   const { openSettings } = useSettings();
-  const SettingsIcon = renderSettingIcon || Settings;
   return (
-    <BaseIconButton
-      IconComponent={SettingsIcon}
-      size={size}
-      color={color}
+    <IconControl
+      {...props}
+      part="settings-button"
+      icon={renderSettingIcon ?? Settings}
+      label="Settings"
       onTap={openSettings}
-      testID={buttonTestID}
-      style={[styles.SettingsButton, style]}
+      // The remote comes back here as the menu closes
+      tvFocusTarget="settings"
     />
   );
 };
-
-const styles = StyleSheet.create({
-  SettingsButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-});

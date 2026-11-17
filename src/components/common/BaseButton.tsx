@@ -1,17 +1,11 @@
-import React, { useContext, useMemo, useState, type ReactNode } from 'react';
+import React, { useMemo, type ReactNode } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { GestureDetector, useTapGesture, type TapGestureConfig } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import { TAP_MAX_DISTANCE, TAP_MAX_DURATION } from '../../hooks/gestures/tap';
 import { useVideoSelector, useVideoComponents } from '../../providers';
 import type { PressFeedbackProps } from '../../types';
-import {
-  ControlsFocusableContext,
-  TVFocusContext,
-  tvPreferredFocus,
-  useTVPreferredFocus,
-  type TVFocusTarget,
-} from '../../tv/TVFocus';
+import { useTVFocusable, type TVFocusTarget } from '../../tv/TVFocus';
 import { PlatformUtils } from '../../utils/platform';
 
 interface BaseButtonProps extends Omit<PressFeedbackProps, 'children' | 'color'> {
@@ -63,26 +57,14 @@ const TouchBaseButton = ({ children, onTap, tvFocusTarget: _tvFocusTarget, ...pr
  */
 const TVBaseButton = ({ children, onTap, tvFocusTarget, style, ...props }: BaseButtonProps) => {
   const tvFocusColor = useVideoSelector((state) => state.theme.colors.tvFocus);
-  const focus = useContext(TVFocusContext);
-  const focusable = useContext(ControlsFocusableContext);
-  const preferred = useTVPreferredFocus(tvFocusTarget);
-  const [focused, setFocused] = useState(false);
+  const tv = useTVFocusable('button', tvFocusTarget);
 
   return (
     <Pressable
       {...props}
-      focusable={focusable}
-      {...tvPreferredFocus(focusable && preferred)}
+      {...tv.props}
       onPress={onTap}
-      onFocus={() => {
-        setFocused(true);
-        focus?.setHolder('button');
-      }}
-      onBlur={() => {
-        setFocused(false);
-        focus?.setHolder(null);
-      }}
-      style={[styles.tvButton, style, focused && [styles.tvFocused, { backgroundColor: tvFocusColor }]]}>
+      style={[styles.tvButton, style, tv.focused && [styles.tvFocused, { backgroundColor: tvFocusColor }]]}>
       {children}
     </Pressable>
   );

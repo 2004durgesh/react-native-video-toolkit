@@ -24,14 +24,16 @@ import { PlayButtonUsageExample } from '@/components/examples/controls/play-butt
 
 ## Props
 
-| Prop              | Type                    | Required | Default                  | Description                                                              |
-| ----------------- | ----------------------- | -------- | ------------------------ | ------------------------------------------------------------------------ |
-| `size`            | `number`                | No       | –                        | Size of the play/pause icon.                                             |
-| `color`           | `string`                | No       | Theme `iconNormal` color | Color of the icon.                                                       |
-| `style`           | `StyleProp<ViewStyle>`  | No       | –                        | Custom styles for the button container.                                  |
-| `renderPlayIcon`  | `() => React.ReactNode` | No       | `<Play />`               | Custom render function for the play icon.                                |
-| `renderPauseIcon` | `() => React.ReactNode` | No       | `<Pause />`              | Custom render function for the pause icon.                               |
-| `testID`          | `string`                | No       | `video-play-button`      | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+| Prop              | Type                   | Required | Default                  | Description                                                              |
+| ----------------- | ---------------------- | -------- | ------------------------ | ------------------------------------------------------------------------ |
+| `size`            | `number`               | No       | –                        | Size of the play/pause icon.                                             |
+| `color`           | `string`               | No       | Theme `iconNormal` color | Color of the icon.                                                       |
+| `style`           | `StyleProp<ViewStyle>` | No       | –                        | Custom styles for the button container.                                  |
+| `renderPlayIcon`  | `IconRenderer`         | No       | `<Play />`               | Custom render function for the play icon.                                |
+| `renderPauseIcon` | `IconRenderer`         | No       | `<Pause />`              | Custom render function for the pause icon.                               |
+| `testID`          | `string`               | No       | `video-play-button`      | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+
+`IconRenderer` is a component that receives `size` and `color`, like the toolkit's own icons, or an element you've already sized.
 
 ---
 

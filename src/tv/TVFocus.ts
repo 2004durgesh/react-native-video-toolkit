@@ -1,5 +1,5 @@
-import { createContext, useContext, useSyncExternalStore } from 'react';
-import type { ViewProps } from 'react-native';
+import { createContext, useContext, useState, useSyncExternalStore } from 'react';
+import type { PressableProps, ViewProps } from 'react-native';
 
 /**
  * Keep the D-pad's focus inside a view, on Android: react-native-tvos's `trapFocus*` props. Plain
@@ -128,4 +128,35 @@ export const useTVPreferredFocus = (target: TVFocusTarget | undefined): boolean 
     focus?.getTarget ?? getNull
   );
   return target !== undefined && current === target;
+};
+
+/**
+ * A control the TV remote can focus: it takes focus only while the controls show, takes it when the
+ * player sends the remote to `target`, and tells the player it holds focus as `holder`. Spread
+ * `props` on the focusable `Pressable`, and highlight it with `color` while `focused`.
+ * @internal
+ */
+export const useTVFocusable = (
+  holder: Exclude<TVFocusHolder, null>,
+  target?: TVFocusTarget
+): { focused: boolean; props: PressableProps } => {
+  const focus = useContext(TVFocusContext);
+  const focusable = useContext(ControlsFocusableContext);
+  const preferred = useTVPreferredFocus(target);
+  const [focused, setFocused] = useState(false);
+  return {
+    focused,
+    props: {
+      focusable,
+      ...tvPreferredFocus(focusable && preferred),
+      onFocus: () => {
+        setFocused(true);
+        focus?.setHolder(holder);
+      },
+      onBlur: () => {
+        setFocused(false);
+        focus?.setHolder(null);
+      },
+    },
+  };
 };

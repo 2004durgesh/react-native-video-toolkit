@@ -42,6 +42,8 @@ await expect(element(by.id('video-settings-rate-value'))).toHaveText('1.5x');
 | `video-captions`                  | The subtitles layer. Each cue showing is `video-captions-cue-0`, `-cue-1`…, and its text `video-captions-cue-0-text`. |
 | `video-tv-surface`                | On TV, what holds the remote's focus while the controls are hidden.                                                   |
 
+Controls that have faded out stay on the screen but are hidden from accessibility, so screen readers, and test tools that read the accessibility tree, don't see them. Tap the video to show the controls before checking or tapping one.
+
 ## The settings menu
 
 The menu's IDs exist only while it's open. Tap `video-settings-button` first.

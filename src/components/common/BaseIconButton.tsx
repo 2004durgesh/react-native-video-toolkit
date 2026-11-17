@@ -15,6 +15,8 @@ interface BaseIconButtonProps {
   testID?: string;
   /** @internal On TV, the button the remote focuses when the controls come up. */
   tvFocusTarget?: TVFocusTarget;
+  /** What a screen reader announces for the button. */
+  accessibilityLabel?: string;
 }
 
 /**
@@ -34,6 +36,7 @@ export const BaseIconButton = ({
   style,
   testID,
   tvFocusTarget,
+  accessibilityLabel,
 }: BaseIconButtonProps): React.ReactElement => {
   const theme = useVideoSelector((state) => state.theme);
 
@@ -41,7 +44,12 @@ export const BaseIconButton = ({
   const iconColor = color || theme.colors.iconNormal;
 
   return (
-    <BaseButton onTap={onTap} testID={testID} tvFocusTarget={tvFocusTarget}>
+    <BaseButton
+      onTap={onTap}
+      testID={testID}
+      tvFocusTarget={tvFocusTarget}
+      accessibilityRole={accessibilityLabel ? 'button' : undefined}
+      accessibilityLabel={accessibilityLabel}>
       <View style={[styles.iconContainer, style]}>
         {icon ? icon : IconComponent ? <IconComponent size={iconSize} color={iconColor} /> : null}
       </View>

@@ -15,3 +15,6 @@ export type { MuteButtonProps } from './MuteButton';
 export type { SettingsButtonProps } from './SettingsButton';
 export type { UpNextProps, UpNextLabels } from './UpNext';
 export { PictureInPictureButton } from './PictureInPictureButton';
+export type { PictureInPictureButtonProps } from './PictureInPictureButton';
+export type { SubtitleToggleButtonProps } from './SubtitleToggleButton';
+export type { IconRenderer, IconControlProps } from '../common/IconControl';

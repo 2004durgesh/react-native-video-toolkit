@@ -24,3 +24,11 @@ export const PlatformUtils = {
  */
 export const webDependencies = <T extends readonly unknown[]>(dependencies: T): T | undefined =>
   Platform.OS === 'web' ? dependencies : undefined;
+
+/**
+ * A Reanimated layout animation (`entering`, `exiting`), off the web only. Reanimated's web
+ * layout-animation path throws in some bundler setups ("Cannot convert undefined or null to object"
+ * while resolving the DOM node), and these transitions are polish, so the web shows and hides at once.
+ * @internal
+ */
+export const webSafeAnimation = <T>(animation: T): T | undefined => (Platform.OS === 'web' ? undefined : animation);

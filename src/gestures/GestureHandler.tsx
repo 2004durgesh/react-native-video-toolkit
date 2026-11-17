@@ -5,11 +5,8 @@ import { GestureDetector, useExclusiveGestures } from 'react-native-gesture-hand
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { useVideoSelector } from '../providers';
 import type { GestureHandlerProps } from '../types';
-import { PlatformUtils } from '../utils/platform';
+import { webSafeAnimation } from '../utils/platform';
 import { BOOSTED_RATE, DEFAULT_SEEK_INTERVAL } from '../hooks/gestures/tap';
-
-// Reanimated's entering and exiting animations have crashed on web, so the 2x badge just appears there
-const IS_WEB = PlatformUtils.isWeb();
 
 export const SeekText: FC<{ children: ReactNode }> = ({ children }) => {
   return <Text style={styles.seekText}>{children}</Text>;
@@ -99,8 +96,8 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
       <View style={StyleSheet.absoluteFill}>
         {isPlaybackRateIncreased && (
           <Animated.View
-            entering={IS_WEB ? undefined : FadeInUp.duration(250)}
-            exiting={IS_WEB ? undefined : FadeOutDown.duration(200)}
+            entering={webSafeAnimation(FadeInUp.duration(250))}
+            exiting={webSafeAnimation(FadeOutDown.duration(200))}
             style={[styles.badgeContainer]}>
             <Text style={[styles.badgeText, { backgroundColor: theme.colors.badgeBackground }]}>{BOOSTED_RATE}x</Text>
           </Animated.View>

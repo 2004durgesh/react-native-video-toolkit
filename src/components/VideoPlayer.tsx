@@ -22,6 +22,7 @@ import { Captions, CaptionsSlotContext, PlayerCaptions, createCaptionsSlot } fro
 import { DevProfiler } from '../utils/DevProfiler';
 import { useFullscreenExits } from '../fullscreen/useFullscreenExits';
 import { PLAYER_ID_PREFIX } from '../fullscreen/playerId';
+import { PLAYER_LAYERS } from './layers';
 import { TVPlayerFocus } from '../tv/TVPlayerFocus';
 import { PlatformUtils } from '../utils/platform';
 import { DEFAULT_VIDEO_TEST_ID, TestIDContext, useTestID } from '../utils/testIDs';
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   controlsContainer: {
     ...StyleSheet.absoluteFill,
     ...(Platform.OS === 'web' && {
-      zIndex: 10,
+      zIndex: PLAYER_LAYERS.controls,
       pointerEvents: 'box-none',
     }),
   },

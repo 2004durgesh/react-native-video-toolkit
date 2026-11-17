@@ -24,14 +24,16 @@ import { MuteButtonUsageExample } from '@/components/examples/controls/mute-butt
 
 ## Props
 
-| Prop               | Type                    | Required | Default                  | Description                                                              |
-| ------------------ | ----------------------- | -------- | ------------------------ | ------------------------------------------------------------------------ |
-| `size`             | `number`                | No       | –                        | Size of the icon button.                                                 |
-| `color`            | `string`                | No       | Theme `iconNormal` color | Color of the icon.                                                       |
-| `style`            | `StyleProp<ViewStyle>`  | No       | –                        | Custom styles for the mute button container.                             |
-| `renderMuteIcon`   | `() => React.ReactNode` | No       | `<VolumeX />`            | Custom render function for the mute icon.                                |
-| `renderUnmuteIcon` | `() => React.ReactNode` | No       | `<Volume2 />`            | Custom render function for the unmute icon.                              |
-| `testID`           | `string`                | No       | `video-mute-button`      | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+| Prop               | Type                   | Required | Default                  | Description                                                              |
+| ------------------ | ---------------------- | -------- | ------------------------ | ------------------------------------------------------------------------ |
+| `size`             | `number`               | No       | –                        | Size of the icon button.                                                 |
+| `color`            | `string`               | No       | Theme `iconNormal` color | Color of the icon.                                                       |
+| `style`            | `StyleProp<ViewStyle>` | No       | –                        | Custom styles for the mute button container.                             |
+| `renderMuteIcon`   | `IconRenderer`         | No       | `<VolumeX />`            | Custom render function for the mute icon.                                |
+| `renderUnmuteIcon` | `IconRenderer`         | No       | `<Volume2 />`            | Custom render function for the unmute icon.                              |
+| `testID`           | `string`               | No       | `video-mute-button`      | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+
+`IconRenderer` is a component that receives `size` and `color`, like the toolkit's own icons, or an element you've already sized.
 
 ---
 

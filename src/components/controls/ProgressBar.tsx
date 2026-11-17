@@ -1,4 +1,4 @@
-import { useContext, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Pressable, View, StyleSheet, type ViewStyle, type StyleProp } from 'react-native';
 import { useProgress } from '../../hooks';
 import { usePlayerCommands } from '../../providers/PlayerCommands';
@@ -6,13 +6,7 @@ import { useProgressStore } from '../../providers/ProgressStore';
 import { useVideoSelector, useVideoComponents } from '../../providers';
 import { useControlsController } from '../../providers/ControlsController';
 import { DefaultSlider, SliderView } from '../defaults/DefaultSlider';
-import {
-  ControlsFocusableContext,
-  TRAP_FOCUS_HORIZONTAL,
-  TVFocusContext,
-  tvPreferredFocus,
-  useTVPreferredFocus,
-} from '../../tv/TVFocus';
+import { TRAP_FOCUS_HORIZONTAL, useTVFocusable } from '../../tv/TVFocus';
 import { PlatformUtils } from '../../utils/platform';
 import { useTestID } from '../../utils/testIDs';
 
@@ -110,26 +104,12 @@ const PropsProgressBar = (props: ProgressBarProps): React.ReactElement => {
  */
 const TVProgressFocus = ({ children }: { children: ReactNode }): React.ReactElement => {
   const tvFocusColor = useVideoSelector((state) => state.theme.colors.tvFocus);
-  const focus = useContext(TVFocusContext);
-  const focusable = useContext(ControlsFocusableContext);
-  const preferred = useTVPreferredFocus('progress');
-  const [focused, setFocused] = useState(false);
+  const tv = useTVFocusable('progress', 'progress');
 
   // Left and right seek here, so they mustn't also move the focus off the bar
   return (
     <View collapsable={false} {...TRAP_FOCUS_HORIZONTAL}>
-      <Pressable
-        focusable={focusable}
-        {...tvPreferredFocus(focusable && preferred)}
-        onFocus={() => {
-          setFocused(true);
-          focus?.setHolder('progress');
-        }}
-        onBlur={() => {
-          setFocused(false);
-          focus?.setHolder(null);
-        }}
-        style={[styles.tvFocusFrame, focused && { backgroundColor: tvFocusColor }]}>
+      <Pressable {...tv.props} style={[styles.tvFocusFrame, tv.focused && { backgroundColor: tvFocusColor }]}>
         {children}
       </Pressable>
     </View>

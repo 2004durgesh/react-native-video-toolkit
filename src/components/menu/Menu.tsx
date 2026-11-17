@@ -23,7 +23,7 @@ import {
   type HostInstance,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { BaseButton, BaseIconButton } from '../common';
+import { BaseIconButton } from '../common';
 import { useVideoSelector, useVideoComponents } from '../../providers';
 import { ContextBridge, useBridgedContexts } from '../../providers/ContextBridge';
 import Animated, {
@@ -35,14 +35,13 @@ import Animated, {
   LayoutAnimationConfig,
 } from 'react-native-reanimated';
 import { useSettings } from '../../hooks';
-import { PlatformUtils, webDependencies } from '../../utils/platform';
+import { PlatformUtils, webSafeAnimation, webDependencies } from '../../utils/platform';
 import { useTestID } from '../../utils/testIDs';
 import { requestTVFocus, TRAP_FOCUS, TV_FOCUS_GUIDE, TVFocusContext } from '../../tv/TVFocus';
 import { useVideoStore } from '../../providers/VideoProvider';
-import { type SettingsButtonProps } from '../controls';
-import { ChevronLeft, Close, Settings } from '../svgs';
+import { SettingsButton } from '../controls/SettingsButton';
+import { Check, ChevronLeft, Close } from '../svgs';
 import { Title } from '../display';
-import Check from '../svgs/Check';
 import type { IconProps } from '../../types/svg';
 
 interface MenuContextType {
@@ -179,16 +178,6 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const IS_WEB = PlatformUtils.isWeb();
 const IS_TV = PlatformUtils.isTV();
 
-/**
- * Returns the given reanimated layout-animation config, or `undefined` on web
- * where reanimated's web animation path is unstable in this setup.
- *
- * @template T
- * @param {T} animation - The layout animation config (e.g. `FadeIn.duration(200)`).
- * @returns {T | undefined} The animation on native, or `undefined` on web.
- */
-const webSafeAnimation = <T,>(animation: T): T | undefined => (IS_WEB ? undefined : animation);
-
 export const Menu = {
   /**
    * Root component with navigation stack management. The open state lives in the settings state
@@ -265,45 +254,9 @@ export const Menu = {
   },
 
   /**
-   * Trigger to open the menu.
+   * The button that opens the settings menu: the same as `VideoPlayer.SettingsButton`.
    */
-  Trigger: ({ size, color, style, renderSettingIcon, testID }: SettingsButtonProps): ReactElement => {
-    const buttonTestID = useTestID('settings-button', testID);
-    const theme = useVideoSelector((state) => state.theme);
-    const { openSettings } = useMenuContext();
-    const SettingsIcon = renderSettingIcon || Settings;
-    const iconSize = size ?? theme.iconSizes.md;
-    const iconColor = color || theme.colors.iconNormal;
-    const icon = typeof SettingsIcon === 'function' ? <SettingsIcon size={iconSize} color={iconColor} /> : SettingsIcon;
-
-    // On TV, a button like the other controls: highlighted when focused, and not focusable while
-    // the controls are faded out
-    if (PlatformUtils.isTV()) {
-      return (
-        <BaseButton
-          onTap={openSettings}
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-          testID={buttonTestID}
-          // The remote comes back here as the menu closes
-          tvFocusTarget="settings"
-          style={[styles.triggerButton, style]}>
-          {icon}
-        </BaseButton>
-      );
-    }
-
-    return (
-      <Pressable
-        onPress={openSettings}
-        accessibilityRole="button"
-        accessibilityLabel="Settings"
-        testID={buttonTestID}
-        style={[styles.triggerButton, style]}>
-        {icon}
-      </Pressable>
-    );
-  },
+  Trigger: SettingsButton,
 
   /**
    * Header component for menu navigation and titles.
@@ -656,12 +609,6 @@ export const Menu = {
 const styles = StyleSheet.create({
   sheetContent: {
     paddingBottom: 16,
-  },
-  triggerButton: {
-    padding: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
   },
   item: {
     paddingVertical: 12,

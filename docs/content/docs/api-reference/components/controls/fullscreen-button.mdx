@@ -24,14 +24,16 @@ import { FullscreenButtonUsageExample } from '@/components/examples/controls/ful
 
 ## Props
 
-| Prop              | Type                    | Required | Default                   | Description                                                              |
-| ----------------- | ----------------------- | -------- | ------------------------- | ------------------------------------------------------------------------ |
-| `size`            | `number`                | No       | –                         | Size of the icon.                                                        |
-| `color`           | `string`                | No       | –                         | Color of the icon.                                                       |
-| `style`           | `StyleProp<ViewStyle>`  | No       | –                         | Optional styles applied to the button container.                         |
-| `renderEnterIcon` | `() => React.ReactNode` | No       | `Maximize`                | Custom renderer for the "enter fullscreen" icon.                         |
-| `renderExitIcon`  | `() => React.ReactNode` | No       | `Minimize`                | Custom renderer for the "exit fullscreen" icon.                          |
-| `testID`          | `string`                | No       | `video-fullscreen-button` | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+| Prop              | Type                   | Required | Default                   | Description                                                              |
+| ----------------- | ---------------------- | -------- | ------------------------- | ------------------------------------------------------------------------ |
+| `size`            | `number`               | No       | –                         | Size of the icon.                                                        |
+| `color`           | `string`               | No       | –                         | Color of the icon.                                                       |
+| `style`           | `StyleProp<ViewStyle>` | No       | –                         | Optional styles applied to the button container.                         |
+| `renderEnterIcon` | `IconRenderer`         | No       | `Maximize`                | Custom renderer for the "enter fullscreen" icon.                         |
+| `renderExitIcon`  | `IconRenderer`         | No       | `Minimize`                | Custom renderer for the "exit fullscreen" icon.                          |
+| `testID`          | `string`               | No       | `video-fullscreen-button` | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+
+`IconRenderer` is a component that receives `size` and `color`, like the toolkit's own icons, or an element you've already sized.
 
 ---
 

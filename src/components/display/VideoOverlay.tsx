@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { useVideoSelector } from '../../providers';
-import { PlatformUtils, webDependencies } from '../../utils/platform';
-import { ControlsFocusableContext } from '../../tv/TVFocus';
+import { PlatformUtils } from '../../utils/platform';
+import { FocusableWhenShown, fadeAccessibility, fadeTouchStyle, useFadeStyle } from '../common/fade';
 
 /**
  * Props for the VideoOverlay component.
@@ -59,25 +59,16 @@ const useOverlay = ({
   return {
     shown,
     layerStyle: [styles.fill, backgroundColor ? { backgroundColor } : null, style],
-    touchStyle: shown ? touchStyles[pointerEvents] : touchStyles.none,
+    touchStyle: fadeTouchStyle(shown, pointerEvents),
   };
 };
 
 const NativeVideoOverlay = (props: VideoOverlayProps): React.ReactElement => {
   const { shown, layerStyle, touchStyle } = useOverlay(props);
-  const fadeStyle = useAnimatedStyle(
-    () => ({ opacity: withTiming(shown ? 1 : 0, { duration: 150 }) }),
-    webDependencies([shown])
-  );
-
+  const fadeStyle = useFadeStyle(shown);
   return (
-    <Animated.View style={[layerStyle, fadeStyle, touchStyle]} testID={props.testID}>
-      {/* On TV a hidden overlay's buttons mustn't take the remote's focus either */}
-      {PlatformUtils.isTV() ? (
-        <ControlsFocusableContext.Provider value={shown}>{props.children}</ControlsFocusableContext.Provider>
-      ) : (
-        props.children
-      )}
+    <Animated.View style={[layerStyle, fadeStyle, touchStyle]} testID={props.testID} {...fadeAccessibility(shown)}>
+      <FocusableWhenShown shown={shown}>{props.children}</FocusableWhenShown>
     </Animated.View>
   );
 };
@@ -88,7 +79,7 @@ const WebVideoOverlay = (props: VideoOverlayProps): React.ReactElement => {
   const { shown, layerStyle, touchStyle } = useOverlay(props);
 
   return (
-    <View style={[layerStyle, touchStyle, !shown && styles.hidden]} testID={props.testID}>
+    <View style={[layerStyle, touchStyle, !shown && styles.hidden]} testID={props.testID} {...fadeAccessibility(shown)}>
       {props.children}
     </View>
   );
@@ -111,10 +102,4 @@ const styles = StyleSheet.create({
   hidden: {
     opacity: 0,
   },
-});
-
-const touchStyles = StyleSheet.create({
-  'box-none': { pointerEvents: 'box-none' },
-  'auto': { pointerEvents: 'auto' },
-  'none': { pointerEvents: 'none' },
 });

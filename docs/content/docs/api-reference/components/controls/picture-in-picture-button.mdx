@@ -61,14 +61,16 @@ Then run `npx expo prebuild` and rebuild the app. Where picture-in-picture can't
 
 ## Props
 
-| Prop              | Type                    | Required | Default                           | Description                                                              |
-| ----------------- | ----------------------- | -------- | --------------------------------- | ------------------------------------------------------------------------ |
-| `size`            | `number`                | No       | –                                 | Size of the icon.                                                        |
-| `color`           | `string`                | No       | –                                 | Color of the icon.                                                       |
-| `style`           | `StyleProp<ViewStyle>`  | No       | –                                 | Optional styles applied to the button container.                         |
-| `renderEnterIcon` | `() => React.ReactNode` | No       | `PictureInPicture`                | Custom renderer for the "enter picture-in-picture" icon.                 |
-| `renderExitIcon`  | `() => React.ReactNode` | No       | `PictureInPictureExit`            | Custom renderer for the "exit picture-in-picture" icon.                  |
-| `testID`          | `string`                | No       | `video-picture-in-picture-button` | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+| Prop              | Type                   | Required | Default                           | Description                                                              |
+| ----------------- | ---------------------- | -------- | --------------------------------- | ------------------------------------------------------------------------ |
+| `size`            | `number`               | No       | –                                 | Size of the icon.                                                        |
+| `color`           | `string`               | No       | –                                 | Color of the icon.                                                       |
+| `style`           | `StyleProp<ViewStyle>` | No       | –                                 | Optional styles applied to the button container.                         |
+| `renderEnterIcon` | `IconRenderer`         | No       | `PictureInPicture`                | Custom renderer for the "enter picture-in-picture" icon.                 |
+| `renderExitIcon`  | `IconRenderer`         | No       | `PictureInPictureExit`            | Custom renderer for the "exit picture-in-picture" icon.                  |
+| `testID`          | `string`               | No       | `video-picture-in-picture-button` | Identifies the button in end-to-end tests. See [Testing](/docs/testing). |
+
+`IconRenderer` is a component that receives `size` and `color`, like the toolkit's own icons, or an element you've already sized.
 
 ---
 
