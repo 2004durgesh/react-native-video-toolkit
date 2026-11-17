@@ -52,7 +52,7 @@ export interface ProgressStore {
 export function createProgressStore(): ProgressStore {
   let snapshot: ProgressSnapshot = { currentTime: 0, playableDuration: 0 };
   let preview: number | null = null;
-  const listeners = new Set<(cause: ProgressChange) => void>();
+  const listeners = new Set<Parameters<ProgressStore['subscribe']>[0]>();
   const shared = { currentTime: makeMutable(0), playableDuration: makeMutable(0) };
 
   const publish = (currentTime: number, playableDuration: number, cause: ProgressChange) => {

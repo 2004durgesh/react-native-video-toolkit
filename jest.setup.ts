@@ -11,8 +11,9 @@ jest.mock('react-native-video', () => {
   const ReactActual = jest.requireActual('react');
   const { View } = jest.requireActual('react-native');
   const MockVideo = ReactActual.forwardRef((props: object, ref: unknown) => {
+    // Attached once, like the real player's handle: re-attaching it shows the controls
     const [handle] = ReactActual.useState(() => ({ seek: jest.fn() }));
-    ReactActual.useImperativeHandle(ref, () => handle);
+    ReactActual.useImperativeHandle(ref, () => handle, [handle]);
     return ReactActual.createElement(View, { ...props, testID: 'native-video' });
   });
   return { __esModule: true, ...actual, default: MockVideo };

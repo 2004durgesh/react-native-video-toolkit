@@ -4,6 +4,7 @@ import { useVideoSelector, useVideoComponents } from '../../providers';
 import { useTestID } from '../../utils/testIDs';
 
 export interface VolumeControlProps {
+  /** @deprecated Has no effect: the slider is always horizontal. Will be removed in 2.0. */
   orientation?: 'horizontal' | 'vertical';
   width?: number;
   height?: number;
@@ -30,7 +31,7 @@ export interface VolumeControlProps {
  * @returns {React.ReactElement} A slider component for volume control.
  */
 export const VolumeControl = ({
-  orientation = 'horizontal',
+  orientation: _orientation,
   width = 100,
   height = 4,
   thumbWidth = 12,

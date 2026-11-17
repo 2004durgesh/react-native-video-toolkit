@@ -125,13 +125,13 @@ export interface VideoPlayerConfig {
    */
   playbackRates: number[];
   /**
-   * Whether to use custom audio tracks instead of auto-extracting from video source.
-   * When true, audio tracks won't be extracted from the video source automatically.
+   * Lists `customAudioTracks` instead of the source's own.
+   * @deprecated Passing `customAudioTracks` to `VideoPlayer` turns them on by itself. Will be removed in 2.0.
    */
   useCustomAudioTracks?: boolean;
   /**
-   * Whether to use custom video tracks instead of auto-extracting from video source.
-   * When true, video tracks won't be extracted from the video source automatically.
+   * Lists `customVideoTracks` instead of the source's own.
+   * @deprecated Passing `customVideoTracks` to `VideoPlayer` turns them on by itself. Will be removed in 2.0.
    */
   useCustomVideoTracks?: boolean;
   /**

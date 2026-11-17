@@ -32,33 +32,52 @@ The pre-commit hook (`.husky/pre-commit`) runs `bob build`, the docs build when 
 
 ## Architecture
 
-**One store per player.** `VideoProvider` (`src/providers/VideoProvider.tsx`) owns a small external store (reducer and `subscribe`) holding player state, config and theme. Components subscribe to slices with `useVideoSelector(state => state.field)`, so a change re-renders only the components that read it. `useVideo()` returns everything and re-renders on every change: it exists for apps, and toolkit code never calls it. Reducer cases return the same `state` object when nothing changes. Config and theme props are merged in through the `INITIALIZE` action, so they apply live.
+**One store per player.** `VideoProvider` (`src/providers/VideoProvider.tsx`) owns a small external store (reducer and `subscribe`) holding player state, config and theme. Components subscribe to slices with `useVideoSelector(state => state.field)`, so a change re-renders only the components that read it. `useVideo()` returns everything and re-renders on every change: it exists for apps, and toolkit code never calls it. Reducer cases return the same `state` object when nothing changes.
+
+Config and theme props are merged through the `INITIALIZE` action, so they apply live. Every nested group of the defaults merges one level down, and the merged values compare by content, so inline props don't produce new states. Select config fields (`state.config.autoPlay`), never the whole `config`: inline callbacks make it a new object on every parent render. Read callbacks at call time with `store.getState().config.onX`. The provider also owns the window size (`state.dimensions`).
 
 Fast-changing and cross-cutting state lives beside the store, also created per provider:
 
-- `ProgressStore`: the playback position (`useProgress()`, `useProgressValue(select)`), with Reanimated shared values for the slider.
-- `ControlsController`: shows and hides the controls with one auto-hide timer.
+- `ProgressStore`: the playback position (`useProgress()`, `useProgressValue(select)`), with Reanimated shared values for the slider. Only the player calls `report()`; seeks and resets call `update()`, and listeners get the cause.
+- `ControlsController`: shows and hides the controls with one auto-hide timer, and shows them when playback starts or stops.
+- `PlayerCommands` (`src/providers/PlayerCommands.ts`): every action on playback (seek with its clamp, play and pause, volume, rate, entering and leaving fullscreen). Hooks, gestures, the TV remote, `VideoSurface` and the fullscreen exits call these rather than dispatching.
 - `SettingsProvider`: available and selected audio, video and text tracks, and the settings menu.
 - `ComponentsProvider`: replaceable building blocks (`Sheet`, `Slider`, `Spinner`, `PressFeedback`) from the `components` prop, with defaults in `src/components/defaults/`.
 - `CaptionsController` (`src/captions/`): which subtitle cues show (below).
 
-**Player composition.** `VideoPlayer` (`src/components/VideoPlayer.tsx`) is a compound component. It renders `VideoSurface`, then `Captions`, then its children (usually `DefaultLayout`, or a custom layout built from `VideoPlayer.PlayButton`, `VideoPlayer.ProgressBar` and so on). `VideoSurface` (`src/components/core/`) is the only code that talks to `react-native-video`: it wires the player's events into the stores, lists and picks tracks, and passes the selection back. `GestureHandler` wraps the player with `Gesture.Exclusive(doubleTap, singleTap, pan, longPress)`.
+**Player composition.** `VideoPlayer` (`src/components/VideoPlayer.tsx`) is a compound component. It renders `VideoSurface`, then its own subtitle layer, then its children (usually `DefaultLayout`, or a custom layout built from `VideoPlayer.PlayButton`, `VideoPlayer.ProgressBar` and so on). A layout that renders `<VideoPlayer.Captions>` claims the subtitles, and the player's own layer steps aside.
 
-`DefaultLayout` (`src/layouts/`) groups its controls in `FadingControls` wrappers: they are the only parts that read `controlsVisible`, so a tap doesn't re-render the controls inside them. It reports how far its controls reach (`SET_CONTROLS_INSET`, `SET_CONTROLS_CENTER_INSET`) so subtitles can stay clear of them.
+`VideoSurface` (`src/components/core/`) is the only code that talks to `react-native-video`:
+- it wires the player's events into the stores;
+- `startSource()` resets per-source state when the source changes and on `onLoadStart`;
+- it lists tracks and passes the selection back.
 
-**Sheets and portals.** The settings menu (`src/components/menu/Menu.tsx`) renders through the `Sheet` component into a portal host (`VideoPortalHost`, `@rn-primitives/portal`). Portal content sits outside the providers, so `Menu.Content` re-provides the toolkit's contexts with `ContextBridge`.
+`GestureHandler` wraps the player with `Gesture.Exclusive(doubleTap, singleTap, pan, longPress)`.
+
+`DefaultLayout` (`src/layouts/`) groups its controls in `FadingControls` wrappers: they are the only parts that read `controlsVisible`, so a tap doesn't re-render the controls inside them. It renders its own `<VideoPlayer.Captions>` above its scrim, with insets measured from its controls' frames.
+
+**Tracks** (`src/tracks/`): one place for languages (ISO 639-1/2 codes, display names, the device language), track labels, the Off entry, and the pick rules for a new source (the viewer's language carries over; otherwise the device's language, the player's pick, then English). These are pure functions.
+
+**Fullscreen** (`src/fullscreen/`):
+- the platform calls (`platform.ts` / `platform.web.ts`), with the browser's Esc;
+- the orientation lock (`orientation.ts`, through `director.ts`, which has a web stub);
+- `getFullscreenHeight`, `useFullscreen`, and the Esc and Android back handlers.
+
+The player id prefix (`video-player-<id>`) used by web fullscreen is in `playerId.ts`.
+
+**Menus, sheets and portals.** `Menu` (`src/components/menu/Menu.tsx`) is a set of generic parts: `Menu.Root` keeps its own open state (or takes `open`/`onOpenChange`) and a page stack, and `Menu.Trigger`, `Menu.Content`, `Menu.SubContent` (a page), `Menu.Item` and `Menu.RadioItem` build on it. The settings menu (`SettingsMenu.tsx`, internal) is built from data with those parts. A menu renders through the `Sheet` component into a portal host (`VideoPortalHost`, `@rn-primitives/portal`). Portal content sits outside the providers, so `Menu.Content` re-provides the toolkit's contexts with `ContextBridge` (`src/providers/ContextBridge.tsx`): a new context goes in its `BRIDGED` list.
 
 **Subtitles** (`src/captions/`). By default the toolkit draws subtitles itself instead of the native player:
 
 - **Parsing and loading:** pure WebVTT and SRT parsers (`parse/`), a loader with encoding detection, a cache and a timeout (`load.ts`, `decode.ts`), and HLS WebVTT renditions fetched around the playhead (`hls.ts`).
 - **Timing:** `CaptionsController` predicts media time between progress reports and sets one timer per cue boundary.
 - **Drawing:** the `Captions` overlay positions cues on the picture rectangle.
-- **Track handling:** `VideoSurface` strips `source.textTracks` from what `react-native-video` gets and keeps native subtitles disabled. Subtitle files are listed with track indexes from 1000 and HLS renditions from 2000.
+- **Track handling:** `useCaptionTracks` (`src/captions/`), called by `VideoSurface`, strips `source.textTracks` from what `react-native-video` gets and keeps native subtitles disabled. Subtitle files are listed with track indexes from 1000, and HLS renditions from 2000. It maps the selected track to the controller. The controller waits for the player's first report of a new source before showing cues.
 - **Opting out:** `config.captionRenderer: 'native'` restores the native renderer.
 
 **TV.** `src/tv/` adds D-pad support: `TVPlayerFocus` puts a focusable surface under the layout and handles the remote, and `TVFocus` tracks which control should hold focus. Use `PlatformUtils.isTV()` (`src/utils/platform.ts`) for TV checks.
 
-**Native and web.** `NativeVideoToolkit` is a TurboModule (`ios/`, `android/`) with a `.web.ts` counterpart. Screen orientation goes through `react-native-orientation-director` (`src/hooks/media/useOrientation.ts`, `src/utils/orientation.ts`). Web fullscreen fullscreens the closest element whose id starts with `video-player` around the player's own `<video>`.
+**Native and web.** `NativeVideoToolkit` is a TurboModule (`ios/`, `android/`) with a `.web.ts` counterpart. Screen orientation goes through `react-native-orientation-director`, via `src/fullscreen/`; the public `useOrientation` and `utils/orientation` helpers are deprecated. Web fullscreen fullscreens the closest element whose id starts with `video-player` around the player's own `<video>`.
 
 **Test IDs.** Every part takes a `testID`, built by `useTestID(part)` as `<player testID>-<part>`; the player's prefix defaults to `video` (`video-play-button`, `video-settings-captions-1000`). See `docs/content/docs/testing.mdx`.
 
@@ -69,19 +88,13 @@ Fast-changing and cross-cutting state lives beside the store, also created per p
 - Every `useSyncExternalStore` call passes a third argument (`getServerSnapshot`). The docs site prerenders players on the server, and `next build` fails without it.
 - Never dispatch to the video store during render. Sync props in a layout effect.
 - Use explicit `SET_X(value)` actions rather than toggles for anything two callers or an effect might change.
-- Reset per-source state in `VideoSurface`'s source handling (`onLoadStart` and the source effect; the web player never sends `onLoadStart`), not in `onLoad`.
+- Reset per-source state in `VideoSurface`'s `startSource()` (called on a source change and on `onLoadStart`; the web player never sends `onLoadStart`), not in `onLoad`.
 - Size fullscreen with `getFullscreenHeight(dimensions, enableScreenRotation)`, never with a layout measured in the other orientation.
-- Faded-out controls stay mounted. Give them `pointerEvents: 'none'` while hidden, or they swallow taps. They also stay in the accessibility tree, so on Android, Argent's `describe` lists them with their frames while they're invisible. In a test, show the controls before checking or tapping one.
+- Faded-out controls stay mounted. The shared fade (`src/components/common/fade.tsx`) gives them `pointerEvents: 'none'` and hides them from accessibility while hidden. Screen readers and Argent's `describe` don't list them, and Testing Library's queries skip them unless you pass `{ includeHiddenElements: true }`. In a test, show the controls before checking or tapping one.
 - Full-size layers over the video go through `VideoPlayer.Overlay`. On web it is a plain `View`, because Reanimated's animated views drop `pointerEvents: 'box-none'` there and swallow every click. Pass `useAnimatedStyle` dependencies through `webDependencies(...)`.
 - react-native-video quirks: subtitles off must be `SelectedTrackType.DISABLED` (index -1 crashes iOS). Android's `onPlaybackRateChange` reports 1 or 0, not the speed, so the toolkit owns the rate. With `repeat`, `onEnd` fires on every loop. Android leaves `buffering` set after an error.
 - Tracks carry across sources by language, never by index.
 - Don't change app-wide state, such as orientation, on unmount. Apps own the screen lifecycle.
-
-## Known issues
-
-Remove each bullet once it's fixed.
-
-- Faded-out controls aren't hidden from accessibility, so a screen reader such as TalkBack can probably land on invisible buttons (not yet checked with a screen reader). The fix is to hide `FadingControls` from accessibility while they're hidden: `importantForAccessibility="no-hide-descendants"` on Android, `accessibilityElementsHidden` on iOS. Then update the faded-controls rule above, since tests will no longer find hidden controls.
 
 ## Apps that use the toolkit
 
@@ -101,7 +114,20 @@ Native changes also need a uwumi rebuild, and uwumi's next `yarn install` puts t
 
 ## Tests
 
-Jest uses `@react-native/jest-preset`. `babel.config.js` switches to `@react-native/babel-preset` only when `NODE_ENV` is `test`; builds use bob's preset. `jest.resolver.js` chains Reanimated's resolver, and `jest.setup.ts` mocks Reanimated, Worklets, the native module and the orientation director. `@testing-library/react-native` 14 has async `render` and `act`, so always `await` them. Component tests that render `VideoPlayer` need a `GestureHandlerRootView`, and mock `react-native-video`'s default export as a `View`.
+**Setup:**
+- Jest uses `@react-native/jest-preset`.
+- `babel.config.js` switches to `@react-native/babel-preset` only when `NODE_ENV` is `test`; builds use bob's preset.
+- `jest.resolver.js` chains Reanimated's resolver.
+- `jest.setup.ts` mocks Reanimated, Worklets, the native module and the orientation director. It also mocks `react-native-video`'s player as a `View` (test ID `native-video`), whose ref has a `seek` mock.
+- The config sets `restoreMocks`, so spies reset between tests.
+
+**Writing tests:**
+- `@testing-library/react-native` 14 has async `render` and `act`, so always `await` them.
+- Tests that render `VideoPlayer` need a `GestureHandlerRootView`.
+- The toolkit's buttons use gesture-handler taps, not `onPress`. Tap them with `fireGestureHandler(getByGestureTestId('video-play-button'))` from `react-native-gesture-handler/jest-utils`: `BaseButton`'s tap gesture carries the button's test ID.
+- Drive the player through the mocked view's props (`onLoad`, `onProgress`...).
+
+Tests check behaviour through public API, and each one should fail on a real regression.
 
 ## Docs and JSDoc style
 

@@ -46,8 +46,8 @@ export interface CaptionsProps {
    */
   centerControlsInset?: number;
   /**
-   * Identifies the subtitles in end-to-end tests. Each cue on screen gets this followed by
-   * `-cue-0`, `-cue-1`..., and its text that followed by `-text`.
+   * Identifies the subtitles in end-to-end tests. The cues on screen are in this followed by
+   * `-cues`; each cue gets this followed by `-cue-0`, `-cue-1`..., and its text that followed by `-text`.
    * @default `video-captions`, with the player's `testID` in place of `video`
    */
   testID?: string;

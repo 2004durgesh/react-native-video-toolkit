@@ -8,17 +8,6 @@ import { VideoPlayer } from '../VideoPlayer';
 import { DefaultLayout } from '../../layouts/DefaultLayout';
 import type { VideoPlayerConfig } from '../../types';
 
-jest.mock('react-native-video', () => {
-  const actual = jest.requireActual('react-native-video');
-  const { View } = jest.requireActual('react-native');
-  const ReactActual = jest.requireActual('react');
-  const MockVideo = ReactActual.forwardRef((props: object, ref: unknown) => {
-    ReactActual.useImperativeHandle(ref, () => ({ seek: jest.fn() }));
-    return ReactActual.createElement(View, { ...props, testID: 'native-video' });
-  });
-  return { __esModule: true, ...actual, default: MockVideo };
-});
-
 const Inspector = ({ handle }: { handle: Ref<ReturnType<typeof useVideo>> }) => {
   const video = useVideo();
   useImperativeHandle(handle, () => video);
