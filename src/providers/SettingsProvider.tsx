@@ -35,7 +35,8 @@ interface SettingsProviderState {
    */
   textTracks: TextTrack[];
   /**
-   * The current playback rate setting.
+   * Always 1: nothing sets it.
+   * @deprecated Read the rate with `usePlaybackRate()`. Will be removed in 2.0.
    */
   playbackRate: number;
 }

@@ -30,7 +30,8 @@ import {
 import { PlatformUtils, webDependencies } from '../utils/platform';
 import { ControlsFocusableContext, TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
 import { usePlayerTestID } from '../utils/testIDs';
-import { trackLabel } from '../utils/common';
+import { trackLabel, videoTrackLabel } from '../tracks/labels';
+import { isOffTrack, isSelectedVideoTrack } from '../tracks/selection';
 export interface DefaultLayoutProps {
   scrim?: boolean | ColorValue;
   title?: string;
@@ -69,19 +70,6 @@ export interface DefaultLayoutProps {
     menuViews?: React.ReactElement;
   };
 }
-
-/**
- * Whether `track` is the selected one. The player's own tracks compare by index; custom tracks
- * usually have no index, which made every row look selected, so they compare by height.
- */
-const isSelectedVideoTrack = (
-  selected: { index?: number; height?: number } | null,
-  track: { index?: number; height?: number }
-) => {
-  if (!selected) return false;
-  if (selected.index !== undefined && track.index !== undefined) return selected.index === track.index;
-  return selected.height === track.height;
-};
 
 /**
  * Each quality's part of its `testID`: its height (`750p`), or `auto` for a custom list's entry with
@@ -283,7 +271,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                   <Title text="Video" />
                                 </View>
                                 <Subtitle
-                                  text={videoTrack ? (videoTrack as any).label || videoTrack.height + 'p' : 'Auto'}
+                                  text={videoTrack ? videoTrackLabel(videoTrack) : 'Auto'}
                                   testID={`${id}-settings-video-value`}
                                 />
                               </View>
@@ -352,7 +340,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                     onCheckedChange={() => {
                                       setVideoTrack(track);
                                     }}>
-                                    {(track as any).label || track.height + 'p'}
+                                    {videoTrackLabel(track)}
                                   </Menu.CheckboxItem>
                                 ))}
                               </ScrollView>
@@ -369,7 +357,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                                 {captionTracks.map((track) => (
                                   <Menu.CheckboxItem
                                     key={track.index}
-                                    testID={`${id}-settings-captions-${track.index === -1 ? 'off' : track.index}`}
+                                    testID={`${id}-settings-captions-${isOffTrack(track) ? 'off' : track.index}`}
                                     checked={textTrack?.index === track.index}
                                     onCheckedChange={() => {
                                       setTextTrack(track);

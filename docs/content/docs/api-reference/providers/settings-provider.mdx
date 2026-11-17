@@ -17,16 +17,16 @@ export const VideoPlayerComponent = () => <SettingsProvider>{/* Your video playe
 
 The `SettingsProvider` manages the following state:
 
-| State                   | Type           | Description                            |                             |
-| :---------------------- | :------------- | :------------------------------------- | --------------------------- |
-| `isSettingsMenuVisible` | `boolean`      | Whether the settings menu is visible.  |                             |
-| `videoTrack`            | `VideoTrack    | null`                                  | The current video track.    |
-| `videoTracks`           | `VideoTrack[]` | The list of available video tracks.    |                             |
-| `audioTrack`            | `AudioTrack    | null`                                  | The current audio track.    |
-| `audioTracks`           | `AudioTrack[]` | The list of available audio tracks.    |                             |
-| `textTrack`             | `TextTrack     | null`                                  | The current subtitle track. |
-| `textTracks`            | `TextTrack[]`  | The list of available subtitle tracks. |                             |
-| `playbackRate`          | `number`       | The current playback rate.             |                             |
+| State                   | Type           | Description                                                                           |                             |
+| :---------------------- | :------------- | :------------------------------------------------------------------------------------ | --------------------------- |
+| `isSettingsMenuVisible` | `boolean`      | Whether the settings menu is visible.                                                 |                             |
+| `videoTrack`            | `VideoTrack    | null`                                                                                 | The current video track.    |
+| `videoTracks`           | `VideoTrack[]` | The list of available video tracks.                                                   |                             |
+| `audioTrack`            | `AudioTrack    | null`                                                                                 | The current audio track.    |
+| `audioTracks`           | `AudioTrack[]` | The list of available audio tracks.                                                   |                             |
+| `textTrack`             | `TextTrack     | null`                                                                                 | The current subtitle track. |
+| `textTracks`            | `TextTrack[]`  | The list of available subtitle tracks.                                                |                             |
+| `playbackRate`          | `number`       | Deprecated: always 1. Read the rate with `usePlaybackRate()`. Will be removed in 2.0. |                             |
 
 ## Actions
 

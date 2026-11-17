@@ -12,6 +12,7 @@ import RNVideo, {
   type ReactVideoProps,
   type AudioTrack,
   type VideoRef,
+  type VideoTrack,
 } from 'react-native-video';
 import { useCallback, useEffect, useMemo, useRef, type FC } from 'react';
 import { Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
@@ -20,7 +21,10 @@ import { useVideoStore } from '../../providers/VideoProvider';
 import { useControlsController } from '../../providers/ControlsController';
 import { useProgressStore } from '../../providers/ProgressStore';
 import { usePlayback, useVolume, useBuffering, useSettings, usePlaybackRate } from '../../hooks';
-import { combineHandlers, dedupeLanguageTracks, dedupeVideoTracks, getFullscreenHeight } from '../../utils';
+import { combineHandlers } from '../../utils/common';
+import { getFullscreenHeight } from '../../fullscreen/height';
+import { dedupeLanguageTracks, dedupeVideoTracks } from '../../tracks/dedupe';
+import { OFF_TEXT_TRACK, isOffTrack, pickAudioTrack, pickTextTrack, pickVideoTrack } from '../../tracks/selection';
 import type { CustomVideoTrack } from '../../types';
 import { useTestID } from '../../utils/testIDs';
 import { usePlayerCommands } from '../../providers/PlayerCommands';
@@ -28,9 +32,6 @@ import { useCaptionsController } from '../../captions/CaptionsController';
 import { isHlsUrl, loadHlsSubtitleRenditions } from '../../captions/hls';
 import { captionError, isCaptionError } from '../../captions/errors';
 import type { CaptionFormat, CaptionTrack } from '../../captions/types';
-
-/** The "Off" entry the toolkit adds to the subtitle list. */
-const OFF_TEXT_TRACK = { index: -1, title: 'Off', language: 'off', type: 'disabled' } as const;
 
 /**
  * Indexes for the subtitle tracks the toolkit draws, clear of the player's own track indexes: files
@@ -45,56 +46,6 @@ const formatOf = (type?: string): CaptionFormat | undefined =>
 
 /** Whether the toolkit draws a track: a subtitle file or an HLS subtitle rendition. */
 const isDrawnByToolkit = (track: CaptionTrack) => track.source === 'file' || track.source === 'hls';
-
-/** Whether two audio or text tracks are the same language (falling back to the title when unset). */
-const isSameLanguage = (a: { language?: string; title?: string }, b: { language?: string; title?: string }) =>
-  a.language ? a.language === b.language : !!a.title && a.title === b.title;
-
-type LanguageTrack = { language?: string; title?: string; selected?: boolean };
-
-/** English name of a language code, for tracks labelled "English" rather than "en". Hermes may lack DisplayNames. */
-const languageName = (code: string): string | undefined => {
-  try {
-    const DisplayNames = (Intl as { DisplayNames?: new (...args: any[]) => { of: (code: string) => string } })
-      .DisplayNames;
-    if (DisplayNames) return new DisplayNames(['en'], { type: 'language' }).of(code).toLowerCase();
-  } catch {}
-  return code === 'en' ? 'english' : undefined;
-};
-
-/** The device's language, e.g. `en` for en-IN. */
-const DEVICE_LANGUAGE = (() => {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0]!.toLowerCase();
-  } catch {
-    return 'en';
-  }
-})();
-const LANGUAGE_NAMES: Record<string, string | undefined> = {
-  [DEVICE_LANGUAGE]: languageName(DEVICE_LANGUAGE),
-  en: 'english',
-};
-
-/** Whether a track is in a language given as a code (`en`, `en-US`, `eng`) or a name (`English`, `English [CC]`). */
-const isInLanguage = (track: LanguageTrack, code: string) => {
-  const name = LANGUAGE_NAMES[code];
-  return [track.language, track.title].some((value) => {
-    const text = value?.toLowerCase();
-    if (!text) return false;
-    if (text === code || text.startsWith(`${code}-`) || text.startsWith(`${code}_`)) return true;
-    if (text.length === 3 && text.startsWith(code)) return true;
-    return !!name && text.startsWith(name);
-  });
-};
-
-/** The first track passing the earliest test, else the first track. */
-const pickTrack = <T extends LanguageTrack>(tracks: T[], tests: ((track: T) => boolean)[]): T | null => {
-  for (const test of tests) {
-    const match = tracks.find(test);
-    if (match) return match;
-  }
-  return tracks[0] ?? null;
-};
 
 /**
  * Props for the VideoSurface component.
@@ -225,10 +176,8 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   });
 
   /**
-   * Lists the text tracks and picks one. The viewer's choice carries over to the next source, as the
-   * next episode keeps its subtitle language, when the new source has it; otherwise the default
-   * applies: the device's language, then the stream's default, then English. Indexes are never
-   * reused: the same index can be another language, or missing, in the new source.
+   * Lists the text tracks, with "Off" first, and picks one (see `pickTextTrack`). Indexes are never
+   * reused across sources: the same index can be another language, or missing, in the new source.
    */
   const applyTextTracks = () => {
     const hlsTracks = hlsTextTracksRef.current;
@@ -236,21 +185,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
       ? [...fileTracks, ...(hlsTracks.length > 0 ? hlsTracks : nativeTextTracksRef.current)]
       : nativeTextTracksRef.current;
     setAvailableTextTracks([...list, OFF_TEXT_TRACK].sort((a, b) => a.index - b.index));
-    const previous = textTrackRef.current;
-    let next: CaptionTrack | null;
-    if (previous?.index === OFF_TEXT_TRACK.index) {
-      next = OFF_TEXT_TRACK;
-    } else {
-      const isDeviceLanguage = (track: LanguageTrack) => isInLanguage(track, DEVICE_LANGUAGE);
-      const isPlayerPick = (track: LanguageTrack) => !!track.selected;
-      const isEnglish = (track: LanguageTrack) => isInLanguage(track, 'en');
-      next = pickTrack(
-        list,
-        previous
-          ? [(track) => isSameLanguage(track, previous), isDeviceLanguage, isEnglish]
-          : [isDeviceLanguage, isPlayerPick, isEnglish]
-      );
-    }
+    const next = pickTextTrack(list, textTrackRef.current as CaptionTrack | null);
     // Seen by another listing before the next render
     textTrackRef.current = next;
     setTextTrack(next);
@@ -326,25 +261,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     const config = store.getState().config;
     if (config.autoPlay) setPlaying(true);
 
-    // Use custom tracks if configured, otherwise extract from video source
-    const useCustomAudio = config.useCustomAudioTracks;
-    const useCustomVideo = config.useCustomVideoTracks;
-
-    // Handle audio tracks
-    let audioTracksToUse;
-    if (useCustomAudio && customAudioTracks) {
-      audioTracksToUse = customAudioTracks;
-    } else {
-      audioTracksToUse = dedupeLanguageTracks(data.audioTracks);
-    }
-
-    // Handle video tracks
-    let videoTracksToUse;
-    if (useCustomVideo && customVideoTracks) {
-      videoTracksToUse = customVideoTracks;
-    } else {
-      videoTracksToUse = dedupeVideoTracks(data.videoTracks);
-    }
+    const customVideo = !!(config.useCustomVideoTracks && customVideoTracks);
+    const audioTracksToUse =
+      config.useCustomAudioTracks && customAudioTracks ? customAudioTracks : dedupeLanguageTracks(data.audioTracks);
+    const videoTracksToUse: (CustomVideoTrack | VideoTrack)[] =
+      customVideo && customVideoTracks ? customVideoTracks : dedupeVideoTracks(data.videoTracks);
 
     // The size the picture is drawn at, for placing subtitles on it. A portrait video can report its
     // stored, unrotated size.
@@ -354,7 +275,6 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
       payload: orientation === 'portrait' && width > height ? { width: height, height: width } : { width, height },
     });
 
-    // Set the tracks in state
     setAvailableAudioTracks(audioTracksToUse);
     setAvailableVideoTracks(videoTracksToUse);
 
@@ -365,29 +285,13 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     }));
     applyTextTracks();
 
-    // The viewer's audio choice carries over to the next source, as the next episode keeps its
-    // language, when the new source has it. Otherwise the audio the player picked (the stream's
-    // default, often the original language), then the device's language. `selected` is only trusted
-    // without an earlier choice, whose index the player may still be applying to this source.
-    const isDeviceLanguage = (track: LanguageTrack) => isInLanguage(track, DEVICE_LANGUAGE);
-    const isPlayerPick = (track: LanguageTrack) => !!track.selected;
-    setAudioTrack(
-      pickTrack(
-        audioTracksToUse,
-        audioTrack ? [(track) => isSameLanguage(track, audioTrack), isDeviceLanguage] : [isPlayerPick, isDeviceLanguage]
-      )
+    setAudioTrack(pickAudioTrack(audioTracksToUse, audioTrack));
+    setVideoTrack(
+      pickVideoTrack(videoTracksToUse, videoTrack, {
+        custom: customVideo,
+        naturalHeight: data.naturalSize.height,
+      })
     );
-    if (useCustomVideo && customVideoTracks) {
-      // A custom list is the app's own, often with its own "Auto" entry: keep the chosen height, or
-      // start on the track matching the video's size
-      const sameHeight = videoTrack && videoTracksToUse.find((track) => track.height === videoTrack.height);
-      const natural = videoTracksToUse.find((track) => track.height === data.naturalSize.height);
-      setVideoTrack(sameHeight ?? natural ?? videoTracksToUse[0] ?? null);
-    } else {
-      // Adaptive ("Auto") unless the viewer picked a quality the new source also has. Selecting a
-      // resolution pins it, so starting on one would stop the quality from adapting all session.
-      setVideoTrack((videoTrack && videoTracksToUse.find((track) => track.height === videoTrack.height)) ?? null);
-    }
   };
   const handleProgress = (data: OnProgressData) => {
     progressStore.update({ currentTime: data.currentTime, playableDuration: data.playableDuration });
@@ -496,7 +400,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
         // Explicit `DISABLED` for "Off" and for the tracks the toolkit draws: left out, iOS picks a
         // track itself. Not index -1 either: react-native-video's iOS code reads `options[-1]` and crashes.
         selectedTextTrack={
-          textTrack && textTrack.index !== OFF_TEXT_TRACK.index && !isDrawnByToolkit(textTrack)
+          textTrack && !isOffTrack(textTrack) && !isDrawnByToolkit(textTrack as CaptionTrack)
             ? { type: SelectedTrackType.INDEX, value: textTrack.index }
             : { type: SelectedTrackType.DISABLED }
         }

@@ -29,9 +29,12 @@ const TouchBaseButton = ({ children, onTap, tvFocusTarget: _tvFocusTarget, ...pr
   const theme = useVideoSelector((state) => state.theme);
   const { PressFeedback } = useVideoComponents();
 
-  // Memoized: Gesture Handler sends the config to the native side whenever the object changes
+  // Memoized: Gesture Handler sends the config to the native side whenever the object changes. The
+  // gesture carries the button's test ID, so tests can tap it with Gesture Handler's test utilities.
+  const { testID } = props;
   const config = useMemo<TapGestureConfig>(
     () => ({
+      testID,
       maxDuration: TAP_MAX_DURATION,
       maxDistance: TAP_MAX_DISTANCE,
       numberOfTaps: 1,
@@ -40,7 +43,7 @@ const TouchBaseButton = ({ children, onTap, tvFocusTarget: _tvFocusTarget, ...pr
         scheduleOnRN(onTap);
       },
     }),
-    [onTap]
+    [onTap, testID]
   );
   const gesture = useTapGesture(config);
 
