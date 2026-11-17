@@ -45,13 +45,12 @@ When a new source loads, the viewer's choices carry over the way the next episod
 ### Example
 
 ```tsx
-import { useSettings, VideoPlayer } from 'react-native-video-toolkit';
-import { GestureDetector } from 'react-native-gesture-handler';
+import { BaseIconButton, Quality, Settings, useSettings } from 'react-native-video-toolkit';
 import React from 'react';
-import { View, Button } from 'react-native';
+import { View } from 'react-native';
 
-const MySettingsButton = () => {
-  const { openSettings } = useSettings();
+const MySettingsButtons = () => {
+  const { openSettings, videoTracks, setVideoTrack } = useSettings();
 
   const handleQualityChange = () => {
     // Example: set quality to the first available track
@@ -60,8 +59,13 @@ const MySettingsButton = () => {
     }
   };
 
-  return <BaseIconButton IconComponent={SettingsIcon} onTap={openSettings} />;
+  return (
+    <View style={{ flexDirection: 'row' }}>
+      <BaseIconButton IconComponent={Quality} onTap={handleQualityChange} />
+      <BaseIconButton IconComponent={Settings} onTap={openSettings} />
+    </View>
+  );
 };
 
-export default MySettingsButton;
+export default MySettingsButtons;
 ```

@@ -20,13 +20,14 @@ The components the toolkit renders internally. `VideoProvider` accepts a `Partia
 
 The open state is owned by the toolkit: show the sheet while `open` is `true`, and call `onOpenChange(false)` when the user dismisses it.
 
-| Property       | Type                      | Required | Description                                                                                                        |
-| -------------- | ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
-| `open`         | `boolean`                 | Yes      | Whether the sheet should be shown.                                                                                 |
-| `onOpenChange` | `(open: boolean) => void` | Yes      | Call with `false` when the user dismisses the sheet.                                                               |
-| `children`     | `ReactNode`               | Yes      | The menu content. It already has access to the player state, so it can render in a portal outside `VideoProvider`. |
-| `style`        | `StyleProp<ViewStyle>`    | No       | Style from `Menu.Content`: the theme's menu background, padding and `sheetStyle`.                                  |
-| `portalHost`   | `string`                  | No       | The toolkit's portal host name. The default sheet renders into it; custom sheets can ignore it.                    |
+| Property       | Type                      | Required | Description                                                                                                                                                                                      |
+| -------------- | ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `open`         | `boolean`                 | Yes      | Whether the sheet should be shown.                                                                                                                                                               |
+| `onOpenChange` | `(open: boolean) => void` | Yes      | Call with `false` when the user dismisses the sheet.                                                                                                                                             |
+| `children`     | `ReactNode`               | Yes      | The menu content. It already has access to the player state, so it can render in a portal outside `VideoProvider`.                                                                               |
+| `style`        | `StyleProp<ViewStyle>`    | No       | Style from `Menu.Content`: the theme's menu background, padding and `sheetStyle`.                                                                                                                |
+| `portalHost`   | `string`                  | No       | The toolkit's portal host name. The default sheet renders into it; custom sheets can ignore it.                                                                                                  |
+| `bottomInset`  | `number`                  | No       | The screen's bottom safe-area inset, from `config.safeAreaInsets` (0 without it). A sheet at the screen's bottom edge keeps its last row above it: Android's navigation bar, the home indicator. |
 
 ## `SliderProps`
 

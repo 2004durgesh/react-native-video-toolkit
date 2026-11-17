@@ -7,7 +7,7 @@ description: Step-by-step guide to install and configure React Native Video Tool
 
 <Callout type="info">
   React Native Video Toolkit works with new architecture (Fabric + TurboModules) enabled projects. Ensure you're using
-  React Native 0.76 or higher, and React Native Gesture Handler 3 or higher: the toolkit uses its hook-based gestures.
+  React Native 0.83 or higher, and React Native Gesture Handler 3 or higher: the toolkit uses its hook-based gestures.
 </Callout>
 
 ## Installation Steps
@@ -245,21 +245,21 @@ npx react-native run-ios
 
 ## Verification
 
-To verify your installation is working correctly, try importing and using the VideoPlayer component:
+To verify your installation is working correctly, render a `VideoPlayer` somewhere inside the `VideoProvider` from the step above:
 
 ```tsx
 import { VideoPlayer, DefaultLayout } from 'react-native-video-toolkit';
 
 export default function TestVideo() {
   return (
-    <VideoPlayer
-      source={{ uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}
-      style={{ width: '100%', height: 200 }}>
+    <VideoPlayer source={{ uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}>
       <DefaultLayout />
     </VideoPlayer>
   );
 }
 ```
+
+To style the player's outer view, pass [`containerStyle`](/docs/api-reference/components/video-player#props).
 
 ## Troubleshooting
 

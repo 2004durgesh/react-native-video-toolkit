@@ -19,56 +19,61 @@ index: true
   <Card
     title="Core Components"
     description="Essential components for video functionality like VideoSurface"
-    href="/docs/api-reference/components/core"
+    href="/docs/api-reference/components/core/video-surface"
   />
   <Card
     title="Control Components"
     description="Interactive controls like play buttons, progress bars, and volume controls"
-    href="/docs/api-reference/components/controls"
+    href="/docs/api-reference/components/controls/play-button"
   />
   <Card
     title="Display Components"
     description="Visual elements like time displays, titles, and loading spinners"
-    href="/docs/api-reference/components/display"
+    href="/docs/api-reference/components/display/loading-spinner"
   />
   <Card
     title="Common Components"
     description="Shared components like base buttons and bottom sheets"
-    href="/docs/api-reference/components/common"
+    href="/docs/api-reference/components/common/base-button"
   />
   <Card
     title="Menu Components"
     description="Menu systems and overlays for settings and options"
-    href="/docs/api-reference/components/menu"
+    href="/docs/api-reference/components/menu/menu"
   />
 </Cards>
 
 ## Quick Start
 
-The main entry point is the `VideoPlayer` component:
+The main entry point is the `VideoPlayer` component, inside a `VideoProvider`. `DefaultLayout` gives it the standard controls:
 
 ```tsx
-import { VideoPlayer } from 'react-native-video-toolkit';
+import { DefaultLayout, VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
 
 function BasicPlayer() {
   return (
-    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} style={{ width: '100%', height: 200 }}>
-      <VideoPlayer.Controls />
-    </VideoPlayer>
+    <VideoProvider>
+      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+        <DefaultLayout />
+      </VideoPlayer>
+    </VideoProvider>
   );
 }
 ```
+
+To style the player's outer view, pass [`containerStyle`](/docs/api-reference/components/video-player#props).
 
 ## Component Architecture
 
 The library follows a compound component pattern where the `VideoPlayer` serves as the main container, and all other components can be composed within it:
 
-- **VideoPlayer**: Main container and state provider
-- **VideoPlayer.Controls**: Pre-built control set
+- **VideoPlayer**: Main container: plays the video, and handles gestures and subtitles
+- **DefaultLayout**: The ready-made controls: title, play button, progress bar, settings menu and more
+- **VideoPlayer.Controls**: An empty full-size container for the controls of a layout you build yourself
 - **Individual Controls**: Granular control components
 - **Display Elements**: Visual feedback components
 - **Layout Components**: Structural containers
 
 <Callout type="warn">
-  Components should be used within a `VideoProvider` context, which is automatically provided by `VideoPlayer`.
+  Render `VideoPlayer` and the other components inside a `VideoProvider`. `VideoPlayer` doesn't provide one itself.
 </Callout>

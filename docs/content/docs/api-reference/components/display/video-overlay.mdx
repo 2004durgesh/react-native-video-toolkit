@@ -51,8 +51,3 @@ With `withControls`, the overlay appears when the controls do. This adds a butto
 ```
 
 `DefaultLayout` uses the same overlay for the tint behind its controls: `withControls`, `scrim`, and `pointerEvents="none"`. Turn it off or change its color with the layout's [`scrim`](../../layouts/DefaultLayout#props) prop.
-
-<Callout type="info">
-  On web the overlay shows and hides at once rather than fading: Reanimated's web animations drop `pointerEvents:
-  'box-none'`, so a full-size animated layer would take every click.
-</Callout>

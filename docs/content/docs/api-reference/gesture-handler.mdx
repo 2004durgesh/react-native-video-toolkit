@@ -8,7 +8,8 @@ description: Handle single-tap, double-tap, and pan gestures for video player in
 
 - **Single Tap**: Toggle controls visibility
 - **Double Tap**: Seek forward/backward with visual feedback
-- **Pan Gestures**: Volume and brightness control through vertical swipes
+- **Pan Gestures**: Vertical pans and swipes call your `gestureProps` pan handlers
+- **Long Press**: Plays at 2x until released
 - **Smart Composition**: Automatically combines gestures based on enabled features
 - **Visual Feedback**: Animated ripple effects and seek time indicators
 
@@ -21,7 +22,7 @@ description: Handle single-tap, double-tap, and pan gestures for video player in
 
 </Callout>
 
-When making a true custome player from scratch, you can use `GestureHandler` to wrap [`VideoSurface`](./components/core/video-surface.mdx) and your custom controls.
+When making a true custom player from scratch, you can use `GestureHandler` to wrap [`VideoSurface`](./components/core/video-surface.mdx) and your custom controls.
 
 ---
 
@@ -30,59 +31,6 @@ When making a true custome player from scratch, you can use `GestureHandler` to 
 To configure gesture behavior for the `VideoPlayer`, use the `gestureProps` prop. This allows you to customize double-tap seek intervals, pan gesture callbacks, and more, without directly interacting with the `GestureHandler` component.
 
 For detailed information on available props and examples, refer to the [Props](#props) and [Example](#example) sections below.
-
----
-
-## Internal Integration (In VideoPlayer)
-
-```tsx
-const VideoPlayerComponent = ({ source, children, containerStyle, videoProps, gestureProps }: VideoPlayerProps) => {
-  // this is the root of all the things :)
-  const { state } = useVideo();
-
-  // For web fullscreen, we need to adjust overflow to ensure controls are visible
-  const innerViewStyle = useMemo(() => {
-    const baseStyle = {
-      overflow: 'hidden' as const,
-    };
-
-    if (Platform.OS === 'web') {
-      return {
-        ...baseStyle,
-        flex: 1,
-        position: 'relative' as const,
-        ...(state.fullscreen && { overflow: 'visible' as const }),
-      };
-    }
-
-    return baseStyle;
-  }, [state.fullscreen]);
-
-  return (
-    <View
-      {...(Platform.OS === 'web' && { 'data-videotoolkit': 'container' })}
-      style={[
-        {
-          position: 'relative',
-          height: state.fullscreen ? state.videoLayout.width : state.videoLayout.height,
-          ...(Platform.OS === 'web' && {
-            width: '100%',
-            height: '100%',
-            overflow: 'hidden',
-          }),
-        },
-        containerStyle,
-      ]}>
-      <GestureHandler {...gestureProps}>
-        <View style={innerViewStyle}>
-          <VideoSurface {...videoProps} source={source} />
-          {children}
-        </View>
-      </GestureHandler>
-    </View>
-  );
-};
-```
 
 ---
 

@@ -22,22 +22,22 @@ Welcome to the complete API documentation for React Native Video Toolkit. This l
   <Card
     title="Hooks"
     description="React hooks for managing video state, gestures, and player functionality"
-    href="/docs/api-reference/hooks"
+    href="/docs/api-reference/hooks/media-hooks"
   />
   <Card
     title="Providers"
     description="Context providers for video state, theming, settings, and portals"
-    href="/docs/api-reference/providers"
+    href="/docs/api-reference/providers/video-provider"
   />
   <Card
     title="Types"
     description="TypeScript type definitions for all library interfaces and props"
-    href="/docs/api-reference/types"
+    href="/docs/api-reference/types/video"
   />
   <Card
     title="Utils"
     description="Utility functions for common video player operations and helpers"
-    href="/docs/api-reference/utils"
+    href="/docs/api-reference/utils/common"
   />
   <Card
     title="Gesture Handler"
@@ -46,26 +46,30 @@ Welcome to the complete API documentation for React Native Video Toolkit. This l
   />
   <Card
     title="Layouts"
-    description="Pre-built layout configurations for common video player designs"
-    href="/docs/api-reference/layouts"
+    description="DefaultLayout, the ready-made set of controls you put inside VideoPlayer"
+    href="/docs/api-reference/layouts/DefaultLayout"
   />
 </Cards>
 
 ## Quick Start
 
-The main entry point for the library is the `VideoPlayer` component:
+The main entry point for the library is the `VideoPlayer` component, inside a `VideoProvider`. `DefaultLayout` gives it the standard controls:
 
 ```tsx
-import { VideoPlayer } from 'react-native-video-toolkit';
+import { DefaultLayout, VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
 
 function MyVideoPlayer() {
   return (
-    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} style={{ width: '100%', height: 200 }}>
-      <VideoPlayer.Controls />
-    </VideoPlayer>
+    <VideoProvider>
+      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+        <DefaultLayout />
+      </VideoPlayer>
+    </VideoProvider>
   );
 }
 ```
+
+To style the player's outer view, pass [`containerStyle`](/docs/api-reference/components/video-player#props).
 
 ## Architecture
 
@@ -80,5 +84,5 @@ The library is organized into several key areas:
 - **Gesture System**: Touch and gesture handling
 
 <Callout type="warn">
-  This library requires React Native 0.76+ and works best with the new architecture enabled.
+  This library requires React Native 0.83 or higher and works best with the new architecture enabled.
 </Callout>

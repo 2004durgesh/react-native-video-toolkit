@@ -32,10 +32,10 @@ export const Player = () => {
 
 ### Props
 
-| Prop          | Type                               | Default     | Description                                                                                       |
-| ------------- | ---------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `onSingleTap` | `(event: TapGestureEvent) => void` | `undefined` | A callback function that is called when a single tap gesture is performed anywhere on the screen. |
-| `enabled`     | `boolean`                          | No          | `true`                                                                                            | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
+| Prop          | Type                               | Default     | Description                                                                                                 |
+| ------------- | ---------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `onSingleTap` | `(event: TapGestureEvent) => void` | `undefined` | A callback function that is called when a single tap gesture is performed anywhere on the player.           |
+| `enabled`     | `boolean`                          | `true`      | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
 
 ### Returns
 
@@ -93,11 +93,11 @@ export const Player = () => {
 
 ### Props
 
-| Prop               | Type                                     | Default     | Description                                                          |
-| ------------------ | ---------------------------------------- | ----------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `onLongPressStart` | `(event: GestureTouchEvent) => void`     | `undefined` | A callback function that is called when a long press gesture starts. |
-| `onLongPressEnd`   | `(event: LongPressGestureEvent) => void` | `undefined` | A callback function that is called when a long press gesture ends.   |
-| `enabled`          | `boolean`                                | No          | `true`                                                               | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
+| Prop               | Type                                     | Default     | Description                                                                                                 |
+| ------------------ | ---------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `onLongPressStart` | `(event: GestureTouchEvent) => void`     | `undefined` | A callback function that is called when a long press gesture starts.                                        |
+| `onLongPressEnd`   | `(event: LongPressGestureEvent) => void` | `undefined` | A callback function that is called when a long press gesture ends.                                          |
+| `enabled`          | `boolean`                                | `true`      | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
 
 ### Returns
 
@@ -170,13 +170,13 @@ export const Player = () => {
 
 ### Props
 
-| Prop                    | Type                     | Default     | Description                                                                            |
-| ----------------------- | ------------------------ | ----------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `videoRef`              | `React.RefObject<Video>` | `undefined` | Deprecated and ignored: the hook seeks the player's own video. Will be removed in 2.0. |
-| `doubleTapSeekInterval` | `number`                 | `10`        | The number of seconds to seek forward or backward.                                     |
-| `onDoubleTapSeekStart`  | `() => void`             | `undefined` | A callback function that is called when a double tap seek starts.                      |
-| `onDoubleTapSeekEnd`    | `() => void`             | `undefined` | A callback function that is called when a double tap seek ends.                        |
-| `enabled`               | `boolean`                | No          | `true`                                                                                 | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
+| Prop                    | Type                     | Default     | Description                                                                                                 |
+| ----------------------- | ------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `videoRef`              | `React.RefObject<Video>` | `undefined` | Deprecated and ignored: the hook seeks the player's own video. Will be removed in 2.0.                      |
+| `doubleTapSeekInterval` | `number`                 | `10`        | The number of seconds to seek forward or backward.                                                          |
+| `onDoubleTapSeekStart`  | `() => void`             | `undefined` | A callback function that is called when a double tap seek starts.                                           |
+| `onDoubleTapSeekEnd`    | `() => void`             | `undefined` | A callback function that is called when a double tap seek ends.                                             |
+| `enabled`               | `boolean`                | `true`      | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
 
 ### Returns
 
@@ -258,13 +258,13 @@ export const Player = () => {
 ### Props
 
 | Prop                  | Type                                     | Default    | Description                                                                                                 |
-| --------------------- | ---------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `onLeftVerticalPan`   | `(event: PanGestureActiveEvent) => void` | `required` | A callback function that is called when a vertical pan gesture is detected on the left half of the player.  |
-| `onRightVerticalPan`  | `(event: PanGestureActiveEvent) => void` | `required` | A callback function that is called when a vertical pan gesture is detected on the right half of the player. |
-| `onGlobalVerticalPan` | `(event: PanGestureActiveEvent) => void` | `optional` | A callback function that is called when a vertical pan gesture is detected anywhere on the screen.          |
+| --------------------- | ---------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
+| `onLeftVerticalPan`   | `(event: PanGestureActiveEvent) => void` | `optional` | A callback function that is called when a vertical pan gesture is detected on the left half of the player.  |
+| `onRightVerticalPan`  | `(event: PanGestureActiveEvent) => void` | `optional` | A callback function that is called when a vertical pan gesture is detected on the right half of the player. |
+| `onGlobalVerticalPan` | `(event: PanGestureActiveEvent) => void` | `optional` | A callback function that is called when a vertical pan gesture is detected anywhere on the player.          |
 | `onSwipeUp`           | `() => void`                             | `optional` | Called once when a vertical pan ends as an upward swipe (moved over 60 px or faster than 800 px/s).         |
 | `onSwipeDown`         | `() => void`                             | `optional` | Called once when a vertical pan ends as a downward swipe (moved over 60 px or faster than 800 px/s).        |
-| `enabled`             | `boolean`                                | No         | `true`                                                                                                      | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
+| `enabled`             | `boolean`                                | `true`     | Whether the gesture recognizes touches. When off, the gestures composed with it act as if it weren't there. |
 
 ### Returns
 

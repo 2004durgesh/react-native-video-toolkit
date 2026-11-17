@@ -24,22 +24,24 @@ This component uses a **compound component pattern**:
 
 ## Usage
 
+`VideoPlayer` needs a `VideoProvider` above it. Most apps put one at their root, as shown in [Installation](/docs/installation).
+
 ```tsx
-import { VideoPlayer } from 'react-native-video-toolkit';
+import { VideoPlayer, VideoProvider } from 'react-native-video-toolkit';
 
 export default function App() {
   return (
-    <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} videoProps={{ resizeMode: 'contain' }}>
-      <VideoPlayer.Controls>
-        <VideoPlayer.PlayButton />
-        <VideoPlayer.ProgressBar />
-        <VideoPlayer.TimeDisplay />
-        <VideoPlayer.VolumeControl />
-        <VideoPlayer.FullscreenButton />
-        <VideoPlayer.SettingsButton />
-      </VideoPlayer.Controls>
-      <VideoPlayer.Menu />
-    </VideoPlayer>
+    <VideoProvider>
+      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} videoProps={{ resizeMode: 'contain' }}>
+        <VideoPlayer.Controls>
+          <VideoPlayer.PlayButton />
+          <VideoPlayer.ProgressBar />
+          <VideoPlayer.TimeDisplay />
+          <VideoPlayer.VolumeControl />
+          <VideoPlayer.FullscreenButton />
+        </VideoPlayer.Controls>
+      </VideoPlayer>
+    </VideoProvider>
   );
 }
 ```
@@ -59,10 +61,13 @@ export default function App() {
 | `customAudioTracks` | `AudioTrack[]`                                                 | No       | –       | Audio tracks to list instead of the source's own. Passing them turns custom audio tracks on.                                                                                                                                               |
 | `customVideoTracks` | `CustomVideoTrack[]`                                           | No       | –       | Qualities to list instead of the source's own, with labels. Passing them turns custom video tracks on, and the settings menu shows the list as it is, without its own Auto entry. See [CustomVideoTrack](../types/video#customvideotrack). |
 | `testID`            | `string`                                                       | No       | `video` | Identifies the player in end-to-end tests. Its parts' IDs start with it, so give each player on a screen its own. See [Testing](/docs/testing).                                                                                            |
+| `...props`          | `ViewProps`                                                    | No       | –       | Other `View` props go to the player's outer view.                                                                                                                                                                                          |
 
 ---
 
 ## Examples
+
+The examples below assume a `VideoProvider` above the player.
 
 ### Minimal Player
 
@@ -117,24 +122,29 @@ const videoTracks: CustomVideoTrack[] = [
 
 The `VideoPlayer` exports several prebuilt UI primitives:
 
-| Component                      | Description                                                                                                                                                                                                                                                             |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VideoPlayer.Controls`         | A container for grouping controls (`absoluteFill`).                                                                                                                                                                                                                     |
-| `VideoPlayer.PlayButton`       | Toggles play/pause.                                                                                                                                                                                                                                                     |
-| `VideoPlayer.ProgressBar`      | Displays seekable progress.                                                                                                                                                                                                                                             |
-| `VideoPlayer.TimeDisplay`      | Shows current time / duration.                                                                                                                                                                                                                                          |
-| `VideoPlayer.VolumeControl`    | Slider for adjusting volume.                                                                                                                                                                                                                                            |
-| `VideoPlayer.FullscreenButton` | Toggles fullscreen.                                                                                                                                                                                                                                                     |
-| `VideoPlayer.MuteButton`       | Toggles mute on/off.                                                                                                                                                                                                                                                    |
-| `VideoPlayer.LoadingSpinner`   | Spinner for buffering state.                                                                                                                                                                                                                                            |
-| `VideoPlayer.SettingsButton`   | Opens settings menu.                                                                                                                                                                                                                                                    |
-| `VideoPlayer.Menu`             | Bottom-sheet style menu for settings.                                                                                                                                                                                                                                   |
-| `VideoPlayer.Captions`         | The subtitles the toolkit draws. `VideoPlayer` draws them in every layout; render this in your layout to place them yourself or pass `controlsInset`, `centerControlsInset`, `style` or `textStyle`, and it replaces the player's own. See [Subtitles](../../captions). |
+| Component                            | Description                                                                                                                                                                                                                                                             |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VideoPlayer.Controls`               | A container for grouping controls (`absoluteFill`).                                                                                                                                                                                                                     |
+| `VideoPlayer.PlayButton`             | Toggles play/pause.                                                                                                                                                                                                                                                     |
+| `VideoPlayer.ProgressBar`            | Displays seekable progress.                                                                                                                                                                                                                                             |
+| `VideoPlayer.TimeDisplay`            | Shows current time / duration.                                                                                                                                                                                                                                          |
+| `VideoPlayer.VolumeControl`          | Slider for adjusting volume.                                                                                                                                                                                                                                            |
+| `VideoPlayer.FullscreenButton`       | Toggles fullscreen.                                                                                                                                                                                                                                                     |
+| `VideoPlayer.MuteButton`             | Toggles mute on/off.                                                                                                                                                                                                                                                    |
+| `VideoPlayer.LoadingSpinner`         | Spinner for buffering state.                                                                                                                                                                                                                                            |
+| `VideoPlayer.SettingsButton`         | Opens settings menu.                                                                                                                                                                                                                                                    |
+| `VideoPlayer.SubtitleToggleButton`   | Toggles subtitles on and off. Renders nothing when the source has no subtitles.                                                                                                                                                                                         |
+| `VideoPlayer.PictureInPictureButton` | Enters and exits picture-in-picture. Renders nothing where picture-in-picture isn't supported.                                                                                                                                                                          |
+| `VideoPlayer.UpNext`                 | A card that counts down to the next source once the current one ends, with "Cancel" and "Play now". Render it after the layout.                                                                                                                                         |
+| `VideoPlayer.Overlay`                | A full-size layer over the video for your own content, which can fade with the controls and tint the video. Render it after the layout.                                                                                                                                 |
+| `VideoPlayer.Captions`               | The subtitles the toolkit draws. `VideoPlayer` draws them in every layout; render this in your layout to place them yourself or pass `controlsInset`, `centerControlsInset`, `style` or `textStyle`, and it replaces the player's own. See [Subtitles](../../captions). |
 
 ---
 
 <Callout type="info">
-  - The **layout automatically adapts** when toggling fullscreen (height/width swap based on device orientation). - All
-  controls are theme-aware (colors, sizes come from `useVideo` provider). - If you don't like the built-in controls, you
-  can **compose your own** using the hooks and providers.
+
+- The **layout automatically adapts** when toggling fullscreen (height/width swap based on device orientation).
+- All controls are theme-aware: their colors and sizes come from the theme on `VideoProvider`.
+- If you don't like the built-in controls, you can **compose your own** using the hooks and providers.
+
 </Callout>

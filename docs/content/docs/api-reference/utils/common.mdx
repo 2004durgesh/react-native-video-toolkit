@@ -102,9 +102,9 @@ const dedupedTracks = dedupeLanguageTracks(audioTracks);
 
 ### Returns
 
-| Type      | Description                                       |
-| --------- | ------------------------------------------------- |
-| `Track[]` | An array of unique tracks, one for each language. |
+| Type      | Description                                                                                         |
+| --------- | --------------------------------------------------------------------------------------------------- |
+| `Track[]` | An array of unique tracks, one for each language and title; tracks without a language are left out. |
 
 ## `hexToRgba`
 
@@ -169,7 +169,7 @@ const fullscreenHeight = getFullscreenHeight({ width, height }, true);
 
 ## `isPictureInPictureSupported`
 
-Whether picture-in-picture can work here: the device supports it and the app is set up for it. On iOS that means the `audio` background mode; on Android, `android:supportsPictureInPicture` on the activity and the user not having turned picture-in-picture off for the app; on web, browser support. The iOS Simulator doesn't support picture-in-picture, so it returns `false` there.
+Whether picture-in-picture can work here: the device supports it and the app is set up for it. On iOS that means the `audio` background mode; on Android, `android:supportsPictureInPicture` on the activity and the user not having turned picture-in-picture off for the app; on web, browser support. It's always `false` on TV. The iOS Simulator doesn't support picture-in-picture, so it returns `false` there.
 
 [`PictureInPictureButton`](../components/controls/picture-in-picture-button) uses it to hide itself where picture-in-picture can't work.
 

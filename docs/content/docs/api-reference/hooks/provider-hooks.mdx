@@ -4,7 +4,7 @@ title: 'Provider Hooks'
 
 ## `useVideo()`
 
-A hook to access the current video player state and dispatch actions to control the player. It provides access to the video player's state, a dispatch function to send actions, and a helper function to set the theme.
+A hook to access the current video player state and dispatch actions to control the player. It provides access to the video player's state and a dispatch function to send actions.
 
 The component re-renders on every change to the state, a tap that shows or hides the controls included. If you only need part of it, use [`useVideoSelector()`](#usevideoselector) instead.
 
@@ -52,7 +52,6 @@ const MyComponent = () => {
     <View>
       <Text>Current Time: {currentTime}</Text>
       <Button onPress={handlePlayPause} title={state.isPlaying ? 'Pause' : 'Play'} />
-      <Button onPress={handleThemeChange} title="Change Theme" />
     </View>
   );
 };

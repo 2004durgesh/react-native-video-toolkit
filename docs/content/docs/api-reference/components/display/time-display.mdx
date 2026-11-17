@@ -24,13 +24,13 @@ import { TimeDisplayExample } from '@/components/examples/display/time-display';
 
 ## Props
 
-| Prop       | Type                                | Required | Default             | Description                                                                                                                                                            |
-| ---------- | ----------------------------------- | -------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `type`     | `'current' \| 'duration' \| 'both'` | No       | `'both'`            | What time information to display.                                                                                                                                      |
-| `fontSize` | `number`                            | No       | `14`                | Font size of the time text.                                                                                                                                            |
-| `color`    | `string`                            | No       | `theme.colors.text` | Text color. Falls back to the current theme if not provided.                                                                                                           |
-| `style`    | `StyleProp<ViewStyle>`              | No       | –                   | Custom style for the container.                                                                                                                                        |
-| `testID`   | `string`                            | No       | `video-time`        | Identifies the display in end-to-end tests. The current time and the duration inside it get this followed by `-current` and `-duration`. See [Testing](/docs/testing). |
+| Prop       | Type                                | Required | Default                 | Description                                                                                                                                                            |
+| ---------- | ----------------------------------- | -------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`     | `'current' \| 'duration' \| 'both'` | No       | `'both'`                | What time information to display.                                                                                                                                      |
+| `fontSize` | `number`                            | No       | `14`                    | Font size of the time text.                                                                                                                                            |
+| `color`    | `string`                            | No       | `theme.colors.textMain` | Text color. Falls back to the current theme if not provided.                                                                                                           |
+| `style`    | `StyleProp<ViewStyle>`              | No       | –                       | Custom style for the container.                                                                                                                                        |
+| `testID`   | `string`                            | No       | `video-time`            | Identifies the display in end-to-end tests. The current time and the duration inside it get this followed by `-current` and `-duration`. See [Testing](/docs/testing). |
 
 ---
 
@@ -78,7 +78,7 @@ const MyVideoPlayer = () => {
 
 <Callout type="info">
 
-- If you don't pass a `color`, `TimeDisplay` automatically uses `theme.colors.text` from the current video context.
+- If you don't pass a `color`, `TimeDisplay` automatically uses `theme.colors.textMain` from the current video context.
 - Works seamlessly with custom layouts and pre-built controls.
 
 </Callout>

@@ -113,7 +113,7 @@ Cues with broken timings are skipped, and the rest of the file still shows.
 
 ## Limitations
 
-- **Subtitles embedded in an MP4 or DASH file, and HLS closed captions (CEA-608/708),** are drawn by the video player, not by the toolkit. They don't follow `theme.captions`.
+- **Subtitles embedded in an MP4 or DASH file, and HLS closed captions (CEA-608/708),** are drawn by the video player, not by the toolkit. They don't follow `theme.captions`. HLS closed captions are listed only when the stream has no WebVTT subtitle renditions.
 - **TTML files** aren't supported. Use the native renderer below.
 - **Picture-in-picture** shows no subtitles: the floating window only shows the video.
 - **The outline** is drawn as copies of the text shifted around it, so wide outlines look blocky. A `backgroundColor` box reads better.

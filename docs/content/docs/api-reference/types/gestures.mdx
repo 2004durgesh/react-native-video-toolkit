@@ -9,7 +9,7 @@ The `UseDoubleTapGestureProps` interface defines the props for the `useDoubleTap
 
 | Property                | Type                        | Required | Default     | Description                                                                                                 |
 | ----------------------- | --------------------------- | -------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
-| `videoRef`              | `React.RefObject<VideoRef>` | Yes      | `null`      | A ref to the video player component.                                                                        |
+| `videoRef`              | `React.RefObject<VideoRef>` | No       | `undefined` | Deprecated and ignored: the hook seeks the player's own video. Will be removed in 2.0.                      |
 | `doubleTapSeekInterval` | `number`                    | No       | `10`        | The number of seconds to seek forward or backward on double-tap.                                            |
 | `onDoubleTapSeekStart`  | `() => void`                | No       | `undefined` | A callback function that is called when a double-tap seek starts.                                           |
 | `onDoubleTapSeekEnd`    | `() => void`                | No       | `undefined` | A callback function that is called when a double-tap seek ends.                                             |

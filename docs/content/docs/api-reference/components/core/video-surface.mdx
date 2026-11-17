@@ -46,7 +46,7 @@ These events are **already handled internally** and connected to the global stor
 - **`onEnd`** → stops playback, seeks to `0`, and shows controls
 - **`onLayout`** → updates player layout in state
 
-You can override these if needed, but by default they keep your UI in sync.
+You can pass your own handlers for these events too. They run after the toolkit's and can't replace them, so your UI stays in sync.
 
 </Callout>
 
