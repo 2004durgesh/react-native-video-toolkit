@@ -52,10 +52,19 @@ const decodeUTF16 = (bytes: Uint8Array, littleEndian: boolean): string => {
   return text;
 };
 
-/** Latin-1, the last resort for legacy files when `TextDecoder` is missing. */
-const decodeLatin1 = (bytes: Uint8Array): string => {
+// Windows-1252's characters for bytes 0x80-0x9F, where it differs from Latin-1 (smart quotes,
+// dashes, the euro sign); the five bytes it leaves undefined keep their own code points
+const WINDOWS_1252_HIGH = [
+  0x20ac, 0x81, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021, 0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x8d, 0x017d,
+  0x8f, 0x90, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014, 0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x9d,
+  0x017e, 0x0178,
+];
+
+/** Windows-1252 without `TextDecoder`, for legacy files. */
+const decodeWindows1252 = (bytes: Uint8Array): string => {
+  const codes = Array.from(bytes, (byte) => (byte >= 0x80 && byte <= 0x9f ? WINDOWS_1252_HIGH[byte - 0x80]! : byte));
   let text = '';
-  for (let i = 0; i < bytes.length; i += 8192) text += String.fromCharCode(...bytes.subarray(i, i + 8192));
+  for (let i = 0; i < codes.length; i += 8192) text += String.fromCharCode(...codes.slice(i, i + 8192));
   return text;
 };
 
@@ -73,21 +82,19 @@ const decodeWith = (bytes: Uint8Array, label: string, fatal = false): string => 
   if (normalized === 'utf-16le' || normalized === 'utf-16') return decodeUTF16(bytes, true);
   if (normalized === 'utf-16be') return decodeUTF16(bytes, false);
   if (normalized === 'utf-8' || normalized === 'utf8') return decodeUTF8(bytes, fatal);
-  return decodeLatin1(bytes);
+  return decodeWindows1252(bytes);
 };
 
 /**
  * A subtitle file's bytes as text. A byte-order mark decides UTF-8 or UTF-16 (and is dropped).
- * Without one, `encoding` is used (UTF-8 by default); a file that isn't valid UTF-8 is read as
- * Windows-1252, the usual encoding of legacy SRT files.
+ * Without one: UTF-16 when every other byte is zero, else UTF-8, and a file that isn't valid UTF-8
+ * is read as Windows-1252, the usual encoding of legacy SRT files.
  * @internal
  */
-export const decodeCaptionBytes = (bytes: Uint8Array, encoding = 'utf-8'): string => {
+export const decodeCaptionBytes = (bytes: Uint8Array): string => {
   if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) return decodeWith(bytes.subarray(3), 'utf-8');
   if (bytes[0] === 0xff && bytes[1] === 0xfe) return decodeWith(bytes.subarray(2), 'utf-16le');
   if (bytes[0] === 0xfe && bytes[1] === 0xff) return decodeWith(bytes.subarray(2), 'utf-16be');
-  const label = encoding.toLowerCase();
-  if (label !== 'utf-8' && label !== 'utf8') return decodeWith(bytes, label);
   // UTF-16 without a byte-order mark: Latin text has a zero byte in every other position
   const sample = bytes.subarray(0, 256);
   let evenZeros = 0;

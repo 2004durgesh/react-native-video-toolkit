@@ -1,10 +1,12 @@
-import React, { useImperativeHandle, type Ref } from 'react';
+import React, { useImperativeHandle, useState, type Ref } from 'react';
+import { TextTrackType } from 'react-native-video';
 import { StyleSheet } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { VideoProvider, useVideoStore } from '../../providers/VideoProvider';
 import { useProgressStore } from '../../providers/ProgressStore';
 import { Captions } from '../Captions';
-import { useCaptionsController, type CaptionTrackSource } from '../CaptionsController';
+import { useCaptionsController } from '../CaptionsController';
+import type { CaptionTrack } from '../types';
 import { clearCaptionCache } from '../load';
 import * as textModule from '../parse/text';
 import type { Theme, VideoPlayerConfig } from '../../types';
@@ -19,16 +21,29 @@ const VTT = [
   'مرحبا بالعالم',
 ].join('\n');
 
+/** A subtitle file track, as the toolkit lists it. */
+const file = (uri: string): CaptionTrack => ({ index: 1000, source: 'file', uri, type: TextTrackType.VTT });
+
+type Insets = { controlsInset: number; centerControlsInset: number };
+
 interface Handle {
-  select: (source: CaptionTrackSource | null) => void;
+  select: (track: CaptionTrack | null) => void;
   seek: (seconds: number) => void;
   layout: (width: number, height: number, natural?: { width: number; height: number }) => void;
   showControls: (visible: boolean, inset?: number, centerInset?: number) => void;
   setFullscreen: (fullscreen: boolean) => void;
+  setResizeMode: (mode: 'contain' | 'cover' | 'stretch' | 'none') => void;
 }
 
+/** The subtitles, with the insets a layout would pass. */
+const CaptionsUnderTest = ({ insetsRef }: { insetsRef: Ref<(insets: Insets) => void> }) => {
+  const [insets, setInsets] = useState<Insets>({ controlsInset: 0, centerControlsInset: 0 });
+  useImperativeHandle(insetsRef, () => setInsets);
+  return <Captions {...insets} />;
+};
+
 /** Reaches into the provider to drive it like the player would. */
-const Driver = ({ handle }: { handle: Ref<Handle> }) => {
+const Driver = ({ handle, insetsRef }: { handle: Ref<Handle>; insetsRef: React.RefObject<((insets: Insets) => void) | null> }) => {
   const captions = useCaptionsController();
   const store = useVideoStore();
   const progress = useProgressStore();
@@ -42,21 +57,22 @@ const Driver = ({ handle }: { handle: Ref<Handle> }) => {
       store.dispatch({ type: 'SET_NATURAL_SIZE', payload: natural });
     },
     showControls: (visible, inset = 0, centerInset = 0) => {
-      store.dispatch({ type: 'SET_CONTROLS_INSET', payload: inset });
-      store.dispatch({ type: 'SET_CONTROLS_CENTER_INSET', payload: centerInset });
+      insetsRef.current?.({ controlsInset: inset, centerControlsInset: centerInset });
       store.dispatch({ type: 'SET_CONTROLS_VISIBLE', payload: visible });
     },
     setFullscreen: (fullscreen) => store.dispatch({ type: 'SET_FULLSCREEN', payload: fullscreen }),
+    setResizeMode: (mode) => store.dispatch({ type: 'SET_RESIZE_MODE', payload: mode }),
   }));
   return null;
 };
 
 const setUp = async (theme?: Partial<Theme>, config: Partial<VideoPlayerConfig> = {}) => {
   const handle = React.createRef<Handle>();
+  const insetsRef = React.createRef<(insets: Insets) => void>();
   const utils = await render(
     <VideoProvider config={{ autoPlay: false, ...config }} theme={theme}>
-      <Driver handle={handle} />
-      <Captions />
+      <Driver handle={handle} insetsRef={insetsRef} />
+      <CaptionsUnderTest insetsRef={insetsRef} />
     </VideoProvider>
   );
   const player = handle.current!;
@@ -82,7 +98,7 @@ beforeEach(() => {
 describe('Captions', () => {
   it('shows the cue for the time with its styled spans, and nothing in gaps (SUB-SEL-02)', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
 
@@ -97,7 +113,7 @@ describe('Captions', () => {
 
   it('draws right-to-left cues right to left (SUB-I18N-01)', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/ar.vtt' }));
+    await act(() => player.select(file('https://example.com/ar.vtt')));
     await flush();
     await act(() => player.seek(3.5));
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveStyle({ writingDirection: 'rtl' });
@@ -105,7 +121,7 @@ describe('Captions', () => {
 
   it('applies the theme and a readable default box (SUB-STYLE-01, 02, SUB-A11Y-01)', async () => {
     const { player } = await setUp({ captions: { color: '#FFEB3B', fontSize: 22, fontFamily: 'Menlo', letterSpacing: 1 } });
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveStyle({
@@ -120,7 +136,7 @@ describe('Captions', () => {
 
   it('sizes the text from the picture and keeps the box on the picture (SUB-LAY-01, 02)', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     // A 4:3 video in a 640×360 box: a 480×360 picture, centred
     await act(() => player.layout(640, 360, { width: 1440, height: 1080 }));
@@ -133,7 +149,7 @@ describe('Captions', () => {
 
   it('falls back to the whole layer before the video size is known, and shows nothing with no room', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.layout(640, 360, { width: 0, height: 0 }));
     await act(() => player.seek(1.5));
@@ -145,7 +161,7 @@ describe('Captions', () => {
 
   it('wraps long cues to at most three lines', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     expect(screen.getByTestId('video-captions-cue-0-text').props.numberOfLines).toBe(3);
@@ -153,14 +169,15 @@ describe('Captions', () => {
 
   it('restyles a showing cue when the theme changes, without reloading', async () => {
     const { player, rerender } = await setUp({ captions: { color: '#FFFFFF' } });
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     const handle = React.createRef<Handle>();
+    const insetsRef = React.createRef<(insets: Insets) => void>();
     await rerender(
       <VideoProvider config={{ autoPlay: false }} theme={{ captions: { color: '#FFEB3B' } }}>
-        <Driver handle={handle} />
-        <Captions />
+        <Driver handle={handle} insetsRef={insetsRef} />
+        <CaptionsUnderTest insetsRef={insetsRef} />
       </VideoProvider>
     );
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveStyle({ color: '#FFEB3B' });
@@ -169,7 +186,7 @@ describe('Captions', () => {
 
   it('hides while the controls show when there is no room under the centre controls', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     const stack = () => screen.getByTestId('video-captions-cue-0').parent!.parent!;
@@ -187,7 +204,7 @@ describe('Captions', () => {
 
   it('keeps clear of safe areas in fullscreen only', async () => {
     const { player } = await setUp(undefined, { safeAreaInsets: { bottom: 34 } });
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     const bottom = () => StyleSheet.flatten(screen.getByTestId('video-captions-cue-0').parent!.parent!.props.style).bottom;
@@ -196,9 +213,25 @@ describe('Captions', () => {
     expect(bottom()).toBe(18 + 34);
   });
 
+  it('places cues on the picture the video actually draws, for every resize mode', async () => {
+    const { player } = await setUp();
+    await act(() => player.select(file('https://example.com/en.vtt')));
+    await flush();
+    // A 4:3 video in a 640x360 box
+    await act(() => player.layout(640, 360, { width: 1440, height: 1080 }));
+    await act(() => player.seek(1.5));
+    const position = () => StyleSheet.flatten(screen.getByTestId('video-captions-cue-0').parent!.parent!.props.style);
+    expect(position()).toMatchObject({ left: 80, width: 480 });
+    // Cover fills the box (the picture's top and bottom are cut off), as stretch does
+    await act(() => player.setResizeMode('cover'));
+    expect(position()).toMatchObject({ left: 0, width: 640 });
+    await act(() => player.setResizeMode('stretch'));
+    expect(position()).toMatchObject({ left: 0, width: 640 });
+  });
+
   it('moves above the controls while they show (SUB-LAY-04)', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     await act(() => player.showControls(true, 88));
@@ -211,7 +244,7 @@ describe('Captions', () => {
 
   it('switches tracks mid-cue without showing the old one (SUB-TRACK-03)', async () => {
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     expect(screen.getByText('world')).toBeTruthy();
@@ -230,7 +263,7 @@ describe('Captions', () => {
     // A span React can't render
     jest.spyOn(textModule, 'parseInline').mockReturnValue([{ text: {} as unknown as string }]);
     const { player } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await flush();
     await act(() => player.seek(1.5));
     expect(screen.queryByTestId('video-captions')).toBeNull();
@@ -239,7 +272,7 @@ describe('Captions', () => {
 
   it('stops its work when the player unmounts (SUB-LOAD-05, SUB-PERF-04)', async () => {
     const { player, unmount } = await setUp();
-    await act(() => player.select({ kind: 'file', uri: 'https://example.com/en.vtt' }));
+    await act(() => player.select(file('https://example.com/en.vtt')));
     await unmount();
     await flush();
     expect(screen.queryByTestId('video-captions')).toBeNull();

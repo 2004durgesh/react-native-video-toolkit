@@ -62,10 +62,9 @@ describe('WebVTT', () => {
     }
   });
 
-  it('parses cue settings without showing them (SUB-PARSE-11)', () => {
+  it('reads a cue whose timing line has settings, without showing them (SUB-PARSE-11)', () => {
     const [cue] = parseCaptions('WEBVTT\n\n00:01.000 --> 00:02.000 align:start position:10%\nText').cues;
-    expect(cue?.text).toBe('Text');
-    expect(cue?.settings).toEqual({ align: 'start', position: '10%' });
+    expect(cue).toMatchObject({ start: 1000, end: 2000, text: 'Text' });
   });
 
   it('skips a malformed cue and keeps the rest (SUB-PARSE-04)', () => {

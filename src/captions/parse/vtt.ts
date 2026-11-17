@@ -18,16 +18,6 @@ const parseTimestampMap = (line: string): TimestampMap | undefined => {
   return mpegts !== undefined && Number.isFinite(mpegts) && local !== null ? { mpegts, local } : undefined;
 };
 
-/** Reads cue settings, `align:start position:10%`. */
-const parseSettings = (rest: string): Record<string, string> | undefined => {
-  const settings: Record<string, string> = {};
-  for (const pair of rest.split(/\s+/)) {
-    const colon = pair.indexOf(':');
-    if (colon > 0) settings[pair.slice(0, colon)] = pair.slice(colon + 1);
-  }
-  return Object.keys(settings).length > 0 ? settings : undefined;
-};
-
 /**
  * Reads a WebVTT file into cues as they are in the file. Blocks that aren't cues (`NOTE`, `STYLE`,
  * `REGION`) are skipped, and so are cues without a valid timing line. A missing `WEBVTT` header is
@@ -60,7 +50,8 @@ export const parseVTTBlocks = (text: string): { cues: RawCue[]; skipped: number;
       skipped += 1;
       return;
     }
-    for (const { rest, ...cue } of read) cues.push({ ...cue, settings: parseSettings(rest) });
+    // The rest of a timing line is cue settings (`align:start`), which aren't applied
+    for (const { rest: _settings, ...cue } of read) cues.push(cue);
   });
 
   return { cues, skipped, timestampMap };

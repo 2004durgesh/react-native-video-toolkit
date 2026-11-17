@@ -1,5 +1,7 @@
 import { AppState } from 'react-native';
+import { TextTrackType } from 'react-native-video';
 import { createCaptionsController, type CaptionPlayback } from '../CaptionsController';
+import type { CaptionTrack } from '../types';
 import { clearCaptionCache } from '../load';
 
 const VTT = [
@@ -24,9 +26,11 @@ const respond = (body: string, status = 200) =>
     arrayBuffer: async () => new TextEncoder().encode(body).buffer,
   } as Response);
 
-/** A fake player: a media time in seconds, playback state, and a manual clock. */
+/** A subtitle file track, as the toolkit lists it. */
+const file = (uri: string): CaptionTrack => ({ index: 1000, source: 'file', uri, type: TextTrackType.VTT });
+
+/** A fake player: a media time in seconds and playback state, on Jest's fake clock. */
 const setUp = (initial: Partial<CaptionPlayback> = {}) => {
-  let clock = 0;
   let time = 0;
   let playback: CaptionPlayback = {
     isPlaying: false,
@@ -36,7 +40,7 @@ const setUp = (initial: Partial<CaptionPlayback> = {}) => {
     playbackRate: 1,
     ...initial,
   };
-  const timeListeners = new Set<() => void>();
+  const timeListeners = new Set<(cause: 'player' | 'seek') => void>();
   const playbackListeners = new Set<() => void>();
   const onError = jest.fn();
   const controller = createCaptionsController({
@@ -51,7 +55,6 @@ const setUp = (initial: Partial<CaptionPlayback> = {}) => {
       return () => playbackListeners.delete(listener);
     },
     onError,
-    now: () => clock,
   });
   const stop = controller.start();
   const changes = jest.fn();
@@ -65,17 +68,19 @@ const setUp = (initial: Partial<CaptionPlayback> = {}) => {
     /** The player reports a time, in seconds. */
     report: (seconds: number) => {
       time = seconds;
-      timeListeners.forEach((listener) => listener());
+      timeListeners.forEach((listener) => listener('player'));
+    },
+    /** A seek or preview moves the time, in seconds. */
+    seek: (seconds: number) => {
+      time = seconds;
+      timeListeners.forEach((listener) => listener('seek'));
     },
     setPlayback: (next: Partial<CaptionPlayback>) => {
       playback = { ...playback, ...next };
       playbackListeners.forEach((listener) => listener());
     },
     /** Moves the clock and runs the timers due by then. */
-    advance: (ms: number) => {
-      clock += ms;
-      jest.advanceTimersByTime(ms);
-    },
+    advance: (ms: number) => jest.advanceTimersByTime(ms),
   };
 };
 
@@ -97,7 +102,7 @@ afterEach(() => {
 describe('CaptionsController', () => {
   it('shows the cue for the reported time, and nothing in gaps (SUB-SEL-01, 02)', async () => {
     const player = setUp();
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     expect(player.text()).toEqual([]);
     player.report(1.5);
@@ -109,7 +114,7 @@ describe('CaptionsController', () => {
 
   it('changes cues on time between progress reports, at each boundary (SUB-TIME-01, 02)', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(0.9);
     expect(player.text()).toEqual([]);
@@ -127,7 +132,7 @@ describe('CaptionsController', () => {
 
   it('keeps the cue while paused and continues on resume (SUB-TIME-06)', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(1.5);
     player.setPlayback({ isPlaying: false });
@@ -141,7 +146,7 @@ describe('CaptionsController', () => {
 
   it('runs no timer while paused (SUB-PERF-06)', async () => {
     const player = setUp();
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(1.5);
     expect(jest.getTimerCount()).toBe(0);
@@ -150,7 +155,7 @@ describe('CaptionsController', () => {
 
   it('follows the playback rate (SUB-TIME-07)', async () => {
     const player = setUp({ isPlaying: true, playbackRate: 2 });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(0);
     player.advance(499);
@@ -162,7 +167,7 @@ describe('CaptionsController', () => {
 
   it('holds the cue while buffering instead of running ahead (SUB-TIME-08)', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(1.2);
     player.setPlayback({ buffering: true });
@@ -173,7 +178,7 @@ describe('CaptionsController', () => {
 
   it('shows the right cue straight after a seek, either way (SUB-TIME-04)', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(5.5);
     expect(player.text()).toEqual(['Three']);
@@ -186,7 +191,7 @@ describe('CaptionsController', () => {
 
   it('does not flash an old cue back when a report lags slightly behind', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(1.5);
     player.advance(520);
@@ -199,7 +204,7 @@ describe('CaptionsController', () => {
 
   it('hides cues once the video has ended, and shows them again on replay (SUB-TIME-10)', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(5.5);
     player.setPlayback({ ended: true, isPlaying: false });
@@ -213,7 +218,7 @@ describe('CaptionsController', () => {
 
   it('follows a loop back to the start (SUB-TIME-09)', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(5.5);
     player.report(1.5);
@@ -223,11 +228,11 @@ describe('CaptionsController', () => {
 
   it('switches tracks mid-cue, clearing the old cue at once (SUB-TRACK-03)', async () => {
     const player = setUp();
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(1.5);
     expect(player.text()).toEqual(['One']);
-    player.controller.select({ kind: 'file', uri: 'https://example.com/fr.vtt' });
+    player.controller.select(file('https://example.com/fr.vtt'));
     expect(player.text()).toEqual([]);
     await flush();
     expect(player.text()).toEqual(['Autre']);
@@ -241,8 +246,8 @@ describe('CaptionsController', () => {
     );
     const player = setUp();
     player.report(1.5);
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/fr.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
+    player.controller.select(file('https://example.com/fr.vtt'));
     await flush();
     finishEnglish((await respond(VTT)) as Response);
     await flush();
@@ -252,12 +257,12 @@ describe('CaptionsController', () => {
 
   it('turns off and on again with the cue for now (SUB-TRACK-02)', async () => {
     const player = setUp();
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(2.5);
     player.controller.select(null);
     expect(player.text()).toEqual([]);
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     expect(player.text()).toEqual(['Two']);
     // The second load came from the cache
@@ -267,7 +272,7 @@ describe('CaptionsController', () => {
 
   it('only tells listeners when the cues on screen change (SUB-SEL-06)', async () => {
     const player = setUp();
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.changes.mockClear();
     player.report(1.1);
@@ -284,7 +289,7 @@ describe('CaptionsController', () => {
     player.onError.mockImplementation(() => {
       throw new Error('app bug');
     });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     expect(player.onError).toHaveBeenCalledWith({ code: 'LOAD_FAILED', url: 'https://example.com/en.vtt', reason: 'HTTP 500' });
     expect(player.text()).toEqual([]);
@@ -298,7 +303,7 @@ describe('CaptionsController', () => {
       return { remove: jest.fn() } as unknown as ReturnType<typeof AppState.addEventListener>;
     });
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(1.5);
     listeners.forEach((listener) => listener('background'));
@@ -314,7 +319,7 @@ describe('CaptionsController', () => {
 
   it('holds the time of a new video until the player reports it', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     await flush();
     player.report(0);
     player.report(1.5);
@@ -330,9 +335,41 @@ describe('CaptionsController', () => {
     player.stop();
   });
 
+  it('keeps a new video\'s cues hidden through a seek, until the player reports', async () => {
+    const player = setUp({ isPlaying: true });
+    player.controller.select(file('https://example.com/en.vtt'));
+    await flush();
+    player.controller.reset();
+    player.seek(1.5);
+    expect(player.text()).toEqual([]);
+    player.report(1.5);
+    expect(player.text()).toEqual(['One']);
+    player.stop();
+  });
+
+  it('holds the cue after the background instead of predicting from a stale time', async () => {
+    const listeners: ((state: string) => void)[] = [];
+    jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
+      listeners.push(listener as (state: string) => void);
+      return { remove: jest.fn() } as unknown as ReturnType<typeof AppState.addEventListener>;
+    });
+    const player = setUp({ isPlaying: true });
+    player.controller.select(file('https://example.com/en.vtt'));
+    await flush();
+    player.report(1.5);
+    listeners.forEach((listener) => listener('background'));
+    listeners.forEach((listener) => listener('active'));
+    // Predicting would reach the next cue at 2 s; holding keeps the last known one
+    player.advance(1000);
+    expect(player.text()).toEqual(['One']);
+    player.report(2.5);
+    expect(player.text()).toEqual(['Two']);
+    player.stop();
+  });
+
   it('stops everything when stopped, with no update afterwards (SUB-LOAD-05, SUB-PERF-04)', async () => {
     const player = setUp({ isPlaying: true });
-    player.controller.select({ kind: 'file', uri: 'https://example.com/en.vtt' });
+    player.controller.select(file('https://example.com/en.vtt'));
     player.stop();
     await flush();
     player.report(1.5);

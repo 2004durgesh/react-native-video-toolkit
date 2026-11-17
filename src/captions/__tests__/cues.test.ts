@@ -35,10 +35,9 @@ describe('createCueIndex', () => {
     expect(index.nextBoundary(6000)).toBeNull();
   });
 
-  it('keeps overlapping cues in start order, up to the maximum (SUB-PARSE-07)', () => {
+  it('shows at most two overlapping cues, in start order (SUB-PARSE-07)', () => {
     const overlapping = createCueIndex([cue(0, 10_000, 'long'), cue(1000, 3000, 'one'), cue(2000, 4000, 'two')]);
-    expect(texts(overlapping.activeAt(2500, 3))).toEqual(['long', 'one', 'two']);
-    // The cues that started last win when there are more than the maximum
+    // The cues that started last win when more than two overlap
     expect(texts(overlapping.activeAt(2500))).toEqual(['one', 'two']);
     // A long cue still shows after later short cues have ended
     expect(texts(overlapping.activeAt(5000))).toEqual(['long']);

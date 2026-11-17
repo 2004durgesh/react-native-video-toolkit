@@ -9,7 +9,6 @@ export interface RawCue {
   start: number;
   end: number;
   rawText: string;
-  settings?: Record<string, string>;
 }
 
 /**

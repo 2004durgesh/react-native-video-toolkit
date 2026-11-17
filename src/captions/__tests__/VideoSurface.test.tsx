@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TextTrackType } from 'react-native-video';
 import { VideoProvider } from '../../providers/VideoProvider';
 import { VideoPlayer } from '../../components/VideoPlayer';
+import { DefaultLayout } from '../../layouts/DefaultLayout';
 import { clearCaptionCache } from '../load';
 import type { VideoPlayerConfig } from '../../types';
 
@@ -32,10 +33,10 @@ const source = {
 
 const nativeVideo = () => screen.getByTestId('native-video');
 
-const player = (config: Partial<VideoPlayerConfig>, playing: typeof source) => (
+const player = (config: Partial<VideoPlayerConfig>, playing: object, children?: React.ReactNode) => (
   <GestureHandlerRootView>
     <VideoProvider config={{ autoPlay: false, ...config }}>
-      <VideoPlayer source={playing} />
+      <VideoPlayer source={playing}>{children}</VideoPlayer>
     </VideoProvider>
   </GestureHandlerRootView>
 );
@@ -166,6 +167,68 @@ describe('VideoSurface with the custom renderer', () => {
   it('uses the progress interval from the config (SUB-TIME-03)', async () => {
     await renderPlayer();
     expect(nativeVideo().props.progressUpdateInterval).toBe(250);
+  });
+});
+
+describe('who draws the subtitles', () => {
+  it("lets a layout's own subtitles replace the player's, so each cue shows once", async () => {
+    await render(player({}, source, <VideoPlayer.Captions controlsInset={72} />));
+    expect(screen.getAllByTestId('video-captions')).toHaveLength(1);
+    await loadVideo();
+    await flush();
+    expect(screen.getAllByTestId('video-captions-cue-0-text')).toHaveLength(1);
+  });
+
+  it('draws them once with DefaultLayout, which places its own', async () => {
+    await render(player({}, source, <DefaultLayout />));
+    expect(screen.getAllByTestId('video-captions')).toHaveLength(1);
+  });
+});
+
+describe('a new source on native players', () => {
+  it('hides the cues from onLoadStart until the player reports again', async () => {
+    await renderPlayer();
+    await loadVideo();
+    await flush();
+    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
+    await act(() => nativeVideo().props.onLoadStart?.({}));
+    expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
+    await reportProgress(0.3);
+    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
+  });
+});
+
+describe('HLS subtitle renditions', () => {
+  const MASTER = [
+    '#EXTM3U',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="English",LANGUAGE="en",DEFAULT=YES,URI="subs/en.m3u8"',
+    '#EXT-X-STREAM-INF:BANDWIDTH=1000,SUBTITLES="subs"',
+    'video.m3u8',
+  ].join('\n');
+  const MEDIA = '#EXTM3U\n#EXT-X-PLAYLIST-TYPE:VOD\n#EXTINF:10,\nseg0.vtt\n#EXT-X-ENDLIST';
+  const SEGMENT = 'WEBVTT\nX-TIMESTAMP-MAP=MPEGTS:900000,LOCAL:00:00:00.000\n\n00:00.000 --> 00:10.000\nFrom HLS';
+
+  it("lists them from 2000 and fetches them with the stream's headers", async () => {
+    const bodies: Record<string, string> = {
+      'https://example.com/master.m3u8': MASTER,
+      'https://example.com/subs/en.m3u8': MEDIA,
+      'https://example.com/subs/seg0.vtt': SEGMENT,
+    };
+    global.fetch = jest.fn(async (url: string) => ({
+      ok: url in bodies,
+      status: url in bodies ? 200 : 404,
+      arrayBuffer: async () => new TextEncoder().encode(bodies[url] ?? '').buffer,
+    })) as unknown as typeof fetch;
+    const hls = { uri: 'https://example.com/master.m3u8', headers: { Authorization: 'Bearer t' } };
+    await render(player({}, hls));
+    await flush();
+    await loadVideo([{ index: 0, language: 'en', title: 'CC' }]);
+    await flush();
+    await flush();
+    const calls = (global.fetch as jest.Mock).mock.calls;
+    expect(calls.map(([url]) => url)).toContain('https://example.com/subs/seg0.vtt');
+    expect(calls.every(([, init]) => init.headers?.Authorization === 'Bearer t')).toBe(true);
+    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('From HLS');
   });
 });
 

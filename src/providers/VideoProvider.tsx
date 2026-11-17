@@ -65,15 +65,9 @@ interface VideoProviderState extends VideoState {
    */
   naturalSize: { width: number; height: number };
   /**
-   * How much of the player's bottom edge the layout's controls cover while visible, so subtitles
-   * can stay above them.
+   * How the video fits its box (react-native-video's `resizeMode`), so subtitles can find the picture.
    */
-  controlsInset: number;
-  /**
-   * How far up from the player's bottom edge the layout's centre controls start (the play button),
-   * so subtitles that don't fit under them can hide while the controls show. 0 when unknown.
-   */
-  controlsCenterInset: number;
+  resizeMode: 'none' | 'contain' | 'cover' | 'stretch';
   /**
    * The dimensions of the screen.
    */
@@ -111,8 +105,7 @@ type Action =
   | { type: 'SET_VIDEO_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_VIDEO_WRAPPER_LAYOUT'; payload: LayoutRectangle }
   | { type: 'SET_NATURAL_SIZE'; payload: { width: number; height: number } }
-  | { type: 'SET_CONTROLS_INSET'; payload: number }
-  | { type: 'SET_CONTROLS_CENTER_INSET'; payload: number }
+  | { type: 'SET_RESIZE_MODE'; payload: VideoProviderState['resizeMode'] }
   | { type: 'SET_DIMENSIONS'; payload: { width: number; height: number } }
   | { type: 'SET_PLAYBACK_RATE'; payload: number }
   | { type: 'SET_PORTAL_HOST_NAME'; payload: string };
@@ -138,8 +131,7 @@ const initialState: Omit<VideoProviderState, 'dimensions' | 'portalHostName' | '
   videoLayout: { x: 0, y: 0, width: 0, height: 0 },
   videoWrapperLayout: { x: 0, y: 0, width: 0, height: 0 },
   naturalSize: { width: 0, height: 0 },
-  controlsInset: 0,
-  controlsCenterInset: 0,
+  resizeMode: 'contain',
 };
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -239,10 +231,8 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
       return state.naturalSize.width === action.payload.width && state.naturalSize.height === action.payload.height
         ? state
         : { ...state, naturalSize: action.payload };
-    case 'SET_CONTROLS_INSET':
-      return set('controlsInset', action.payload);
-    case 'SET_CONTROLS_CENTER_INSET':
-      return set('controlsCenterInset', action.payload);
+    case 'SET_RESIZE_MODE':
+      return set('resizeMode', action.payload);
     case 'SET_DIMENSIONS':
       return state.dimensions.width === action.payload.width && state.dimensions.height === action.payload.height
         ? state

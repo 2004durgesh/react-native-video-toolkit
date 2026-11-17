@@ -1,4 +1,4 @@
-import React, { type FC, type ReactNode, useId, useMemo } from 'react';
+import React, { type FC, type ReactNode, useId, useMemo, useState } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle, Platform, type ViewProps } from 'react-native';
 import {
   PlayButton,
@@ -18,7 +18,7 @@ import { GestureHandler } from '../gestures';
 import { useVideoSelector } from '../providers';
 import { TimeDisplay, LoadingSpinner, VideoOverlay } from './display';
 import { getFullscreenHeight } from '../utils';
-import { Captions } from '../captions/Captions';
+import { Captions, CaptionsSlotContext, PlayerCaptions, createCaptionsSlot } from '../captions/Captions';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useFullscreenExits } from '../fullscreen/useFullscreenExits';
 import { PLAYER_ID_PREFIX } from '../fullscreen/playerId';
@@ -95,6 +95,7 @@ const VideoPlayerComponent = ({
   // Each player's own id: web fullscreen finds the player around its video by this prefix, and a
   // shared id made the first player on the page go fullscreen whichever button was pressed
   const playerId = `${PLAYER_ID_PREFIX}-${useId()}`;
+  const [captionsSlot] = useState(createCaptionsSlot);
   useFullscreenExits();
   const fullscreen = useVideoSelector((state) => state.fullscreen);
   const height = useVideoSelector((state) =>
@@ -123,35 +124,37 @@ const VideoPlayerComponent = ({
 
   return (
     <TestIDContext.Provider value={testID}>
-      <View
-        id={playerId}
-        testID={testID}
-        style={[
-          {
-            position: 'relative',
-            height,
-            ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
-          },
-          containerStyle,
-        ]}>
-        <GestureHandler {...gestureProps}>
-          <View style={innerViewStyle}>
-            <DevProfiler id="VideoSurface">
-              <VideoSurface
-                {...videoProps}
-                source={source}
-                style={videoStyle ?? videoProps?.style}
-                customAudioTracks={customAudioTracks}
-                customVideoTracks={customVideoTracks}
-              />
-            </DevProfiler>
-            {/* Subtitles the toolkit draws: over the video, under the layout's controls */}
-            <Captions />
-            {/* The TV remote drives the player through a focusable surface under the layout */}
-            {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
-          </View>
-        </GestureHandler>
-      </View>
+      <CaptionsSlotContext.Provider value={captionsSlot}>
+        <View
+          id={playerId}
+          testID={testID}
+          style={[
+            {
+              position: 'relative',
+              height,
+              ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
+            },
+            containerStyle,
+          ]}>
+          <GestureHandler {...gestureProps}>
+            <View style={innerViewStyle}>
+              <DevProfiler id="VideoSurface">
+                <VideoSurface
+                  {...videoProps}
+                  source={source}
+                  style={videoStyle ?? videoProps?.style}
+                  customAudioTracks={customAudioTracks}
+                  customVideoTracks={customVideoTracks}
+                />
+              </DevProfiler>
+              {/* Subtitles the toolkit draws: over the video, under the layout's controls */}
+              <PlayerCaptions />
+              {/* The TV remote drives the player through a focusable surface under the layout */}
+              {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
+            </View>
+          </GestureHandler>
+        </View>
+      </CaptionsSlotContext.Provider>
     </TestIDContext.Provider>
   );
 };

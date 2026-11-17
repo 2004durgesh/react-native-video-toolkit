@@ -10,10 +10,9 @@ import {
 import type { TextTrack } from 'react-native-video';
 import { useSettings, usePlaybackRate, usePictureInPicture } from '../hooks';
 import Animated, { useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
-import { useEffect, type FC, type ReactNode } from 'react';
+import { useState, useSyncExternalStore, type FC, type ReactNode } from 'react';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useVideoSelector } from '../providers';
-import { useVideoStore } from '../providers/VideoProvider';
 import {
   Menu,
   Subtitle,
@@ -70,6 +69,47 @@ export interface DefaultLayoutProps {
     menuViews?: React.ReactElement;
   };
 }
+
+/** The layout's frame and where its controls sit in it, measured as they lay out. */
+const createControlsFrames = () => {
+  let frames = { height: 0, bottomTop: 0, centerBottom: 0 };
+  const listeners = new Set<() => void>();
+  return {
+    get: () => frames,
+    set: (next: Partial<typeof frames>) => {
+      const merged = { ...frames, ...next };
+      if (
+        merged.height === frames.height &&
+        merged.bottomTop === frames.bottomTop &&
+        merged.centerBottom === frames.centerBottom
+      )
+        return;
+      frames = merged;
+      listeners.forEach((listener) => listener());
+    },
+    subscribe: (listener: () => void) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+};
+
+/**
+ * The layout's subtitles: over the scrim, lifted above the bottom controls while they show, and
+ * hidden when they don't fit under the play button. It re-renders as the frames change, not the
+ * layout.
+ */
+const LayoutCaptions = ({ frames }: { frames: ReturnType<typeof createControlsFrames> }) => {
+  const { height, bottomTop, centerBottom } = useSyncExternalStore(frames.subscribe, frames.get, frames.get);
+  return (
+    <VideoPlayer.Captions
+      controlsInset={height ? Math.round(height - bottomTop) : 0}
+      centerControlsInset={height && centerBottom ? Math.round(height - centerBottom) : 0}
+    />
+  );
+};
 
 /**
  * Each quality's part of its `testID`: its height (`750p`), or `auto` for a custom list's entry with
@@ -189,22 +229,9 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   } = useSettings();
   const { playbackRate, setPlaybackRate } = usePlaybackRate();
   const { supported: pictureInPictureSupported } = usePictureInPicture();
+  // Where the controls sit, so the layout's subtitles go between the centre and bottom controls
+  const [frames] = useState(createControlsFrames);
   // IDs for end-to-end tests, starting with the player's `testID`: `video-settings-rate-1.5`
-  // Subtitles sit above the bottom controls while they show; gone with the layout, they come back down
-  const { dispatch } = useVideoStore();
-  const reportControlsInset = (event: LayoutChangeEvent) =>
-    dispatch({ type: 'SET_CONTROLS_INSET', payload: Math.round(event.nativeEvent.layout.height) });
-  // ...and below the centre controls. They're centred in the player, so their gap to the bottom
-  // edge is their gap to the top.
-  const reportCenterInset = (event: LayoutChangeEvent) =>
-    dispatch({ type: 'SET_CONTROLS_CENTER_INSET', payload: Math.round(event.nativeEvent.layout.y) });
-  useEffect(
-    () => () => {
-      dispatch({ type: 'SET_CONTROLS_INSET', payload: 0 });
-      dispatch({ type: 'SET_CONTROLS_CENTER_INSET', payload: 0 });
-    },
-    [dispatch]
-  );
   const id = usePlayerTestID();
   const videoOptionIDs = videoTrackTestIDs(videoTracks);
   // Pinned tracks go above "Off", which leads the rest
@@ -221,8 +248,12 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
           {scrim ? (
             <VideoPlayer.Overlay withControls scrim={scrim} pointerEvents="none" testID={`${id}-scrim`} />
           ) : null}
+          {/* Above the scrim, so subtitles aren't dimmed, and under the controls */}
+          <LayoutCaptions frames={frames} />
           <VideoPlayer.Controls>
-            <View style={[layoutStyles.column, { height: '100%', paddingHorizontal: 15 }]}>
+            <View
+              style={[layoutStyles.column, { height: '100%', paddingHorizontal: 15 }]}
+              onLayout={(event) => frames.set({ height: event.nativeEvent.layout.height })}>
               <FadingControls
                 offsetY={-50}
                 testID={`${id}-controls-top`}
@@ -406,7 +437,13 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 animated view's styles and drops `pointerEvents: 'box-none'`, so the overlay would
                 swallow taps meant for the top and bottom controls. */}
               <View style={layoutStyles.centerControls}>
-                <FadingControls showWhileBuffering testID={`${id}-controls-center`} onLayout={reportCenterInset}>
+                <FadingControls
+                  showWhileBuffering
+                  testID={`${id}-controls-center`}
+                  onLayout={(event) => {
+                    const { y, height } = event.nativeEvent.layout;
+                    frames.set({ centerBottom: y + height });
+                  }}>
                   <UnlessBuffering>
                     {/* On TV, left and right stay on the centre controls rather than leaving the player */}
                     <View
@@ -426,7 +463,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                 offsetY={50}
                 testID={`${id}-controls-bottom`}
                 // Its height, so subtitles move up above it while it shows
-                onLayout={reportControlsInset}
+                onLayout={(event) => frames.set({ bottomTop: event.nativeEvent.layout.y })}
                 style={[
                   layoutStyles.bottomControls,
                   {

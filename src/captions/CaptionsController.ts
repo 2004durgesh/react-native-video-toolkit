@@ -1,20 +1,13 @@
 import { createContext, useContext } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
+import { TextTrackType } from 'react-native-video';
 import { createCueIndex, type CueIndex } from './cues';
 import { CaptionLoadAborted, captionError, describeError, isCaptionError } from './errors';
 import { createHlsSubtitleLoader, type HlsSubtitleLoader } from './hls';
-import { loadCaptionFile, type CaptionSource } from './load';
-import type { CaptionError, CaptionFormat, Cue } from './types';
+import { loadCaptionFile } from './load';
+import type { CaptionError, CaptionTrack, Cue } from './types';
 
-/**
- * What the custom renderer shows: a subtitle file, or an HLS subtitle rendition.
- * @internal
- */
-export type CaptionTrackSource =
-  | { kind: 'file'; uri: CaptionSource; format?: CaptionFormat; encoding?: string }
-  | { kind: 'hls'; playlistUrl: string; headers?: Record<string, string> };
-
-/** The player state the controller follows. @internal */
+/** The player state the controller follows; a change to any of it restarts the prediction. @internal */
 export interface CaptionPlayback {
   isPlaying: boolean;
   buffering: boolean;
@@ -23,17 +16,26 @@ export interface CaptionPlayback {
   playbackRate: number;
 }
 
+// Every field of `CaptionPlayback`: the type requires each, so a new field can't be left out
+const PLAYBACK_FIELDS: Record<keyof CaptionPlayback, true> = {
+  isPlaying: true,
+  buffering: true,
+  ended: true,
+  pictureInPicture: true,
+  playbackRate: true,
+};
+const PLAYBACK_KEYS = Object.keys(PLAYBACK_FIELDS) as (keyof CaptionPlayback)[];
+
 /** What the controller reads from the provider. @internal */
 export interface CaptionsControllerOptions {
-  /** The media time in seconds, as the player last reported it (or a seek or preview set it). */
+  /** The media time in seconds: the player's last report, or a seek or preview since. */
   getTime: () => number;
-  subscribeTime: (listener: () => void) => () => void;
+  /** Calls `listener` when the time changes: `'player'` for the player's own report. */
+  subscribeTime: (listener: (cause: 'player' | 'seek') => void) => () => void;
   getPlayback: () => CaptionPlayback;
   subscribePlayback: (listener: () => void) => () => void;
   /** Called with load and parse failures. Its own errors are swallowed. */
   onError?: (error: CaptionError) => void;
-  /** The clock, in ms. @default Date.now */
-  now?: () => number;
 }
 
 /**
@@ -42,8 +44,18 @@ export interface CaptionsControllerOptions {
  */
 const LAG_TOLERANCE = 150;
 
-const sourceKey = (source: CaptionTrackSource | null) =>
-  source === null ? '' : source.kind === 'file' ? `file:${String(source.uri)}` : `hls:${source.playlistUrl}`;
+/**
+ * - `following`: predicting the time between the player's reports.
+ * - `resuming`: back from the background, holding the last cue until the player reports again.
+ * - `loading`: a new source, showing nothing until the player reports its first position.
+ */
+type Phase = 'following' | 'resuming' | 'loading';
+
+const sourceKey = (track: CaptionTrack | null) => (track ? `${track.source}:${String(track.uri)}` : '');
+
+/** Whether the toolkit draws a track: a subtitle file or an HLS subtitle rendition. @internal */
+export const isDrawnByToolkit = (track: CaptionTrack | null | undefined): track is CaptionTrack =>
+  !!track && track.uri !== undefined && (track.source === 'file' || track.source === 'hls');
 
 /**
  * Decides which cues show, for one `VideoProvider`. It loads the selected track, follows the
@@ -57,34 +69,18 @@ const sourceKey = (source: CaptionTrackSource | null) =>
  * @internal
  */
 export const createCaptionsController = (options: CaptionsControllerOptions) => {
-  const now = options.now ?? Date.now;
   const listeners = new Set<() => void>();
   let index: CueIndex | null = null;
-  let active: Cue[] = [];
-  let key = '';
-  let anchor = { time: options.getTime() * 1000, at: now() };
+  let active: readonly Cue[] = [];
+  let anchor = { time: options.getTime() * 1000, at: Date.now() };
   let playback = options.getPlayback();
   let appActive = true;
-  // After returning from the background the last reported time is stale until the next report
-  let awaitingReport = false;
-  // A new video is loading: no cues until the player reports its first position
-  let loading = false;
+  let phase: Phase = 'following';
   let timer: ReturnType<typeof setTimeout> | null = null;
-  let selected: CaptionTrackSource | null = null;
+  let selected: CaptionTrack | null = null;
   let generation = 0;
   let abort: AbortController | null = null;
   let hls: HlsSubtitleLoader | null = null;
-  const cueIds = new WeakMap<Cue, number>();
-  let nextCueId = 1;
-
-  const idOf = (cue: Cue) => {
-    let id = cueIds.get(cue);
-    if (id === undefined) {
-      id = nextCueId++;
-      cueIds.set(cue, id);
-    }
-    return id;
-  };
 
   const reportError = (error: unknown, url: string) => {
     if (error instanceof CaptionLoadAborted) return;
@@ -101,34 +97,34 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
   };
 
   const running = () =>
+    phase === 'following' &&
+    appActive &&
     playback.isPlaying &&
     !playback.buffering &&
     !playback.ended &&
-    !playback.pictureInPicture &&
-    appActive &&
-    !awaitingReport;
+    !playback.pictureInPicture;
 
   /** The media time now, in ms. */
   const mediaTime = () =>
-    running() ? anchor.time + (now() - anchor.at) * Math.max(0, playback.playbackRate) : anchor.time;
+    running() ? anchor.time + (Date.now() - anchor.at) * Math.max(0, playback.playbackRate) : anchor.time;
 
   const clearTimer = () => {
     if (timer !== null) clearTimeout(timer);
     timer = null;
   };
 
+  const setActive = (next: readonly Cue[]) => {
+    if (next.length === active.length && next.every((cue, i) => cue === active[i])) return;
+    active = next;
+    listeners.forEach((listener) => listener());
+  };
+
   const update = () => {
     clearTimer();
     const time = mediaTime();
     hls?.setTime(time);
-    const hidden = !index || loading || playback.ended || playback.pictureInPicture;
-    const next = hidden || !index ? [] : index.activeAt(time);
-    const nextKey = next.map(idOf).join(',');
-    if (nextKey !== key) {
-      key = nextKey;
-      active = next;
-      listeners.forEach((listener) => listener());
-    }
+    const hidden = !index || phase === 'loading' || playback.ended || playback.pictureInPicture;
+    setActive(hidden || !index ? [] : index.activeAt(time));
     if (!hidden && index && running() && playback.playbackRate > 0) {
       const boundary = index.nextBoundary(time);
       if (boundary !== null) {
@@ -139,37 +135,38 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
     }
   };
 
-  /** Restarts the prediction from the time it has reached, before the playback state changes. */
-  const reanchor = () => {
-    anchor = { time: mediaTime(), at: now() };
-  };
-
-  const onTime = () => {
+  const onTime = (cause: 'player' | 'seek') => {
+    // A seek or preview: the time jumps, but a new source still waits for the player's report
+    if (cause === 'seek') {
+      anchor = { time: options.getTime() * 1000, at: Date.now() };
+      return update();
+    }
     const reported = options.getTime() * 1000;
     const predicted = mediaTime();
-    awaitingReport = false;
-    loading = false;
     // A report a little behind the prediction keeps the prediction, so a cue that just changed
     // doesn't flash back; a seek, or anything further, takes the reported time
     const lagging = running() && reported < predicted && predicted - reported <= LAG_TOLERANCE;
-    anchor = { time: lagging ? predicted : reported, at: now() };
+    phase = 'following';
+    anchor = { time: lagging ? predicted : reported, at: Date.now() };
     update();
   };
 
   const onPlayback = () => {
-    reanchor();
-    playback = options.getPlayback();
-    anchor.at = now();
+    const next = options.getPlayback();
+    if (PLAYBACK_KEYS.every((key) => next[key] === playback[key])) return;
+    // The prediction restarts from the time it has reached under the old state
+    anchor = { time: mediaTime(), at: Date.now() };
+    playback = next;
     update();
   };
 
   const onAppState = (state: AppStateStatus) => {
     const nextActive = state === 'active';
     if (nextActive === appActive) return;
-    reanchor();
+    anchor = { time: mediaTime(), at: Date.now() };
     appActive = nextActive;
     // Coming back, the last report is stale: hold until the player reports again
-    if (nextActive) awaitingReport = true;
+    if (nextActive && phase === 'following') phase = 'resuming';
     update();
   };
 
@@ -188,81 +185,74 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
 
   return {
     /**
-     * Shows a track, or none (`null`: Off, or a track the player renders natively). Selecting the
-     * track that's already showing does nothing.
+     * Shows a track the toolkit draws, or none (`null`, Off, or a track the player draws). Selecting
+     * the track that's already showing does nothing. `headers` go with an HLS rendition's requests.
      */
-    select: (source: CaptionTrackSource | null) => {
-      if (sourceKey(source) === sourceKey(selected)) return;
+    select: (track: CaptionTrack | null, headers?: Record<string, string>) => {
+      const next = isDrawnByToolkit(track) ? track : null;
+      if (sourceKey(next) === sourceKey(selected)) return;
       stopLoading();
-      selected = source;
+      selected = next;
       // The old track's cues go at once, so they never show over the new one
       index = null;
       update();
-      if (!source) return;
+      if (!next) return;
 
       const current = generation;
-      if (source.kind === 'file') {
+      const url = String(next.uri);
+      if (next.source === 'file') {
         abort = new AbortController();
-        loadCaptionFile(source.uri, { signal: abort.signal, format: source.format, encoding: source.encoding })
+        const format = next.type === TextTrackType.SUBRIP ? 'srt' : next.type === TextTrackType.VTT ? 'vtt' : undefined;
+        loadCaptionFile(next.uri!, { signal: abort.signal, format })
           .then((result) => {
             if (current === generation) setCues(result.cues);
           })
           .catch((error) => {
-            if (current === generation) reportError(error, String(source.uri));
+            if (current === generation) reportError(error, url);
           });
       } else {
         hls = createHlsSubtitleLoader({
-          playlistUrl: source.playlistUrl,
-          headers: source.headers,
+          playlistUrl: url,
+          headers,
           onCues: (cues) => {
             if (current === generation) setCues(cues);
           },
           onError: (error) => {
-            if (current === generation) reportError(error, source.playlistUrl);
+            if (current === generation) reportError(error, url);
           },
         });
         hls.setTime(mediaTime());
       }
     },
     /**
-     * A new video: call after the time is set back to its start. No cues show until the player
-     * reports its first position, so none run ahead of the video or show over its loading screen.
+     * A new source: no cues show until the player reports its first position, so none run ahead
+     * of the video or show over its loading screen.
      */
     reset: () => {
-      anchor = { time: options.getTime() * 1000, at: now() };
-      awaitingReport = true;
-      loading = true;
+      phase = 'loading';
+      anchor = { time: 0, at: Date.now() };
       update();
     },
     /** Passes an error to `onCaptionError`, as the controller does for its own. */
     report: (error: CaptionError) => reportError(error, error.url),
-    /** The cues on screen, in start order. */
+    /** The cues on screen, in start order. A new array exactly when they change. */
     getActive: (): readonly Cue[] => active,
-    /** Changes exactly when the cues on screen change. */
-    getKey: () => key,
     subscribe: (listener: () => void) => {
       listeners.add(listener);
       return () => {
         listeners.delete(listener);
       };
     },
-    /** Starts following the player. Returns a function that stops it and cancels any load. */
+    /**
+     * Starts following the player. Returns a function that stops it, cancels any load and clears the
+     * selection. Players select tracks before the provider starts this (child effects run first), so
+     * starting keeps the selection and the phase.
+     */
     start: () => {
-      anchor = { time: options.getTime() * 1000, at: now() };
+      anchor = { time: options.getTime() * 1000, at: Date.now() };
       playback = options.getPlayback();
       const unsubscribeTime = options.subscribeTime(onTime);
-      const unsubscribePlayback = options.subscribePlayback(() => {
-        const next = options.getPlayback();
-        if (
-          next.isPlaying !== playback.isPlaying ||
-          next.buffering !== playback.buffering ||
-          next.ended !== playback.ended ||
-          next.pictureInPicture !== playback.pictureInPicture ||
-          next.playbackRate !== playback.playbackRate
-        ) {
-          onPlayback();
-        }
-      });
+      const unsubscribePlayback = options.subscribePlayback(onPlayback);
       const appState = AppState.addEventListener('change', onAppState);
       update();
       return () => {
@@ -272,6 +262,8 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
         clearTimer();
         stopLoading();
         selected = null;
+        index = null;
+        setActive([]);
       };
     },
   };

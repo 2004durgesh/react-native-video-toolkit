@@ -4,13 +4,11 @@ import type { Cue } from './types';
  * Finds the cues on screen at a media time.
  */
 export interface CueIndex {
-  /** The cues, sorted by start. */
-  readonly cues: readonly Cue[];
   /**
    * The cues showing at `time` (ms): those with `start <= time < end`, in start order. When more
-   * than `max` overlap, the `max` that started last.
+   * than two overlap, the two that started last.
    */
-  activeAt: (time: number, max?: number) => Cue[];
+  activeAt: (time: number) => Cue[];
   /**
    * The next time after `time` when a cue starts or ends, or `null` if none does.
    */
@@ -18,7 +16,7 @@ export interface CueIndex {
 }
 
 /** How many overlapping cues show at once. */
-export const DEFAULT_MAX_VISIBLE_CUES = 2;
+const MAX_VISIBLE_CUES = 2;
 
 /**
  * Indexes cues for lookups by time: a binary search on the starts, then a scan back that stops
@@ -58,8 +56,7 @@ export const createCueIndex = (input: readonly Cue[]): CueIndex => {
   };
 
   return {
-    cues,
-    activeAt: (time, max = DEFAULT_MAX_VISIBLE_CUES) => showingAt(time).slice(0, max).reverse(),
+    activeAt: (time) => showingAt(time).slice(0, MAX_VISIBLE_CUES).reverse(),
     nextBoundary: (time) => {
       // A cue that isn't showing and ends later must also start later, so the next boundary is the
       // next start or the earliest end of the cues showing now

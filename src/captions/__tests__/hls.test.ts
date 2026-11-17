@@ -35,19 +35,13 @@ describe('HLS playlists', () => {
         uri: 'https://cdn.example.com/bipbop/s1/en/prog_index.m3u8',
         name: 'English',
         language: 'en',
-        groupId: 'sub1',
         default: true,
-        autoselect: true,
-        forced: false,
       },
       {
         uri: 'https://cdn.example.com/bipbop/s1/fr/prog_index.m3u8',
         name: 'Français, forcé',
         language: 'fr',
-        groupId: 'sub1',
         default: false,
-        autoselect: false,
-        forced: true,
       },
     ]);
   });

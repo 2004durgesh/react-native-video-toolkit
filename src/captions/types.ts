@@ -26,8 +26,6 @@ export interface Cue {
   spans: CueSpan[];
   /** Whether the text reads right to left, from its first letter. */
   rtl: boolean;
-  /** WebVTT cue settings (`position`, `align`, `line`, `size`). Parsed but not applied yet. */
-  settings?: Record<string, string>;
 }
 
 /**

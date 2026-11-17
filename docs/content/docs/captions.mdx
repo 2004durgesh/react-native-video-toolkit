@@ -77,12 +77,12 @@ Changes apply straight away, without reloading the video.
 
 Subtitles move up above `DefaultLayout`'s bottom controls while they show, and back down when they hide. In a small player there may be no room between the bottom controls and the play button; subtitles then hide while the controls show, instead of sitting under the play button.
 
-With your own layout, tell them how far your controls reach up from the bottom of the player, and where your centre controls start:
+The player draws subtitles in any layout. With your own layout, render `<VideoPlayer.Captions>` where they should go, usually just before your controls; it then replaces the player's own. Tell it how far your bottom controls reach up from the bottom of the player, and where your centre controls start:
 
 ```tsx
 <VideoPlayer source={source}>
-  <MyControls />
   <VideoPlayer.Captions controlsInset={72} centerControlsInset={140} />
+  <MyControls />
 </VideoPlayer>
 ```
 

@@ -1,4 +1,13 @@
-import React, { Component, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
+import React, {
+  Component,
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -26,14 +35,14 @@ export interface CaptionsProps {
   /** Styles for the text, over `theme.captions`. */
   textStyle?: StyleProp<TextStyle>;
   /**
-   * How far your own controls reach up from the player's bottom edge while visible, so subtitles
-   * stay above them. `DefaultLayout` reports its own; set this with a custom layout.
+   * How far your controls reach up from the player's bottom edge while visible, so subtitles stay
+   * above them.
    */
   controlsInset?: number;
   /**
    * How far up from the player's bottom edge your centre controls (a play button) start while
    * visible. Subtitles that don't fit between them and the bottom controls hide until the controls
-   * do. `DefaultLayout` reports its own; set this with a custom layout.
+   * do.
    */
   centerControlsInset?: number;
   /**
@@ -48,14 +57,20 @@ export interface CaptionsProps {
 const CONTROLS_GAP = 8;
 const LIFT_DURATION = 150;
 
-/** The picture inside the video box, as `resizeMode: contain` draws it. */
-const pictureRect = (box: { width: number; height: number }, natural: { width: number; height: number }) => {
-  if (natural.width <= 0 || natural.height <= 0 || box.width <= 0 || box.height <= 0) {
+type Size = { width: number; height: number };
+
+/**
+ * The visible picture inside the video box, as the video's `resizeMode` draws it. A picture larger
+ * than the box (`cover`, or `none` with a big video) is cut to the box, as the video itself is.
+ */
+const pictureRect = (box: Size, natural: Size, resizeMode: 'none' | 'contain' | 'cover' | 'stretch') => {
+  if (resizeMode === 'stretch' || natural.width <= 0 || natural.height <= 0 || box.width <= 0 || box.height <= 0) {
     return { x: 0, y: 0, width: box.width, height: box.height };
   }
-  const scale = Math.min(box.width / natural.width, box.height / natural.height);
-  const width = natural.width * scale;
-  const height = natural.height * scale;
+  const fit = { contain: Math.min, cover: Math.max, none: () => 1 }[resizeMode];
+  const scale = fit(box.width / natural.width, box.height / natural.height);
+  const width = Math.min(box.width, natural.width * scale);
+  const height = Math.min(box.height, natural.height * scale);
   return { x: (box.width - width) / 2, y: (box.height - height) / 2, width, height };
 };
 
@@ -191,8 +206,7 @@ const Lift = ({
 const CaptionsLayer = ({ style, textStyle, controlsInset, centerControlsInset, testID }: CaptionsProps) => {
   const captions = useCaptionsController();
   // Re-renders only when the cues on screen change
-  useSyncExternalStore(captions.subscribe, captions.getKey, captions.getKey);
-  const cues = captions.getActive();
+  const cues = useSyncExternalStore(captions.subscribe, captions.getActive, captions.getActive);
   const layerTestID = useTestID('captions', testID);
   // The layer covers the player, so its size is the video box's. Measured here rather than read from
   // the video, which doesn't report its layout on web.
@@ -208,16 +222,15 @@ const CaptionsLayer = ({ style, textStyle, controlsInset, centerControlsInset, t
     setStackHeight((previous) => (previous === height ? previous : height));
   };
   const natural = useVideoSelector((state) => state.naturalSize);
+  const resizeMode = useVideoSelector((state) => state.resizeMode);
   const controlsVisible = useVideoSelector((state) => state.controlsVisible);
-  const layoutInset = useVideoSelector((state) => state.controlsInset);
-  const layoutCenterInset = useVideoSelector((state) => state.controlsCenterInset);
   // Safe areas only matter in fullscreen; inline, the player isn't at the screen's edges
   const fullscreen = useVideoSelector((state) => state.fullscreen);
   const safeArea = useVideoSelector((state) => state.config.safeAreaInsets);
   const insets = fullscreen ? safeArea : undefined;
   const theme = useVideoSelector((state) => state.theme.captions);
 
-  const picture = pictureRect(box, natural);
+  const picture = pictureRect(box, natural, resizeMode);
   const fontSize = fontSizeFor(theme, picture.height);
   const lineHeight = Math.round(fontSize * theme.lineHeightMultiplier);
   const barBelow = Math.max(0, box.height - (picture.y + picture.height));
@@ -228,11 +241,11 @@ const CaptionsLayer = ({ style, textStyle, controlsInset, centerControlsInset, t
     (theme.position === 'bars' && fitsInBar
       ? Math.max(2, (barBelow - lineHeight - theme.paddingVertical * 2) / 2)
       : barBelow + margin) + (insets?.bottom ?? 0);
-  const inset = controlsInset ?? layoutInset;
+  const inset = controlsInset ?? 0;
   const lift = controlsVisible && inset > 0 ? Math.max(0, inset + CONTROLS_GAP - bottom) : 0;
   // Lifted, the cues must still end below the centre controls; when there's no room (a small
   // player), they hide while the controls show rather than sit under the play button
-  const centerInset = centerControlsInset ?? layoutCenterInset;
+  const centerInset = centerControlsInset ?? 0;
   const blocked =
     controlsVisible &&
     centerInset > 0 &&
@@ -271,13 +284,23 @@ const isSameSize = (a: { width: number; height: number }, b: { width: number; he
 
 /**
  * Renders nothing if the subtitles fail to render, so a subtitle problem never takes the video
- * down with it.
+ * down with it. A new `resetKey` (the next cues) tries again, so one bad cue doesn't turn subtitles
+ * off for good.
  */
-class CaptionsBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
+class CaptionsBoundary extends Component<
+  { resetKey: string; children: ReactNode },
+  { failed: boolean; failedKey: string | null }
+> {
+  state = { failed: false, failedKey: null as string | null };
 
   static getDerivedStateFromError() {
     return { failed: true };
+  }
+
+  static getDerivedStateFromProps(props: { resetKey: string }, state: { failed: boolean; failedKey: string | null }) {
+    if (!state.failed) return null;
+    if (state.failedKey === null) return { failedKey: props.resetKey };
+    return state.failedKey === props.resetKey ? null : { failed: false, failedKey: null };
   }
 
   componentDidCatch(error: unknown) {
@@ -289,23 +312,82 @@ class CaptionsBoundary extends Component<{ children: ReactNode }, { failed: bool
   }
 }
 
-/**
- * The subtitles the toolkit draws, over the video and under the controls. `VideoPlayer` renders it
- * for you; render it yourself only to pass props, with `config.captionRenderer` left as `'custom'`.
- *
- * @param {CaptionsProps} props - The props for the component.
- * @returns {React.ReactElement | null} The subtitle layer, or nothing with the native renderer.
- */
-export const Captions = (props: CaptionsProps): React.ReactElement | null => {
+const CaptionsRenderer = (props: CaptionsProps): React.ReactElement | null => {
   const renderer = useVideoSelector((state) => state.config.captionRenderer);
+  const captions = useCaptionsController();
+  const cues = useSyncExternalStore(captions.subscribe, captions.getActive, captions.getActive);
   if (renderer === 'native') return null;
   return (
-    <CaptionsBoundary>
+    <CaptionsBoundary resetKey={cues.map((cue) => `${cue.start}-${cue.end}`).join(',')}>
       <DevProfiler id="Captions">
         <CaptionsLayer {...props} />
       </DevProfiler>
     </CaptionsBoundary>
   );
+};
+
+/**
+ * Whether a layout draws the player's subtitles: a mounted `<VideoPlayer.Captions>` claims them, and
+ * the player's own layer steps aside, so they're never drawn twice. One per `VideoPlayer`.
+ * @internal
+ */
+export const createCaptionsSlot = () => {
+  let claims = 0;
+  const listeners = new Set<() => void>();
+  const notify = () => listeners.forEach((listener) => listener());
+  return {
+    isClaimed: () => claims > 0,
+    subscribe: (listener: () => void) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    claim: () => {
+      claims += 1;
+      notify();
+      return () => {
+        claims -= 1;
+        notify();
+      };
+    },
+  };
+};
+
+/** @internal */
+export const CaptionsSlotContext = createContext<ReturnType<typeof createCaptionsSlot> | null>(null);
+
+const unclaimed = () => false;
+const noSubscription = () => () => {};
+
+/**
+ * The player's own subtitle layer, which `VideoPlayer` renders under its children. It steps aside
+ * when the layout renders `<VideoPlayer.Captions>`.
+ * @internal
+ */
+export const PlayerCaptions = (): React.ReactElement | null => {
+  const slot = useContext(CaptionsSlotContext);
+  const claimed = useSyncExternalStore(
+    slot?.subscribe ?? noSubscription,
+    slot?.isClaimed ?? unclaimed,
+    slot?.isClaimed ?? unclaimed
+  );
+  return claimed ? null : <CaptionsRenderer />;
+};
+
+/**
+ * The subtitles the toolkit draws. `VideoPlayer` draws them in every layout; render this in your
+ * layout to place them yourself (above a scrim, under your controls) or to pass insets and styles.
+ * It then replaces the player's own, with `config.captionRenderer` left as `'custom'`.
+ *
+ * @param {CaptionsProps} props - The props for the component.
+ * @returns {React.ReactElement | null} The subtitle layer, or nothing with the native renderer.
+ */
+export const Captions = (props: CaptionsProps): React.ReactElement | null => {
+  const slot = useContext(CaptionsSlotContext);
+  // Before paint, so the player's own layer never draws for a frame alongside this one
+  useLayoutEffect(() => slot?.claim(), [slot]);
+  return <CaptionsRenderer {...props} />;
 };
 
 const styles = StyleSheet.create({

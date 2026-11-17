@@ -1,5 +1,5 @@
 import { parseCaptions } from './parse';
-import { fetchCaptionText, DEFAULT_CAPTION_TIMEOUT } from './load';
+import { fetchCaptionText } from './load';
 import { CaptionLoadAborted, captionError, isCaptionError, describeError } from './errors';
 import { resolveUrl } from './url';
 import type { CaptionError, Cue, TimestampMap } from './types';
@@ -12,10 +12,8 @@ export interface HlsSubtitleRendition {
   uri: string;
   name: string;
   language?: string;
-  groupId?: string;
+  /** Marked `DEFAULT=YES`: the stream's own pick. */
   default: boolean;
-  autoselect: boolean;
-  forced: boolean;
 }
 
 /** A WebVTT segment of a subtitle media playlist. Times in ms. @internal */
@@ -65,10 +63,7 @@ export const parseMasterPlaylist = (text: string, baseUrl: string): HlsSubtitleR
       uri,
       name: attributes.NAME ?? attributes.LANGUAGE ?? 'Subtitles',
       language: attributes.LANGUAGE,
-      groupId: attributes['GROUP-ID'],
       default: attributes.DEFAULT === 'YES',
-      autoselect: attributes.AUTOSELECT === 'YES',
-      forced: attributes.FORCED === 'YES',
     });
   }
   return renditions;
@@ -116,7 +111,7 @@ const cueKey = (cue: Cue) => `${cue.start}|${cue.end}|${cue.text}`;
  */
 export const loadHlsSubtitleRenditions = async (
   masterUrl: string,
-  options: { headers?: Record<string, string>; signal?: AbortSignal; timeoutMs?: number } = {}
+  options: { headers?: Record<string, string>; signal?: AbortSignal } = {}
 ): Promise<HlsSubtitleRendition[]> => {
   const text = await fetchCaptionText(masterUrl, options);
   return isMasterPlaylist(text) ? parseMasterPlaylist(text, masterUrl) : [];
@@ -130,12 +125,11 @@ const WINDOW_BEHIND = 1;
 const WINDOW_AHEAD = 3;
 const CONCURRENCY = 2;
 
-/** What `createHlsSubtitleLoader` reports. @internal */
+/** The rendition `createHlsSubtitleLoader` loads, and where it reports. @internal */
 export interface HlsSubtitleLoaderOptions {
   /** The rendition's media playlist. */
   playlistUrl: string;
   headers?: Record<string, string>;
-  timeoutMs?: number;
   /** Called with all the cues loaded so far, each time a segment adds some. */
   onCues: (cues: Cue[]) => void;
   /** Called once per failure: the playlist, a live playlist, or a segment. */
@@ -150,9 +144,9 @@ export interface HlsSubtitleLoaderOptions {
  * @internal
  */
 export const createHlsSubtitleLoader = (options: HlsSubtitleLoaderOptions) => {
-  const { playlistUrl, headers, timeoutMs = DEFAULT_CAPTION_TIMEOUT, onCues, onError } = options;
+  const { playlistUrl, headers, onCues, onError } = options;
   const controller = new AbortController();
-  const fetchOptions = { headers, timeoutMs, signal: controller.signal };
+  const fetchOptions = { headers, signal: controller.signal };
   let segments: HlsSegment[] | null = null;
   let baseline: number | null = null;
   const states = new Map<number, 'loading' | 'loaded' | 'failed'>();

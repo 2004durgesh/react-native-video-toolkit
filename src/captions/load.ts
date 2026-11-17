@@ -14,14 +14,12 @@ export type CaptionSource = string | number;
 export interface FetchCaptionOptions {
   /** Request headers, such as an `Authorization` token. */
   headers?: Record<string, string>;
-  /** How long to wait for the file. @default 10000 */
-  timeoutMs?: number;
   /** Cancels the load. */
   signal?: AbortSignal;
 }
 
-/** The default time to wait for a subtitle file or playlist. */
-export const DEFAULT_CAPTION_TIMEOUT = 10_000;
+/** How long to wait for a subtitle file or playlist. */
+const TIMEOUT = 10_000;
 
 /**
  * The URL of a subtitle source: a bundled file's from React Native's asset registry.
@@ -39,7 +37,7 @@ export const resolveCaptionUri = (source: CaptionSource): string | null => {
  * @internal
  */
 export const fetchCaptionBytes = async (url: string, options: FetchCaptionOptions = {}): Promise<Uint8Array> => {
-  const { headers, timeoutMs = DEFAULT_CAPTION_TIMEOUT, signal } = options;
+  const { headers, signal } = options;
   if (signal?.aborted) throw new CaptionLoadAborted();
   const controller = new AbortController();
   const abort = () => controller.abort();
@@ -48,7 +46,7 @@ export const fetchCaptionBytes = async (url: string, options: FetchCaptionOption
   const timer = setTimeout(() => {
     timedOut = true;
     controller.abort();
-  }, timeoutMs);
+  }, TIMEOUT);
   try {
     const response = await fetch(url, { headers, signal: controller.signal });
     if (!response.ok) throw captionError('LOAD_FAILED', url, `HTTP ${response.status}`);
@@ -56,7 +54,7 @@ export const fetchCaptionBytes = async (url: string, options: FetchCaptionOption
   } catch (error) {
     // Judged by what was cancelled, not by the error's name: fetch implementations name it differently
     if (signal?.aborted) throw new CaptionLoadAborted();
-    if (timedOut) throw captionError('TIMEOUT', url, `No response within ${timeoutMs} ms`);
+    if (timedOut) throw captionError('TIMEOUT', url, `No response within ${TIMEOUT} ms`);
     if (isCaptionError(error)) throw error;
     throw captionError('LOAD_FAILED', url, describeError(error));
   } finally {
@@ -69,12 +67,12 @@ export const fetchCaptionBytes = async (url: string, options: FetchCaptionOption
  * Fetches a URL as text, decoded with `decodeCaptionBytes`.
  * @internal
  */
-export const fetchCaptionText = async (
-  url: string,
-  options: FetchCaptionOptions & { encoding?: string } = {}
-): Promise<string> => decodeCaptionBytes(await fetchCaptionBytes(url, options), options.encoding);
+export const fetchCaptionText = async (url: string, options: FetchCaptionOptions = {}): Promise<string> =>
+  decodeCaptionBytes(await fetchCaptionBytes(url, options));
 
+// Parsed files by URL and format, the most recent last; the oldest go past the limit
 const cache = new Map<string, ParseResult>();
+const CACHE_LIMIT = 20;
 
 /** @internal Clears the parsed-file cache, for tests. */
 export const clearCaptionCache = () => cache.clear();
@@ -87,11 +85,12 @@ export const clearCaptionCache = () => cache.clear();
  */
 export const loadCaptionFile = async (
   source: CaptionSource,
-  options: FetchCaptionOptions & { encoding?: string; format?: CaptionFormat } = {}
+  options: FetchCaptionOptions & { format?: CaptionFormat } = {}
 ): Promise<ParseResult> => {
   const url = resolveCaptionUri(source);
   if (!url) throw captionError('LOAD_FAILED', String(source), 'The bundled file could not be resolved');
-  const cached = cache.get(url);
+  const key = `${options.format ?? ''}|${url}`;
+  const cached = cache.get(key);
   if (cached) return cached;
 
   const text = await fetchCaptionText(url, options);
@@ -99,10 +98,16 @@ export const loadCaptionFile = async (
   if (content.startsWith('<')) {
     throw captionError('UNSUPPORTED_FORMAT', url, 'Not a WebVTT or SRT file (XML or HTML)');
   }
-  const result = parseCaptions(text, options.format ?? detectCaptionFormat(text));
+  let result: ParseResult;
+  try {
+    result = parseCaptions(text, options.format ?? detectCaptionFormat(text));
+  } catch (error) {
+    throw captionError('PARSE_FAILED', url, describeError(error));
+  }
   if (result.cues.length === 0 && result.skipped > 0) {
     throw captionError('PARSE_FAILED', url, `No valid cue in ${result.skipped} block(s)`);
   }
-  cache.set(url, result);
+  cache.set(key, result);
+  if (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value!);
   return result;
 };

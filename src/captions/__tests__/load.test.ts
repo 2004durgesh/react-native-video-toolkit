@@ -55,10 +55,6 @@ describe('decodeCaptionBytes (SUB-LOAD-02)', () => {
   it('reads a file that is not valid UTF-8 as Windows-1252', () => {
     expect(decodeCaptionBytes(new Uint8Array([0x43, 0x61, 0x66, 0xe9]))).toBe('Café');
   });
-
-  it('uses the encoding it is given', () => {
-    expect(decodeCaptionBytes(new Uint8Array([0x43, 0x61, 0x66, 0xe9]), 'latin1')).toBe('Café');
-  });
 });
 
 describe('resolveUrl', () => {
