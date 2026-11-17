@@ -4,8 +4,9 @@ set -e
 
 # Snapshot the files that were staged before the hook ran, so that at the end
 # we only re-stage those (with formatting/lint fixes applied) instead of
-# sweeping in unstaged or untracked changes.
-STAGED_FILES=$(git diff --cached --name-only)
+# sweeping in unstaged or untracked changes. Deleted files stay staged as they
+# are: there's nothing to re-stage, and `git add` would fail on them.
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=d)
 
 # Ensure README.md is restored if script exits
 trap 'test -f README.mdx && mv README.mdx README.md' EXIT
