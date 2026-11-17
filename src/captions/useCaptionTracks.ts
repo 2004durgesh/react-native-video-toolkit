@@ -64,7 +64,6 @@ export const useCaptionTracks = (source: Source, legacyTextTracks: TextTracks | 
     headers.current = sourceObject?.headers;
   });
 
-  /** Lists the tracks, with Off first, and picks one. An HLS stream's renditions replace the player's. */
   const list = () => {
     const known = customCaptions
       ? [...fileTracks, ...(hlsTracks.current.length > 0 ? hlsTracks.current : nativeTracks.current)]

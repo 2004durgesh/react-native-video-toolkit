@@ -32,9 +32,7 @@ import { DEFAULT_VIDEO_TEST_ID, TestIDContext, useTestID } from '../utils/testID
  */
 interface VideoPlayerProps extends ViewProps {
   /**
-   * The source of the video to be played.
-   * This can be a remote URL or a local file path.
-   * Extends the source prop from react-native-video.
+   * The video to play, as react-native-video's `source`: a remote URL or a local file path.
    */
   source: ReactVideoProps['source'];
   /**
@@ -56,7 +54,7 @@ interface VideoPlayerProps extends ViewProps {
    */
   gestureProps?: GestureHandlerProps;
   /**
-   * Props to style the video component itself.
+   * Style for the video itself. Takes the place of `videoProps.style`.
    */
   videoStyle?: ReactVideoProps['style'];
   /**
@@ -77,10 +75,6 @@ interface VideoPlayerProps extends ViewProps {
   testID?: string;
 }
 
-/**
- * The root component for the video player.
- * This component is responsible for rendering the video and handling user gestures.
- */
 const VideoPlayerComponent = ({
   source,
   children,
@@ -92,7 +86,6 @@ const VideoPlayerComponent = ({
   customVideoTracks,
   testID = DEFAULT_VIDEO_TEST_ID,
 }: VideoPlayerProps) => {
-  // this is the root of all the things :)
   // Each player's own id: web fullscreen finds the player around its video by this prefix, and a
   // shared id made the first player on the page go fullscreen whichever button was pressed
   const playerId = `${PLAYER_ID_PREFIX}-${useId()}`;
@@ -150,7 +143,6 @@ const VideoPlayerComponent = ({
               </DevProfiler>
               {/* Subtitles the toolkit draws: over the video, under the layout's controls */}
               <PlayerCaptions />
-              {/* The TV remote drives the player through a focusable surface under the layout */}
               {PlatformUtils.isTV() ? <TVPlayerFocus>{children}</TVPlayerFocus> : children}
             </View>
           </GestureHandler>
@@ -182,8 +174,9 @@ const VideoControls: FC<{
 };
 
 /**
- * The main VideoPlayer component with a compound component pattern.
- * This allows for a flexible and declarative API for building custom video player layouts.
+ * Plays a video with the toolkit's gestures and subtitles, and renders its children over it: usually
+ * `DefaultLayout`, or a layout of your own built from its parts (`VideoPlayer.PlayButton`,
+ * `VideoPlayer.ProgressBar`...). Needs a `VideoProvider` above it.
  */
 export const VideoPlayer = Object.assign(VideoPlayerComponent, {
   Controls: VideoControls,

@@ -31,7 +31,6 @@ export const isSelectedVideoTrack = (
   return selected.height === track.height;
 };
 
-/** The first track passing the earliest test, else the first track. */
 const pickTrack = <T>(tracks: T[], tests: ((track: T) => boolean)[]): T | null => {
   for (const test of tests) {
     const match = tracks.find(test);

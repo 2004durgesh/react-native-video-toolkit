@@ -18,6 +18,10 @@ export interface UsePictureInPictureReturn {
   togglePictureInPicture: () => void;
 }
 
+/** Support doesn't change while mounted, so there's nothing to subscribe to. */
+const subscribeNever = () => () => {};
+const getUnsupported = () => false;
+
 /**
  * A hook for controlling picture-in-picture.
  *
@@ -35,10 +39,6 @@ export interface UsePictureInPictureReturn {
  * - `exitPictureInPicture`: A function to exit picture-in-picture.
  * - `togglePictureInPicture`: A function to toggle picture-in-picture.
  */
-/** Support doesn't change while mounted, so there's nothing to subscribe to. */
-const subscribeNever = () => () => {};
-const getUnsupported = () => false;
-
 export const usePictureInPicture = (): UsePictureInPictureReturn => {
   const videoRef = useVideoSelector((state) => state.videoRef);
   const pictureInPicture = useVideoSelector((state) => state.pictureInPicture);

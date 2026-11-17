@@ -3,6 +3,7 @@ import { useControlsController } from '../../providers/ControlsController';
 import { useTapGesture, type TapGestureConfig } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseSingleTapGestureProps } from '../../types';
+import { TAP_MAX_DISTANCE, TAP_MAX_DURATION } from './tap';
 
 /**
  * A hook for handling single tap gestures to toggle the visibility of the video controls.
@@ -10,8 +11,6 @@ import type { UseSingleTapGestureProps } from '../../types';
  * @returns An object with the following properties:
  * - `singleTapGesture`: The gesture handler for single taps.
  */
-import { TAP_MAX_DISTANCE, TAP_MAX_DURATION } from './tap';
-
 export const useSingleTapGesture = ({ onSingleTap, enabled = true }: UseSingleTapGestureProps) => {
   // The controller directly: `useControlsVisibility()` would re-render this on every toggle
   const { toggle: toggleControls } = useControlsController();

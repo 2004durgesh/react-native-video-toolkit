@@ -1,11 +1,5 @@
 /// <reference lib="dom" />
 import { PLAYER_ID_PREFIX } from './fullscreen/playerId';
-/**
- * @file NativeVideoToolkit.web.ts
- * @description This file provides a web implementation of the NativeVideoToolkit module.
- * For web, we use CSS-based fullscreen instead of browser fullscreen API to maintain
- * React Native Web compatibility and avoid black screen issues.
- */
 
 export interface Spec {
   /**
@@ -33,11 +27,11 @@ export interface Spec {
 
 export const NativeVideoToolkit: Spec = {
   /**
-   * Request fullscreen on the #video-player element.
+   * Puts `element`, the player around the caller's own video, in browser fullscreen. Without one, the
+   * first player on the page.
    */
   enterFullscreen: async (element?: Element | null): Promise<boolean> => {
     try {
-      // The player around the caller's own video; without one, the first player on the page
       const videoSurface = element ?? document.querySelector(`[id^="${PLAYER_ID_PREFIX}"]`);
       if (!videoSurface) {
         console.error('No video player element found');
@@ -61,9 +55,6 @@ export const NativeVideoToolkit: Spec = {
     }
   },
 
-  /**
-   * Exit fullscreen mode if active.
-   */
   exitFullscreen: async (): Promise<boolean> => {
     try {
       if (document.fullscreenElement) {
@@ -85,9 +76,6 @@ export const NativeVideoToolkit: Spec = {
     }
   },
 
-  /**
-   * Check if currently in fullscreen mode.
-   */
   isFullscreen: async (): Promise<boolean> => {
     try {
       return !!(

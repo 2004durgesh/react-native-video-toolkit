@@ -104,7 +104,6 @@ export const TVPlayerFocus = ({ children }: { children: ReactNode }): React.Reac
           return controls.show();
       }
       const holder = focus.getHolder();
-      // The D-pad only drives the player while it has focus
       if (holder === null) return;
       const direction = eventType === 'left' ? -1 : eventType === 'right' ? 1 : 0;
       if (holder === 'surface') {

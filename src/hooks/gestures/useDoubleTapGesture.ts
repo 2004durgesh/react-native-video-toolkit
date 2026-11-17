@@ -303,7 +303,6 @@ export const useDoubleTapGesture = ({
     webDependencies([activeDirection, forwardRadius, forwardTranslateX, forwardTranslateY, rippleOpacity, rippleScale])
   );
 
-  // Inline animated styles to comply with hooks rules (no conditional/dynamic hook calls)
   const forwardAnimatedStyle = useAnimatedStyle(
     () => ({
       opacity: forwardOpacity.value,

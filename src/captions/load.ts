@@ -10,7 +10,7 @@ import type { CaptionFormat, ParseResult } from './types';
  */
 export type CaptionSource = string | number;
 
-/** How to fetch a subtitle file. @internal */
+/** @internal */
 export interface FetchCaptionOptions {
   /** Request headers, such as an `Authorization` token. */
   headers?: Record<string, string>;
@@ -18,7 +18,6 @@ export interface FetchCaptionOptions {
   signal?: AbortSignal;
 }
 
-/** How long to wait for a subtitle file or playlist. */
 const TIMEOUT = 10_000;
 
 /**
@@ -63,14 +62,10 @@ export const fetchCaptionBytes = async (url: string, options: FetchCaptionOption
   }
 };
 
-/**
- * Fetches a URL as text, decoded with `decodeCaptionBytes`.
- * @internal
- */
+/** @internal */
 export const fetchCaptionText = async (url: string, options: FetchCaptionOptions = {}): Promise<string> =>
   decodeCaptionBytes(await fetchCaptionBytes(url, options));
 
-// Parsed files by URL and format, the most recent last; the oldest go past the limit
 const cache = new Map<string, ParseResult>();
 const CACHE_LIMIT = 20;
 
@@ -78,7 +73,7 @@ const CACHE_LIMIT = 20;
 export const clearCaptionCache = () => cache.clear();
 
 /**
- * Loads and parses a subtitle file, once per URL: later loads of the same URL reuse the cues.
+ * Loads and parses a subtitle file; later loads of the same URL and format reuse the cues.
  * Fails with a `CaptionError`: `LOAD_FAILED`, `TIMEOUT`, `UNSUPPORTED_FORMAT` (not WebVTT or SRT,
  * such as TTML or an HTML error page) or `PARSE_FAILED` (a file with text but no valid cue).
  * @internal

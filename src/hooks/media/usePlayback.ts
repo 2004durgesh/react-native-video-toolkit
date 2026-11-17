@@ -22,6 +22,7 @@ export interface UsePlaybackReturn {
  *
  * @returns An object with the following properties:
  * - `isPlaying`: A boolean indicating whether the video is currently playing.
+ * - `ended`: Whether playback reached the end of the source.
  * - `togglePlayPause`: A function to toggle between play and pause.
  * - `setPlaying`: A function to set the playing state directly.
  */

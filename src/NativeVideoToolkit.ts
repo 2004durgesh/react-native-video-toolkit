@@ -1,23 +1,15 @@
-/**
- * @file NativeVideoToolkit.ts
- * @description This file defines the interface and implementation for the NativeVideoToolkit module,
- * which provides methods to manage fullscreen mode in a React Native application.
- * It uses React Native's TurboModule system to interact with native code.
- * The module includes methods to enter and exit fullscreen mode, as well as to check if the
- * application is currently in fullscreen mode.
- */
-
 import { type TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
   /**
-   * Enters fullscreen mode.
+   * Hides the system bars: Android's status and navigation bars (sticky immersive mode), and the
+   * status bar on iOS. The screen orientation is left alone.
    * @returns A promise that resolves to a boolean indicating whether the operation was successful.
    */
   enterFullscreen(): Promise<boolean>;
   /**
-   * Exits fullscreen mode.
+   * Shows the system bars again.
    * @returns A promise that resolves to a boolean indicating whether the operation was successful.
    */
   exitFullscreen(): Promise<boolean>;

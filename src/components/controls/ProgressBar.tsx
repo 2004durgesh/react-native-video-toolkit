@@ -16,9 +16,9 @@ export interface ProgressBarProps {
   style?: StyleProp<ViewStyle>;
   /** Callback fired when the user starts seeking. */
   onSeekStart?: () => void;
-  /** Callback fired when the user finishes seeking. */
+  /** Callback fired when the user finishes seeking, with the time in whole seconds. */
   onSeekEnd?: (time: number) => void;
-  /** Callback fired when the seek position changes. */
+  /** Callback fired when the seek position changes, with the time in whole seconds. */
   onSeek?: (time: number) => void;
   /**
    * Identifies the bar in end-to-end tests.
@@ -117,7 +117,8 @@ const TVProgressFocus = ({ children }: { children: ReactNode }): React.ReactElem
 };
 
 /**
- * A progress bar that shows the current time and duration of the video.
+ * A seek bar for the video's position, with the buffered part shown behind it. Dragging it seeks as
+ * it goes and shows the controls.
  *
  * @param {ProgressBarProps} props - The props for the component.
  * @returns {React.ReactElement} - The progress bar component.

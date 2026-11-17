@@ -2,9 +2,6 @@ import React, { createContext, useContext, useMemo } from 'react';
 import type { VideoComponents } from '../types';
 import { DefaultPressFeedback, DefaultSheet, DefaultSlider, DefaultSpinner } from '../components/defaults';
 
-/**
- * The components the toolkit uses when none are provided.
- */
 const defaultComponents: VideoComponents = {
   Sheet: DefaultSheet,
   Slider: DefaultSlider,
@@ -12,10 +9,7 @@ const defaultComponents: VideoComponents = {
   PressFeedback: DefaultPressFeedback,
 };
 
-/**
- * The context for the replaceable components.
- * @internal
- */
+/** @internal */
 export const ComponentsContext = createContext<VideoComponents | undefined>(undefined);
 
 /**

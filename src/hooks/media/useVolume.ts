@@ -11,7 +11,7 @@ export interface UseVolumeReturn {
   muted: boolean;
   /** Sets the volume of the video (0-1). */
   setVolume: (volume: number) => void;
-  /** Toggles the mute state of the video. */
+  /** Mutes or unmutes the video, and shows the controls. */
   toggleMute: () => void;
 }
 

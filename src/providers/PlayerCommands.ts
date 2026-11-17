@@ -5,7 +5,6 @@ import { restoreAfterFullscreen, rotateForFullscreen } from '../fullscreen/orien
 import type { ProgressStore } from './ProgressStore';
 import type { ControlsController } from './ControlsController';
 
-/** The player state the commands read. @internal */
 interface CommandState {
   isPlaying: boolean;
   muted: boolean;
@@ -15,7 +14,6 @@ interface CommandState {
   config: { enableScreenRotation: boolean; onEnterFullscreen?: () => void; onExitFullscreen?: () => void };
 }
 
-/** The actions the commands dispatch. @internal */
 type CommandAction =
   | { type: 'SET_PLAYING'; payload: boolean }
   | { type: 'SET_VOLUME'; payload: number }
@@ -39,7 +37,7 @@ interface PlayerCommandsOptions {
  * @internal
  */
 export const createPlayerCommands = ({ getState, dispatch, progress, controls }: PlayerCommandsOptions) => {
-  /** A time within the video. An unknown duration (0) doesn't clamp, or every early seek would go to 0. */
+  /** An unknown duration (0) doesn't clamp, or every early seek would go to 0. */
   const clampTime = (time: number) => {
     const { duration } = getState();
     return Math.max(0, duration > 0 ? Math.min(time, duration) : time);
@@ -104,10 +102,7 @@ export type PlayerCommands = ReturnType<typeof createPlayerCommands>;
 /** @internal */
 export const PlayerCommandsContext = createContext<PlayerCommands | undefined>(undefined);
 
-/**
- * The player commands of the nearest `VideoProvider`.
- * @internal
- */
+/** @internal */
 export const usePlayerCommands = (): PlayerCommands => {
   const commands = useContext(PlayerCommandsContext);
   if (commands === undefined) throw new Error('This hook must be used within a VideoProvider');

@@ -18,7 +18,6 @@ interface BaseButtonProps extends Omit<PressFeedbackProps, 'children' | 'color'>
   tvFocusTarget?: TVFocusTarget;
 }
 
-/** Taps, on phones, tablets and the web. */
 const TouchBaseButton = ({ children, onTap, tvFocusTarget: _tvFocusTarget, ...props }: BaseButtonProps) => {
   const theme = useVideoSelector((state) => state.theme);
   const { PressFeedback } = useVideoComponents();

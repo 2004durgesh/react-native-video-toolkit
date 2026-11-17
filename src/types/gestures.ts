@@ -30,6 +30,7 @@ export interface UseDoubleTapGestureProps extends GestureEnabledProps {
   videoRef?: RefObject<VideoRef> | null;
   /**
    * The interval in seconds to seek forward or backward when double tapping.
+   * @default 10
    */
   doubleTapSeekInterval?: number;
   /**
@@ -47,15 +48,16 @@ export interface UseDoubleTapGestureProps extends GestureEnabledProps {
  */
 export interface UsePanGestureProps extends GestureEnabledProps {
   /**
-   * A callback function that is called when a vertical pan gesture is performed on the left side of the screen.
+   * A callback function that is called when a vertical pan gesture is performed on the left half of the player.
    */
   onLeftVerticalPan?: (e: PanGestureActiveEvent) => void;
   /**
-   * A callback function that is called when a vertical pan gesture is performed on the right side of the screen.
+   * A callback function that is called when a vertical pan gesture is performed on the right half of the player.
    */
   onRightVerticalPan?: (e: PanGestureActiveEvent) => void;
   /**
-   * A callback function that is called when a vertical pan gesture is performed anywhere on the screen.
+   * A callback function that is called when a vertical pan gesture is performed anywhere on the player. While
+   * it's set, `onLeftVerticalPan` and `onRightVerticalPan` aren't called.
    */
   onGlobalVerticalPan?: (e: PanGestureActiveEvent) => void;
   /**
@@ -73,7 +75,7 @@ export interface UsePanGestureProps extends GestureEnabledProps {
  */
 export interface UseSingleTapGestureProps extends GestureEnabledProps {
   /**
-   * A callback function that is called when a single tap gesture is performed anywhere on the screen.
+   * A callback function that is called when a single tap gesture is performed anywhere on the player.
    */
   onSingleTap?: (e: TapGestureEvent) => void;
 }

@@ -16,7 +16,6 @@ export const parseSRTBlocks = (text: string): { cues: RawCue[]; skipped: number 
       skipped += 1;
       continue;
     }
-    // The rest of an SRT timing line is screen coordinates, which are ignored
     for (const { rest: _rest, ...cue } of read) cues.push(cue);
   }
 

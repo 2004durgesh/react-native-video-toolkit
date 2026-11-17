@@ -55,10 +55,7 @@ export type TVFocusTarget = 'surface' | 'play' | 'progress' | 'upNext' | 'settin
  */
 export type TVFocusHolder = 'surface' | 'progress' | 'button' | null;
 
-/**
- * The TV focus state of one player.
- * @internal
- */
+/** @internal */
 export interface TVFocus {
   /** Reported by the player's focusable views as they gain and lose focus. */
   setHolder: (holder: TVFocusHolder) => void;
@@ -133,7 +130,7 @@ export const useTVPreferredFocus = (target: TVFocusTarget | undefined): boolean 
 /**
  * A control the TV remote can focus: it takes focus only while the controls show, takes it when the
  * player sends the remote to `target`, and tells the player it holds focus as `holder`. Spread
- * `props` on the focusable `Pressable`, and highlight it with `color` while `focused`.
+ * `props` on the focusable `Pressable`, and highlight it while `focused`.
  * @internal
  */
 export const useTVFocusable = (

@@ -23,10 +23,6 @@ export const useBuffering = (): UseBufferingReturn => {
   const buffering = useVideoSelector((state) => state.buffering);
   const { dispatch } = useVideoStore();
 
-  /**
-   * Sets the buffering state of the video.
-   * @param isBuffering - A boolean indicating whether the video is buffering.
-   */
   const setBuffering = useCallback(
     (isBuffering: boolean) => {
       dispatch({ type: 'SET_BUFFERING', payload: isBuffering });

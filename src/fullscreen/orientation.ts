@@ -5,11 +5,7 @@ import { PlatformUtils } from '../utils/platform';
 /** @internal */
 export type DeviceType = 'phone' | 'tablet' | 'foldable' | 'tv' | 'unknown';
 
-/**
- * The kind of device, from the screen's size: a shorter side of 600 or more is a tablet, a very
- * long screen (over 2.5:1) a foldable.
- * @internal
- */
+/** @internal */
 export const deviceType = (): DeviceType => {
   if (PlatformUtils.isTV()) return 'tv';
   const { width, height } = Dimensions.get('screen');
@@ -26,17 +22,13 @@ const lockTo = (orientation: Orientation) => {
   if (RNOrientationDirector.isLockableOrientation(orientation)) RNOrientationDirector.lockTo(orientation);
 };
 
-/**
- * Turns the screen to landscape for fullscreen.
- * @internal
- */
+/** @internal */
 export const rotateForFullscreen = (): void => {
   if (canRotate()) lockTo(Orientation.landscape);
 };
 
 /**
- * Puts the screen back after fullscreen: phones go to portrait, and tablets and foldables rotate
- * freely again. The lock is app-wide, so it doesn't depend on which player locked it.
+ * The lock is app-wide, so restoring it doesn't depend on which player locked it.
  * @internal
  */
 export const restoreAfterFullscreen = (): void => {

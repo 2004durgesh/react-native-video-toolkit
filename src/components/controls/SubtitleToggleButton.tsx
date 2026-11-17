@@ -39,7 +39,6 @@ export const SubtitleToggleButton = ({ testID }: SubtitleToggleButtonProps = {})
 
   const handleToggle = () => {
     if (isOff) {
-      // The last track that was on, if this source still has its language; otherwise the first one
       const tracks = textTracks.filter((track) => !isOffTrack(track));
       const remembered = lastSelectedTrack && tracks.find((track) => isSameLanguage(track, lastSelectedTrack));
       const trackToUse = remembered ?? tracks[0] ?? null;

@@ -12,7 +12,6 @@ export interface ControlsController {
   toggle: () => void;
 }
 
-/** The player state the controller follows. @internal */
 interface ControlsState {
   controlsVisible: boolean;
   isPlaying: boolean;
@@ -24,7 +23,6 @@ interface ControlsState {
   };
 }
 
-/** What the controller reads from and writes to the provider. @internal */
 interface ControlsControllerOptions {
   getState: () => ControlsState;
   subscribe: (listener: () => void) => () => void;
@@ -32,9 +30,9 @@ interface ControlsControllerOptions {
 }
 
 /**
- * Creates a provider's controls controller. `start()` begins following the player: playback
- * starting or stopping, or a new auto-hide setting, shows the controls and restarts the timer. It
- * returns a function that stops following and cancels the timer.
+ * `start()` begins following the player: playback starting or stopping, or a new auto-hide setting,
+ * shows the controls and restarts the timer. It returns a function that stops following and cancels
+ * the timer.
  * @internal
  */
 export const createControlsController = ({ getState, subscribe, setVisible }: ControlsControllerOptions) => {
@@ -84,10 +82,7 @@ export const createControlsController = ({ getState, subscribe, setVisible }: Co
 /** @internal */
 export const ControlsControllerContext = createContext<ControlsController | undefined>(undefined);
 
-/**
- * The controls controller of the nearest `VideoProvider`.
- * @internal
- */
+/** @internal */
 export const useControlsController = (): ControlsController => {
   const controller = useContext(ControlsControllerContext);
   if (controller === undefined) throw new Error('This hook must be used within a VideoProvider');

@@ -99,8 +99,8 @@ export interface Theme {
   };
   /**
    * The animation durations used in the theme.
+   * @deprecated Not used by the toolkit; will be removed in 2.0.
    */
-  /** @deprecated Not used by the toolkit; will be removed in 2.0. */
   animations: {
     fast: number;
     normal: number;

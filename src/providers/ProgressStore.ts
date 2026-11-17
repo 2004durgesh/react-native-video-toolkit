@@ -21,7 +21,7 @@ export type ProgressChange = 'player' | 'seek';
 /**
  * Holds the playback position outside the video state. It changes on every progress event while
  * playing (`config.progressUpdateInterval`), and in the video state each change would re-render every
- * `useVideo()` consumer. Only `useProgress()` callers subscribe to it.
+ * `useVideo()` consumer.
  * @internal
  */
 export interface ProgressStore {
@@ -48,10 +48,7 @@ export interface ProgressStore {
   shared: { currentTime: SharedValue<number>; playableDuration: SharedValue<number> };
 }
 
-/**
- * Creates the store for one `VideoProvider`.
- * @internal
- */
+/** @internal */
 export function createProgressStore(): ProgressStore {
   let snapshot: ProgressSnapshot = { currentTime: 0, playableDuration: 0 };
   let preview: number | null = null;
@@ -70,7 +67,6 @@ export function createProgressStore(): ProgressStore {
   };
   const set = (next: Partial<ProgressSnapshot>, cause: ProgressChange) => {
     const playableDuration = next.playableDuration ?? snapshot.playableDuration;
-    // A preview keeps its position until it's cleared
     const currentTime = preview ?? next.currentTime ?? snapshot.currentTime;
     publish(currentTime, playableDuration, cause);
   };
@@ -99,10 +95,7 @@ export function createProgressStore(): ProgressStore {
  */
 export const ProgressStoreContext = createContext<ProgressStore | undefined>(undefined);
 
-/**
- * The progress store of the nearest `VideoProvider`.
- * @internal
- */
+/** @internal */
 export const useProgressStore = (): ProgressStore => {
   const store = useContext(ProgressStoreContext);
   if (store === undefined) {

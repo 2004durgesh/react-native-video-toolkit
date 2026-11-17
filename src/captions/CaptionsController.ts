@@ -26,7 +26,7 @@ const PLAYBACK_FIELDS: Record<keyof CaptionPlayback, true> = {
 };
 const PLAYBACK_KEYS = Object.keys(PLAYBACK_FIELDS) as (keyof CaptionPlayback)[];
 
-/** What the controller reads from the provider. @internal */
+/** @internal */
 export interface CaptionsControllerOptions {
   /** The media time in seconds: the player's last report, or a seek or preview since. */
   getTime: () => number;
@@ -53,7 +53,7 @@ type Phase = 'following' | 'resuming' | 'loading';
 
 const sourceKey = (track: CaptionTrack | null) => (track ? `${track.source}:${String(track.uri)}` : '');
 
-/** Whether the toolkit draws a track: a subtitle file or an HLS subtitle rendition. @internal */
+/** @internal */
 export const isDrawnByToolkit = (track: CaptionTrack | null | undefined): track is CaptionTrack =>
   !!track && track.uri !== undefined && (track.source === 'file' || track.source === 'hls');
 
@@ -275,10 +275,7 @@ export type CaptionsController = ReturnType<typeof createCaptionsController>;
 /** @internal */
 export const CaptionsControllerContext = createContext<CaptionsController | undefined>(undefined);
 
-/**
- * The captions controller of the nearest `VideoProvider`.
- * @internal
- */
+/** @internal */
 export const useCaptionsController = (): CaptionsController => {
   const controller = useContext(CaptionsControllerContext);
   if (controller === undefined) throw new Error('Captions must be used within a VideoProvider');

@@ -11,10 +11,7 @@ import { NativeVideoToolkit } from '../NativeVideoToolkit';
 export const enterPlatformFullscreen = (_video: VideoRef | null | undefined): Promise<boolean> =>
   NativeVideoToolkit.enterFullscreen();
 
-/**
- * Leaves the platform's fullscreen.
- * @internal
- */
+/** @internal */
 export const exitPlatformFullscreen = (): Promise<boolean> => NativeVideoToolkit.exitFullscreen();
 
 /**

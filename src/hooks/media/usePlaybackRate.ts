@@ -5,9 +5,9 @@ import { usePlayerCommands } from '../../providers/PlayerCommands';
  * Return type for the usePlaybackRate hook.
  */
 export interface UsePlaybackRateReturn {
-  /** The current playback rate of the video. */
+  /** The current playback speed, where 1 is normal speed. */
   playbackRate: number;
-  /** Sets the playback rate of the video. */
+  /** Sets the playback speed, for example `1.5`. */
   setPlaybackRate: (playbackRate: number) => void;
 }
 

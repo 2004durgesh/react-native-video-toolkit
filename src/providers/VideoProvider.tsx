@@ -10,9 +10,7 @@ import { PlayerCommandsContext, createPlayerCommands } from './PlayerCommands';
 import { CaptionsControllerContext, createCaptionsController } from '../captions/CaptionsController';
 import { PortalHost } from '@rn-primitives/portal';
 import type { VideoRef } from 'react-native-video';
-/**
- * Default configuration for the video player.
- */
+
 const defaultConfig: ResolvedConfig = {
   autoHideControls: true,
   autoHideDelay: 5000,
@@ -30,10 +28,7 @@ const defaultConfig: ResolvedConfig = {
   progressUpdateInterval: 250,
 };
 
-/**
- * Represents the state of the VideoProvider.
- * @internal
- */
+/** @internal */
 interface VideoProviderState extends VideoState {
   /**
    * The configuration for the video player, with the defaults filled in.
@@ -69,19 +64,17 @@ interface VideoProviderState extends VideoState {
    */
   resizeMode: 'none' | 'contain' | 'cover' | 'stretch';
   /**
-   * The dimensions of the screen.
+   * The window's size, kept up to date as it changes (on rotation, for example).
    */
   dimensions: { width: number; height: number };
   /**
-   * A unique identifier for the portal host associated with this provider.
+   * The portal host the settings sheet opens in: the provider's `portalHost` prop, or else the name
+   * of the host the provider renders itself.
    */
   portalHostName: string;
 }
 
-/**
- * Represents the actions that can be dispatched to the video reducer.
- * @internal
- */
+/** @internal */
 type Action =
   | { type: 'INITIALIZE'; payload: { theme?: Partial<Theme>; config?: Partial<VideoPlayerConfig> } }
   | { type: 'SET_VIDEO_REF'; payload: React.RefObject<any> }
@@ -110,10 +103,6 @@ type Action =
   | { type: 'SET_PLAYBACK_RATE'; payload: number }
   | { type: 'SET_PORTAL_HOST_NAME'; payload: string };
 
-/**
- * The state before the provider's props are applied.
- * @internal
- */
 const initialState: Omit<VideoProviderState, 'dimensions' | 'portalHostName' | 'videoRef'> = {
   isPlaying: false,
   ended: false,
@@ -170,14 +159,11 @@ const isSameRect = (a: LayoutRectangle, b: LayoutRectangle) =>
   a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 
 /**
- * The reducer for the video player state.
- *
  * Every action returns the current state when it changes nothing. Each new state re-renders every
  * `useVideo()` consumer, so a repeated value must not produce one.
  * @internal
  */
 function videoReducer(state: VideoProviderState, action: Action): VideoProviderState {
-  // Sets one field, keeping the state object when the value is already there
   const set = <K extends keyof VideoProviderState>(key: K, value: VideoProviderState[K]): VideoProviderState =>
     Object.is(state[key], value) ? state : { ...state, [key]: value };
 
@@ -293,11 +279,13 @@ export const VideoStoreContext = createContext<VideoStore | undefined>(undefined
 export const VideoProvider: React.FC<{
   children: React.ReactNode;
   /**
-   * The configuration for the video player.
+   * Options for the player. Anything left out keeps its default, and changes apply while the player
+   * runs.
    */
   config?: Partial<VideoPlayerConfig>;
   /**
-   * The theme for the video player.
+   * Colors and sizes for the player's controls and subtitles, over `defaultTheme`. Anything left out
+   * keeps its default, and changes apply while the player runs.
    */
   theme?: Partial<Theme>;
   /**
@@ -336,7 +324,6 @@ export const VideoProvider: React.FC<{
     store.dispatch({ type: 'INITIALIZE', payload: { config, theme } });
   }, [store, portalHostName, config, theme]);
 
-  // The window size, for fullscreen sizing and gestures
   useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({ window }: { window: ScaledSize }) =>
       store.dispatch({ type: 'SET_DIMENSIONS', payload: { width: window.width, height: window.height } })
@@ -354,13 +341,12 @@ export const VideoProvider: React.FC<{
   );
   useEffect(() => controls.start(), [controls]);
 
-  // The playback position lives in its own store, so progress events don't re-render this context's consumers
+  // The playback position lives in its own store, so progress events don't re-render the video store's subscribers
   const [progressStore] = React.useState(createProgressStore);
   const [commands] = React.useState(() =>
     createPlayerCommands({ getState: store.getState, dispatch: store.dispatch, progress: progressStore, controls })
   );
 
-  // Works out which subtitle cues show, from the playback position and state
   const [captions] = React.useState(() =>
     createCaptionsController({
       getTime: () => progressStore.getSnapshot().currentTime,
@@ -392,10 +378,7 @@ export const VideoProvider: React.FC<{
   );
 };
 
-/**
- * The store of the nearest `VideoProvider`.
- * @internal
- */
+/** @internal */
 export const useVideoStore = (): VideoStore => {
   const store = useContext(VideoStoreContext);
   if (store === undefined) throw new Error('This hook must be used within a VideoProvider');
@@ -403,8 +386,7 @@ export const useVideoStore = (): VideoStore => {
 };
 
 /**
- * A hook to use the video context.
- * This hook provides access to the video state and dispatch function.
+ * Returns the nearest `VideoProvider`'s whole state, and `dispatch` to change it.
  *
  * The component re-renders on every state change. To re-render only when the part you use
  * changes, use {@link useVideoSelector}.

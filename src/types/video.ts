@@ -1,28 +1,9 @@
-// import type { ReactVideoSource } from 'react-native-video';
 import type { VideoTrack } from 'react-native-video';
 import type { CaptionError } from '../captions/types';
 
-// /**
-//  * Represents the source of the video to be played.
-//  */
-// export interface VideoSource extends ReactVideoSource {
-//   /**
-//    * The URI of the video. This can be a remote URL or a local file path.
-//    */
-//   uri: string;
-//   /**
-//    * The type of the video. For example, 'video/mp4'.
-//    */
-//   type?: string;
-//   /**
-//    * The headers to be sent with the request for the video.
-//    */
-//   headers?: Record<string, string>;
-// }
-
 /**
- * Represents a custom video track with user-friendly properties.
- * Extends the base VideoTrack from react-native-video with additional fields.
+ * A video quality you list yourself, through `VideoPlayer`'s `customVideoTracks` with
+ * `config.useCustomVideoTracks`.
  */
 export interface CustomVideoTrack extends Partial<VideoTrack> {
   /**
@@ -31,8 +12,8 @@ export interface CustomVideoTrack extends Partial<VideoTrack> {
    */
   label?: string;
   /**
-   * Optional URI for the specific quality stream.
-   * Useful for providing direct links to different quality renditions.
+   * A link to this quality's own stream. The toolkit doesn't read it: it selects tracks by `height`.
+   * Keep it here if you switch `source` yourself when the viewer picks this track.
    */
   uri?: string;
   /**
@@ -71,7 +52,7 @@ export interface VideoState {
    */
   volume: number;
   /**
-   * The playback rate of the video.
+   * The playback speed, where 1 is normal speed.
    */
   playbackRate: number;
   /**
@@ -93,23 +74,28 @@ export interface VideoState {
  */
 export interface VideoPlayerConfig {
   /**
-   * Whether to automatically hide the controls after a certain delay.
+   * Whether the controls hide by themselves `autoHideDelay` after they show, while the video plays.
+   * @default true
    */
   autoHideControls: boolean;
   /**
    * Whether to automatically play the video when it is loaded.
+   * @default true
    */
   autoPlay: boolean;
   /**
    * The delay in milliseconds before the controls are hidden.
+   * @default 5000
    */
   autoHideDelay: number;
   /**
    * Whether to enable double tap gestures to seek forward and backward.
+   * @default true
    */
   enableDoubleTapGestures: boolean;
   /**
    * Whether to enable the fullscreen button.
+   * @default true
    */
   enableFullscreen: boolean;
   /**
@@ -123,15 +109,19 @@ export interface VideoPlayerConfig {
    */
   enablePictureInPicture: boolean;
   /**
-   * Whether to enable pan gestures to seek.
+   * Whether the player's vertical pans and swipes call `gestureProps`' pan handlers.
+   * @default true
    */
   enablePanGestures: boolean;
   /**
-   * Whether to enable screen rotation when entering fullscreen.
+   * Whether entering fullscreen turns the screen to landscape. Exiting turns phones back to portrait
+   * and lets tablets rotate freely.
+   * @default true
    */
   enableScreenRotation: boolean;
   /**
-   * The available playback rates.
+   * The speeds the settings menu offers, where 1 is normal speed.
+   * @default [0.5, 1, 1.25, 1.5, 2]
    */
   playbackRates: number[];
   /**

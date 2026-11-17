@@ -15,12 +15,10 @@ export interface CueIndex {
   nextBoundary: (time: number) => number | null;
 }
 
-/** How many overlapping cues show at once. */
 const MAX_VISIBLE_CUES = 2;
 
 /**
- * Indexes cues for lookups by time: a binary search on the starts, then a scan back that stops
- * once no earlier cue can still be showing (tracked with the running maximum of the ends).
+ * Indexes cues for lookups by time.
  *
  * @param input - Cues in any order; they're sorted by start.
  */
@@ -33,7 +31,6 @@ export const createCueIndex = (input: readonly Cue[]): CueIndex => {
     maxEndSoFar.push(runningMax);
   }
 
-  /** The index of the first cue starting after `time`. */
   const firstStartAfter = (time: number): number => {
     let low = 0;
     let high = cues.length;

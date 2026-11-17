@@ -120,7 +120,6 @@ export const loadHlsSubtitleRenditions = async (
 /** Whether a URL is an HLS playlist, by its `.m3u8` extension (a query string may follow). @internal */
 export const isHlsUrl = (url: string) => /\.m3u8($|[?#])/i.test(url);
 
-/** Segments fetched behind and ahead of the playhead. */
 const WINDOW_BEHIND = 1;
 const WINDOW_AHEAD = 3;
 const CONCURRENCY = 2;
@@ -191,7 +190,6 @@ export const createHlsSubtitleLoader = (options: HlsSubtitleLoaderOptions) => {
     }
   };
 
-  /** Starts the next segments the playhead needs, keeping two loads at a time. */
   const pump = () => {
     if (!segments || disposed) return;
     // Segment 0 first: its timestamp map is the baseline for the others. If it fails, the first

@@ -9,7 +9,8 @@ const SWIPE_DISTANCE = 60;
 const SWIPE_VELOCITY = 800;
 
 /**
- * A hook for handling pan gestures to control video playback.
+ * A hook for vertical pans on the player, reported for its left and right halves, and for swipes up
+ * and down.
  *
  * @param props - The properties for the hook.
  * @returns An object with the following properties:

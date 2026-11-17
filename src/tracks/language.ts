@@ -105,7 +105,6 @@ const ALPHA3_TO_ALPHA2: Record<string, string> = {
   zho: 'zh',
 };
 
-// Codes that name no language
 const NO_LANGUAGE = new Set(['und', 'unknown', 'mul', 'zxx', 'mis', 'off']);
 
 /** Whether a code names no language: `und`, `mul`, `off`... */

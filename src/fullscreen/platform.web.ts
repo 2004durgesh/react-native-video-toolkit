@@ -13,10 +13,7 @@ export const enterPlatformFullscreen = (video: VideoRef | null | undefined): Pro
   return NativeVideoToolkit.enterFullscreen(player);
 };
 
-/**
- * Leaves browser fullscreen.
- * @internal
- */
+/** @internal */
 export const exitPlatformFullscreen = (): Promise<boolean> => NativeVideoToolkit.exitFullscreen();
 
 /**

@@ -69,7 +69,6 @@ export const GestureHandler: FC<GestureHandlerProps> = ({
     enabled: doubleTapEnabled,
   });
   const { singleTapGesture } = useSingleTapGesture({ onSingleTap, enabled: !ended });
-  // The long press comes with the double tap or the pan, and is off when both are
   const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture({
     onLongPressStart,
     onLongPressEnd,

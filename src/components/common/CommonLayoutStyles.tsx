@@ -1,11 +1,6 @@
 import { StyleSheet } from 'react-native';
 
 /**
- * `CommonLayoutStyles` provides a collection of reusable `StyleSheet` definitions
- * for common layout patterns within the video player components.
- * These styles help maintain consistency across different player layouts and controls.
- */
-/**
  * Styles that DefaultLayout once shared publicly.
  * @deprecated DefaultLayout keeps its own styles now, and these no longer follow it. Copy what you
  * need; this will be removed in 2.0.

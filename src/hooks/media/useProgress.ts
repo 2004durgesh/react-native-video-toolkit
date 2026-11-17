@@ -14,7 +14,7 @@ export interface UseProgressReturn {
   duration: number;
   /** The playable (buffered) duration of the video in seconds. */
   playableDuration: number;
-  /** Seeks to a specific time in the video. */
+  /** Seeks to a time in seconds, kept within the video's duration. */
   seek: (time: number) => void;
   /** @deprecated The player sets the position itself. Will be removed in 2.0. */
   setCurrentTime: (time: number) => void;

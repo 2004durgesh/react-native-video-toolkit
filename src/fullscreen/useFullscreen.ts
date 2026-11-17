@@ -7,11 +7,11 @@ import { usePlayerCommands } from '../providers/PlayerCommands';
 export interface UseFullscreenReturn {
   /** Whether the video is in fullscreen mode. */
   fullscreen: boolean;
-  /** Toggles fullscreen mode with smart orientation handling. */
+  /** Enters fullscreen, or exits it when the video is already there. */
   toggleFullscreen: () => Promise<void>;
-  /** Enters fullscreen mode with smart orientation handling. */
+  /** Enters fullscreen and calls `config.onEnterFullscreen`. Does nothing in fullscreen. */
   enterFullscreen: () => Promise<void>;
-  /** Exits fullscreen mode with smart orientation handling. */
+  /** Exits fullscreen and calls `config.onExitFullscreen`. Does nothing outside fullscreen. */
   exitFullscreen: () => Promise<void>;
 }
 

@@ -13,10 +13,7 @@ export const DEFAULT_VIDEO_TEST_ID = 'video';
  */
 export const TestIDContext = createContext(DEFAULT_VIDEO_TEST_ID);
 
-/**
- * The player's `testID`.
- * @internal
- */
+/** @internal */
 export const usePlayerTestID = (): string => useContext(TestIDContext);
 
 /**
