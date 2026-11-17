@@ -3,6 +3,7 @@ import { Dimensions } from 'react-native';
 import { act, render } from '@testing-library/react-native';
 import { VideoProvider, useVideo, useVideoSelector, useTheme } from '../index';
 import { useControlsVisibility } from '../../hooks';
+import { defaultCaptionsTheme, defaultTheme } from '../../themes';
 import type { Theme, VideoPlayerConfig } from '../../types';
 
 type Probe = { state: ReturnType<typeof useVideo>['state']; dispatch: ReturnType<typeof useVideo>['dispatch'] };
@@ -38,18 +39,17 @@ describe('VideoProvider state', () => {
     });
     expect(handle.current!.state.config.autoHideDelay).toBe(1000);
     expect(handle.current!.state.config.autoPlay).toBe(true);
-    expect(handle.current!.state.theme.colors.textMain).toBe('#FF0000');
-    expect(handle.current!.state.theme.colors.iconNormal).toBe('#FAFAFA');
+    expect(handle.current!.state.theme.colors).toEqual({ ...defaultTheme.colors, textMain: '#FF0000' });
 
     await rerender({ config: { autoHideDelay: 2000 } });
     expect(handle.current!.state.config.autoHideDelay).toBe(2000);
-    expect(handle.current!.state.theme.colors.textMain).toBe('#FAFAFA');
+    expect(handle.current!.state.theme.colors).toEqual(defaultTheme.colors);
   });
 
   it('merges every partial theme group over its defaults', async () => {
     const { handle } = await setUp({ theme: { iconSizes: { lg: 40 } as Theme['iconSizes'], captions: { color: '#FF0' } } });
-    expect(handle.current!.state.theme.iconSizes).toEqual({ sm: 18, md: 24, lg: 40 });
-    expect(handle.current!.state.theme.captions).toMatchObject({ color: '#FF0', maxLines: 3 });
+    expect(handle.current!.state.theme.iconSizes).toEqual({ ...defaultTheme.iconSizes, lg: 40 });
+    expect(handle.current!.state.theme.captions).toEqual({ ...defaultCaptionsTheme, color: '#FF0' });
   });
 
   it('keeps the same state for an equal inline theme with nested values', async () => {

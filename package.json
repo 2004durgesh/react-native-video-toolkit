@@ -131,6 +131,7 @@
   "jest": {
     "preset": "@react-native/jest-preset",
     "resolver": "<rootDir>/jest.resolver.js",
+    "restoreMocks": true,
     "setupFiles": [
       "<rootDir>/node_modules/react-native-gesture-handler/jestSetup.js"
     ],

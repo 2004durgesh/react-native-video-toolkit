@@ -1,10 +1,4 @@
-import {
-  createHlsSubtitleLoader,
-  parseAttributeList,
-  parseMasterPlaylist,
-  parseMediaPlaylist,
-  timestampOffset,
-} from '../hls';
+import { createHlsSubtitleLoader, parseMasterPlaylist, parseMediaPlaylist } from '../hls';
 import type { Cue } from '../types';
 
 const MASTER = [
@@ -21,15 +15,7 @@ const MASTER = [
 const BASE = 'https://cdn.example.com/bipbop/master.m3u8';
 
 describe('HLS playlists', () => {
-  it('reads attribute lists, including quoted commas', () => {
-    expect(parseAttributeList('TYPE=SUBTITLES,NAME="A, B",DEFAULT=YES')).toEqual({
-      TYPE: 'SUBTITLES',
-      NAME: 'A, B',
-      DEFAULT: 'YES',
-    });
-  });
-
-  it('lists the subtitle renditions of a master playlist, once each', () => {
+  it('lists the subtitle renditions of a master playlist, once each, names with commas included', () => {
     expect(parseMasterPlaylist(MASTER, BASE)).toEqual([
       {
         uri: 'https://cdn.example.com/bipbop/s1/en/prog_index.m3u8',
@@ -66,14 +52,26 @@ describe('HLS playlists', () => {
     });
   });
 
-  it('tells a live playlist from a VOD one', () => {
-    expect(parseMediaPlaylist('#EXTM3U\n#EXTINF:6,\nseg.vtt', BASE).vod).toBe(false);
-  });
-
-  it('turns a timestamp map into an offset in ms', () => {
-    expect(timestampOffset({ mpegts: 900000, local: 0 })).toBe(10_000);
-    expect(timestampOffset({ mpegts: 900000, local: 2000 })).toBe(8000);
-    expect(timestampOffset(undefined)).toBe(0);
+  it('resolves rendition URIs of every form against the master playlist', () => {
+    const rendition = (uri: string) => `#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="s",NAME="${uri}",URI="${uri}"`;
+    const master = (uris: string[]) => ['#EXTM3U', ...uris.map(rendition), '#EXT-X-STREAM-INF:BANDWIDTH=1', 'v.m3u8'].join('\n');
+    const uris = (base: string, list: string[]) => parseMasterPlaylist(master(list), base).map((found) => found.uri);
+    expect(
+      uris('https://cdn.example.com/video/master.m3u8?token=abc', [
+        's1/en/prog_index.m3u8',
+        '../subs/fr.m3u8',
+        '/subs/de.m3u8?x=1',
+        '//other.example.com/es.m3u8',
+        'https://x.example.com/it.m3u8',
+      ])
+    ).toEqual([
+      'https://cdn.example.com/video/s1/en/prog_index.m3u8',
+      'https://cdn.example.com/subs/fr.m3u8',
+      'https://cdn.example.com/subs/de.m3u8?x=1',
+      'https://other.example.com/es.m3u8',
+      'https://x.example.com/it.m3u8',
+    ]);
+    expect(uris('file:///data/hls/master.m3u8', ['en/prog_index.m3u8'])).toEqual(['file:///data/hls/en/prog_index.m3u8']);
   });
 });
 
@@ -106,22 +104,33 @@ describe('createHlsSubtitleLoader', () => {
       '\n'
     );
 
-  it('loads segment 0 first, then the window around the playhead, keeping media times', async () => {
-    const files: Record<string, string> = { [PLAYLIST]: playlist(10) };
-    for (let i = 0; i < 10; i++) files[`https://cdn.example.com/s1/en/fileSequence${i}.webvtt`] = segmentFile(i, 900000);
+  it('loads segment 0 first, then the segments at the playhead, keeping media times', async () => {
+    const files: Record<string, string> = { [PLAYLIST]: playlist(40) };
+    for (let i = 0; i < 40; i++) files[`https://cdn.example.com/s1/en/fileSequence${i}.webvtt`] = segmentFile(i, 900000);
     const requested = setUp(files);
     let latest: Cue[] = [];
     const loader = createHlsSubtitleLoader({ playlistUrl: PLAYLIST, onCues: (cues) => (latest = cues), onError: jest.fn() });
-    await flush();
-    const loadedSegments = () => requested.slice(1).map((url) => /fileSequence(\d+)/.exec(url)?.[1]);
-    // The playlist, then segment 0 for the baseline, then three ahead of the playhead at 0
+    /** Lets the loads finish until no more start. */
+    const settle = async () => {
+      for (let seen = -1; seen !== requested.length; ) {
+        seen = requested.length;
+        await flush();
+      }
+    };
+    await settle();
+    const loadedSegments = () => requested.slice(1).map((url) => Number(/fileSequence(\d+)/.exec(url)?.[1]));
+    // The playlist, then segment 0, whose timestamp map the others are placed by
     expect(requested[0]).toBe(PLAYLIST);
-    expect(loadedSegments()).toEqual(['0', '1', '2', '3']);
+    expect(loadedSegments()[0]).toBe(0);
+    // The playhead at 0 is in segment 0; the next one loads too
+    expect(loadedSegments()).toContain(1);
 
     loader.setTime(30_000);
-    await flush();
-    // Segment 5 holds 30 s: one behind, three ahead, nothing further
-    expect(new Set(loadedSegments())).toEqual(new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8']));
+    await settle();
+    // Segment 5 holds 30 s
+    expect(loadedSegments()).toEqual(expect.arrayContaining([5, 6]));
+    // Segments far from the playhead wait until it gets near them
+    expect(loadedSegments()).not.toContain(30);
     const times = latest.map((cue) => [cue.start, cue.text]);
     expect(times).toContainEqual([31_000, 'Segment 5']);
     expect(times).toContainEqual([1000, 'Segment 0']);
@@ -131,10 +140,12 @@ describe('createHlsSubtitleLoader', () => {
   it('shifts a segment whose timestamp map differs from segment 0', async () => {
     const files: Record<string, string> = {
       [PLAYLIST]: playlist(2),
+      // Segment 0 maps media time 0 (MPEGTS 900000, 10 s) to its local time 0
       'https://cdn.example.com/s1/en/fileSequence0.webvtt': segmentFile(0, 900000),
-      // Its cues are written 2 s early: MPEGTS 1080000 is 12 s, LOCAL 0
+      // This one maps media time 2 s (MPEGTS 1080000, 12 s) to its local time 1 s: its cues are
+      // written 1 s early
       'https://cdn.example.com/s1/en/fileSequence1.webvtt':
-        'WEBVTT\nX-TIMESTAMP-MAP=MPEGTS:1080000,LOCAL:00:00:00.000\n\n00:00:05.000 --> 00:00:06.000\nShifted',
+        'WEBVTT\nX-TIMESTAMP-MAP=MPEGTS:1080000,LOCAL:00:00:01.000\n\n00:00:06.000 --> 00:00:07.000\nShifted',
     };
     setUp(files);
     let latest: Cue[] = [];

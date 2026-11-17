@@ -177,11 +177,13 @@ const Lift = ({
   lift,
   style,
   onLayout,
+  testID,
   children,
 }: {
   lift: number;
   style: StyleProp<ViewStyle>;
   onLayout: (event: LayoutChangeEvent) => void;
+  testID: string;
   children: ReactNode;
 }) => {
   const offset = useSharedValue(lift);
@@ -191,13 +193,13 @@ const Lift = ({
   const animated = useAnimatedStyle(() => ({ transform: [{ translateY: offset.value > 0 ? -offset.value : 0 }] }));
   if (PlatformUtils.isWeb()) {
     return (
-      <View style={[style, { transform: [{ translateY: lift > 0 ? -lift : 0 }] }]} onLayout={onLayout}>
+      <View style={[style, { transform: [{ translateY: lift > 0 ? -lift : 0 }] }]} onLayout={onLayout} testID={testID}>
         {children}
       </View>
     );
   }
   return (
-    <Animated.View style={[style, animated]} onLayout={onLayout}>
+    <Animated.View style={[style, animated]} onLayout={onLayout} testID={testID}>
       {children}
     </Animated.View>
   );
@@ -260,7 +262,8 @@ const CaptionsLayer = ({ style, textStyle, controlsInset, centerControlsInset, t
         <Lift
           lift={lift}
           style={[styles.cues, { bottom, left, width }, blocked ? styles.hidden : styles.shown]}
-          onLayout={onStackLayout}>
+          onLayout={onStackLayout}
+          testID={`${layerTestID}-cues`}>
           {cues.map((cue, i) => (
             <View key={`${cue.start}-${cue.end}-${i}`} style={{ maxWidth }}>
               <CueBox

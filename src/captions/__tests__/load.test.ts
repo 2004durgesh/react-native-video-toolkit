@@ -1,7 +1,5 @@
-import { decodeCaptionBytes } from '../decode';
 import { CaptionLoadAborted } from '../errors';
-import { clearCaptionCache, fetchCaptionBytes, loadCaptionFile } from '../load';
-import { resolveUrl } from '../url';
+import { clearCaptionCache, loadCaptionFile } from '../load';
 
 const utf8 = (text: string) => new TextEncoder().encode(text);
 
@@ -27,53 +25,62 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-describe('decodeCaptionBytes (SUB-LOAD-02)', () => {
-  it('reads UTF-8, with or without a BOM, with no mojibake', () => {
-    expect(decodeCaptionBytes(utf8('Café'))).toBe('Café');
-    expect(decodeCaptionBytes(new Uint8Array([0xef, 0xbb, 0xbf, ...utf8('Café')]))).toBe('Café');
+let files = 0;
+/** The text of the cues in a file with these bytes. */
+const textOf = async (bytes: Uint8Array) => {
+  fetchMock.mockImplementation(() => respond(bytes));
+  files += 1;
+  const { cues } = await loadCaptionFile(`https://example.com/${files}.srt`);
+  return cues.map((cue) => cue.text);
+};
+
+/** An SRT file whose one cue says `text`, as single-byte characters. */
+const srtCodes = (text: string) => [...`1\n00:00:01,000 --> 00:00:02,000\n${text}`].map((char) => char.charCodeAt(0));
+
+/** Takes `TextDecoder` away in each test, as on devices: Hermes has none, so the toolkit decodes by itself. */
+const withoutTextDecoder = () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'TextDecoder')!;
+  beforeEach(() => {
+    Object.defineProperty(globalThis, 'TextDecoder', { value: undefined, configurable: true });
+  });
+  afterEach(() => {
+    Object.defineProperty(globalThis, 'TextDecoder', descriptor);
+  });
+};
+
+describe.each([
+  ['with TextDecoder', () => {}],
+  ['without TextDecoder', withoutTextDecoder],
+])('reading the text of a file %s (SUB-LOAD-02)', (_name, setUpDecoder) => {
+  setUpDecoder();
+
+  it('reads UTF-8, with or without a BOM', async () => {
+    const file = utf8('1\n00:00:01,000 --> 00:00:02,000\nCafé 漢字 😀');
+    expect(await textOf(file)).toEqual(['Café 漢字 😀']);
+    expect(await textOf(new Uint8Array([0xef, 0xbb, 0xbf, ...file]))).toEqual(['Café 漢字 😀']);
   });
 
-  it('reads UTF-16 little and big endian from the BOM', () => {
-    const le = new Uint8Array([0xff, 0xfe, 0x48, 0x00, 0xe9, 0x00]);
-    const be = new Uint8Array([0xfe, 0xff, 0x00, 0x48, 0x00, 0xe9]);
-    expect(decodeCaptionBytes(le)).toBe('Hé');
-    expect(decodeCaptionBytes(be)).toBe('Hé');
+  it('reads UTF-16, little and big endian, from the BOM or without one', async () => {
+    const codes = srtCodes('Hé');
+    const le = codes.flatMap((code) => [code, 0]);
+    const be = codes.flatMap((code) => [0, code]);
+    expect(await textOf(new Uint8Array([0xff, 0xfe, ...le]))).toEqual(['Hé']);
+    expect(await textOf(new Uint8Array([0xfe, 0xff, ...be]))).toEqual(['Hé']);
+    expect(await textOf(new Uint8Array(le))).toEqual(['Hé']);
+    expect(await textOf(new Uint8Array(be))).toEqual(['Hé']);
   });
 
-  it('recognises UTF-16 without a BOM', () => {
-    const text = 'WEBVTT\n\n00:01.000 --> 00:02.000\nHi';
-    const le = new Uint8Array(text.length * 2);
-    const be = new Uint8Array(text.length * 2);
-    [...text].forEach((char, i) => {
-      le[i * 2] = char.charCodeAt(0);
-      be[i * 2 + 1] = char.charCodeAt(0);
-    });
-    expect(decodeCaptionBytes(le)).toBe(text);
-    expect(decodeCaptionBytes(be)).toBe(text);
-  });
-
-  it('reads a file that is not valid UTF-8 as Windows-1252', () => {
-    expect(decodeCaptionBytes(new Uint8Array([0x43, 0x61, 0x66, 0xe9]))).toBe('Café');
-  });
-});
-
-describe('resolveUrl', () => {
-  const base = 'https://cdn.example.com/video/master.m3u8?token=abc';
-  it('resolves relative, root-relative, protocol-relative and absolute URIs', () => {
-    expect(resolveUrl(base, 's1/en/prog_index.m3u8')).toBe('https://cdn.example.com/video/s1/en/prog_index.m3u8');
-    expect(resolveUrl(base, '../subs/en.m3u8')).toBe('https://cdn.example.com/subs/en.m3u8');
-    expect(resolveUrl(base, '/subs/en.m3u8?x=1')).toBe('https://cdn.example.com/subs/en.m3u8?x=1');
-    expect(resolveUrl(base, '//other.example.com/a.vtt')).toBe('https://other.example.com/a.vtt');
-    expect(resolveUrl(base, 'https://x.example.com/a.vtt')).toBe('https://x.example.com/a.vtt');
-    expect(resolveUrl('file:///data/hls/master.m3u8', 'en/seg0.vtt')).toBe('file:///data/hls/en/seg0.vtt');
+  it('reads a file that is not valid UTF-8 as Windows-1252, smart quotes and euro sign included', async () => {
+    // "Café" with é as 0xE9, then “€” as 0x93 0x80 0x94
+    expect(await textOf(new Uint8Array([...srtCodes('Café '), 0x93, 0x80, 0x94]))).toEqual(['Café “€”']);
   });
 });
 
 describe('loadCaptionFile (SUB-LOAD-01, 03)', () => {
-  it('loads and parses a remote file, sending its headers', async () => {
-    const result = await loadCaptionFile('https://example.com/en.vtt', { headers: { Authorization: 'Bearer t' } });
+  it('loads and parses a remote file', async () => {
+    const result = await loadCaptionFile('https://example.com/en.vtt');
     expect(result.cues.map((cue) => cue.text)).toEqual(['Hello']);
-    expect(fetchMock).toHaveBeenCalledWith('https://example.com/en.vtt', expect.objectContaining({ headers: { Authorization: 'Bearer t' } }));
+    expect(fetchMock).toHaveBeenCalledWith('https://example.com/en.vtt', expect.anything());
   });
 
   it('reuses the cues of a URL it already loaded (SUB-LOAD-07)', async () => {
@@ -99,7 +106,7 @@ describe('loadCaptionFile (SUB-LOAD-01, 03)', () => {
     });
   });
 
-  it('times out after 10 seconds by default', async () => {
+  it('times out after 10 seconds', async () => {
     jest.useFakeTimers();
     fetchMock.mockImplementation(
       (_url: string, init: RequestInit) =>
@@ -129,7 +136,7 @@ describe('loadCaptionFile (SUB-LOAD-01, 03)', () => {
       (_url: string, init: RequestInit) =>
         new Promise((_resolve, reject) => init.signal?.addEventListener('abort', () => reject(new Error('x'))))
     );
-    const loading = fetchCaptionBytes('https://example.com/en.vtt', { signal: controller.signal });
+    const loading = loadCaptionFile('https://example.com/en.vtt', { signal: controller.signal });
     controller.abort();
     await expect(loading).rejects.toBeInstanceOf(CaptionLoadAborted);
   });

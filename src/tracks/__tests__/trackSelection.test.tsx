@@ -9,17 +9,6 @@ import { useSettings } from '../../hooks';
 import { trackLabel, languageDisplayName } from '../../utils';
 import { pickAudioTrack, pickTextTrack } from '../selection';
 
-jest.mock('react-native-video', () => {
-  const actual = jest.requireActual('react-native-video');
-  const { View } = jest.requireActual('react-native');
-  const ReactActual = jest.requireActual('react');
-  const MockVideo = ReactActual.forwardRef((props: object, ref: unknown) => {
-    ReactActual.useImperativeHandle(ref, () => ({ seek: jest.fn() }));
-    return ReactActual.createElement(View, { ...props, testID: 'native-video' });
-  });
-  return { __esModule: true, ...actual, default: MockVideo };
-});
-
 type Track = { index: number; language?: string; title?: string; selected?: boolean };
 type VideoTrackInfo = { index: number; width: number; height: number; bitrate: number };
 
@@ -70,10 +59,16 @@ describe('subtitle tracks', () => {
     expect(nativeVideo().props.selectedTextTrack).toEqual({ type: 'index', value: 1 });
   });
 
-  it("falls back to the player's own pick, then the first track", async () => {
+  it("falls back to the player's own pick, then English, then the first track", async () => {
     await render(player('https://example.com/a.mp4'));
     await load({ textTracks: [{ index: 0, language: 'de' }, { index: 1, language: 'fr', selected: true }] });
     expect(settings().textTrack).toMatchObject({ language: 'fr' });
+    const tracks = [
+      { index: 0, language: 'de' },
+      { index: 1, language: 'en' },
+    ];
+    expect(pickTextTrack(tracks, null, 'ja')).toMatchObject({ language: 'en' });
+    expect(pickTextTrack([tracks[0]!], null, 'ja')).toMatchObject({ language: 'de' });
   });
 
   it("keeps the viewer's language on the next video, whatever its index there", async () => {

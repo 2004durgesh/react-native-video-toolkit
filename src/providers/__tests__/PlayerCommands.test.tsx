@@ -9,19 +9,6 @@ import { VideoPlayer } from '../../components/VideoPlayer';
 import { useFullscreen, usePlayback, usePlaybackRate, useProgress, useVolume } from '../../hooks';
 import type { VideoPlayerConfig } from '../../types';
 
-// The native video view, as a plain component with a seek spy
-jest.mock('react-native-video', () => {
-  const actual = jest.requireActual('react-native-video');
-  const { View } = jest.requireActual('react-native');
-  const ReactActual = jest.requireActual('react');
-  const MockVideo = ReactActual.forwardRef((props: object, ref: unknown) => {
-    const [handle] = ReactActual.useState(() => ({ seek: jest.fn() }));
-    ReactActual.useImperativeHandle(ref, () => handle);
-    return ReactActual.createElement(View, { ...props, testID: 'native-video' });
-  });
-  return { __esModule: true, ...actual, default: MockVideo };
-});
-
 type Handle = {
   video: ReturnType<typeof useVideo>;
   playback: ReturnType<typeof usePlayback>;

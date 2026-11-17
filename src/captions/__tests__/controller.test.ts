@@ -1,6 +1,6 @@
 import { AppState } from 'react-native';
 import { TextTrackType } from 'react-native-video';
-import { createCaptionsController, type CaptionPlayback } from '../CaptionsController';
+import { createCaptionsController, type CaptionPlayback, type CaptionsControllerOptions } from '../CaptionsController';
 import type { CaptionTrack } from '../types';
 import { clearCaptionCache } from '../load';
 
@@ -40,7 +40,7 @@ const setUp = (initial: Partial<CaptionPlayback> = {}) => {
     playbackRate: 1,
     ...initial,
   };
-  const timeListeners = new Set<(cause: 'player' | 'seek') => void>();
+  const timeListeners = new Set<Parameters<CaptionsControllerOptions['subscribeTime']>[0]>();
   const playbackListeners = new Set<() => void>();
   const onError = jest.fn();
   const controller = createCaptionsController({
@@ -176,7 +176,7 @@ describe('CaptionsController', () => {
     player.stop();
   });
 
-  it('shows the right cue straight after a seek, either way (SUB-TIME-04)', async () => {
+  it('shows the right cue straight after a jump either way, from a seek or a loop (SUB-TIME-04, 09)', async () => {
     const player = setUp({ isPlaying: true });
     player.controller.select(file('https://example.com/en.vtt'));
     await flush();
@@ -216,16 +216,6 @@ describe('CaptionsController', () => {
     player.stop();
   });
 
-  it('follows a loop back to the start (SUB-TIME-09)', async () => {
-    const player = setUp({ isPlaying: true });
-    player.controller.select(file('https://example.com/en.vtt'));
-    await flush();
-    player.report(5.5);
-    player.report(1.5);
-    expect(player.text()).toEqual(['One']);
-    player.stop();
-  });
-
   it('switches tracks mid-cue, clearing the old cue at once (SUB-TRACK-03)', async () => {
     const player = setUp();
     player.controller.select(file('https://example.com/en.vtt'));
@@ -236,6 +226,18 @@ describe('CaptionsController', () => {
     expect(player.text()).toEqual([]);
     await flush();
     expect(player.text()).toEqual(['Autre']);
+    player.stop();
+  });
+
+  it('keeps the cue on screen when the showing track is selected again', async () => {
+    const player = setUp();
+    player.controller.select(file('https://example.com/en.vtt'));
+    await flush();
+    player.report(1.5);
+    player.changes.mockClear();
+    player.controller.select(file('https://example.com/en.vtt'));
+    expect(player.text()).toEqual(['One']);
+    expect(player.changes).not.toHaveBeenCalled();
     player.stop();
   });
 
@@ -296,27 +298,6 @@ describe('CaptionsController', () => {
     player.stop();
   });
 
-  it('pauses in the background and resyncs on the next report (SUB-LIFE-01)', async () => {
-    const listeners: ((state: string) => void)[] = [];
-    jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
-      listeners.push(listener as (state: string) => void);
-      return { remove: jest.fn() } as unknown as ReturnType<typeof AppState.addEventListener>;
-    });
-    const player = setUp({ isPlaying: true });
-    player.controller.select(file('https://example.com/en.vtt'));
-    await flush();
-    player.report(1.5);
-    listeners.forEach((listener) => listener('background'));
-    expect(jest.getTimerCount()).toBe(0);
-    player.advance(60_000);
-    listeners.forEach((listener) => listener('active'));
-    // Still the last known cue, not a prediction from a stale time
-    expect(player.text()).toEqual(['One']);
-    player.report(5.5);
-    expect(player.text()).toEqual(['Three']);
-    player.stop();
-  });
-
   it('holds the time of a new video until the player reports it', async () => {
     const player = setUp({ isPlaying: true });
     player.controller.select(file('https://example.com/en.vtt'));
@@ -326,7 +307,7 @@ describe('CaptionsController', () => {
     expect(player.text()).toEqual(['One']);
     player.report(0);
     player.controller.reset();
-    // The video is still loading: no cue, even for 0, and none runs ahead of it
+    // The video is still loading: nothing shows, and no prediction runs ahead of it
     player.advance(1500);
     expect(player.text()).toEqual([]);
     expect(jest.getTimerCount()).toBe(0);
@@ -347,7 +328,7 @@ describe('CaptionsController', () => {
     player.stop();
   });
 
-  it('holds the cue after the background instead of predicting from a stale time', async () => {
+  it('pauses in the background, then holds the cue until the next report (SUB-LIFE-01)', async () => {
     const listeners: ((state: string) => void)[] = [];
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
       listeners.push(listener as (state: string) => void);
@@ -358,6 +339,7 @@ describe('CaptionsController', () => {
     await flush();
     player.report(1.5);
     listeners.forEach((listener) => listener('background'));
+    expect(jest.getTimerCount()).toBe(0);
     listeners.forEach((listener) => listener('active'));
     // Predicting would reach the next cue at 2 s; holding keeps the last known one
     player.advance(1000);

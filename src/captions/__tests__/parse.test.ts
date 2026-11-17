@@ -2,12 +2,19 @@ import { detectCaptionFormat, parseCaptions } from '../parse';
 
 const texts = (vtt: string) => parseCaptions(vtt).cues.map((cue) => cue.text);
 
+/** The cue of a WebVTT file with one cue of this text. */
+const cueOf = (text: string) => parseCaptions(`WEBVTT\n\n00:01.000 --> 00:02.000\n${text}`).cues[0]!;
+
+/** The start and end, in ms, of a cue with this timing line, or `undefined` if it's skipped. */
+const timesOf = (timing: string) => {
+  const cue = parseCaptions(`WEBVTT\n\n${timing}\nText`).cues[0];
+  return cue && [cue.start, cue.end];
+};
+
 let warn: jest.SpyInstance;
 beforeEach(() => {
+  // Malformed cues are logged
   warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-});
-afterEach(() => {
-  warn.mockRestore();
 });
 
 describe('WebVTT', () => {
@@ -178,6 +185,68 @@ describe('SRT', () => {
   it('strips SRT font tags and ASS overrides (SUB-PARSE-12)', () => {
     const srt = '1\n00:00:01,000 --> 00:00:02,000\n{\\an8}<font color="#ff0">Top</font>';
     expect(parseCaptions(srt).cues[0]?.text).toBe('Top');
+  });
+});
+
+describe('timestamps', () => {
+  it('reads hours, minutes, seconds and milliseconds, the hours optional (SUB-PARSE-01, 03)', () => {
+    expect(timesOf('01:02:03.456 --> 01:02:04.000')).toEqual([3_723_456, 3_724_000]);
+    expect(timesOf('02:03.456 --> 02:04.000')).toEqual([123_456, 124_000]);
+  });
+
+  it('reads fractions shorter than milliseconds, and hours past two digits', () => {
+    expect(timesOf('00:00:01.5 --> 00:00:01.75')).toEqual([1500, 1750]);
+    expect(timesOf('00:00:01.05 --> 100:00:00.000')).toEqual([1050, 360_000_000]);
+  });
+
+  it('skips a cue with an invalid time', () => {
+    for (const time of ['', 'abc', '1:2', '00:00:01', '00:60:00.000', '00:00:60.000', '00:00:01.5000']) {
+      expect(timesOf(`${time} --> 10:00:00.000`)).toBeUndefined();
+    }
+  });
+});
+
+describe('cue text', () => {
+  it('styles b, i and u, nested or not (SUB-PARSE-12)', () => {
+    expect(cueOf('plain <b>bold <i>both</i></b> <u>under</u>').spans).toEqual([
+      { text: 'plain ' },
+      { text: 'bold ', bold: true },
+      { text: 'both', bold: true, italic: true },
+      { text: ' ' },
+      { text: 'under', underline: true },
+    ]);
+  });
+
+  it('styles the rest of the cue after an unclosed tag', () => {
+    expect(cueOf('a<b>c').spans).toEqual([{ text: 'a' }, { text: 'c', bold: true }]);
+  });
+
+  it('drops class, voice, language and timestamp tags, and stray closing tags (SUB-PARSE-12)', () => {
+    expect(cueOf('<v Roger Bingham><c.yellow>We are</c> <lang en-GB>in</lang> <00:00:01.000>New York</v>').text).toBe(
+      'We are in New York'
+    );
+    expect(cueOf('<b>open </i>close</b></b>').text).toBe('open close');
+  });
+
+  it('leaves out ruby annotations', () => {
+    expect(cueOf('<ruby>漢<rt>kan</rt>字<rt>ji</rt></ruby>').text).toBe('漢字');
+  });
+
+  it('decodes named and numeric entities, in styled spans too (SUB-PARSE-13)', () => {
+    expect(cueOf('Tom &amp; Jerry &lt;3 &gt; a&nbsp;b &lrm;x&rlm;').text).toBe('Tom & Jerry <3 > a\u00A0b \u200Ex\u200F');
+    expect(cueOf('caf&#233; &#x1F600;').text).toBe('café 😀');
+    expect(cueOf('<i>&lt;whisper&gt;</i>').spans).toEqual([{ text: '<whisper>', italic: true }]);
+  });
+
+  it('leaves unknown entities, and those for half a surrogate pair, as they are', () => {
+    expect(cueOf('&bogus; &#xD800; &#55296;').text).toBe('&bogus; &#xD800; &#55296;');
+  });
+
+  it('reads the direction from the first letter that has one (SUB-I18N-01)', () => {
+    const rightToLeft = ['مرحبا بالعالم', 'שלום', '123 - مرحبا'];
+    const leftToRight = ['Hello مرحبا', 'नमस्ते', 'こんにちは', '123'];
+    expect(rightToLeft.map((text) => cueOf(text).rtl)).toEqual([true, true, true]);
+    expect(leftToRight.map((text) => cueOf(text).rtl)).toEqual([false, false, false, false]);
   });
 });
 

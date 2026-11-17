@@ -51,11 +51,25 @@ describe('createCueIndex', () => {
     expect(empty.nextBoundary(0)).toBeNull();
   });
 
-  it('looks up large tracks quickly (SUB-TIME-03)', () => {
-    const many = createCueIndex(Array.from({ length: 20_000 }, (_, i) => cue(i * 1000, i * 1000 + 900)));
-    const startedAt = Date.now();
-    for (let t = 0; t < 20_000_000; t += 997) many.activeAt(t);
-    expect(Date.now() - startedAt).toBeLessThan(500);
+  it('finds the cues of a large track without going through it', () => {
+    // Counts how often the index reads a cue's times
+    let reads = 0;
+    const counted = (start: number, end: number): Cue => ({
+      ...cue(start, end),
+      get start() {
+        reads += 1;
+        return start;
+      },
+      get end() {
+        reads += 1;
+        return end;
+      },
+    });
+    const many = createCueIndex(Array.from({ length: 20_000 }, (_, i) => counted(i * 1000, i * 1000 + 900)));
+    reads = 0;
     expect(texts(many.activeAt(12_345_500))).toEqual(['12345000-12345900']);
+    expect(many.nextBoundary(12_345_500)).toBe(12_345_900);
+    // A search reads a few dozen cues; going through the track would read thousands
+    expect(reads).toBeLessThan(100);
   });
 });

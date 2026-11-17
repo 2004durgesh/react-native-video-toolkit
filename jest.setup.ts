@@ -4,6 +4,20 @@
 jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
+// The video player, as a plain view whose props tests read (`native-video`), with a `seek` spy on
+// its ref. The rest of react-native-video (track type constants) is the real thing.
+jest.mock('react-native-video', () => {
+  const actual = jest.requireActual('react-native-video');
+  const ReactActual = jest.requireActual('react');
+  const { View } = jest.requireActual('react-native');
+  const MockVideo = ReactActual.forwardRef((props: object, ref: unknown) => {
+    const [handle] = ReactActual.useState(() => ({ seek: jest.fn() }));
+    ReactActual.useImperativeHandle(ref, () => handle);
+    return ReactActual.createElement(View, { ...props, testID: 'native-video' });
+  });
+  return { __esModule: true, ...actual, default: MockVideo };
+});
+
 jest.mock('./src/NativeVideoToolkit', () => {
   const module = {
     enterFullscreen: jest.fn(async () => true),
@@ -14,17 +28,13 @@ jest.mock('./src/NativeVideoToolkit', () => {
   return { __esModule: true, NativeVideoToolkit: module, default: module };
 });
 
+// Only what the toolkit calls
 jest.mock('react-native-orientation-director', () => ({
   __esModule: true,
   default: {
     lockTo: jest.fn(),
     unlock: jest.fn(),
     isLockableOrientation: jest.fn(() => true),
-    getInterfaceOrientation: jest.fn(async () => 1),
-    getDeviceOrientation: jest.fn(async () => 1),
-    listenForInterfaceOrientationChanges: jest.fn(() => ({ remove: jest.fn() })),
-    listenForDeviceOrientationChanges: jest.fn(() => ({ remove: jest.fn() })),
-    isLocked: jest.fn(() => false),
   },
-  Orientation: { unknown: 0, portrait: 1, portraitUpsideDown: 2, landscapeLeft: 3, landscapeRight: 4, landscape: 5 },
+  Orientation: { portrait: 1, landscape: 5 },
 }));

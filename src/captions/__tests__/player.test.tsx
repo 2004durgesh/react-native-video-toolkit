@@ -1,24 +1,15 @@
-import React from 'react';
+import React, { useImperativeHandle } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TextTrackType } from 'react-native-video';
 import { VideoProvider } from '../../providers/VideoProvider';
 import { VideoPlayer } from '../../components/VideoPlayer';
 import { DefaultLayout } from '../../layouts/DefaultLayout';
+import { useSettings } from '../../hooks';
 import { clearCaptionCache } from '../load';
 import type { VideoPlayerConfig } from '../../types';
 
-// The native video view, as a plain component whose props the tests read
-jest.mock('react-native-video', () => {
-  const actual = jest.requireActual('react-native-video');
-  const { View } = jest.requireActual('react-native');
-  const ReactActual = jest.requireActual('react');
-  const MockVideo = ReactActual.forwardRef((props: object, ref: unknown) => {
-    ReactActual.useImperativeHandle(ref, () => ({ seek: jest.fn() }));
-    return ReactActual.createElement(View, { ...props, testID: 'native-video' });
-  });
-  return { __esModule: true, ...actual, default: MockVideo };
-});
+// Subtitles through the whole player: `react-native-video` is the mock from jest.setup.ts.
 
 const VTT = 'WEBVTT\n\n00:00.000 --> 00:10.000\nHello';
 const NEXT_VTT = 'WEBVTT\n\n00:00.000 --> 00:10.000\nNext episode';
@@ -33,10 +24,22 @@ const source = {
 
 const nativeVideo = () => screen.getByTestId('native-video');
 
+const settingsRef = React.createRef<ReturnType<typeof useSettings>>();
+/** The player's track settings, for the test to read and change. */
+const settings = () => settingsRef.current!;
+const Settings = () => {
+  const value = useSettings();
+  useImperativeHandle(settingsRef, () => value);
+  return null;
+};
+
 const player = (config: Partial<VideoPlayerConfig>, playing: object, children?: React.ReactNode) => (
   <GestureHandlerRootView>
     <VideoProvider config={{ autoPlay: false, ...config }}>
-      <VideoPlayer source={playing}>{children}</VideoPlayer>
+      <VideoPlayer source={playing}>
+        <Settings />
+        {children}
+      </VideoPlayer>
     </VideoProvider>
   </GestureHandlerRootView>
 );
@@ -86,7 +89,7 @@ beforeEach(() => {
   })) as unknown as typeof fetch;
 });
 
-describe('VideoSurface with the custom renderer', () => {
+describe('subtitles drawn by the toolkit', () => {
   it('never gives the player the subtitle files, and keeps native subtitles off (SUB-TRACK-01)', async () => {
     await renderPlayer();
     await loadVideo();
@@ -103,11 +106,15 @@ describe('VideoSurface with the custom renderer', () => {
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
   });
 
-  it('selects an embedded track natively, next to the files', async () => {
+  it('lets the player draw an embedded track the viewer picks, next to the files', async () => {
     await renderPlayer();
-    // The English file is picked first; an embedded track can still be drawn natively
     await loadVideo([{ index: 0, language: 'de', title: 'Deutsch' }]);
-    expect(nativeVideo().props.selectedTextTrack).toEqual({ type: 'disabled' });
+    await flush();
+    // The English file is picked first
+    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
+    await act(() => settings().setTextTrack(settings().textTracks.find((track) => track.language === 'de')!));
+    expect(nativeVideo().props.selectedTextTrack).toEqual({ type: 'index', value: 0 });
+    expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
   });
 
   it('never shows the subtitles of the previous video after a switch to the next one', async () => {
@@ -164,9 +171,20 @@ describe('VideoSurface with the custom renderer', () => {
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
   });
 
-  it('uses the progress interval from the config (SUB-TIME-03)', async () => {
+  it('hides the cues from onLoadStart until the player reports again', async () => {
     await renderPlayer();
-    expect(nativeVideo().props.progressUpdateInterval).toBe(250);
+    await loadVideo();
+    await flush();
+    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
+    await act(() => nativeVideo().props.onLoadStart?.({}));
+    expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
+    await reportProgress(0.3);
+    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
+  });
+
+  it('asks the player for progress at the interval from the config (SUB-TIME-03)', async () => {
+    await renderPlayer({ progressUpdateInterval: 100 });
+    expect(nativeVideo().props.progressUpdateInterval).toBe(100);
   });
 });
 
@@ -185,19 +203,6 @@ describe('who draws the subtitles', () => {
   });
 });
 
-describe('a new source on native players', () => {
-  it('hides the cues from onLoadStart until the player reports again', async () => {
-    await renderPlayer();
-    await loadVideo();
-    await flush();
-    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
-    await act(() => nativeVideo().props.onLoadStart?.({}));
-    expect(screen.queryByTestId('video-captions-cue-0')).toBeNull();
-    await reportProgress(0.3);
-    expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('Hello');
-  });
-});
-
 describe('HLS subtitle renditions', () => {
   const MASTER = [
     '#EXTM3U',
@@ -208,7 +213,7 @@ describe('HLS subtitle renditions', () => {
   const MEDIA = '#EXTM3U\n#EXT-X-PLAYLIST-TYPE:VOD\n#EXTINF:10,\nseg0.vtt\n#EXT-X-ENDLIST';
   const SEGMENT = 'WEBVTT\nX-TIMESTAMP-MAP=MPEGTS:900000,LOCAL:00:00:00.000\n\n00:00.000 --> 00:10.000\nFrom HLS';
 
-  it("lists them from 2000 and fetches them with the stream's headers", async () => {
+  it("lists them from 2000 in place of the player's own, and fetches them with the stream's headers", async () => {
     const bodies: Record<string, string> = {
       'https://example.com/master.m3u8': MASTER,
       'https://example.com/subs/en.m3u8': MEDIA,
@@ -225,6 +230,11 @@ describe('HLS subtitle renditions', () => {
     await loadVideo([{ index: 0, language: 'en', title: 'CC' }]);
     await flush();
     await flush();
+    // Off, then the rendition; the player's own track goes
+    expect(settings().textTracks.map((track) => [track.index, track.title])).toEqual([
+      [-1, 'Off'],
+      [2000, 'English'],
+    ]);
     const calls = (global.fetch as jest.Mock).mock.calls;
     expect(calls.map(([url]) => url)).toContain('https://example.com/subs/seg0.vtt');
     expect(calls.every(([, init]) => init.headers?.Authorization === 'Bearer t')).toBe(true);
@@ -232,7 +242,7 @@ describe('HLS subtitle renditions', () => {
   });
 });
 
-describe('VideoSurface with the native renderer', () => {
+describe('subtitles drawn by the player', () => {
   it('passes subtitle files to the player as before', async () => {
     await renderPlayer({ captionRenderer: 'native' });
     expect(nativeVideo().props.source).toEqual(source);
