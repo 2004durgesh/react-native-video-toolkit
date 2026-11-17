@@ -12,7 +12,7 @@ import { useState, useSyncExternalStore, type FC, type ReactNode } from 'react';
 import { Fade } from '../components/common/fade';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useVideoSelector } from '../providers';
-import { Subtitle, Title, VideoPlayer, type TitleProps, type SubitleProps } from '../components';
+import { Subtitle, Title, VideoPlayer, type TitleProps, type SubtitleProps } from '../components';
 import { SettingsMenu } from '../components/menu/SettingsMenu';
 import { PlatformUtils } from '../utils/platform';
 import { TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
@@ -23,7 +23,7 @@ export interface DefaultLayoutProps {
   title?: string;
   titleProps?: Omit<TitleProps, 'text'>;
   subtitle?: string;
-  subtitleProps?: Omit<SubitleProps, 'text'>;
+  subtitleProps?: Omit<SubtitleProps, 'text'>;
   pinCaptionTrack?: (track: TextTrack) => boolean;
   slots?: {
     beforeTitle?: React.ReactElement;

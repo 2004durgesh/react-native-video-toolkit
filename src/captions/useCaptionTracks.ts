@@ -5,7 +5,6 @@ import { useSettings } from '../hooks/settings/useSettings';
 import { dedupeLanguageTracks } from '../tracks/dedupe';
 import { OFF_TEXT_TRACK, isOffTrack, pickTextTrack } from '../tracks/selection';
 import { isDrawnByToolkit, useCaptionsController } from './CaptionsController';
-import { isCaptionError } from './errors';
 import { isHlsUrl, loadHlsSubtitleRenditions } from './hls';
 import type { CaptionTrack } from './types';
 
@@ -65,6 +64,8 @@ export const useCaptionTracks = (source: Source, legacyTextTracks: TextTracks | 
   });
 
   const list = () => {
+    // An HLS stream's WebVTT renditions replace the player's own list, which repeats them. Closed
+    // captions (CEA-608/708) the player lists go with it, so they're offered only without renditions.
     const known = customCaptions
       ? [...fileTracks, ...(hlsTracks.current.length > 0 ? hlsTracks.current : nativeTracks.current)]
       : nativeTracks.current;
@@ -105,7 +106,7 @@ export const useCaptionTracks = (source: Source, legacyTextTracks: TextTracks | 
         listRef.current();
       })
       .catch((error) => {
-        if (!lookup.signal.aborted && isCaptionError(error)) captions.report(error);
+        if (!lookup.signal.aborted) captions.report(error, sourceUri);
       });
     return () => lookup.abort();
   }, [captions, customCaptions, isHls, sourceUri, sidecarKey]);

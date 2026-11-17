@@ -32,12 +32,11 @@ const DIGITS = /^\d+$/;
  *
  * @param numberedIds - SRT: a number line just before a cue's timing line is its number, not the
  *   previous cue's text.
- * @returns The cues and the rest of each timing line (its settings), or `null` if the block has
- *   no valid timing line.
+ * @returns The cues, or `null` if the block has no valid timing line.
  * @internal
  */
-export const readCues = (lines: string[], numberedIds = false): (RawCue & { rest: string })[] | null => {
-  const timings: { at: number; start: number; end: number; rest: string }[] = [];
+export const readCues = (lines: string[], numberedIds = false): RawCue[] | null => {
+  const timings: { at: number; start: number; end: number }[] = [];
   lines.forEach((line, at) => {
     if (!line.includes('-->')) return;
     const timing = parseTimingLine(line);
@@ -57,7 +56,6 @@ export const readCues = (lines: string[], numberedIds = false): (RawCue & { rest
       id,
       start: timing.start,
       end: timing.end,
-      rest: timing.rest,
       rawText: lines.slice(timing.at + 1, textEnd).join('\n'),
     };
   });

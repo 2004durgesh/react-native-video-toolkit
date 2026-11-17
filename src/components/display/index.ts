@@ -8,4 +8,4 @@ export type { TimeDisplayProps } from './TimeDisplay';
 export type { LoadingSpinnerProps } from './LoadingSpinner';
 export type { VideoOverlayProps } from './VideoOverlay';
 export type { TitleProps } from './Title';
-export type { SubitleProps } from './Subtitle';
+export type { SubtitleProps, SubitleProps } from './Subtitle';

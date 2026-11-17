@@ -1,11 +1,12 @@
 import React, { useImperativeHandle } from 'react';
+import { StyleSheet } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TextTrackType } from 'react-native-video';
 import { VideoProvider } from '../../providers/VideoProvider';
 import { VideoPlayer } from '../../components/VideoPlayer';
 import { DefaultLayout } from '../../layouts/DefaultLayout';
-import { useSettings } from '../../hooks';
+import { useControlsVisibility, useSettings } from '../../hooks';
 import { clearCaptionCache } from '../load';
 import type { VideoPlayerConfig } from '../../types';
 
@@ -30,6 +31,13 @@ const settings = () => settingsRef.current!;
 const Settings = () => {
   const value = useSettings();
   useImperativeHandle(settingsRef, () => value);
+  return null;
+};
+
+const controls = React.createRef<ReturnType<typeof useControlsVisibility>>();
+const Controls = () => {
+  const value = useControlsVisibility();
+  useImperativeHandle(controls, () => value);
   return null;
 };
 
@@ -197,9 +205,25 @@ describe('who draws the subtitles', () => {
     expect(screen.getAllByTestId('video-captions-cue-0-text')).toHaveLength(1);
   });
 
-  it('draws them once with DefaultLayout, which places its own', async () => {
-    await render(player({}, source, <DefaultLayout />));
+  it('draws them once with DefaultLayout, above its bottom bar while the controls show', async () => {
+    await render(player({}, source, <><DefaultLayout /><Controls /></>));
     expect(screen.getAllByTestId('video-captions')).toHaveLength(1);
+    await loadVideo();
+    await flush();
+    // The layout measures its controls' area (the column holding the top bar) and its bottom bar:
+    // 360 high, with the bar's top edge 300 down, so the bar covers the bottom 60
+    const hidden = { includeHiddenElements: true };
+    const layout = (layoutRect: object) => ({ nativeEvent: { layout: { x: 0, width: 640, ...layoutRect } } });
+    await act(() => fireEvent(screen.getByTestId('video-controls-top', hidden), 'layout', layout({ y: 0, height: 360 })));
+    await act(() => fireEvent(screen.getByTestId('video-controls-bottom', hidden), 'layout', layout({ y: 300, height: 60 })));
+    // How far up from the player's bottom edge the cues start
+    const lowestCue = () => {
+      const stack = StyleSheet.flatten(screen.getByTestId('video-captions-cues').props.style);
+      return stack.bottom - stack.transform[0].translateY;
+    };
+    expect(lowestCue()).toBeGreaterThan(60);
+    await act(() => controls.current!.hideControls());
+    expect(lowestCue()).toBeLessThan(60);
   });
 });
 

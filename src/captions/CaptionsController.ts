@@ -233,8 +233,8 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
       anchor = { time: 0, at: Date.now() };
       update();
     },
-    /** Passes an error to `onCaptionError`, as the controller does for its own. */
-    report: (error: CaptionError) => reportError(error, error.url),
+    /** Reports a failure from loading `url` to `onCaptionError`, as the controller does its own. */
+    report: (error: unknown, url: string) => reportError(error, url),
     /** The cues on screen, in start order. A new array exactly when they change. */
     getActive: (): readonly Cue[] => active,
     subscribe: (listener: () => void) => {

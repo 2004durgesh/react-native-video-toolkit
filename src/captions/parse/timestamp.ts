@@ -16,18 +16,19 @@ export const parseTimestamp = (value: string): number | null => {
   return ((hours * 60 + minutes) * 60 + seconds) * 1000 + millis;
 };
 
-// Lenient about the spaces around the arrow, which some SRT files leave out
-const TIMING = /^(\S+?)[ \t]*-->[ \t]*(\S+)(.*)$/;
+// Lenient about the spaces around the arrow, which some SRT files leave out. Anything after the end
+// time (WebVTT cue settings such as `align:start`, SRT coordinates) isn't applied.
+const TIMING = /^(\S+?)[ \t]*-->[ \t]*(\S+)/;
 
 /**
  * Reads a cue's timing line, `00:01.000 --> 00:02.500 align:start`.
- * @returns The start and end in milliseconds and the rest of the line, or `null` if malformed.
+ * @returns The start and end in milliseconds, or `null` if malformed.
  */
-export const parseTimingLine = (line: string): { start: number; end: number; rest: string } | null => {
+export const parseTimingLine = (line: string): { start: number; end: number } | null => {
   const match = TIMING.exec(line.trim());
   if (!match) return null;
   const start = parseTimestamp(match[1] ?? '');
   const end = parseTimestamp(match[2] ?? '');
   if (start === null || end === null) return null;
-  return { start, end, rest: (match[3] ?? '').trim() };
+  return { start, end };
 };

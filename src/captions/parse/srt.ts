@@ -16,7 +16,7 @@ export const parseSRTBlocks = (text: string): { cues: RawCue[]; skipped: number 
       skipped += 1;
       continue;
     }
-    for (const { rest: _rest, ...cue } of read) cues.push(cue);
+    cues.push(...read);
   }
 
   return { cues, skipped };

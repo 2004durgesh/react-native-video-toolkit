@@ -50,8 +50,7 @@ export const parseVTTBlocks = (text: string): { cues: RawCue[]; skipped: number;
       skipped += 1;
       return;
     }
-    // The rest of a timing line is cue settings (`align:start`), which aren't applied
-    for (const { rest: _settings, ...cue } of read) cues.push(cue);
+    cues.push(...read);
   });
 
   return { cues, skipped, timestampMap };
