@@ -4,7 +4,7 @@ import { useVideoSelector } from '../../providers';
 import { BaseButton } from './BaseButton';
 import type { TVFocusTarget } from '../../tv/TVFocus';
 
-interface BaseIconButtonProps {
+export interface BaseIconButtonProps {
   IconComponent?: React.ElementType;
   icon?: ReactNode;
   size?: number;
@@ -13,7 +13,10 @@ interface BaseIconButtonProps {
   style?: StyleProp<ViewStyle>;
   /** Identifies the button in end-to-end tests. */
   testID?: string;
-  /** @internal On TV, the button the remote focuses when the controls come up. */
+  /**
+   * Where the TV remote lands for this button, when the player sends it there.
+   * @internal
+   */
   tvFocusTarget?: TVFocusTarget;
   /** What a screen reader announces for the button. */
   accessibilityLabel?: string;
@@ -48,7 +51,7 @@ export const BaseIconButton = ({
       onTap={onTap}
       testID={testID}
       tvFocusTarget={tvFocusTarget}
-      accessibilityRole={accessibilityLabel ? 'button' : undefined}
+      accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}>
       <View style={[styles.iconContainer, style]}>
         {icon ? icon : IconComponent ? <IconComponent size={iconSize} color={iconColor} /> : null}

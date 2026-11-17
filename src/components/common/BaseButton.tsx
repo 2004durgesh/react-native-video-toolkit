@@ -8,11 +8,11 @@ import type { PressFeedbackProps } from '../../types';
 import { useTVFocusable, type TVFocusTarget } from '../../tv/TVFocus';
 import { PlatformUtils } from '../../utils/platform';
 
-interface BaseButtonProps extends Omit<PressFeedbackProps, 'children' | 'color'> {
+export interface BaseButtonProps extends Omit<PressFeedbackProps, 'children' | 'color'> {
   children: ReactNode;
   onTap: () => void;
   /**
-   * On TV, the button the remote focuses when it comes up: the play button, or "Play now".
+   * Where the TV remote lands for this button, when the player sends it there.
    * @internal
    */
   tvFocusTarget?: TVFocusTarget;

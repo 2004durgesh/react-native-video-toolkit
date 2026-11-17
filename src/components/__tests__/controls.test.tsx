@@ -65,6 +65,27 @@ describe('control buttons', () => {
   });
 });
 
+describe('VideoPlayer', () => {
+  it('passes View props to its outer view, with containerStyle over style', async () => {
+    await render(
+      <GestureHandlerRootView>
+        <VideoProvider config={{ autoPlay: false }}>
+          <VideoPlayer
+            source={{ uri: 'https://example.com/movie.mp4' }}
+            testID="trailer"
+            accessibilityLabel="Trailer"
+            style={{ margin: 4, padding: 1 }}
+            containerStyle={{ padding: 2 }}
+          />
+        </VideoProvider>
+      </GestureHandlerRootView>
+    );
+    const outer = screen.getByTestId('trailer');
+    expect(outer.props.accessibilityLabel).toBe('Trailer');
+    expect(StyleSheet.flatten(outer.props.style)).toMatchObject({ margin: 4, padding: 2 });
+  });
+});
+
 describe('DefaultLayout', () => {
   it('takes faded-out controls out of reach of touches and screen readers, and back when shown', async () => {
     await setUp(<DefaultLayout />);

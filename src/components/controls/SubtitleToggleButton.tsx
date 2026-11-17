@@ -1,18 +1,11 @@
-import { BaseIconButton } from '../common';
-import { Subtitles, SubtitlesOff } from '../svgs';
-import { useSettings } from '../../hooks';
 import { useState } from 'react';
 import type { TextTrack } from 'react-native-video';
-import { useTestID } from '../../utils/testIDs';
+import { IconControl, type IconControlProps } from '../common/IconControl';
+import { Subtitles, SubtitlesOff } from '../svgs';
+import { useSettings } from '../../hooks';
 import { OFF_TEXT_TRACK, isOffTrack, isSameLanguage } from '../../tracks/selection';
 
-export interface SubtitleToggleButtonProps {
-  /**
-   * Identifies the button in end-to-end tests.
-   * @default `video-subtitles-button`, with the player's `testID` in place of `video`
-   */
-  testID?: string;
-}
+export type SubtitleToggleButtonProps = IconControlProps;
 
 /**
  * A button that toggles subtitles on and off.
@@ -20,13 +13,11 @@ export interface SubtitleToggleButtonProps {
  * @param {SubtitleToggleButtonProps} props - The props for the component.
  * @returns {React.ReactElement | null} The button, or nothing when the source has no subtitles.
  */
-export const SubtitleToggleButton = ({ testID }: SubtitleToggleButtonProps = {}): React.ReactElement | null => {
-  const buttonTestID = useTestID('subtitles-button', testID);
+export const SubtitleToggleButton = (props: SubtitleToggleButtonProps): React.ReactElement | null => {
   const { textTrack, setTextTrack, textTracks } = useSettings();
   const [lastSelectedTrack, setLastSelectedTrack] = useState<TextTrack | null>(null);
 
   const isOff = isOffTrack(textTrack);
-  const icon = isOff ? SubtitlesOff : Subtitles;
 
   // Remember the last track that was on, so turning subtitles back on restores it. Done during render:
   // an effect would commit an extra render.
@@ -49,7 +40,13 @@ export const SubtitleToggleButton = ({ testID }: SubtitleToggleButtonProps = {})
   };
 
   if (!hasSubtitles) return null;
-  return <BaseIconButton IconComponent={icon} onTap={handleToggle} testID={buttonTestID} />;
+  return (
+    <IconControl
+      {...props}
+      part="subtitles-button"
+      icon={isOff ? SubtitlesOff : Subtitles}
+      label={isOff ? 'Show subtitles' : 'Hide subtitles'}
+      onTap={handleToggle}
+    />
+  );
 };
-
-export default SubtitleToggleButton;

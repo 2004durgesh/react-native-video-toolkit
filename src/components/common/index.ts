@@ -1,5 +1,7 @@
 export { BaseButton } from './BaseButton';
 export { BaseIconButton } from './BaseIconButton';
+export type { BaseButtonProps } from './BaseButton';
+export type { BaseIconButtonProps } from './BaseIconButton';
 export { CommonLayoutStyles } from './CommonLayoutStyles';
 export {
   BottomSheetRoot,

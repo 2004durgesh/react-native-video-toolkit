@@ -1,8 +1,34 @@
-import { StyleSheet } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { StyleSheet, type ColorValue, type ViewStyle } from 'react-native';
+import Animated, { type CSSStyle } from 'react-native-reanimated';
 import Ripple from 'react-native-material-ripple';
 import { PlatformUtils } from '../../utils/platform';
 import type { PressFeedbackProps } from '../../types';
+
+/**
+ * Builds hover and press feedback that runs natively (as a CSS transition on web), without
+ * re-rendering: a background in `color` and a smaller scale while pressed.
+ *
+ * A pseudo-selector object owns its property, so pass a background from the view's own `style` as
+ * `resting`, or it's lost.
+ *
+ * @param {ColorValue} resting - The background when neither hovered nor pressed.
+ * @param {ColorValue} color - The background while hovered or pressed.
+ * @param {number} scale - The scale while pressed.
+ * @param {number} duration - How long the change takes, in ms.
+ * @returns {CSSStyle<ViewStyle>} A style to put after the view's own.
+ * @internal
+ */
+export const pressFeedbackStyle = (
+  resting: ColorValue,
+  color: ColorValue,
+  scale: number,
+  duration: number
+): CSSStyle<ViewStyle> => ({
+  backgroundColor: { 'default': resting, ':hover': color, ':active': color },
+  transform: { 'default': [{ scale: 1 }], ':active': [{ scale }] },
+  transitionProperty: ['backgroundColor', 'transform'],
+  transitionDuration: duration,
+});
 
 /**
  * The toolkit's default `PressFeedback`: a material ripple on native, and a hover and press tint
@@ -18,23 +44,9 @@ export const DefaultPressFeedback = ({
   ...viewProps
 }: PressFeedbackProps): React.ReactElement => {
   if (PlatformUtils.isWeb()) {
-    // A pseudo-selector object owns its property, so a background from `style` becomes the resting value.
-    const restingBackground = StyleSheet.flatten(style)?.backgroundColor ?? 'transparent';
-
+    const resting = StyleSheet.flatten(style)?.backgroundColor ?? 'transparent';
     return (
-      <Animated.View
-        style={[
-          styles.webContainer,
-          style,
-          {
-            // Runs as a CSS transition, without re-rendering.
-            backgroundColor: { 'default': restingBackground, ':hover': color, ':active': color },
-            transform: { 'default': [{ scale: 1 }], ':active': [{ scale: 0.92 }] },
-            transitionProperty: ['backgroundColor', 'transform'],
-            transitionDuration: 150,
-          },
-        ]}
-        {...viewProps}>
+      <Animated.View style={[styles.webContainer, style, pressFeedbackStyle(resting, color, 0.92, 150)]} {...viewProps}>
         {children}
       </Animated.View>
     );

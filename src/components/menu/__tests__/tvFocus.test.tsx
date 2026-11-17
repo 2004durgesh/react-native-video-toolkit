@@ -1,9 +1,11 @@
 import React, { useImperativeHandle, type Ref } from 'react';
+import { StyleSheet } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { VideoProvider, useVideo } from '../../../providers';
 import { VideoPlayer } from '../../VideoPlayer';
 import { DefaultLayout } from '../../../layouts/DefaultLayout';
+import { defaultTheme } from '../../../themes/defaultTheme';
 
 // A TV: the toolkit picks its remote-driven parts as its modules load
 jest.mock('../../../utils/platform', () => {
@@ -63,5 +65,16 @@ describe('the settings menu on TV', () => {
     expect(handle.current!.state.controlsVisible).toBe(false);
     expect(prefersFocus('video-tv-surface')).toBe(true);
     expect(prefersFocus('video-settings-button')).toBe(false);
+  });
+
+  it('highlights the row the remote is on', async () => {
+    await setUp();
+    await openFromSettingsButton();
+    const background = () => StyleSheet.flatten(element('video-settings-rate').props.style).backgroundColor;
+    expect(background()).not.toBe(defaultTheme.colors.tvFocus);
+    await act(() => fireEvent(element('video-settings-rate'), 'focus'));
+    expect(background()).toBe(defaultTheme.colors.tvFocus);
+    await act(() => fireEvent(element('video-settings-rate'), 'blur'));
+    expect(background()).not.toBe(defaultTheme.colors.tvFocus);
   });
 });

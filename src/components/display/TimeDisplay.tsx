@@ -90,7 +90,7 @@ export const TimeDisplay = ({
   );
 };
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   timeContainer: {
     flexDirection: 'row',
     alignItems: 'center',

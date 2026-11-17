@@ -201,23 +201,23 @@ One option of a list where one is chosen, with a check mark while selected. Pres
 
 Button that closes the menu manually.
 
-| Prop       | Type                   | Required | Description                                                                    |
-| ---------- | ---------------------- | -------- | ------------------------------------------------------------------------------ |
-| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                                   |
-| `testID`   | `string`               | No       | Identifies the button in end-to-end tests. Defaults to `video-settings-close`. |
-| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component.                   |
+| Prop                 | Type                   | Default                | Required | Description                                |
+| -------------------- | ---------------------- | ---------------------- | -------- | ------------------------------------------ |
+| `style`              | `StyleProp<ViewStyle>` | –                      | No       | Custom style for the button.               |
+| `testID`             | `string`               | `video-settings-close` | No       | Identifies the button in end-to-end tests. |
+| `accessibilityLabel` | `string`               | `"Close"`              | No       | What a screen reader announces.            |
 
 ---
 
 ### `Menu.Back`
 
-Button that navigates back in the menu stack.
+Button that goes back to the previous view. It renders nothing on the menu's first view.
 
-| Prop       | Type                   | Required | Description                                                                   |
-| ---------- | ---------------------- | -------- | ----------------------------------------------------------------------------- |
-| `style`    | `StyleProp<ViewStyle>` | No       | Custom style for the button.                                                  |
-| `testID`   | `string`               | No       | Identifies the button in end-to-end tests. Defaults to `video-settings-back`. |
-| `...props` | `PressableProps`       | No       | All other props from the React Native `Pressable` component.                  |
+| Prop                 | Type                   | Default               | Required | Description                                |
+| -------------------- | ---------------------- | --------------------- | -------- | ------------------------------------------ |
+| `style`              | `StyleProp<ViewStyle>` | –                     | No       | Custom style for the button.               |
+| `testID`             | `string`               | `video-settings-back` | No       | Identifies the button in end-to-end tests. |
+| `accessibilityLabel` | `string`               | `"Back"`              | No       | What a screen reader announces.            |
 
 ---
 

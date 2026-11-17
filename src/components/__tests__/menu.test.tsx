@@ -590,6 +590,40 @@ describe('menus of your own', () => {
     expect(screen.getByTestId('video-settings-back')).toBeTruthy();
   });
 
+  it('render Menu.Back in a custom header only with a view to go back to, and name both buttons', async () => {
+    await setUp({
+      children: (
+        <Menu.Root>
+          <Menu.Trigger />
+          <Menu.Content
+            header={() => (
+              <>
+                <Menu.Back />
+                <Menu.Close />
+              </>
+            )}>
+            <Menu.SubContent viewId="root">
+              <Menu.Item testID="more-row" navigateTo="more">
+                More
+              </Menu.Item>
+            </Menu.SubContent>
+            <Menu.SubContent viewId="more">{null}</Menu.SubContent>
+          </Menu.Content>
+        </Menu.Root>
+      ),
+    });
+    await openMenu();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeTruthy();
+    // On the first view a Back button would close the menu, so there is none
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
+    await press('more-row');
+    expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
+    await tap('video-settings-back');
+    expect(screen.getByTestId('video-settings-view-root')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
+    expect(isOpen()).toBe(true);
+  });
+
   it('mark radio rows for screen readers', async () => {
     const onSelect = jest.fn();
     await setUp({

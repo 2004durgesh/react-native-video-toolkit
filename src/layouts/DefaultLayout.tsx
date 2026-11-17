@@ -235,7 +235,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
               <FadingControls
                 offsetY={50}
                 testID={`${id}-controls-bottom`}
-                // Its height, so subtitles move up above it while it shows
+                // Where its top edge sits, so subtitles move up above it while it shows
                 onLayout={(event) => frames.set({ bottomTop: event.nativeEvent.layout.y })}
                 style={[
                   layoutStyles.bottomControls,

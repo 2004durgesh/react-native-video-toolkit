@@ -17,7 +17,7 @@ import type { ReactVideoProps, AudioTrack } from 'react-native-video';
 import { GestureHandler } from '../gestures';
 import { useVideoSelector } from '../providers';
 import { TimeDisplay, LoadingSpinner, VideoOverlay } from './display';
-import { getFullscreenHeight } from '../utils';
+import { getFullscreenHeight } from '../fullscreen/height';
 import { Captions, CaptionsSlotContext, PlayerCaptions, createCaptionsSlot } from '../captions/Captions';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useFullscreenExits } from '../fullscreen/useFullscreenExits';
@@ -28,9 +28,10 @@ import { PlatformUtils } from '../utils/platform';
 import { DEFAULT_VIDEO_TEST_ID, TestIDContext, useTestID } from '../utils/testIDs';
 
 /**
- * Props for the VideoPlayer component.
+ * Props for the VideoPlayer component. Other `View` props go to the player's outer view, apart from
+ * `id`, which the player sets itself.
  */
-interface VideoPlayerProps extends ViewProps {
+export interface VideoPlayerProps extends ViewProps {
   /**
    * The video to play, as react-native-video's `source`: a remote URL or a local file path.
    */
@@ -82,6 +83,8 @@ const VideoPlayerComponent = ({
   customAudioTracks,
   customVideoTracks,
   testID = DEFAULT_VIDEO_TEST_ID,
+  style,
+  ...viewProps
 }: VideoPlayerProps) => {
   // Each player's own id: web fullscreen finds the player around its video by this prefix, and a
   // shared id made the first player on the page go fullscreen whichever button was pressed
@@ -117,6 +120,7 @@ const VideoPlayerComponent = ({
     <TestIDContext.Provider value={testID}>
       <CaptionsSlotContext.Provider value={captionsSlot}>
         <View
+          {...viewProps}
           id={playerId}
           testID={testID}
           style={[
@@ -125,6 +129,7 @@ const VideoPlayerComponent = ({
               height,
               ...(Platform.OS === 'web' && { width: '100%', height: '100%', overflow: 'hidden' }),
             },
+            style,
             containerStyle,
           ]}>
           <GestureHandler {...gestureProps}>

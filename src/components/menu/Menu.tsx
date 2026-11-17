@@ -37,8 +37,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import { PlatformUtils, webSafeAnimation, webDependencies } from '../../utils/platform';
 import { useTestID } from '../../utils/testIDs';
-import { ControlsFocusableContext, requestTVFocus, TRAP_FOCUS, TV_FOCUS_GUIDE, TVFocusContext } from '../../tv/TVFocus';
+import {
+  ControlsFocusableContext,
+  requestTVFocus,
+  TRAP_FOCUS,
+  TV_FOCUS_GUIDE,
+  TVFocusContext,
+  useTVFocusable,
+} from '../../tv/TVFocus';
 import { SettingsButton } from '../controls/SettingsButton';
+import { pressFeedbackStyle } from '../defaults/DefaultPressFeedback';
 import { Check, ChevronLeft, Close } from '../svgs';
 import { Title } from '../display';
 import type { IconProps } from '../../types/svg';
@@ -64,7 +72,7 @@ interface MenuContextType {
   returnedFrom?: string | null;
 }
 
-interface MenuRootProps {
+export interface MenuRootProps {
   children: ReactNode;
   initialView?: string;
   /**
@@ -81,7 +89,7 @@ interface MenuRootProps {
   title?: string;
 }
 
-interface MenuContentProps {
+export interface MenuContentProps {
   children: ReactNode;
   sheetStyle?: StyleProp<ViewStyle>;
   header?: (currentView: string) => ReactNode;
@@ -101,7 +109,7 @@ interface MenuContentProps {
   testID?: string;
 }
 
-interface MenuSubContentProps {
+export interface MenuSubContentProps {
   viewId: string;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -112,7 +120,7 @@ interface MenuSubContentProps {
   testID?: string;
 }
 
-interface MenuItemProps extends Omit<PressableProps, 'onPress'> {
+export interface MenuItemProps extends Omit<PressableProps, 'onPress'> {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
@@ -133,27 +141,27 @@ interface MenuItemProps extends Omit<PressableProps, 'onPress'> {
   tvPreferred?: boolean;
 }
 
-interface MenuLabelProps extends TextProps {
+export interface MenuLabelProps extends TextProps {
   children: ReactNode;
   style?: StyleProp<TextStyle>;
 }
 
-interface MenuSeparatorProps extends ViewProps {
+export interface MenuSeparatorProps extends ViewProps {
   style?: StyleProp<ViewStyle>;
 }
 
-interface MenuGroupProps extends ViewProps {
+export interface MenuGroupProps extends ViewProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
-interface MenuCheckboxItemProps extends Omit<MenuItemProps, 'onPress'> {
+export interface MenuCheckboxItemProps extends Omit<MenuItemProps, 'onPress'> {
   children: ReactNode;
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }
 
-interface MenuRadioItemProps extends Omit<MenuItemProps, 'onPress'> {
+export interface MenuRadioItemProps extends Omit<MenuItemProps, 'onPress'> {
   children: ReactNode;
   /** Whether this is the chosen option. */
   selected: boolean;
@@ -161,17 +169,19 @@ interface MenuRadioItemProps extends Omit<MenuItemProps, 'onPress'> {
   onSelect: () => void;
 }
 
-interface MenuCloseProps extends PressableProps {
+/** Only `style`, `testID` and `accessibilityLabel` take effect. The other `Pressable` props are ignored. */
+export interface MenuCloseProps extends PressableProps {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
-interface MenuBackProps extends PressableProps {
+/** Only `style`, `testID` and `accessibilityLabel` take effect. The other `Pressable` props are ignored. */
+export interface MenuBackProps extends PressableProps {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
-interface MenuHeaderProps extends ViewProps {
+export interface MenuHeaderProps extends ViewProps {
   children?: ReactNode;
   title?: string;
   showBackButton?: boolean;
@@ -310,33 +320,32 @@ const MenuRoot = ({
 };
 
 /** Button to close the menu. */
-const MenuClose = ({ style, testID, ...props }: MenuCloseProps): ReactElement => {
+const MenuClose = ({ style, testID, accessibilityLabel = 'Close' }: MenuCloseProps): ReactElement => {
   const { closeSettings } = useMenuContext();
-  const buttonTestID = useTestID('settings-close', testID ?? undefined);
+  const buttonTestID = useTestID('settings-close', testID);
   return (
     <BaseIconButton
       onTap={closeSettings}
       IconComponent={MenuCloseIcon}
       style={style}
-      {...props}
       testID={buttonTestID}
+      accessibilityLabel={accessibilityLabel}
     />
   );
 };
 
-/** Button to navigate back in the menu stack. */
-const MenuBack = ({ style, testID, ...props }: MenuBackProps): ReactElement => {
+/** Button to go back to the previous view. Renders nothing on the first view. */
+const MenuBack = ({ style, testID, accessibilityLabel = 'Back' }: MenuBackProps): ReactElement | null => {
   const { goBack, navigationStack } = useMenuContext();
-  const canGoBack = navigationStack.length > 1;
-  const buttonTestID = useTestID('settings-back', testID ?? undefined);
+  const buttonTestID = useTestID('settings-back', testID);
+  if (navigationStack.length <= 1) return null;
   return (
     <BaseIconButton
-      onTap={() => goBack()}
-      style={style}
-      disabled={!canGoBack}
+      onTap={goBack}
       IconComponent={MenuBackIcon}
-      {...props}
+      style={style}
       testID={buttonTestID}
+      accessibilityLabel={accessibilityLabel}
     />
   );
 };
@@ -351,10 +360,9 @@ const MenuHeader = ({
   titleStyle,
   ...props
 }: MenuHeaderProps): ReactElement => {
-  const { currentTitle, navigationStack } = useMenuContext();
+  const { currentTitle } = useMenuContext();
   const theme = useVideoSelector((state) => state.theme);
   const titleTestID = useTestID('settings-title');
-  const shouldShowBackButton = showBackButton && navigationStack.length > 1;
 
   return (
     <AnimatedView
@@ -362,7 +370,7 @@ const MenuHeader = ({
       entering={webSafeAnimation(FadeIn.duration(200))}
       {...props}>
       {/* Equal side slots keep the title centered whether or not each button is shown. */}
-      <View style={[styles.headerSide, styles.headerSideStart]}>{shouldShowBackButton && <MenuBack />}</View>
+      <View style={[styles.headerSide, styles.headerSideStart]}>{showBackButton && <MenuBack />}</View>
       {children || (
         <Title
           text={title || currentTitle}
@@ -496,7 +504,8 @@ const MenuItem = ({
   const { navigateTo: ctxNavigate, closeSettings, returnedFrom } = useMenuContext();
   const theme = useVideoSelector((state) => state.theme);
   // The TV remote focuses rows rather than hovering or pressing them, so show which one it's on
-  const [tvFocused, setTVFocused] = useState(false);
+  const tv = useTVFocusable('button');
+  const tvProps = IS_TV ? tv.props : null;
   // And it lands on the selected row as a view opens, and back on the row it came from
   const itemRef = useRef<HostInstance>(null);
   const takesTVFocus = IS_TV && (tvPreferred || (navTo !== undefined && navTo === returnedFrom));
@@ -514,8 +523,7 @@ const MenuItem = ({
     }
   };
 
-  // A pseudo-selector object owns its property, so a background from `style` becomes the resting value.
-  const restingBackground = StyleSheet.flatten(style)?.backgroundColor ?? theme.colors.menuBackground;
+  const resting = StyleSheet.flatten(style)?.backgroundColor ?? theme.colors.menuBackground;
 
   const renderChildren = (): ReactNode => {
     if (typeof children === 'string') {
@@ -527,30 +535,21 @@ const MenuItem = ({
   return (
     <AnimatedPressable
       ref={itemRef}
+      {...tvProps}
       onPress={handlePress}
       onFocus={(event) => {
-        if (IS_TV) setTVFocused(true);
+        tvProps?.onFocus?.(event);
         onFocus?.(event);
       }}
       onBlur={(event) => {
-        if (IS_TV) setTVFocused(false);
+        tvProps?.onBlur?.(event);
         onBlur?.(event);
       }}
       style={[
         styles.item,
         style,
-        {
-          // Hover and press feedback run natively (CSS on web), without re-rendering.
-          backgroundColor: {
-            'default': restingBackground,
-            ':hover': theme.colors.ripple,
-            ':active': theme.colors.ripple,
-          },
-          transform: { 'default': [{ scale: 1 }], ':active': [{ scale: 0.97 }] },
-          transitionProperty: ['backgroundColor', 'transform'],
-          transitionDuration: 100,
-        },
-        tvFocused && { backgroundColor: theme.colors.tvFocus },
+        pressFeedbackStyle(resting, theme.colors.ripple, 0.97, 100),
+        tv.focused && { backgroundColor: theme.colors.tvFocus },
       ]}
       {...props}>
       {renderChildren()}
@@ -564,7 +563,7 @@ const MenuLabel = ({ children, style, ...props }: MenuLabelProps): ReactElement 
 
   return (
     <Animated.Text
-      style={[styles.label, { color: theme.colors.textSecondary || theme.colors.menuText }, style]}
+      style={[styles.label, { color: theme.colors.textSecondary }, style]}
       entering={webSafeAnimation(FadeIn.delay(150).duration(250))}
       {...props}>
       {children}
@@ -766,5 +765,3 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 });
-
-export default Menu;

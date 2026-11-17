@@ -100,6 +100,14 @@ describe('subtitle tracks', () => {
     await act(() => fireGestureHandler(getByGestureTestId('video-subtitles-button')));
     expect(settings().textTrack).toMatchObject({ language: 'fr' });
   });
+
+  it('names the subtitles button for screen readers after what a tap does', async () => {
+    await render(player('https://example.com/a.mp4'));
+    await load({ textTracks: [{ index: 0, language: 'en' }] });
+    expect(screen.getByRole('button', { name: 'Hide subtitles' })).toBeTruthy();
+    await act(() => fireGestureHandler(getByGestureTestId('video-subtitles-button')));
+    expect(screen.getByRole('button', { name: 'Show subtitles' })).toBeTruthy();
+  });
 });
 
 describe('audio tracks', () => {
