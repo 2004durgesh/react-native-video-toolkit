@@ -8,9 +8,8 @@ import {
 } from 'react-native';
 import type { TextTrack } from 'react-native-video';
 import { usePictureInPicture } from '../hooks';
-import Animated from 'react-native-reanimated';
 import { useState, useSyncExternalStore, type FC, type ReactNode } from 'react';
-import { FocusableWhenShown, fadeAccessibility, fadeTouchStyle, useFadeStyle } from '../components/common/fade';
+import { Fade } from '../components/common/fade';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useVideoSelector } from '../providers';
 import { Subtitle, Title, VideoPlayer, type TitleProps, type SubitleProps } from '../components';
@@ -119,15 +118,10 @@ const FadingControls = ({
   children: ReactNode;
 }) => {
   const shown = useVideoSelector((state) => state.controlsVisible);
-  const fadeStyle = useFadeStyle(shown, offsetY);
   return (
-    <Animated.View
-      style={[style, fadeStyle, fadeTouchStyle(shown)]}
-      testID={testID}
-      onLayout={onLayout}
-      {...fadeAccessibility(shown)}>
-      <FocusableWhenShown shown={shown}>{children}</FocusableWhenShown>
-    </Animated.View>
+    <Fade shown={shown} offsetY={offsetY} style={style} testID={testID} onLayout={onLayout}>
+      {children}
+    </Fade>
   );
 };
 
