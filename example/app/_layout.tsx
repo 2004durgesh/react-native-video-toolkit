@@ -29,7 +29,8 @@ function RootVideoProvider({ children }: { children: ReactNode }) {
 export default function RootLayout() {
   useEffect(() => {
     // TV is landscape. Phones and tablets start in portrait (iOS lists landscape so fullscreen can
-    // turn to it), and leaving fullscreen locks phones to portrait again.
+    // turn to it), and leaving fullscreen locks phones to portrait again. The browser has no lock.
+    if (Platform.OS === 'web') return;
     RNOrientationDirector.lockTo(Platform.isTV ? Orientation.landscape : Orientation.portrait);
   }, []);
 
