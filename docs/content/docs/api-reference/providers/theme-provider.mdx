@@ -1,31 +1,46 @@
 ---
 title: ThemeProvider
-description: The ThemeProvider component that provides theming capabilities to the video player and its children.
+description: Read the player's theme in your own components with useTheme.
 ---
 
-## Usage
+import { Callout } from 'fumadocs-ui/components/callout';
 
-To use the `ThemeProvider`, you need to wrap your component with it and provide a theme object. This is usually done in the root component of your application.
+Pass your theme to `VideoProvider`'s `theme` prop. To read it in your own components, call `useTheme()` anywhere below the provider.
 
 ```tsx
-import { ThemeProvider, defaultTheme } from 'react-native-video-toolkit';
+import { VideoProvider, useTheme } from 'react-native-video-toolkit';
+import { Text } from 'react-native';
 
-export const App = () => <ThemeProvider theme={defaultTheme}>{/* Your application content */}</ThemeProvider>;
+const Caption = ({ text }: { text: string }) => {
+  const theme = useTheme();
+  return <Text style={{ color: theme.colors.textMain, fontSize: theme.fontSizes.sm }}>{text}</Text>;
+};
+
+export const App = () => (
+  <VideoProvider theme={{ colors: { textMain: '#FFEB3B' } }}>
+    <Caption text="Episode 5" />
+  </VideoProvider>
+);
 ```
 
-## Props
+## useTheme
+
+Returns the theme of the nearest `VideoProvider`, with every key you left out filled in from the default theme.
+
+### Returns
+
+| Value   | Type    | Description         |
+| :------ | :------ | :------------------ |
+| `theme` | `Theme` | The player's theme. |
+
+## ThemeProvider
+
+<Callout type="warning">
+  Deprecated. The toolkit's controls read the theme from `VideoProvider`, so `ThemeProvider` only changes what
+  `useTheme()` returns below it. Pass the theme to `VideoProvider` instead. `ThemeProvider` will be removed in 2.0.
+</Callout>
 
 | Prop       | Type        | Default    | Description             |
 | :--------- | :---------- | :--------- | :---------------------- |
 | `theme`    | `Theme`     | `required` | The theme object.       |
 | `children` | `ReactNode` | `required` | The children to render. |
-
-## useTheme
-
-The `useTheme` hook provides access to the theme object.
-
-### Returns
-
-| Value   | Type    | Description       |
-| :------ | :------ | :---------------- |
-| `theme` | `Theme` | The theme object. |

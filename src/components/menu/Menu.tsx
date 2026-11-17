@@ -37,7 +37,7 @@ import Animated, {
 import { useSettings } from '../../hooks';
 import { PlatformUtils, webDependencies } from '../../utils/platform';
 import { useTestID } from '../../utils/testIDs';
-import { DEFAULT_TV_FOCUS_COLOR, requestTVFocus, TRAP_FOCUS, TV_FOCUS_GUIDE, TVFocusContext } from '../../tv/TVFocus';
+import { requestTVFocus, TRAP_FOCUS, TV_FOCUS_GUIDE, TVFocusContext } from '../../tv/TVFocus';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { type SettingsButtonProps } from '../controls';
 import { ChevronLeft, Close, Settings } from '../svgs';
@@ -328,7 +328,7 @@ export const Menu = {
 
     return (
       <AnimatedView
-        style={[styles.header, { borderBottomColor: theme.colors.menuBorder || '#ccc' }, style]}
+        style={[styles.header, { borderBottomColor: theme.colors.menuBorder }, style]}
         entering={webSafeAnimation(FadeIn.duration(200))}
         {...props}>
         {/* Equal side slots keep the title centered whether or not each button is shown. */}
@@ -359,6 +359,7 @@ export const Menu = {
     const contexts = useBridgedContexts();
     const theme = useVideoSelector((state) => state.theme);
     const portalHostName = useVideoSelector((state) => state.portalHostName);
+    const bottomInset = useVideoSelector((state) => state.config.safeAreaInsets?.bottom ?? 0);
 
     // On TV, the remote goes into the menu as it opens and as each view opens, to the first row
     // through the focus guide. A ref callback, as a sheet's portal can mount the body after this
@@ -379,7 +380,8 @@ export const Menu = {
         open={menuContext.isSettingsMenuVisible}
         onOpenChange={setSettingsMenuVisible}
         style={[styles.sheetContent, { backgroundColor: theme.colors.menuBackground }, sheetStyle]}
-        portalHost={portalHost || portalHostName}>
+        portalHost={portalHost || portalHostName}
+        bottomInset={bottomInset}>
         <ContextBridge contexts={contexts}>
           <MenuProvider value={menuContext}>
             {/* A native sheet renders this in its own window, outside the app's
@@ -508,7 +510,7 @@ export const Menu = {
             transitionProperty: ['backgroundColor', 'transform'],
             transitionDuration: 100,
           },
-          tvFocused && { backgroundColor: theme.colors.tvFocus ?? DEFAULT_TV_FOCUS_COLOR },
+          tvFocused && { backgroundColor: theme.colors.tvFocus },
         ]}
         {...props}>
         {renderChildren()}
@@ -540,7 +542,7 @@ export const Menu = {
 
     return (
       <AnimatedView
-        style={[styles.separator, { backgroundColor: theme.colors.menuSeparator || '#ccc' }, style]}
+        style={[styles.separator, { backgroundColor: theme.colors.menuSeparator }, style]}
         entering={webSafeAnimation(FadeIn.delay(100).duration(200))}
         {...props}
       />

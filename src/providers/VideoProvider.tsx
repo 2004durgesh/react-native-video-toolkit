@@ -1,27 +1,18 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useSyncExternalStore,
-} from 'react';
-import type { VideoPlayerConfig, VideoState, Theme, VideoComponents } from '../types';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
+import type { VideoPlayerConfig, VideoState, Theme, VideoComponents, ResolvedConfig, ResolvedTheme } from '../types';
 import { defaultTheme } from '../themes';
-import { type LayoutRectangle, Dimensions } from 'react-native';
-import { ThemeProvider } from './ThemeProvider';
+import { type LayoutRectangle, type ScaledSize, Dimensions } from 'react-native';
 import { SettingsProvider } from './SettingsProvider';
 import { ComponentsProvider } from './ComponentsProvider';
 import { createProgressStore, ProgressStoreContext } from './ProgressStore';
-import { ControlsControllerContext, type ControlsController } from './ControlsController';
+import { ControlsControllerContext, createControlsController } from './ControlsController';
 import { CaptionsControllerContext, createCaptionsController } from '../captions/CaptionsController';
 import { PortalHost } from '@rn-primitives/portal';
 import type { VideoRef } from 'react-native-video';
 /**
  * Default configuration for the video player.
  */
-const defaultConfig: VideoPlayerConfig = {
+const defaultConfig: ResolvedConfig = {
   autoHideControls: true,
   autoHideDelay: 5000,
   autoPlay: true,
@@ -44,13 +35,13 @@ const defaultConfig: VideoPlayerConfig = {
  */
 interface VideoProviderState extends VideoState {
   /**
-   * The configuration for the video player.
+   * The configuration for the video player, with the defaults filled in.
    */
-  config: VideoPlayerConfig;
+  config: ResolvedConfig;
   /**
-   * The theme for the video player.
+   * The theme for the video player, with the defaults filled in.
    */
-  theme: Theme;
+  theme: ResolvedTheme;
   /**
    * A ref to the video component.
    */
@@ -65,6 +56,7 @@ interface VideoProviderState extends VideoState {
   videoLayout: LayoutRectangle;
   /**
    * The layout of the video wrapper View.
+   * @deprecated Nothing reads it; will be removed in 2.0.
    */
   videoWrapperLayout: LayoutRectangle;
   /**
@@ -101,6 +93,7 @@ type Action =
   | { type: 'SHOW_CONTROLS' }
   | { type: 'HIDE_CONTROLS' }
   | { type: 'SET_CONTROLS_VISIBLE'; payload: boolean }
+  /** @deprecated Does nothing, and never did. Use `useProgress().seek`. Will be removed in 2.0. */
   | { type: 'SEEK'; payload: number }
   | { type: 'TOGGLE_PLAY_PAUSE' }
   | { type: 'SET_VOLUME'; payload: number }
@@ -123,11 +116,11 @@ type Action =
   | { type: 'SET_PORTAL_HOST_NAME'; payload: string };
 
 /**
- * The initial state for the VideoProvider.
+ * The state before the provider's props are applied.
  * @internal
  */
-const initialState: VideoProviderState = {
-  isPlaying: defaultConfig.autoPlay,
+const initialState: Omit<VideoProviderState, 'dimensions' | 'portalHostName' | 'videoRef'> = {
+  isPlaying: false,
   ended: false,
   duration: 0,
   buffering: false,
@@ -139,42 +132,44 @@ const initialState: VideoProviderState = {
   error: null,
   config: defaultConfig,
   theme: defaultTheme,
-  videoRef: null,
   controlsVisible: true,
   videoLayout: { x: 0, y: 0, width: 0, height: 0 },
   videoWrapperLayout: { x: 0, y: 0, width: 0, height: 0 },
   naturalSize: { width: 0, height: 0 },
   controlsInset: 0,
   controlsCenterInset: 0,
-  dimensions: { width: Dimensions.get('window').width, height: Dimensions.get('window').height },
-  portalHostName: 'default-portal-host',
 };
 
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
 /**
- * Whether two values are equal, comparing plain objects and arrays one level deep. Enough for the
- * config and theme, whose nested values (colors, font sizes, playback rates) are flat.
+ * Whether two values hold the same data: plain objects and arrays compare by content at any depth,
+ * everything else (functions included) by identity. Inline `config` and `theme` props arrive as new
+ * objects on every render of the parent, and must not produce a new state when nothing changed.
  */
-function isEqualOneLevel(a: unknown, b: unknown): boolean {
+function isSameData(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
   if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
   const aKeys = Object.keys(a);
   if (aKeys.length !== Object.keys(b).length) return false;
-  return aKeys.every((key) => {
-    const aValue = (a as Record<string, unknown>)[key];
-    const bValue = (b as Record<string, unknown>)[key];
-    if (Object.is(aValue, bValue)) return true;
-    if (typeof aValue !== 'object' || typeof bValue !== 'object' || aValue === null || bValue === null) return false;
-    const aInner = aValue as Record<string, unknown>;
-    const bInner = bValue as Record<string, unknown>;
-    const innerKeys = Object.keys(aInner);
-    return innerKeys.length === Object.keys(bInner).length && innerKeys.every((k) => Object.is(aInner[k], bInner[k]));
-  });
+  return aKeys.every((key) => isSameData((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]));
 }
 
-/** The object without its `undefined` values, so spreading it over defaults keeps them. */
-function definedOnly<T extends object>(value: T | undefined): Partial<T> {
-  if (!value) return {};
-  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as Partial<T>;
+/**
+ * `value` over `defaults`. Each nested group of the defaults (`colors`, `captions`...) merges one
+ * level down, so a partial group keeps the rest of its defaults. An `undefined` value
+ * (`config={{ autoHideDelay: props.delay }}` without a delay) keeps the default.
+ */
+function withDefaults<T extends object>(defaults: T, value: object | undefined): T {
+  const merged: Record<string, unknown> = { ...(defaults as Record<string, unknown>) };
+  for (const [key, next] of Object.entries(value ?? {})) {
+    if (next === undefined) continue;
+    const fallback = merged[key];
+    merged[key] = isPlainObject(fallback) && isPlainObject(next) ? withDefaults(fallback, next) : next;
+  }
+  return merged as T;
 }
 
 const isSameRect = (a: LayoutRectangle, b: LayoutRectangle) =>
@@ -194,19 +189,9 @@ function videoReducer(state: VideoProviderState, action: Action): VideoProviderS
 
   switch (action.type) {
     case 'INITIALIZE': {
-      // `definedOnly`: an explicit `undefined` (`config={{ autoHideDelay: props.delay }}` without a
-      // delay) keeps the default instead of replacing it
-      const theme = {
-        ...defaultTheme,
-        ...definedOnly(action.payload.theme),
-        colors: { ...defaultTheme.colors, ...definedOnly(action.payload.theme?.colors) },
-        fontSizes: { ...defaultTheme.fontSizes, ...definedOnly(action.payload.theme?.fontSizes) },
-        animations: { ...defaultTheme.animations, ...definedOnly(action.payload.theme?.animations) },
-        captions: { ...defaultTheme.captions, ...definedOnly(action.payload.theme?.captions) },
-      };
-      const config = { ...defaultConfig, ...definedOnly(action.payload.config) };
-      // Inline config and theme objects arrive as new objects on every render of the parent
-      if (isEqualOneLevel(theme, state.theme) && isEqualOneLevel(config, state.config)) return state;
+      const theme = withDefaults(defaultTheme, action.payload.theme);
+      const config = withDefaults(defaultConfig, action.payload.config);
+      if (isSameData(theme, state.theme) && isSameData(config, state.config)) return state;
       return { ...state, theme, config };
     }
     case 'SET_CONTROLS_VISIBLE':
@@ -308,8 +293,8 @@ function createVideoStore(initial: VideoProviderState): VideoStore {
 export const VideoStoreContext = createContext<VideoStore | undefined>(undefined);
 
 /**
- * The provider component for the video player.
- * This component provides the video state to all its children.
+ * Holds one player's state, config and theme. Players, layouts and hooks below it read from it, so
+ * every `VideoPlayer` needs one above it; one at the app root can serve every screen.
  */
 export const VideoProvider: React.FC<{
   children: React.ReactNode;
@@ -341,8 +326,9 @@ export const VideoProvider: React.FC<{
   // The first render already has the consumer's config and theme, so it doesn't render with the
   // defaults first. That includes `autoPlay: false`, which would otherwise start playing.
   const [store] = React.useState(() => {
+    const { width, height } = Dimensions.get('window');
     const initialized = videoReducer(
-      { ...initialState, portalHostName, videoRef },
+      { ...initialState, config: defaultConfig, dimensions: { width, height }, portalHostName, videoRef },
       { type: 'INITIALIZE', payload: { config, theme } }
     );
     return createVideoStore({ ...initialized, isPlaying: initialized.config.autoPlay });
@@ -356,56 +342,24 @@ export const VideoProvider: React.FC<{
     store.dispatch({ type: 'INITIALIZE', payload: { config, theme } });
   }, [store, portalHostName, config, theme]);
 
-  const getTheme = () => store.getState().theme;
-  // The third argument is for server rendering (the docs site prerenders players), which has no store updates
-  const storedTheme = useSyncExternalStore(store.subscribe, getTheme, getTheme);
-
-  // One auto-hide timer per provider. Each `useControlsVisibility()` caller used to keep its own,
-  // so a timer started by one wasn't cleared by another and the controls could hide early.
-  const [hideTimer] = React.useState<{ current: ReturnType<typeof setTimeout> | null }>(() => ({ current: null }));
-  const controls = useMemo<ControlsController>(() => {
-    const cancelHide = () => {
-      if (hideTimer.current) clearTimeout(hideTimer.current);
-      hideTimer.current = null;
-    };
-    const hide = () => {
-      cancelHide();
-      store.dispatch({ type: 'HIDE_CONTROLS' });
-      store.getState().config.onHideControls?.();
-    };
-    const show = () => {
-      const latest = store.getState();
-      cancelHide();
-      // A no-op for the state when the controls are already visible, so nothing re-renders
-      store.dispatch({ type: 'SHOW_CONTROLS' });
-      if (latest.config.autoHideControls && latest.isPlaying) {
-        hideTimer.current = setTimeout(hide, latest.config.autoHideDelay);
-      }
-      latest.config.onShowControls?.();
-    };
-    const toggle = () => (store.getState().controlsVisible ? hide() : show());
-    return { show, hide, toggle };
-  }, [store, hideTimer]);
-
-  // Playback starting or stopping, or a new auto-hide setting, shows the controls and restarts the
-  // timer. A store subscription, so it runs with the new state as soon as it's dispatched. The
-  // cleanup also stops the timer when the provider unmounts.
+  // The window size, for fullscreen sizing and gestures
   useEffect(() => {
-    const watched = (s: VideoProviderState) => [s.isPlaying, s.config.autoHideControls, s.config.autoHideDelay];
-    let last = watched(store.getState());
-    controls.show();
-    const unsubscribe = store.subscribe(() => {
-      const next = watched(store.getState());
-      if (next.some((value, index) => value !== last[index])) {
-        last = next;
-        controls.show();
-      }
-    });
-    return () => {
-      unsubscribe();
-      if (hideTimer.current) clearTimeout(hideTimer.current);
-    };
-  }, [store, controls, hideTimer]);
+    const subscription = Dimensions.addEventListener('change', ({ window }: { window: ScaledSize }) =>
+      store.dispatch({ type: 'SET_DIMENSIONS', payload: { width: window.width, height: window.height } })
+    );
+    return () => subscription.remove();
+  }, [store]);
+
+  // One auto-hide timer per provider, shared by every `useControlsVisibility()` caller
+  const [controls] = React.useState(() =>
+    createControlsController({
+      getState: store.getState,
+      subscribe: store.subscribe,
+      setVisible: (visible) => store.dispatch({ type: 'SET_CONTROLS_VISIBLE', payload: visible }),
+    })
+  );
+  useEffect(() => controls.start(), [controls]);
+
   // The playback position lives in its own store, so progress events don't re-render this context's consumers
   const [progressStore] = React.useState(createProgressStore);
 
@@ -426,14 +380,12 @@ export const VideoProvider: React.FC<{
       <ProgressStoreContext.Provider value={progressStore}>
         <ControlsControllerContext.Provider value={controls}>
           <CaptionsControllerContext.Provider value={captions}>
-            <ThemeProvider theme={storedTheme}>
-              <SettingsProvider>
-                <ComponentsProvider components={components}>
-                  {children}
-                  {portalHost ? null : <PortalHost name={portalHostName} />}
-                </ComponentsProvider>
-              </SettingsProvider>
-            </ThemeProvider>
+            <SettingsProvider>
+              <ComponentsProvider components={components}>
+                {children}
+                {portalHost ? null : <PortalHost name={portalHostName} />}
+              </ComponentsProvider>
+            </SettingsProvider>
           </CaptionsControllerContext.Provider>
         </ControlsControllerContext.Provider>
       </ProgressStoreContext.Provider>
@@ -447,9 +399,7 @@ export const VideoProvider: React.FC<{
  */
 export const useVideoStore = (): VideoStore => {
   const store = useContext(VideoStoreContext);
-  if (store === undefined) {
-    throw new Error('useVideo must be used within a VideoProvider');
-  }
+  if (store === undefined) throw new Error('This hook must be used within a VideoProvider');
   return store;
 };
 
@@ -494,17 +444,4 @@ export function useVideoSelector<T>(
     return value;
   };
   return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
-}
-
-/**
- * Whether two objects have the same keys with `Object.is`-equal values. For `useVideoSelector`
- * selectors that pick several fields.
- * @internal
- */
-export function shallowEqual<T>(a: T, b: T): boolean {
-  if (Object.is(a, b)) return true;
-  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
-  const aKeys = Object.keys(a);
-  if (aKeys.length !== Object.keys(b).length) return false;
-  return aKeys.every((key) => Object.is((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]));
 }

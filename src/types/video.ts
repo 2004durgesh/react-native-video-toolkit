@@ -113,7 +113,8 @@ export interface VideoPlayerConfig {
    */
   enableFullscreen: boolean;
   /**
-   * Whether to enable the volume control.
+   * Has no effect: nothing reads it.
+   * @deprecated The toolkit never read this option. Leave it out; it will be removed in 2.0.
    */
   enableVolumeControl: boolean;
   /**
@@ -191,3 +192,15 @@ export interface VideoPlayerConfig {
    */
   safeAreaInsets?: { top?: number; bottom?: number; left?: number; right?: number };
 }
+
+/**
+ * The config after the provider fills in the defaults: the options with a default are always set.
+ * @internal
+ */
+export type ResolvedConfig = VideoPlayerConfig &
+  Required<
+    Pick<
+      VideoPlayerConfig,
+      'useCustomAudioTracks' | 'useCustomVideoTracks' | 'captionRenderer' | 'progressUpdateInterval'
+    >
+  >;

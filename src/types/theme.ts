@@ -51,44 +51,34 @@ export interface Theme {
    * The colors used in the theme.
    */
   colors: {
-    // Global Typography
     textMain: string;
     textSecondary: string;
-
-    // Icons
     iconNormal: string;
+    /** @deprecated Not used by the toolkit; will be removed in 2.0. */
     iconActive: string;
-
-    // Sliders (Progress Bar & Volume)
     sliderTrackActive: string;
     sliderTrackInactive: string;
     sliderTrackCache: string;
     sliderThumb: string;
-
-    // Menu / Popover
     menuBackground: string;
     menuBorder: string;
     menuText: string;
     menuSeparator: string;
-
-    // Buttons (filled primary and outlined secondary, e.g. UpNext's "Play now" and "Cancel")
+    /** Filled buttons, such as UpNext's "Play now". */
     buttonPrimaryBackground?: string;
     buttonPrimaryText?: string;
+    /** Outlined buttons, such as UpNext's "Cancel". */
     buttonSecondaryBorder?: string;
     buttonSecondaryText?: string;
-
-    // Overlays & Badges
     badgeBackground: string;
     scrim?: string;
-
-    // Interaction / Feedback
     ripple: string;
     /** Highlight behind the focused control on TV. */
     tvFocus?: string;
     spinner: string;
-
-    // Status
+    /** @deprecated Not used by the toolkit; will be removed in 2.0. */
     error: string;
+    /** @deprecated Not used by the toolkit; will be removed in 2.0. */
     success: string;
   };
   /**
@@ -110,6 +100,7 @@ export interface Theme {
   /**
    * The animation durations used in the theme.
    */
+  /** @deprecated Not used by the toolkit; will be removed in 2.0. */
   animations: {
     fast: number;
     normal: number;
@@ -120,3 +111,12 @@ export interface Theme {
    */
   captions?: Partial<CaptionsTheme>;
 }
+
+/**
+ * The theme after the provider merges in the defaults: every color and caption style is set.
+ * @internal
+ */
+export type ResolvedTheme = Omit<Theme, 'colors' | 'captions'> & {
+  colors: Required<Theme['colors']>;
+  captions: CaptionsTheme;
+};

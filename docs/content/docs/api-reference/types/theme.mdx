@@ -10,7 +10,7 @@ description: Types related to theming including color schemes, font sizes, icon 
 | `textMain`                | `string` | Yes      | Primary text color.                                                                                                                            |
 | `textSecondary`           | `string` | Yes      | Secondary text color.                                                                                                                          |
 | `iconNormal`              | `string` | Yes      | Default icon color.                                                                                                                            |
-| `iconActive`              | `string` | Yes      | Active icon state (e.g., CC turned on).                                                                                                        |
+| `iconActive`              | `string` | Yes      | Deprecated: not used by the toolkit. Will be removed in 2.0.                                                                                   |
 | `sliderTrackActive`       | `string` | Yes      | Filled part of sliders (Progress/Volume).                                                                                                      |
 | `sliderTrackInactive`     | `string` | Yes      | Unfilled part of sliders.                                                                                                                      |
 | `sliderTrackCache`        | `string` | Yes      | Buffered/loaded track color.                                                                                                                   |
@@ -28,8 +28,8 @@ description: Types related to theming including color schemes, font sizes, icon 
 | `ripple`                  | `string` | Yes      | Ripple effect color for buttons.                                                                                                               |
 | `tvFocus`                 | `string` | No       | Highlight behind the focused control on TV. Defaults to 25% white. See [TV](../../tv).                                                         |
 | `spinner`                 | `string` | Yes      | Loading indicator color.                                                                                                                       |
-| `error`                   | `string` | Yes      | Color for error states.                                                                                                                        |
-| `success`                 | `string` | Yes      | Color for success states.                                                                                                                      |
+| `error`                   | `string` | Yes      | Deprecated: not used by the toolkit. Will be removed in 2.0.                                                                                   |
+| `success`                 | `string` | Yes      | Deprecated: not used by the toolkit. Will be removed in 2.0.                                                                                   |
 
 ### `iconSizes`
 
@@ -48,6 +48,8 @@ description: Types related to theming including color schemes, font sizes, icon 
 | `lg`     | `number` | Yes      | –       | Large text size.  |
 
 ### `animations`
+
+Deprecated: no component reads these durations. They will be removed in 2.0.
 
 | Property | Type     | Required | Default | Description                        |
 | -------- | -------- | -------- | ------- | ---------------------------------- |

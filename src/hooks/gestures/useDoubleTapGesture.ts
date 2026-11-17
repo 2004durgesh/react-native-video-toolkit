@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useWindowDimensions, type HostInstance } from 'react-native';
+import type { HostInstance } from 'react-native';
+import { usePlayerWidth } from './usePlayerWidth';
 import { useTapGesture, type TapGesture, type TapGestureConfig } from 'react-native-gesture-handler';
 import {
   measure,
@@ -14,7 +15,6 @@ import {
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UseDoubleTapGestureProps } from '../../types';
 import { useProgressStore } from '../../providers/ProgressStore';
-import { useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { webDependencies } from '../../utils/platform';
 
@@ -67,10 +67,7 @@ export const useDoubleTapGesture = ({
   onDoubleTapSeekEnd,
   enabled = true,
 }: UseDoubleTapGestureProps): UseDoubleTapGestureReturn => {
-  const { width: windowWidth } = useWindowDimensions();
-  // Which half was tapped is judged against the player, since `event.x` is relative to it and it
-  // needn't fill the window; the window's width until the video has been laid out
-  const playerWidth = useVideoSelector((state) => state.videoLayout.width) || windowWidth;
+  const playerWidth = usePlayerWidth();
   const progressStore = useProgressStore();
   const store = useVideoStore();
   const [isDoubleTap, setIsDoubleTap] = useState(false);

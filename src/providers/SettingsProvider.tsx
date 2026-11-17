@@ -127,7 +127,7 @@ export const SettingsProvider: FC<{
 export const useSettingsContext = () => {
   const context = useContext(SettingsContext);
   if (context === undefined) {
-    throw new Error('useSettingsContext must be used within a SettingsProvider');
+    throw new Error('This hook must be used within a VideoProvider');
   }
   return context;
 };

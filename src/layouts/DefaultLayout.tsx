@@ -183,7 +183,10 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
   slots,
 }: DefaultLayoutProps): React.ReactElement => {
   const theme = useVideoSelector((state) => state.theme);
-  const config = useVideoSelector((state) => state.config);
+  const enablePictureInPicture = useVideoSelector((state) => state.config.enablePictureInPicture);
+  const useCustomVideoTracks = useVideoSelector((state) => state.config.useCustomVideoTracks);
+  const playbackRates = useVideoSelector((state) => state.config.playbackRates);
+  const enableFullscreen = useVideoSelector((state) => state.config.enableFullscreen);
   const fullscreen = useVideoSelector((state) => state.fullscreen);
   const {
     videoTracks,
@@ -221,8 +224,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
     ? [...textTracks.filter(pinCaptionTrack), ...textTracks.filter((track) => !pinCaptionTrack(track))]
     : textTracks;
 
-  const showPictureInPictureButton =
-    config.enablePictureInPicture && pictureInPictureSupported && !PlatformUtils.isTV();
+  const showPictureInPictureButton = enablePictureInPicture && pictureInPictureSupported && !PlatformUtils.isTV();
 
   return (
     <DevProfiler id="DefaultLayout">
@@ -331,10 +333,10 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                             )}
                           </Menu.SubContent>
                           <Menu.SubContent viewId="video">
-                            {videoTracks.length > 0 || !config.useCustomVideoTracks ? (
+                            {videoTracks.length > 0 || !useCustomVideoTracks ? (
                               <ScrollView style={{ maxHeight: '100%' }}>
                                 {/* Adaptive quality, the default. A custom list brings its own "Auto" entry if it wants one. */}
-                                {!config.useCustomVideoTracks && (
+                                {!useCustomVideoTracks && (
                                   <Menu.CheckboxItem
                                     testID={`${id}-settings-video-auto`}
                                     checked={!videoTrack}
@@ -389,7 +391,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                           </Menu.SubContent>
                           <Menu.SubContent viewId="playbackRate">
                             <ScrollView style={{ maxHeight: '100%' }}>
-                              {config.playbackRates.map((rate) => (
+                              {playbackRates.map((rate) => (
                                 <Menu.CheckboxItem
                                   key={rate}
                                   testID={`${id}-settings-rate-${rate}`}
@@ -469,7 +471,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                     )}
                     <View style={[layoutStyles.row]}>
                       {slots?.beforeFullscreenButton && slots.beforeFullscreenButton}
-                      {config.enableFullscreen && <VideoPlayer.FullscreenButton />}
+                      {enableFullscreen && <VideoPlayer.FullscreenButton />}
                       {slots?.afterFullscreenButton && slots.afterFullscreenButton}
                     </View>
                     <View style={[layoutStyles.row]}>

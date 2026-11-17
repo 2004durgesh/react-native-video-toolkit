@@ -48,6 +48,7 @@ The sheet hosts the settings menu. The toolkit owns the open state, so your shee
 - When the user dismisses the sheet (swipe down, backdrop tap, back button), call `onOpenChange(false)`.
 - Render `children` inside it. They already have access to the player state, so the sheet can render through its own portal, even one placed outside `VideoProvider`.
 - `style` carries the menu background color and padding from the theme and `Menu.Content`'s `sheetStyle`.
+- `bottomInset` is the screen's bottom safe-area inset from `config.safeAreaInsets` (0 when you don't pass insets). If your sheet sits at the screen's bottom edge and doesn't handle insets itself, add it to the bottom padding so the last row stays above Android's navigation bar and the home indicator.
 
 ### `@gorhom/bottom-sheet`
 

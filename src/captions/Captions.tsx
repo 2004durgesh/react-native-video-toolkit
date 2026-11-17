@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useVideoSelector } from '../providers';
-import { defaultCaptionsTheme } from '../themes/defaultTheme';
 import type { CaptionsTheme } from '../types/theme';
 import { DevProfiler } from '../utils/DevProfiler';
 import { PlatformUtils } from '../utils/platform';
@@ -216,8 +215,7 @@ const CaptionsLayer = ({ style, textStyle, controlsInset, centerControlsInset, t
   const fullscreen = useVideoSelector((state) => state.fullscreen);
   const safeArea = useVideoSelector((state) => state.config.safeAreaInsets);
   const insets = fullscreen ? safeArea : undefined;
-  const custom = useVideoSelector((state) => state.theme.captions);
-  const theme: CaptionsTheme = { ...defaultCaptionsTheme, ...custom };
+  const theme = useVideoSelector((state) => state.theme.captions);
 
   const picture = pictureRect(box, natural);
   const fontSize = fontSizeFor(theme, picture.height);

@@ -6,7 +6,6 @@ import { useVideoSelector, useVideoComponents } from '../../providers';
 import type { PressFeedbackProps } from '../../types';
 import {
   ControlsFocusableContext,
-  DEFAULT_TV_FOCUS_COLOR,
   TVFocusContext,
   tvPreferredFocus,
   useTVPreferredFocus,
@@ -78,11 +77,7 @@ const TVBaseButton = ({ children, onTap, tvFocusTarget, style, ...props }: BaseB
         setFocused(false);
         focus?.setHolder(null);
       }}
-      style={[
-        styles.tvButton,
-        style,
-        focused && [styles.tvFocused, { backgroundColor: tvFocusColor ?? DEFAULT_TV_FOCUS_COLOR }],
-      ]}>
+      style={[styles.tvButton, style, focused && [styles.tvFocused, { backgroundColor: tvFocusColor }]]}>
       {children}
     </Pressable>
   );

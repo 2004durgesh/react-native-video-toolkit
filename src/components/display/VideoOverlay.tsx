@@ -42,8 +42,6 @@ export interface VideoOverlayProps {
   children?: ReactNode;
 }
 
-const DEFAULT_SCRIM = 'rgba(0, 0, 0, 0.4)';
-
 /** The overlay's style and whether it's shown, shared by the native and web versions. */
 const useOverlay = ({
   visible = true,
@@ -56,7 +54,7 @@ const useOverlay = ({
   const controlsVisible = useVideoSelector((state) => withControls && state.controlsVisible);
   const themeScrim = useVideoSelector((state) => state.theme.colors.scrim);
   const shown = visible && (!withControls || controlsVisible);
-  const backgroundColor = scrim === true ? (themeScrim ?? DEFAULT_SCRIM) : scrim || undefined;
+  const backgroundColor = scrim === true ? themeScrim : scrim || undefined;
 
   return {
     shown,

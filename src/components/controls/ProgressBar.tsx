@@ -7,7 +7,6 @@ import { useControlsController } from '../../providers/ControlsController';
 import { DefaultSlider, SliderView } from '../defaults/DefaultSlider';
 import {
   ControlsFocusableContext,
-  DEFAULT_TV_FOCUS_COLOR,
   TRAP_FOCUS_HORIZONTAL,
   TVFocusContext,
   tvPreferredFocus,
@@ -128,7 +127,7 @@ const TVProgressFocus = ({ children }: { children: ReactNode }): React.ReactElem
           setFocused(false);
           focus?.setHolder(null);
         }}
-        style={[styles.tvFocusFrame, focused && { backgroundColor: tvFocusColor ?? DEFAULT_TV_FOCUS_COLOR }]}>
+        style={[styles.tvFocusFrame, focused && { backgroundColor: tvFocusColor }]}>
         {children}
       </Pressable>
     </View>

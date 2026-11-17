@@ -14,15 +14,7 @@ import RNVideo, {
   type VideoRef,
 } from 'react-native-video';
 import { useCallback, useEffect, useMemo, useRef, type FC } from 'react';
-import {
-  Dimensions,
-  Platform,
-  View,
-  type LayoutRectangle,
-  type ScaledSize,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { Platform, View, type LayoutRectangle, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { useVideoStore } from '../../providers/VideoProvider';
 import { useControlsController } from '../../providers/ControlsController';
@@ -134,8 +126,11 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   customVideoTracks,
   ...rest
 }) => {
-  const { dispatch } = useVideoStore();
-  const config = useVideoSelector((state) => state.config);
+  const store = useVideoStore();
+  const { dispatch } = store;
+  const captionRenderer = useVideoSelector((state) => state.config.captionRenderer);
+  const enableScreenRotation = useVideoSelector((state) => state.config.enableScreenRotation);
+  const progressUpdateInterval = useVideoSelector((state) => state.config.progressUpdateInterval);
   const isFullscreen = useVideoSelector((state) => state.fullscreen);
   const dimensions = useVideoSelector((state) => state.dimensions);
   const videoLayoutHeight = useVideoSelector((state) => state.videoLayout.height);
@@ -160,7 +155,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setVideoTrack,
   } = useSettings();
   // The toolkit draws subtitle files and HLS subtitles itself, unless the app asks for the player's
-  const customCaptions = config.captionRenderer !== 'native';
+  const customCaptions = captionRenderer !== 'native';
   const captions = useCaptionsController();
 
   // Attaches the player to the provider's ref. A player mounting under an existing provider (one at
@@ -174,13 +169,6 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     },
     [videoRef, showControls]
   );
-
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({ window }: { window: ScaledSize }) => {
-      dispatch({ type: 'SET_DIMENSIONS', payload: { width: window.width, height: window.height } });
-    });
-    return () => subscription.remove();
-  }, [dispatch]);
 
   const {
     onLoadStart: userOnLoadStart,
@@ -333,6 +321,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
     setBuffering(false);
     // Playing state outlives a source: the previous one ending pauses it, so a new source would start paused
     dispatch({ type: 'SET_ENDED', payload: false });
+    const config = store.getState().config;
     if (config.autoPlay) setPlaying(true);
 
     // Use custom tracks if configured, otherwise extract from video source
@@ -423,9 +412,9 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const handlePictureInPictureStatusChanged = ({ isActive }: OnPictureInPictureStatusChangedData) => {
     dispatch({ type: 'SET_PICTURE_IN_PICTURE', payload: isActive });
     if (isActive) {
-      config.onEnterPictureInPicture?.();
+      store.getState().config.onEnterPictureInPicture?.();
     } else {
-      config.onExitPictureInPicture?.();
+      store.getState().config.onExitPictureInPicture?.();
     }
   };
   // iOS asks the app to restore its player UI when the user leaves picture-in-picture, and waits for
@@ -464,7 +453,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
   const videoStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       // width: isFullscreen ? state.videoLayout.width : state.dimensions.width,
-      height: isFullscreen ? getFullscreenHeight(dimensions, config.enableScreenRotation) : undefined,
+      height: isFullscreen ? getFullscreenHeight(dimensions, enableScreenRotation) : undefined,
       aspectRatio: isFullscreen ? undefined : 16 / 9,
       backgroundColor: 'black',
       position: 'absolute' as const,
@@ -472,7 +461,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
       left: 0,
       right: 0,
     }),
-    [isFullscreen, dimensions, config.enableScreenRotation]
+    [isFullscreen, dimensions, enableScreenRotation]
   );
 
   return (
@@ -525,7 +514,7 @@ export const VideoSurface: FC<VideoSurfaceProps> = ({
           userOnPictureInPictureStatusChanged
         )}
         onRestoreUserInterfaceForPictureInPictureStop={handleRestoreUserInterfaceForPictureInPictureStop}
-        progressUpdateInterval={config.progressUpdateInterval ?? 250}
+        progressUpdateInterval={progressUpdateInterval}
         onLayout={handleLayout}
         viewType={ViewType.TEXTURE}
         // ExoPlayer's own view took the D-pad's focus on Android TV, under the toolkit's controls,

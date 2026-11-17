@@ -1,6 +1,5 @@
 import React, { useContext, type ContextType } from 'react';
 import { VideoStoreContext } from './VideoProvider';
-import { ThemeContext } from './ThemeProvider';
 import { SettingsContext } from './SettingsProvider';
 import { ComponentsContext } from './ComponentsProvider';
 import { ProgressStoreContext } from './ProgressStore';
@@ -15,7 +14,6 @@ export interface BridgedContexts {
   video: ContextType<typeof VideoStoreContext>;
   progress: ContextType<typeof ProgressStoreContext>;
   controls: ContextType<typeof ControlsControllerContext>;
-  theme: ContextType<typeof ThemeContext>;
   settings: ContextType<typeof SettingsContext>;
   components: ContextType<typeof ComponentsContext>;
   testID: ContextType<typeof TestIDContext>;
@@ -29,7 +27,6 @@ export const useBridgedContexts = (): BridgedContexts => ({
   video: useContext(VideoStoreContext),
   progress: useContext(ProgressStoreContext),
   controls: useContext(ControlsControllerContext),
-  theme: useContext(ThemeContext),
   settings: useContext(SettingsContext),
   components: useContext(ComponentsContext),
   testID: useContext(TestIDContext),
@@ -50,13 +47,11 @@ export const ContextBridge: React.FC<{ contexts: BridgedContexts; children: Reac
   <VideoStoreContext.Provider value={contexts.video}>
     <ProgressStoreContext.Provider value={contexts.progress}>
       <ControlsControllerContext.Provider value={contexts.controls}>
-        <ThemeContext.Provider value={contexts.theme}>
-          <SettingsContext.Provider value={contexts.settings}>
-            <ComponentsContext.Provider value={contexts.components}>
-              <TestIDContext.Provider value={contexts.testID}>{children}</TestIDContext.Provider>
-            </ComponentsContext.Provider>
-          </SettingsContext.Provider>
-        </ThemeContext.Provider>
+        <SettingsContext.Provider value={contexts.settings}>
+          <ComponentsContext.Provider value={contexts.components}>
+            <TestIDContext.Provider value={contexts.testID}>{children}</TestIDContext.Provider>
+          </ComponentsContext.Provider>
+        </SettingsContext.Provider>
       </ControlsControllerContext.Provider>
     </ProgressStoreContext.Provider>
   </VideoStoreContext.Provider>

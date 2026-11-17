@@ -29,6 +29,11 @@ export interface SheetProps {
    * The toolkit's portal host name. The default sheet renders into it; custom sheets can ignore it.
    */
   portalHost?: string;
+  /**
+   * The screen's bottom safe-area inset, from `config.safeAreaInsets` (0 without it). A sheet at the
+   * screen's bottom edge keeps its last row above it: Android's navigation bar, the home indicator.
+   */
+  bottomInset?: number;
 }
 
 /**

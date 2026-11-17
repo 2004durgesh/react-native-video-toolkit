@@ -16,9 +16,9 @@ export interface ProgressSnapshot {
 }
 
 /**
- * Holds the playback position outside the video state. It changes on every progress event, twice a
- * second while playing, and in the video state each change would re-render every `useVideo()`
- * consumer. Only `useProgress()` callers subscribe to it.
+ * Holds the playback position outside the video state. It changes on every progress event while
+ * playing (`config.progressUpdateInterval`), and in the video state each change would re-render every
+ * `useVideo()` consumer. Only `useProgress()` callers subscribe to it.
  * @internal
  */
 export interface ProgressStore {
@@ -91,7 +91,7 @@ export const ProgressStoreContext = createContext<ProgressStore | undefined>(und
 export const useProgressStore = (): ProgressStore => {
   const store = useContext(ProgressStoreContext);
   if (store === undefined) {
-    throw new Error('useProgress must be used within a VideoProvider');
+    throw new Error('This hook must be used within a VideoProvider');
   }
   return store;
 };

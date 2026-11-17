@@ -52,7 +52,7 @@ export const ComponentsProvider: React.FC<{
 export const useVideoComponents = (): VideoComponents => {
   const context = useContext(ComponentsContext);
   if (context === undefined) {
-    throw new Error('useVideoComponents must be used within a VideoProvider');
+    throw new Error('This hook must be used within a VideoProvider');
   }
   return context;
 };

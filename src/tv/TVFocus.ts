@@ -2,12 +2,6 @@ import { createContext, useContext, useSyncExternalStore } from 'react';
 import type { ViewProps } from 'react-native';
 
 /**
- * The highlight behind the focused control on TV, for themes without `tvFocus`.
- * @internal
- */
-export const DEFAULT_TV_FOCUS_COLOR = 'rgba(255, 255, 255, 0.25)';
-
-/**
  * Keep the D-pad's focus inside a view, on Android: react-native-tvos's `trapFocus*` props. Plain
  * React Native's types don't have them, and it ignores them.
  * @internal

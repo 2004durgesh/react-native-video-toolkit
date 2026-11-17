@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
+import { usePlayerWidth } from './usePlayerWidth';
 import { usePanGesture as useGesturePan, type PanGestureConfig } from 'react-native-gesture-handler';
-import { useVideoSelector } from '../../providers';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { UsePanGestureProps } from '../../types';
 
@@ -23,10 +23,7 @@ export const usePanGesture = ({
   onSwipeDown,
   enabled = true,
 }: UsePanGestureProps) => {
-  // The player's width, since `event.x` is relative to the player, which needn't fill the window;
-  // the window's width until the video has been laid out
-  const windowWidth = useVideoSelector((state) => state.dimensions.width);
-  const playerWidth = useVideoSelector((state) => state.videoLayout.width) || windowWidth;
+  const playerWidth = usePlayerWidth();
   // Memoized: Gesture Handler sends the config to the native side whenever the object changes
   const config = useMemo<PanGestureConfig>(
     () => ({
