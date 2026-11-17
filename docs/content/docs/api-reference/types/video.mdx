@@ -7,11 +7,11 @@ description: Types related to the video player including state, configuration, a
 
 The `CustomVideoTrack` interface represents a custom video track with user-friendly properties. It extends the base `VideoTrack` from `react-native-video` with additional fields for better UX.
 
-| Property | Type     | Required | Default     | Description                                                                                  |
-| -------- | -------- | -------- | ----------- | -------------------------------------------------------------------------------------------- |
-| `label`  | `string` | No       | `undefined` | User-friendly label to display in the UI (e.g., "Auto", "1080p", "720p HD").                 |
-| `uri`    | `string` | No       | `undefined` | Optional URI for the specific quality stream. Useful for direct links to quality renditions. |
-| `height` | `number` | Yes      | –           | The height of the video track in pixels. Used for track selection by resolution.             |
+| Property | Type     | Required | Default     | Description                                                                      |
+| -------- | -------- | -------- | ----------- | -------------------------------------------------------------------------------- |
+| `label`  | `string` | No       | `undefined` | User-friendly label to display in the UI (e.g., "Auto", "1080p", "720p HD").     |
+| `uri`    | `string` | No       | `undefined` | Your own data: the toolkit doesn't read it.                                      |
+| `height` | `number` | Yes      | –           | The height of the video track in pixels. Used for track selection by resolution. |
 
 <Callout type="info">
   If `label` is not provided, the UI will automatically display the height followed by "p" (e.g., "720p").
@@ -62,8 +62,8 @@ The `VideoPlayerConfig` interface allows you to configure the behavior of the vi
 | `enableFullscreen`        | `boolean`                                                          | No       | `true`                   | If `true`, DefaultLayout shows the fullscreen button. `enterFullscreen()` still works when `false`, for always-fullscreen players.                                                                                      |
 | `enableVolumeControl`     | `boolean`                                                          | No       | `true`                   | Deprecated: has no effect. Will be removed in 2.0.                                                                                                                                                                      |
 | `enablePictureInPicture`  | `boolean`                                                          | No       | `false`                  | If `true`, `DefaultLayout` shows the [picture-in-picture button](../components/controls/picture-in-picture-button). Needs native setup.                                                                                 |
-| `enablePanGestures`       | `boolean`                                                          | No       | `true`                   | If `true`, the user can use pan gestures to control volume and brightness.                                                                                                                                              |
-| `enableScreenRotation`    | `boolean`                                                          | No       | `true`                   | If `true`, the screen will rotate automatically when the device is rotated.                                                                                                                                             |
+| `enablePanGestures`       | `boolean`                                                          | No       | `true`                   | If `true`, vertical pans call `gestureProps`' `onLeftVerticalPan` and `onRightVerticalPan`.                                                                                                                             |
+| `enableScreenRotation`    | `boolean`                                                          | No       | `true`                   | If `true`, fullscreen locks landscape; leaving it returns phones to portrait and lets tablets rotate.                                                                                                                   |
 | `playbackRates`           | `number[]`                                                         | No       | `[0.5, 1, 1.25, 1.5, 2]` | An array of playback rates to be displayed in the settings menu.                                                                                                                                                        |
 | `useCustomAudioTracks`    | `boolean`                                                          | No       | `false`                  | Deprecated: has no effect. Passing `customAudioTracks` to `VideoPlayer` turns custom audio tracks on. Will be removed in 2.0.                                                                                           |
 | `useCustomVideoTracks`    | `boolean`                                                          | No       | `false`                  | Deprecated: has no effect. Passing `customVideoTracks` to `VideoPlayer` turns custom video tracks on. Will be removed in 2.0.                                                                                           |

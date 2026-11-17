@@ -33,7 +33,7 @@ import { useCaptionTracks } from '../../captions/useCaptionTracks';
 /**
  * Props for the VideoSurface component.
  */
-interface VideoSurfaceProps extends ReactVideoProps {
+export interface VideoSurfaceProps extends ReactVideoProps {
   /**
    * Audio tracks to list instead of the source's own. Passing them turns custom audio tracks on.
    */

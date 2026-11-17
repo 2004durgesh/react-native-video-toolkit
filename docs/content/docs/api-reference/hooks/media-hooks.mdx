@@ -157,13 +157,13 @@ interface UseFullscreenReturn {
 ### Example
 
 ```tsx
-import { useFullscreen } from 'react-native-video-toolkit';
+import { BaseIconButton, Maximize, Minimize, useFullscreen } from 'react-native-video-toolkit';
 import React from 'react';
 
 const MyFullscreenButton = () => {
   const { fullscreen, toggleFullscreen } = useFullscreen();
 
-  return <BaseIconButton IconComponent={FullscreenIcon} onTap={toggleFullscreen} />;
+  return <BaseIconButton IconComponent={fullscreen ? Minimize : Maximize} onTap={toggleFullscreen} />;
 };
 
 export default MyFullscreenButton;
@@ -249,19 +249,19 @@ interface UsePlaybackReturn {
 | `togglePlayPause` | `() => void`                   | A function that toggles the video between playing and paused states.                 |
 | `setPlaying`      | `(isPlaying: boolean) => void` | A function that directly sets the playing state of the video.                        |
 
-[`<VideoPlayer.PlayPauseButton />`](../components/controls/play-button.mdx) uses this hook to provide a button for toggling playback. Handles tap
+[`<VideoPlayer.PlayButton />`](../components/controls/play-button.mdx) uses this hook to provide a button for toggling playback. Handles tap
 gestures for toggling play/pause state.
 
 ### Example
 
 ```tsx
-import { usePlayback } from 'react-native-video-toolkit';
+import { BaseIconButton, Pause, Play, usePlayback } from 'react-native-video-toolkit';
 import React from 'react';
 
 const MyPlayPauseButton = () => {
   const { isPlaying, togglePlayPause } = usePlayback();
 
-  return <BaseIconButton IconComponent={PlayPauseIcon} onTap={togglePlayPause} />;
+  return <BaseIconButton IconComponent={isPlaying ? Pause : Play} onTap={togglePlayPause} />;
 };
 
 export default MyPlayPauseButton;
@@ -346,15 +346,15 @@ interface UseProgressReturn {
 
 ### Returns
 
-| Value                 | Type                                 | Description                                                                           |
-| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------- |
-| `currentTime`         | `number`                             | The current playback time of the video in seconds.                                    |
-| `playableDuration`    | `number`                             | The playable duration of the video in seconds.                                        |
-| `duration`            | `number`                             | The total duration of the video in seconds.                                           |
-| `seek`                | `(time: number) => void`             | A function that seeks the video to a specific time in seconds.                        |
-| `setCurrentTime`      | `(time: number) => void`             | A function that manually sets the current time state. Primarily used internally.      |
-| `setPlayableDuration` | `(playableDuration: number) => void` | A function that manually sets the playable duration state. Primarily used internally. |
-| `setDuration`         | `(duration: number) => void`         | A function that manually sets the duration state. Primarily used internally.          |
+| Value                 | Type                                 | Description                                                    |
+| --------------------- | ------------------------------------ | -------------------------------------------------------------- |
+| `currentTime`         | `number`                             | The current playback time of the video in seconds.             |
+| `playableDuration`    | `number`                             | The playable duration of the video in seconds.                 |
+| `duration`            | `number`                             | The total duration of the video in seconds.                    |
+| `seek`                | `(time: number) => void`             | A function that seeks the video to a specific time in seconds. |
+| `setCurrentTime`      | `(time: number) => void`             | Deprecated: the player sets it itself. Will be removed in 2.0. |
+| `setPlayableDuration` | `(playableDuration: number) => void` | Deprecated: the player sets it itself. Will be removed in 2.0. |
+| `setDuration`         | `(duration: number) => void`         | Deprecated: the player sets it itself. Will be removed in 2.0. |
 
 - [`<VideoPlayer.ProgressBar />`](../components/controls/progress-bar.mdx) uses this hook to display and
   control video progress.
@@ -383,7 +383,7 @@ const MyProgressBar = () => {
       <Text>
         {formatTime(currentTime)} / {formatTime(duration)}
       </Text>
-      <Slider minimumValue={0} maximumValue={1} value={currentTime} onSlidingComplete={seek} />
+      <Slider minimumValue={0} maximumValue={duration} value={currentTime} onSlidingComplete={seek} />
     </View>
   );
 };
@@ -431,9 +431,9 @@ interface UseVolumeReturn {
 ### Example
 
 ```tsx
-import { useVolume } from 'react-native-video-toolkit';
-import Slider from '@react-native-community/slider'; // Example slider component
-import { View } from 'react-native'; // Assuming View is from react-native
+import { BaseIconButton, VolumeOff, VolumeUp, useVolume } from 'react-native-video-toolkit';
+import Slider from '@react-native-community/slider';
+import { View } from 'react-native';
 import React from 'react';
 
 const MyVolumeControl = () => {
@@ -441,7 +441,7 @@ const MyVolumeControl = () => {
 
   return (
     <View>
-      <BaseIconButton IconComponent={MuteIcon} onTap={toggleMute} />;
+      <BaseIconButton IconComponent={muted ? VolumeOff : VolumeUp} onTap={toggleMute} />
       <Slider minimumValue={0} maximumValue={1} value={volume} onSlidingComplete={setVolume} disabled={muted} />
     </View>
   );
