@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useContext, useMemo, type Dispatch, type ReactNode, type FC } from 'react';
-import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
+import type { AudioTrack, VideoTrack } from 'react-native-video';
+import type { CaptionTrack } from '../tracks/types';
 import type { CustomVideoTrack } from '../types';
 
 interface SettingsProviderState {
@@ -32,11 +33,11 @@ interface SettingsProviderState {
   /**
    * The current subtitle track setting.
    */
-  textTrack: TextTrack | null;
+  textTrack: CaptionTrack | null;
   /**
    * The list of available subtitle tracks.
    */
-  textTracks: TextTrack[];
+  textTracks: CaptionTrack[];
   /**
    * Always 1: nothing sets it.
    * @deprecated Read the rate with `usePlaybackRate()`. Will be removed in 2.0.
@@ -50,8 +51,8 @@ type SettingsAction =
   | { type: 'SET_AVAILABLE_VIDEO_TRACKS'; payload: (CustomVideoTrack | VideoTrack)[]; custom?: boolean }
   | { type: 'SET_AUDIO_TRACK'; payload: AudioTrack | null }
   | { type: 'SET_AVAILABLE_AUDIO_TRACKS'; payload: AudioTrack[] }
-  | { type: 'SET_TEXT_TRACK'; payload: TextTrack | null }
-  | { type: 'SET_AVAILABLE_TEXT_TRACKS'; payload: TextTrack[] }
+  | { type: 'SET_TEXT_TRACK'; payload: CaptionTrack | null }
+  | { type: 'SET_AVAILABLE_TEXT_TRACKS'; payload: CaptionTrack[] }
   | { type: 'SET_PLAYBACK_RATE'; payload: number }
   | { type: 'OPEN_SETTINGS_SHEET' }
   | { type: 'CLOSE_SETTINGS_SHEET' };

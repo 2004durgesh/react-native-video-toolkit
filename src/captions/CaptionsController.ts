@@ -54,7 +54,7 @@ type Phase = 'following' | 'resuming' | 'loading';
 const sourceKey = (track: CaptionTrack | null) => (track ? `${track.source}:${String(track.uri)}` : '');
 
 /** @internal */
-export const isDrawnByToolkit = (track: CaptionTrack | null | undefined): track is CaptionTrack =>
+export const isDrawnByToolkit = (track: CaptionTrack | null | undefined): boolean =>
   !!track && track.uri !== undefined && (track.source === 'file' || track.source === 'hls');
 
 /**

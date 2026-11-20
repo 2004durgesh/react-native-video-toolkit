@@ -1,4 +1,5 @@
-import type { AudioTrack, TextTrack, VideoTrack } from 'react-native-video';
+import type { AudioTrack, VideoTrack } from 'react-native-video';
+import type { CaptionTrack } from '../../tracks/types';
 import { useSettingsContext } from '../../providers';
 import { MenuOpenStateContext } from '../../providers/SettingsProvider';
 import { useCallback, useContext } from 'react';
@@ -76,14 +77,14 @@ export const useSettings = () => {
   );
 
   const setAvailableTextTracks = useCallback(
-    (textTracks: TextTrack[]) => {
+    (textTracks: CaptionTrack[]) => {
       dispatch({ type: 'SET_AVAILABLE_TEXT_TRACKS', payload: textTracks });
     },
     [dispatch]
   );
 
   const setTextTrack = useCallback(
-    (newTextTrack: TextTrack | null) => {
+    (newTextTrack: CaptionTrack | null) => {
       dispatch({ type: 'SET_TEXT_TRACK', payload: newTextTrack });
     },
     [dispatch]

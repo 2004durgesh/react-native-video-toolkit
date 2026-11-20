@@ -71,3 +71,13 @@ You can pass your own handlers for these events too. They run after the toolkit'
 - Import it only if you want to **replace or deeply customize** the rendering of the video element (e.g., special resize modes, advanced performance tuning).
 
 </Callout>
+
+## Players without `VideoPlayer`
+
+A player built from `VideoSurface` and your own controls needs a `VideoProvider` above it, like any player. It also leaves out three things that `VideoPlayer` does:
+
+- **Subtitles.** The toolkit draws subtitle files itself, and `VideoSurface` never gives them to the native player. Render `<VideoPlayer.Captions />` over the video to show them.
+- **Leaving fullscreen with Esc or Android's back button.** Only `VideoPlayer` listens for them.
+- **Fullscreen on the web.** The browser fullscreens the element around `VideoPlayer`'s video, so without one it can't find the player.
+
+To keep all three, build your layout inside `VideoPlayer` instead, and pass gesture handlers through its [`gestureProps`](../../../customization#gestures).

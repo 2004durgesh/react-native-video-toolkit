@@ -19,6 +19,9 @@ jest.mock('react-native-video', () => {
   return { __esModule: true, ...actual, default: MockVideo };
 });
 
+// An English device, whatever the machine's locale: the toolkit turns on subtitles in the device's language
+jest.mock('./src/tracks/language', () => ({ ...jest.requireActual('./src/tracks/language'), DEVICE_LANGUAGE: 'en' }));
+
 jest.mock('./src/NativeVideoToolkit', () => {
   const module = {
     enterFullscreen: jest.fn(async () => true),

@@ -41,7 +41,7 @@ const load = () =>
     currentTime: 0,
     naturalSize: { width: 1920, height: 1080, orientation: 'landscape' },
     audioTracks: [{ index: 0, language: 'en' }],
-    videoTracks: [],
+    videoTracks: [{ index: 0, width: 1920, height: 1080, bitrate: 1 }],
     textTracks: [],
   });
 
@@ -53,12 +53,14 @@ describe('a new video in the same player', () => {
     await fire('onError', { error: { errorString: 'Network lost' } });
     expect(state().error).toBe('Network lost');
     expect(handle.current!.settings.audioTracks).toHaveLength(1);
+    expect(handle.current!.settings.videoTracks).toHaveLength(1);
 
     await rerender(player('https://example.com/b.mp4'));
     expect(state().error).toBeNull();
     expect(state().duration).toBe(0);
     expect(handle.current!.progress.currentTime).toBe(0);
     expect(handle.current!.settings.audioTracks).toHaveLength(0);
+    expect(handle.current!.settings.videoTracks).toHaveLength(0);
   });
 
   it('starts clean on onLoadStart, after the last one ended', async () => {

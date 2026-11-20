@@ -1,8 +1,8 @@
 import { parseCaptions } from './parse';
 import { fetchCaptionText } from './load';
-import { CaptionLoadAborted, captionError, isCaptionError, describeError } from './errors';
+import { captionError } from './errors';
 import { resolveUrl } from './url';
-import type { CaptionError, Cue, TimestampMap } from './types';
+import type { Cue, TimestampMap } from './types';
 
 /**
  * A subtitle rendition listed in an HLS master playlist (`#EXT-X-MEDIA:TYPE=SUBTITLES`).
@@ -131,8 +131,11 @@ export interface HlsSubtitleLoaderOptions {
   headers?: Record<string, string>;
   /** Called with all the cues loaded so far, each time a segment adds some. */
   onCues: (cues: Cue[]) => void;
-  /** Called once per failure: the playlist, a live playlist, or a segment. */
-  onError: (error: CaptionError) => void;
+  /**
+   * Called once per failure (the playlist, a live playlist, or a segment), for the controller to
+   * report. Not called once disposed.
+   */
+  onError: (error: unknown) => void;
 }
 
 /**
@@ -155,8 +158,7 @@ export const createHlsSubtitleLoader = (options: HlsSubtitleLoaderOptions) => {
   let disposed = false;
 
   const report = (error: unknown) => {
-    if (disposed || error instanceof CaptionLoadAborted) return;
-    onError(isCaptionError(error) ? error : captionError('LOAD_FAILED', playlistUrl, describeError(error)));
+    if (!disposed) onError(error);
   };
 
   const loadSegment = async (index: number) => {

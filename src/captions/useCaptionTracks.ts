@@ -56,10 +56,10 @@ export const useCaptionTracks = (source: Source, legacyTextTracks: TextTracks | 
   // after a lookup, the player's when it loads), and each arrival relists them all
   const nativeTracks = useRef<CaptionTrack[]>([]);
   const hlsTracks = useRef<CaptionTrack[]>([]);
-  const selection = useRef(textTrack as CaptionTrack | null);
+  const selection = useRef(textTrack);
   const headers = useRef(sourceObject?.headers);
   useEffect(() => {
-    selection.current = textTrack as CaptionTrack | null;
+    selection.current = textTrack;
     headers.current = sourceObject?.headers;
   });
 
@@ -114,7 +114,7 @@ export const useCaptionTracks = (source: Source, legacyTextTracks: TextTracks | 
   // The selected track goes to the controller when the toolkit draws it. Until the new source's
   // tracks are listed, the selection can still be the previous source's track: it isn't shown.
   useEffect(() => {
-    const track = textTrack as CaptionTrack | null;
+    const track = textTrack;
     const listed = track?.source === 'hls' ? hlsTracks.current : fileTracks;
     const current = customCaptions && listed.some((known) => known.uri === track?.uri) ? track : null;
     captions.select(current, headers.current);
@@ -129,7 +129,7 @@ export const useCaptionTracks = (source: Source, legacyTextTracks: TextTracks | 
      * itself. Not index -1 either: react-native-video's iOS code reads `options[-1]` and crashes.
      */
     selectedTextTrack:
-      textTrack && !isOffTrack(textTrack) && !isDrawnByToolkit(textTrack as CaptionTrack)
+      textTrack && !isOffTrack(textTrack) && !isDrawnByToolkit(textTrack)
         ? { type: SelectedTrackType.INDEX, value: textTrack.index }
         : { type: SelectedTrackType.DISABLED },
     /**

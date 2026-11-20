@@ -178,6 +178,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
           <VideoPlayer.Controls>
             <View
               style={[layoutStyles.column, { height: '100%', paddingHorizontal: 15 }]}
+              testID={`${id}-controls-area`}
               onLayout={(event) => frames.set({ height: event.nativeEvent.layout.height })}>
               <FadingControls
                 offsetY={-50}

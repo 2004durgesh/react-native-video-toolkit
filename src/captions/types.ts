@@ -1,5 +1,3 @@
-import type { TextTrack } from 'react-native-video';
-
 /**
  * A run of a cue's text with one style, from its `<b>`, `<i>` and `<u>` tags.
  */
@@ -64,16 +62,4 @@ export interface CaptionError {
   reason: string;
 }
 
-/**
- * A subtitle track in the toolkit's list (`useSettings().textTracks`). Tracks the toolkit draws
- * itself say where they come from.
- */
-export interface CaptionTrack extends TextTrack {
-  /**
-   * `'file'`: a subtitle file from `source.textTracks`. `'hls'`: a subtitle rendition of an HLS
-   * stream. `'native'` (or unset): a track the player draws, such as one embedded in an MP4.
-   */
-  source?: 'native' | 'file' | 'hls';
-  /** The subtitle file or HLS playlist. */
-  uri?: string | number;
-}
+export type { CaptionTrack } from '../tracks/types';

@@ -11,7 +11,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
   you only need to provide functions via `gestureProps` — you don't have to call the hooks yourself.
 </Callout>
 
-The hooks are for a player you build yourself around [`VideoSurface`](../components/core/video-surface), as in the examples below. Don't wrap a `VideoPlayer` in their gestures: it has its own, and the two compete for the same taps (see [Gesture handler](../gesture-handler)).
+The hooks are for a player you build yourself around [`VideoSurface`](../components/core/video-surface), as in the examples below. Such a player leaves out some of what `VideoPlayer` does: see [Players without `VideoPlayer`](../components/core/video-surface#players-without-videoplayer). Don't wrap a `VideoPlayer` in their gestures: it has its own, and the two compete for the same taps (see [Gesture handler](../gesture-handler)).
 
 ## `useSingleTapGesture()`
 
@@ -206,7 +206,6 @@ export const Player = () => {
 import { useDoubleTapGesture } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { VideoPlayer, VideoSurface } from 'react-native-video-toolkit';
-import { View } from 'react-native';
 import React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -289,7 +288,6 @@ export const Player = () => {
 import { usePanGesture } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { VideoPlayer, VideoSurface } from 'react-native-video-toolkit';
-import { View } from 'react-native';
 import React from 'react';
 import { View, Text } from 'react-native';
 

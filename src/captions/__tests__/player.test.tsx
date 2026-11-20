@@ -205,26 +205,44 @@ describe('who draws the subtitles', () => {
     expect(screen.getAllByTestId('video-captions-cue-0-text')).toHaveLength(1);
   });
 
-  it('draws them once with DefaultLayout, above its bottom bar while the controls show', async () => {
+  /** Renders DefaultLayout, loads a cue, and lays out its controls in a 360-high area. */
+  const withDefaultLayout = async () => {
     await render(player({}, source, <><DefaultLayout /><Controls /></>));
     expect(screen.getAllByTestId('video-captions')).toHaveLength(1);
     await loadVideo();
     await flush();
-    // The layout measures its controls' area (the column holding the top bar) and its bottom bar:
-    // 360 high, with the bar's top edge 300 down, so the bar covers the bottom 60
     const hidden = { includeHiddenElements: true };
-    const layout = (layoutRect: object) => ({ nativeEvent: { layout: { x: 0, width: 640, ...layoutRect } } });
-    await act(() => fireEvent(screen.getByTestId('video-controls-top', hidden), 'layout', layout({ y: 0, height: 360 })));
-    await act(() => fireEvent(screen.getByTestId('video-controls-bottom', hidden), 'layout', layout({ y: 300, height: 60 })));
+    const layout = (testID: string, rect: { y: number; height: number }) =>
+      act(() =>
+        fireEvent(screen.getByTestId(testID, hidden), 'layout', { nativeEvent: { layout: { x: 0, width: 640, ...rect } } })
+      );
+    await layout('video-controls-area', { y: 0, height: 360 });
+    return { layout };
+  };
+  const cueStack = () => StyleSheet.flatten(screen.getByTestId('video-captions-cues').props.style);
+
+  it('draws them once with DefaultLayout, above its bottom bar while the controls show', async () => {
+    const { layout } = await withDefaultLayout();
+    // The bar's top edge 300 down, so the bar covers the bottom 60
+    await layout('video-controls-bottom', { y: 300, height: 60 });
     // How far up from the player's bottom edge the cues start
-    const lowestCue = () => {
-      const stack = StyleSheet.flatten(screen.getByTestId('video-captions-cues').props.style);
-      return stack.bottom - stack.transform[0].translateY;
-    };
+    const lowestCue = () => cueStack().bottom - cueStack().transform[0].translateY;
     expect(lowestCue()).toBeGreaterThan(60);
     await act(() => controls.current!.hideControls());
     expect(lowestCue()).toBeLessThan(60);
   });
+
+  it("hides them while DefaultLayout's controls show, when they'd reach its play button", async () => {
+    const { layout } = await withDefaultLayout();
+    await layout('video-controls-bottom', { y: 300, height: 60 });
+    // The play button's group ends 210 down, 150 up from the bottom: no room for a 100-high cue
+    await layout('video-controls-center', { y: 150, height: 60 });
+    await act(() => fireEvent(screen.getByTestId('video-captions-cues'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 640, height: 100 } } }));
+    expect(cueStack().opacity).toBe(0);
+    await act(() => controls.current!.hideControls());
+    expect(cueStack().opacity).toBe(1);
+  });
+
 });
 
 describe('HLS subtitle renditions', () => {
@@ -263,6 +281,33 @@ describe('HLS subtitle renditions', () => {
     expect(calls.map(([url]) => url)).toContain('https://example.com/subs/seg0.vtt');
     expect(calls.every(([, init]) => init.headers?.Authorization === 'Bearer t')).toBe(true);
     expect(screen.getByTestId('video-captions-cue-0-text')).toHaveTextContent('From HLS');
+  });
+
+  it("reports a master playlist that fails to load, and keeps the player's own tracks", async () => {
+    global.fetch = jest.fn(async () => ({
+      ok: false,
+      status: 404,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    })) as unknown as typeof fetch;
+    const onCaptionError = jest.fn();
+    await render(player({ onCaptionError }, { uri: 'https://example.com/master.m3u8' }));
+    await flush();
+    await loadVideo([{ index: 0, language: 'en', title: 'CC' }]);
+    expect(onCaptionError).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'LOAD_FAILED', url: 'https://example.com/master.m3u8' })
+    );
+    expect(settings().textTracks.map((track) => track.index)).toEqual([-1, 0]);
+  });
+});
+
+describe('subtitle file requests', () => {
+  it("never send the stream's headers, which may hold a token for another host", async () => {
+    await render(player({}, { ...source, headers: { Authorization: 'Bearer t' } }));
+    await loadVideo();
+    await flush();
+    const calls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => String(url).endsWith('.vtt'));
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls.every(([, init]) => init?.headers === undefined)).toBe(true);
   });
 });
 
