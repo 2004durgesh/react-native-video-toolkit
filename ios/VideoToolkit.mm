@@ -7,6 +7,7 @@
 #import <React/RCTUtils.h>
 
 @implementation VideoToolkit {
+  // Only read and written on the main queue, where the status bar changes
   BOOL _isFullscreen;
 }
 
@@ -46,14 +47,16 @@ RCT_EXPORT_MODULE()
 
 - (void)isFullscreen:(RCTPromiseResolveBlock)resolve
               reject:(RCTPromiseRejectBlock)reject {
-  resolve(@(self->_isFullscreen));
+  dispatch_async(dispatch_get_main_queue(), ^{
+    resolve(@(self->_isFullscreen));
+  });
 }
 
 // Picture-in-picture needs device support and the `audio` background mode; without the mode
 // AVPictureInPictureController never starts.
 - (NSNumber *)isPictureInPictureSupported {
   BOOL deviceSupported = NO;
-  if (@available(iOS 9.0, tvOS 14.0, *)) {
+  if (@available(tvOS 14.0, *)) {
     deviceSupported = [AVPictureInPictureController isPictureInPictureSupported];
   }
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
