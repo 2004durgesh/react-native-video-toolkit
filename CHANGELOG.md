@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.2.0 (2026-11-20)
+
+* fix: android fullscreen resolves its promise once, from the ui thread ([e2bbfd0](https://github.com/2004durgesh/react-native-video-toolkit/commit/e2bbfd0))
+* fix: buttons take clicks on web again after the controls fade out ([2aa6060](https://github.com/2004durgesh/react-native-video-toolkit/commit/2aa6060))
+* fix: example crashed on web after the portrait lock at startup ([5ed9ab8](https://github.com/2004durgesh/react-native-video-toolkit/commit/5ed9ab8))
+* fix: ios reads the fullscreen flag on the main queue, where it's written ([078a02d](https://github.com/2004durgesh/react-native-video-toolkit/commit/078a02d))
+* fix: overlays above custom controls on web, the menu's text colour, and web accessibility ([272abae](https://github.com/2004durgesh/react-native-video-toolkit/commit/272abae))
+* fix: pre-commit hook failed on every commit that deletes a file ([c36dd45](https://github.com/2004durgesh/react-native-video-toolkit/commit/c36dd45))
+* fix: settle the state layer after the re-audit ([9dd3e81](https://github.com/2004durgesh/react-native-video-toolkit/commit/9dd3e81))
+* fix: subtitle overlap, settings sheet insets and fullscreen on android and ios ([2c93acf](https://github.com/2004durgesh/react-native-video-toolkit/commit/2c93acf))
+* docs: fix pages the re-audit found wrong ([2977faf](https://github.com/2004durgesh/react-native-video-toolkit/commit/2977faf))
+* docs: fix the provider state table, the media hook examples and config wording ([2fbdbc7](https://github.com/2004durgesh/react-native-video-toolkit/commit/2fbdbc7))
+* docs: record the second audit round in claude.md ([7b01fb9](https://github.com/2004durgesh/react-native-video-toolkit/commit/7b01fb9))
+* refactor: finish the component patterns after the re-audit ([f9fc0a3](https://github.com/2004durgesh/react-native-video-toolkit/commit/f9fc0a3))
+* refactor: one implementation per component pattern ([f8cd580](https://github.com/2004durgesh/react-native-video-toolkit/commit/f8cd580))
+* refactor: one implementation per player action, and fullscreen in one folder ([8acf20f](https://github.com/2004durgesh/react-native-video-toolkit/commit/8acf20f))
+* refactor: one owner each for config, theme, window size and controls ([8f5c744](https://github.com/2004durgesh/react-native-video-toolkit/commit/8f5c744))
+* refactor: one subtitle error policy, and tests for the per-source reset ([0dfe737](https://github.com/2004durgesh/react-native-video-toolkit/commit/0dfe737))
+* refactor: one tracks module for languages, labels and track picking ([00b3de3](https://github.com/2004durgesh/react-native-video-toolkit/commit/00b3de3))
+* refactor: remove comments that only restate the code ([42ed113](https://github.com/2004durgesh/react-native-video-toolkit/commit/42ed113)), closes [#video-player](https://github.com/2004durgesh/react-native-video-toolkit/issues/video-player)
+* refactor: subtitles own their track handling, and draw once per player ([6cef760](https://github.com/2004durgesh/react-native-video-toolkit/commit/6cef760))
+* refactor: the menu as generic parts, and the settings menu built from data ([38eba7b](https://github.com/2004durgesh/react-native-video-toolkit/commit/38eba7b))
+* refactor: the settings store holds caption tracks, and tests that pass on any machine ([d8348a8](https://github.com/2004durgesh/react-native-video-toolkit/commit/d8348a8))
+* chore: tidy up after the refactor groups ([9a6876c](https://github.com/2004durgesh/react-native-video-toolkit/commit/9a6876c))
+* test: keep only tests that fail on a regression ([04e246c](https://github.com/2004durgesh/react-native-video-toolkit/commit/04e246c))
+* feat: draw subtitles in js with full styling instead of the native renderer ([954b9f5](https://github.com/2004durgesh/react-native-video-toolkit/commit/954b9f5))
+
 ## 1.1.0 (2026-11-14)
 
 * feat: add test ids to every part of the player for end-to-end tests ([e219c60](https://github.com/2004durgesh/react-native-video-toolkit/commit/e219c60))
