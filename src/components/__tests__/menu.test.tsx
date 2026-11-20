@@ -1,5 +1,5 @@
 import React, { useImperativeHandle, type Ref } from 'react';
-import { Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
@@ -10,7 +10,7 @@ import { DefaultLayout, type DefaultLayoutProps } from '../../layouts/DefaultLay
 import { Menu, useMenuContext } from '../menu';
 import { useSettings } from '../../hooks';
 import { clearCaptionCache } from '../../captions/load';
-import type { CustomVideoTrack, VideoPlayerConfig } from '../../types';
+import type { CustomVideoTrack, ThemeOverrides, VideoPlayerConfig } from '../../types';
 
 type Player = { video: ReturnType<typeof useVideo>; settings: ReturnType<typeof useSettings> };
 const Inspector = ({ handle }: { handle: Ref<Player> }) => {
@@ -28,18 +28,20 @@ const MOVIE = { uri: 'https://example.com/movie.mp4' };
 const player = ({
   layout,
   config,
+  theme,
   source = MOVIE,
   customVideoTracks,
   children,
 }: {
   layout?: DefaultLayoutProps;
   config?: Partial<VideoPlayerConfig>;
+  theme?: ThemeOverrides;
   source?: object;
   customVideoTracks?: CustomVideoTrack[];
   children?: React.ReactNode;
 } = {}) => (
   <GestureHandlerRootView>
-    <VideoProvider config={{ autoPlay: false, ...config }}>
+    <VideoProvider config={{ autoPlay: false, ...config }} theme={theme}>
       <VideoPlayer source={source} customVideoTracks={customVideoTracks}>
         <Inspector handle={handle} />
         {children ?? <DefaultLayout {...layout} />}
@@ -126,6 +128,13 @@ describe('settings menu', () => {
     await tap('video-settings-close');
     expect(isOpen()).toBe(false);
     expect(settings().isSettingsMenuVisible).toBe(false);
+  });
+
+  it("draws its rows in the menu's text colour, not the player's", async () => {
+    await setUp({ theme: { colors: { textMain: '#ffeb3b', menuText: '#fafafa' } } });
+    await openMenu();
+    const value = screen.getByTestId('video-settings-audio-value');
+    expect(StyleSheet.flatten(value.props.style).color).toBe('#fafafa');
   });
 
   it('opens and closes from useSettings()', async () => {

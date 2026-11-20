@@ -21,10 +21,10 @@ const MyComponent = () => {
 
 ### Returns
 
-| Value      | Type                            | Description                                                                        |
-| ---------- | ------------------------------- | ---------------------------------------------------------------------------------- |
-| `state`    | `VideoState`                    | An object containing the current state of the video player.                        |
-| `dispatch` | `(action: VideoAction) => void` | A function that allows you to dispatch actions to update the video player's state. |
+| Value      | Type               | Description                                                                                         |
+| ---------- | ------------------ | --------------------------------------------------------------------------------------------------- |
+| `state`    | `object`           | The player's state: the fields in [VideoProvider's state table](../providers/video-provider#state). |
+| `dispatch` | `(action) => void` | Dispatches an action from [VideoProvider's actions table](../providers/video-provider#actions).     |
 
 ### Example
 
@@ -74,10 +74,10 @@ const MyComponent = () => {
 
 ### Parameters
 
-| Parameter  | Type                       | Required | Default     | Description                                                                                        |
-| ---------- | -------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------- |
-| `selector` | `(state: VideoState) => T` | Yes      | –           | Picks the value to subscribe to.                                                                   |
-| `isEqual`  | `(a: T, b: T) => boolean`  | No       | `Object.is` | Compares the new and previous selection. Pass one when the selector builds a new object each time. |
+| Parameter  | Type                      | Required | Default     | Description                                                                                                           |
+| ---------- | ------------------------- | -------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| `selector` | `(state) => T`            | Yes      | –           | Picks the value to subscribe to, from the fields in [VideoProvider's state table](../providers/video-provider#state). |
+| `isEqual`  | `(a: T, b: T) => boolean` | No       | `Object.is` | Compares the new and previous selection. Pass one when the selector builds a new object each time.                    |
 
 ### Returns
 

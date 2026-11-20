@@ -8,16 +8,14 @@ import { useCallback } from 'react';
 export interface UseBufferingReturn {
   /** Whether the video is currently buffering. */
   buffering: boolean;
-  /** Sets the buffering state of the video (internal use). */
+  /** @deprecated The player sets it itself. Will be removed in 2.0. */
   setBuffering: (isBuffering: boolean) => void;
 }
 
 /**
- * A hook for controlling video buffering.
+ * Reads whether the video is buffering.
  *
- * @returns An object with the following properties:
- * - `buffering`: A boolean indicating whether the video is currently buffering.
- * - `setBuffering`: A function to set the buffering state of the video.
+ * @returns {UseBufferingReturn} `buffering`, and the deprecated `setBuffering`.
  */
 export const useBuffering = (): UseBufferingReturn => {
   const buffering = useVideoSelector((state) => state.buffering);

@@ -80,7 +80,7 @@ The `VideoProvider` manages the following state. Read it with [`useVideoSelector
 | `controlsVisible`    | `boolean`                                                   | Whether the controls are currently visible. `true` at first.                                                       |
 | `videoWrapperLayout` | `LayoutRectangle`                                           | Deprecated: nothing reads it. Will be removed in 2.0.                                                              |
 | `videoLayout`        | `LayoutRectangle`                                           | The layout of the video component.                                                                                 |
-| `dimensions`         | `{ width: number; height: number }`                         | The dimensions of the screen.                                                                                      |
+| `dimensions`         | `{ width: number; height: number }`                         | The window's size, kept up to date as it changes.                                                                  |
 
 The playback position (`currentTime` and `playableDuration`) isn't part of the state. Read it with [`useProgress()`](../hooks/media-hooks#useprogress): it changes on every progress event, and keeping it out of the state means only the components that call `useProgress()` re-render.
 
@@ -105,7 +105,7 @@ The `VideoProvider` handles the following actions:
 | `SET_BUFFERING`        | `boolean`                                                         | Sets the buffering state of the video.                                                                                      |
 | `SET_ERROR`            | `string \| null`                                                  | Sets an error message.                                                                                                      |
 | `SET_VIDEO_LAYOUT`     | `LayoutRectangle`                                                 | Sets the layout of the video component.                                                                                     |
-| `SET_DIMENSIONS`       | `{ width: number; height: number }`                               | Sets the dimensions of the screen.                                                                                          |
+| `SET_DIMENSIONS`       | `{ width: number; height: number }`                               | Sets the window's size. The provider follows the window itself.                                                             |
 
 <Callout type="warn">
   To show or hide the controls, use [`useControlsVisibility()`](../hooks/media-hooks#usecontrolsvisibility). A
@@ -115,11 +115,4 @@ The `VideoProvider` handles the following actions:
 
 ## useVideo
 
-The `useVideo` hook provides access to the video state and dispatch function.
-
-### Returns
-
-| Value      | Type                     | Description            |
-| ---------- | ------------------------ | ---------------------- |
-| `state`    | `VideoProviderState`     | The video state.       |
-| `dispatch` | `React.Dispatch<Action>` | The dispatch function. |
+Read the state and dispatch actions with [`useVideo()`](../hooks/provider-hooks#usevideo), or subscribe to one part of the state with [`useVideoSelector()`](../hooks/provider-hooks#usevideoselector).

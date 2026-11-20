@@ -116,6 +116,8 @@ export interface Theme {
  * The `theme` you pass to `VideoProvider`: any group, and any key within a group. Keys left out
  * keep their defaults.
  */
+// One field per group of `Theme`: a group added there goes here too. Not a mapped type
+// (`{ [K in keyof Theme]?: … }`), which crashes the eslint unused-imports fixer the hook runs.
 export interface ThemeOverrides {
   colors?: Partial<Theme['colors']>;
   iconSizes?: Partial<Theme['iconSizes']>;

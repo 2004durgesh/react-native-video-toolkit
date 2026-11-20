@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, StyleSheet, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { Fade } from '../common/fade';
+import { PLAYER_LAYERS } from '../layers';
 
 /**
  * Props for the VideoOverlay component.
@@ -77,5 +78,7 @@ export const VideoOverlay = ({
 const styles = StyleSheet.create({
   fill: {
     ...StyleSheet.absoluteFill,
+    // On web, every view starts at z-index 0, so an overlay after the controls would still paint under them
+    ...(Platform.OS === 'web' && { zIndex: PLAYER_LAYERS.overlays }),
   },
 });

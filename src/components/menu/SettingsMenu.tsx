@@ -170,17 +170,18 @@ const SettingsRow = ({ section, testID }: { section: SettingsSection; testID: st
       <View style={[styles.row, styles.spread]}>
         <View style={[styles.row, styles.rowLabel]}>
           <Icon size={iconSize} color={color} shadow={false} />
-          <Title text={section.label} />
+          <Title text={section.label} style={{ color }} />
         </View>
-        <Subtitle text={section.value} testID={`${testID}-value`} />
+        <Subtitle text={section.value} style={{ color }} testID={`${testID}-value`} />
       </View>
     </Menu.Item>
   );
 };
 
 /** A section's choices, one of them picked, or what it says when there are none. */
-const OptionList = ({ section, testID }: { section: SettingsSection; testID: string }): ReactElement =>
-  section.options.length > 0 ? (
+const OptionList = ({ section, testID }: { section: SettingsSection; testID: string }): ReactElement => {
+  const color = useVideoSelector((state) => state.theme.colors.menuText);
+  return section.options.length > 0 ? (
     <ScrollView style={styles.list}>
       {section.before}
       {section.options.map((option) => (
@@ -198,11 +199,12 @@ const OptionList = ({ section, testID }: { section: SettingsSection; testID: str
     <>
       {section.before}
       <View style={styles.empty}>
-        <Subtitle text={section.empty} />
+        <Subtitle text={section.empty} style={{ color }} />
       </View>
       {section.after}
     </>
   );
+};
 
 /**
  * Renders the settings button and the settings menu it opens.

@@ -154,19 +154,22 @@ const VideoPlayerComponent = ({
   );
 };
 
-/**
- * A container for video controls.
- * This component is used to group controls together and position them on top of the video.
- */
-const VideoControls: FC<{
+/** Props for `VideoPlayer.Controls`. */
+export interface VideoControlsProps {
   children?: ReactNode;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
   /**
    * Identifies the controls in end-to-end tests.
    * @default `video-controls`, with the player's `testID` in place of `video`
    */
   testID?: string;
-}> = ({ children, style, testID }) => {
+}
+
+/**
+ * A container for video controls.
+ * This component is used to group controls together and position them on top of the video.
+ */
+const VideoControls: FC<VideoControlsProps> = ({ children, style, testID }) => {
   const controlsTestID = useTestID('controls', testID);
   return (
     <View style={[styles.controlsContainer, style]} testID={controlsTestID}>

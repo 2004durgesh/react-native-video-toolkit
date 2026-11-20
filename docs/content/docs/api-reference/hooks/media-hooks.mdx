@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ## `useBuffering()`
 
-A hook to check and control the video's buffering state.
+A hook to check whether the video is buffering.
 
 ### Usage
 
@@ -31,10 +31,10 @@ interface UseBufferingReturn {
 
 ### Returns
 
-| Value          | Type                             | Description                                                                                                                                          |
-| -------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `buffering`    | `boolean`                        | A boolean indicating whether the video is currently buffering (`true`) or not (`false`).                                                             |
-| `setBuffering` | `(isBuffering: boolean) => void` | A function that allows you to manually set the buffering state. This is primarily used internally but can be useful for custom buffering indicators. |
+| Value          | Type                             | Description                                                                              |
+| -------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
+| `buffering`    | `boolean`                        | A boolean indicating whether the video is currently buffering (`true`) or not (`false`). |
+| `setBuffering` | `(isBuffering: boolean) => void` | Deprecated: the player sets it itself. Will be removed in 2.0.                           |
 
 [`<VideoPlayer.LoadingSpinner />`](../components/display/loading-spinner.mdx) uses this hook to display a loading spinner when the video is buffering.
 

@@ -39,8 +39,8 @@ export interface VideoSurfaceProps extends ReactVideoProps {
    */
   customAudioTracks?: AudioTrack[];
   /**
-   * Qualities to list instead of the source's own, with a `label` to show and an optional `uri`.
-   * Passing them turns custom video tracks on.
+   * Qualities to list instead of the source's own, each with a `label` to show. Passing them turns
+   * custom video tracks on.
    */
   customVideoTracks?: CustomVideoTrack[];
 }

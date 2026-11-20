@@ -22,7 +22,10 @@ import { BaseButtonExample } from '@/components/examples/base-button-example';
 
 ### Props
 
-| Prop       | Type              | Default    | Description                               |
-| ---------- | ----------------- | ---------- | ----------------------------------------- |
-| `children` | `React.ReactNode` | `required` | The content to render inside the button.  |
-| `onTap`    | `() => void`      | `required` | Callback fired when the button is tapped. |
+| Prop       | Type                   | Default     | Description                                                                                                                           |
+| ---------- | ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `children` | `React.ReactNode`      | `required`  | The content to render inside the button.                                                                                              |
+| `onTap`    | `() => void`           | `required`  | Callback fired when the button is tapped.                                                                                             |
+| `style`    | `StyleProp<ViewStyle>` | `undefined` | Styles for the button's container.                                                                                                    |
+| `testID`   | `string`               | `undefined` | Identifies the button in end-to-end tests. Tests tap it through its tap gesture, which carries this ID. See [Testing](/docs/testing). |
+| `...rest`  | `ViewProps`            | –           | Other `View` props go to the button's container.                                                                                      |

@@ -24,11 +24,10 @@ const touchStyles = StyleSheet.create({
 });
 
 /**
- * Takes faded-out content out of screen readers (Android and iOS each have their own prop), so they
- * can't land on buttons nobody can see.
+ * Takes faded-out content out of screen readers, so they can't land on buttons nobody can see.
+ * `aria-hidden` rather than the native props, which react-native-web drops.
  */
-const fadeAccessibility = (shown: boolean): ViewProps =>
-  shown ? {} : { importantForAccessibility: 'no-hide-descendants', accessibilityElementsHidden: true };
+const fadeAccessibility = (shown: boolean): ViewProps => (shown ? {} : { 'aria-hidden': true });
 
 const NativeFade = ({ shown, offsetY = 0, touches = 'box-none', style, children, ...props }: FadeProps) => {
   const fadeStyle = useAnimatedStyle(() => {

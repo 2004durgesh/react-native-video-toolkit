@@ -626,7 +626,7 @@ const CheckRow = ({
       autoClose={false}
       tvPreferred={checked}
       accessibilityRole={kind}
-      accessibilityState={{ checked }}
+      aria-checked={checked}
       {...props}>
       <View style={styles.radioItem}>
         <Text style={[styles.itemText, { color: theme.colors.menuText }, textStyle]}>{children}</Text>

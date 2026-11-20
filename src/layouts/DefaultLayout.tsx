@@ -13,7 +13,7 @@ import { Fade } from '../components/common/fade';
 import { DevProfiler } from '../utils/DevProfiler';
 import { useVideoSelector } from '../providers';
 import { Subtitle, Title, VideoPlayer, type TitleProps, type SubtitleProps } from '../components';
-import { SettingsMenu } from '../components/menu/SettingsMenu';
+import { SettingsMenu, type SettingsMenuSlots } from '../components/menu/SettingsMenu';
 import { PlatformUtils } from '../utils/platform';
 import { TRAP_FOCUS_HORIZONTAL } from '../tv/TVFocus';
 import { usePlayerTestID } from '../utils/testIDs';
@@ -49,12 +49,7 @@ export interface DefaultLayoutProps {
     afterFullscreenButton?: React.ReactElement;
     beforeCenterPlayButton?: React.ReactElement;
     afterCenterPlayButton?: React.ReactElement;
-    beforeMenuItems?: React.ReactElement;
-    afterMenuItems?: React.ReactElement;
-    beforeCaptionTracks?: React.ReactElement;
-    afterCaptionTracks?: React.ReactElement;
-    menuViews?: React.ReactElement;
-  };
+  } & SettingsMenuSlots;
 }
 
 /** The layout's frame and where its controls sit in it, measured as they lay out. */
@@ -169,7 +164,14 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
       <>
         <View style={[styles.baseStyle, { pointerEvents: 'box-none' }]}>
           {scrim ? (
-            <VideoPlayer.Overlay withControls scrim={scrim} pointerEvents="none" testID={`${id}-scrim`} />
+            <VideoPlayer.Overlay
+              withControls
+              scrim={scrim}
+              pointerEvents="none"
+              // Under the layout's controls, though overlays otherwise sit above them
+              style={layoutStyles.underControls}
+              testID={`${id}-scrim`}
+            />
           ) : null}
           {/* Above the scrim, so subtitles aren't dimmed, and under the controls */}
           <LayoutCaptions frames={frames} />
@@ -207,9 +209,8 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                   </View>
                 </View>
               </FadingControls>
-              {/* The full-size, pass-through overlay is a plain View: on web, reanimated inlines an
-                animated view's styles and drops `pointerEvents: 'box-none'`, so the overlay would
-                swallow taps meant for the top and bottom controls. */}
+              {/* A full-size wrapper centres the play button, so the group's own frame, measured for
+                the subtitles, is just the button */}
               <View style={layoutStyles.centerControls}>
                 <FadingControls
                   testID={`${id}-controls-center`}
@@ -296,6 +297,7 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
 
 /** Where DefaultLayout puts its controls: bars at the top and bottom, the play button centred. */
 const layoutStyles = StyleSheet.create({
+  underControls: { zIndex: 0 },
   topControls: {
     position: 'absolute',
     top: 0,

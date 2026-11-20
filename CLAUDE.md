@@ -132,3 +132,20 @@ Tests check behaviour through public API, and each one should fail on a real reg
 ## Docs and JSDoc style
 
 `CONTRIBUTING.md` defines the docs style guide (file naming, frontmatter, heading order, Property | Type | Default | Description tables, fumadocs `<Callout>` instead of admonitions) and strict JSDoc rules: a one-line summary, then a blank line, then `@param {Type} name - Description.` and `@returns`, in active voice. Component JSDoc goes directly above the export, with the props interface above it. Write user-facing docs for the developer using the library, not for its implementer.
+
+## Planned work
+
+- **Second audit round.** The untangle refactor (2026-11-16/17, `8f5c744..2fbdbc7`) had one audit round after its fixes, and everything it found is fixed. Run a second, confirming round:
+  - fresh read-only agents, one per slice (state, hooks and utils; components, layouts and TV; subtitles, tests and docs);
+  - the rubric and earlier audits are local only, in `.refactor/untangle/` (git-excluded);
+  - fix what's worth fixing, and repeat until they find nothing.
+- **Remove the deprecated API in 2.0.** Every item is marked `@deprecated … Will be removed in 2.0` in code and docs (`grep -rn "@deprecated" src`). The main ones:
+  - the orientation helpers (`useOrientation`, `utils/orientation`) and `ThemeProvider`;
+  - the `useCustomAudioTracks`/`useCustomVideoTracks` flags, `enableVolumeControl`, and unused theme fields (`animations`, `iconActive`...);
+  - the `SHOW_CONTROLS`, `HIDE_CONTROLS`, `SEEK`, `SET_VIDEO_REF` and `TOGGLE_FULLSCREEN` actions, and `videoWrapperLayout`;
+  - `useProgress`'s setters and `useBuffering`'s `setBuffering`, `MenuProvider`, `Menu.Content`'s placement props, `CommonLayoutStyles`, VolumeControl's `orientation`, `gestureProps.videoRef` and `SubitleProps`.
+
+  Removing them is a breaking change, so check `../uwumi` uses none of them first.
+- **Open decisions:**
+  - the long press has no flag of its own; it follows double tap or pan;
+  - a height in `containerStyle` overrides the fullscreen height in `VideoPlayer`.

@@ -11,6 +11,8 @@ import { Callout } from 'fumadocs-ui/components/callout';
   you only need to provide functions via `gestureProps` — you don't have to call the hooks yourself.
 </Callout>
 
+The hooks are for a player you build yourself around [`VideoSurface`](../components/core/video-surface), as in the examples below. Don't wrap a `VideoPlayer` in their gestures: it has its own, and the two compete for the same taps (see [Gesture handler](../gesture-handler)).
+
 ## `useSingleTapGesture()`
 
 A hook for handling single tap gestures to toggle the visibility of the video controls.
@@ -18,13 +20,14 @@ A hook for handling single tap gestures to toggle the visibility of the video co
 ### Usage
 
 ```tsx
-import { useSingleTapGesture } from 'react-native-video-toolkit';
+import { useSingleTapGesture, VideoSurface } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
 
 export const Player = () => {
   const { singleTapGesture } = useSingleTapGesture();
   return (
     <GestureDetector gesture={singleTapGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} />
+      <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
     </GestureDetector>
   );
 };
@@ -48,7 +51,8 @@ export const Player = () => {
 ```tsx
 import { useSingleTapGesture } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { VideoPlayer } from 'react-native-video-toolkit';
+import { VideoPlayer, VideoSurface } from 'react-native-video-toolkit';
+import { View } from 'react-native';
 
 const MyVideoPlayer = () => {
   const { singleTapGesture } = useSingleTapGesture({
@@ -57,12 +61,13 @@ const MyVideoPlayer = () => {
 
   return (
     <GestureDetector gesture={singleTapGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <View style={{ flex: 1 }}>
+        <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
         <VideoPlayer.Controls>
           <VideoPlayer.PlayButton />
           <VideoPlayer.ProgressBar />
         </VideoPlayer.Controls>
-      </VideoPlayer>
+      </View>
     </GestureDetector>
   );
 };
@@ -75,7 +80,8 @@ A hook for handling long press gestures to temporarily increase playback rate.
 ### Usage
 
 ```tsx
-import { useLongPressGesture } from 'react-native-video-toolkit';
+import { useLongPressGesture, VideoSurface } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
 
 export const Player = () => {
   const { longPressGesture, isPlaybackRateIncreased } = useLongPressGesture({
@@ -85,7 +91,7 @@ export const Player = () => {
 
   return (
     <GestureDetector gesture={longPressGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} />
+      <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
     </GestureDetector>
   );
 };
@@ -111,8 +117,8 @@ export const Player = () => {
 ```tsx
 import { useLongPressGesture } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { VideoPlayer } from 'react-native-video-toolkit';
-import { Text } from 'react-native';
+import { VideoPlayer, VideoSurface } from 'react-native-video-toolkit';
+import { Text, View } from 'react-native';
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 
 const MyVideoPlayer = () => {
@@ -120,7 +126,8 @@ const MyVideoPlayer = () => {
 
   return (
     <GestureDetector gesture={longPressGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <View style={{ flex: 1 }}>
+        <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
         {isPlaybackRateIncreased && (
           <Animated.View
             entering={FadeInUp.duration(250)}
@@ -143,7 +150,7 @@ const MyVideoPlayer = () => {
           <VideoPlayer.PlayButton />
           <VideoPlayer.ProgressBar />
         </VideoPlayer.Controls>
-      </VideoPlayer>
+      </View>
     </GestureDetector>
   );
 };
@@ -156,13 +163,14 @@ A hook for handling double tap gestures to seek forward or backward in the video
 ### Usage
 
 ```tsx
-import { useDoubleTapGesture } from 'react-native-video-toolkit';
+import { useDoubleTapGesture, VideoSurface } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
 
 export const Player = () => {
   const { doubleTapGesture } = useDoubleTapGesture({ doubleTapSeekInterval: 10 });
   return (
     <GestureDetector gesture={doubleTapGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} />
+      <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
     </GestureDetector>
   );
 };
@@ -197,7 +205,8 @@ export const Player = () => {
 ```tsx
 import { useDoubleTapGesture } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { VideoPlayer } from 'react-native-video-toolkit';
+import { VideoPlayer, VideoSurface } from 'react-native-video-toolkit';
+import { View } from 'react-native';
 import React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -212,7 +221,8 @@ const MyVideoPlayer = () => {
 
   return (
     <GestureDetector gesture={doubleTapGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <View style={{ flex: 1 }}>
+        <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
         {isDoubleTap && (
           <>
             <Animated.View style={forwardAnimatedStyle}>
@@ -227,7 +237,7 @@ const MyVideoPlayer = () => {
           <VideoPlayer.PlayButton />
           <VideoPlayer.ProgressBar />
         </VideoPlayer.Controls>
-      </VideoPlayer>
+      </View>
     </GestureDetector>
   );
 };
@@ -240,7 +250,8 @@ A hook for handling pan gestures, typically used for controlling volume and brig
 ### Usage
 
 ```tsx
-import { usePanGesture } from 'react-native-video-toolkit';
+import { usePanGesture, VideoSurface } from 'react-native-video-toolkit';
+import { GestureDetector } from 'react-native-gesture-handler';
 
 export const Player = () => {
   const { verticalPanGesture } = usePanGesture({
@@ -249,7 +260,7 @@ export const Player = () => {
   });
   return (
     <GestureDetector gesture={verticalPanGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }} />
+      <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
     </GestureDetector>
   );
 };
@@ -277,7 +288,8 @@ export const Player = () => {
 ```tsx
 import { usePanGesture } from 'react-native-video-toolkit';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { VideoPlayer } from 'react-native-video-toolkit';
+import { VideoPlayer, VideoSurface } from 'react-native-video-toolkit';
+import { View } from 'react-native';
 import React from 'react';
 import { View, Text } from 'react-native';
 
@@ -299,12 +311,13 @@ const MyVideoPlayer = () => {
 
   return (
     <GestureDetector gesture={verticalPanGesture}>
-      <VideoPlayer source={{ uri: 'https://example.com/video.mp4' }}>
+      <View style={{ flex: 1 }}>
+        <VideoSurface source={{ uri: 'https://example.com/video.mp4' }} />
         <VideoPlayer.Controls>
           <VideoPlayer.PlayButton />
           <VideoPlayer.ProgressBar />
         </VideoPlayer.Controls>
-      </VideoPlayer>
+      </View>
     </GestureDetector>
   );
 };

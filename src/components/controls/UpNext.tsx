@@ -1,12 +1,11 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useVideoSelector } from '../../providers';
 import { useControlsController } from '../../providers/ControlsController';
 import { BaseButton } from '../common';
 import { VideoOverlay } from '../display/VideoOverlay';
 import { TVFocusContext, type TVFocusTarget } from '../../tv/TVFocus';
 import { useTestID } from '../../utils/testIDs';
-import { PLAYER_LAYERS } from '../layers';
 
 /**
  * Text shown on the card, for translations.
@@ -216,7 +215,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     paddingHorizontal: 24,
-    ...(Platform.OS === 'web' && { zIndex: PLAYER_LAYERS.overlays }),
   },
   heading: {
     fontWeight: '600',
