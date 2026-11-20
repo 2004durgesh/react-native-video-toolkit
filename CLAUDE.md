@@ -135,8 +135,8 @@ Tests check behaviour through public API, and each one should fail on a real reg
 
 ## Planned work
 
-- **Second audit round.** The untangle refactor (2026-11-16/17, `8f5c744..2fbdbc7`) had one audit round after its fixes, and everything it found is fixed. Run a second, confirming round:
-  - fresh read-only agents, one per slice (state, hooks and utils; components, layouts and TV; subtitles, tests and docs);
+- **Audit rounds.** The untangle refactor (2026-11-16/20, `8f5c744..d8348a8`) had two audit rounds after its fixes, and everything they found is fixed. Round 2 still found about 25 smaller items, so a third, confirming round is worth running:
+  - use fresh read-only agents, one per slice (state, hooks and utils; components, layouts and TV; subtitles, tests and docs);
   - the rubric and earlier audits are local only, in `.refactor/untangle/` (git-excluded);
   - fix what's worth fixing, and repeat until they find nothing.
 - **Remove the deprecated API in 2.0.** Every item is marked `@deprecated … Will be removed in 2.0` in code and docs (`grep -rn "@deprecated" src`). The main ones:
