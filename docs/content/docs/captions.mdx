@@ -35,6 +35,26 @@ config.resolver.assetExts = [...config.resolver.assetExts, 'vtt', 'srt'];
 
 Files can be UTF-8 or UTF-16. A file that isn't valid UTF-8 is read as Windows-1252, the usual encoding of older SRT files.
 
+### Files that need request headers
+
+The player doesn't send the stream's `headers` with subtitle files, since they can hold a token meant for the video's host. If a file's host checks a header, such as a `Referer`, give that file its own `headers`. They go with that file's request only:
+
+```tsx
+import type { CaptionFile } from 'react-native-video-toolkit';
+
+const textTracks: CaptionFile[] = [
+  {
+    title: 'English',
+    language: 'en',
+    type: TextTrackType.VTT,
+    uri: 'https://subs.example.com/episode-5.en.vtt',
+    headers: { Referer: 'https://player.example.com/' },
+  },
+];
+
+<VideoPlayer source={{ uri: 'https://cdn.example.com/episode-5.m3u8', headers, textTracks }}>
+```
+
 ## HLS streams
 
 For an HLS stream (`.m3u8`), the player reads the master playlist and lists its WebVTT subtitle renditions with the other tracks. It fetches their segments around the playhead as the video plays, with the stream's `headers`. Live streams' subtitles aren't supported.

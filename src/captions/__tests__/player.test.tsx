@@ -309,6 +309,19 @@ describe('subtitle file requests', () => {
     expect(calls.length).toBeGreaterThan(0);
     expect(calls.every(([, init]) => init?.headers === undefined)).toBe(true);
   });
+
+  it('send the headers given with the file, and only those', async () => {
+    const textTracks = source.textTracks.map((track) =>
+      track.language === 'en' ? { ...track, headers: { Referer: 'https://example.com/' } } : track
+    );
+    await render(player({}, { ...source, headers: { Authorization: 'Bearer t' }, textTracks }));
+    await loadVideo();
+    await flush();
+    const calls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => url === 'https://example.com/en.vtt');
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls.every(([, init]) => init?.headers?.Referer === 'https://example.com/')).toBe(true);
+    expect(calls.every(([, init]) => init?.headers?.Authorization === undefined)).toBe(true);
+  });
 });
 
 describe('subtitles drawn by the player', () => {

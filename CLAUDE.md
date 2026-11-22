@@ -72,7 +72,7 @@ The player id prefix (`video-player-<id>`) used by web fullscreen is in `playerI
 - **Parsing and loading:** pure WebVTT and SRT parsers (`parse/`), a loader with encoding detection, a cache and a timeout (`load.ts`, `decode.ts`), and HLS WebVTT renditions fetched around the playhead (`hls.ts`).
 - **Timing:** `CaptionsController` predicts media time between progress reports and sets one timer per cue boundary.
 - **Drawing:** the `Captions` overlay positions cues on the picture rectangle.
-- **Track handling:** `useCaptionTracks` (`src/captions/`), called by `VideoSurface`, strips `source.textTracks` from what `react-native-video` gets and keeps native subtitles disabled. Subtitle files are listed with track indexes from 1000, and HLS renditions from 2000. It maps the selected track to the controller. The controller waits for the player's first report of a new source before showing cues.
+- **Track handling:** `useCaptionTracks` (`src/captions/`), called by `VideoSurface`, strips `source.textTracks` from what `react-native-video` gets and keeps native subtitles disabled. Subtitle files are listed with track indexes from 1000, and HLS renditions from 2000. A file is fetched with its own `headers` (`CaptionFile`), never the stream's; renditions get the stream's. It maps the selected track to the controller. The controller waits for the player's first report of a new source before showing cues.
 - **Opting out:** `config.captionRenderer: 'native'` restores the native renderer.
 
 **TV.** `src/tv/` adds D-pad support: `TVPlayerFocus` puts a focusable surface under the layout and handles the remote, and `TVFocus` tracks which control should hold focus. Use `PlatformUtils.isTV()` (`src/utils/platform.ts`) for TV checks.
@@ -98,10 +98,11 @@ The player id prefix (`video-player-<id>`) used by web fullscreen is in `playerI
 
 ## Apps that use the toolkit
 
-`../uwumi` installs the toolkit from npm (`^1.1.0`), and its Metro loads `lib/module` through `exports`. Renaming any of the following breaks uwumi, so treat that as a breaking change:
+`../uwumi` installs the toolkit from npm (`^1.2.0`), and its Metro loads `lib/module` through `exports`. Renaming any of the following breaks uwumi, so treat that as a breaking change:
 
 - **Components and hooks:** one global `VideoProvider` in its root layout, `VideoPlayer`, `useVideoSelector`, `BaseIconButton`, `BaseButton`, `Menu`, `useMenuContext`, `VideoPortalHost`, `useControlsVisibility`, `usePlayback`, `usePlaybackRate` and `useProgress`.
-- **Props:** the `components` prop (its own `Slider` everywhere, and its own `Sheet` on phones), the layout slots (`beforeTitle`, `beforeMuteButton`, `beforeProgressBar`, `beforeMenuItems`) and `gestureProps`.
+- **Props:** the `components` prop (its own `Slider` everywhere, and its own `Sheet` on phones), the layout slots (`beforeTitle`, `beforeMuteButton`, `beforeProgressBar`, `beforeMenuItems`, `beforeCaptionTracks`), `pinCaptionTrack`, `gestureProps` and `config.onCaptionError`.
+- **Subtitles:** `useSettings()`'s `textTracks` and `setTextTrack` (it finds its added files by `uri` and `source: 'file'`), and `headers` on its `source.textTracks` entries (`CaptionFile`): its providers' subtitle hosts reject requests without the stream's `Referer`.
 - **Test IDs:** its Argent e2e tests select the toolkit's own (`video-settings-button`, `video-settings-rate-1`, `video-title`, …).
 
 To try an unreleased change in uwumi:

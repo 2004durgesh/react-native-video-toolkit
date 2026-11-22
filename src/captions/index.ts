@@ -1,2 +1,2 @@
 export type { CaptionsProps } from './Captions';
-export type { CaptionError, CaptionErrorCode, CaptionTrack } from './types';
+export type { CaptionError, CaptionErrorCode, CaptionFile, CaptionTrack } from './types';

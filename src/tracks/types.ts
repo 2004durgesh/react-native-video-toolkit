@@ -1,4 +1,4 @@
-import type { TextTrack } from 'react-native-video';
+import type { TextTrack, TextTracks } from 'react-native-video';
 
 /** The parts of an audio or text track that say what language it's in. @internal */
 export interface LanguageTrack {
@@ -20,4 +20,13 @@ export interface CaptionTrack extends TextTrack {
   source?: 'native' | 'file' | 'hls';
   /** The subtitle file or HLS playlist. */
   uri?: string | number;
+  /** A subtitle file's request headers, from its `source.textTracks` entry (`CaptionFile`). */
+  headers?: Record<string, string>;
 }
+
+/**
+ * An entry of `source.textTracks`: a subtitle file. `headers` go with the request for this file
+ * only, such as a `Referer` its host checks. The stream's own `headers` never go to subtitle files,
+ * since they may hold a token meant for another host.
+ */
+export type CaptionFile = NonNullable<TextTracks>[number] & { headers?: Record<string, string> };

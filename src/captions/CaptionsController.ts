@@ -186,7 +186,8 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
   return {
     /**
      * Shows a track the toolkit draws, or none (`null`, Off, or a track the player draws). Selecting
-     * the track that's already showing does nothing. `headers` go with an HLS rendition's requests.
+     * the track that's already showing does nothing. `headers` (the stream's) go with an HLS
+     * rendition's requests; a subtitle file sends only its own (`track.headers`).
      */
     select: (track: CaptionTrack | null, headers?: Record<string, string>) => {
       const next = isDrawnByToolkit(track) ? track : null;
@@ -203,7 +204,7 @@ export const createCaptionsController = (options: CaptionsControllerOptions) => 
       if (next.source === 'file') {
         abort = new AbortController();
         const format = next.type === TextTrackType.SUBRIP ? 'srt' : next.type === TextTrackType.VTT ? 'vtt' : undefined;
-        loadCaptionFile(next.uri!, { signal: abort.signal, format })
+        loadCaptionFile(next.uri!, { signal: abort.signal, format, headers: next.headers })
           .then((result) => {
             if (current === generation) setCues(result.cues);
           })

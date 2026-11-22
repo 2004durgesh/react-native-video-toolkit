@@ -62,4 +62,4 @@ export interface CaptionError {
   reason: string;
 }
 
-export type { CaptionTrack } from '../tracks/types';
+export type { CaptionFile, CaptionTrack } from '../tracks/types';

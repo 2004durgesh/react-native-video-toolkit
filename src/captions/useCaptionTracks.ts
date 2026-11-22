@@ -6,7 +6,7 @@ import { dedupeLanguageTracks } from '../tracks/dedupe';
 import { OFF_TEXT_TRACK, isOffTrack, pickTextTrack } from '../tracks/selection';
 import { isDrawnByToolkit, useCaptionsController } from './CaptionsController';
 import { isHlsUrl, loadHlsSubtitleRenditions } from './hls';
-import type { CaptionTrack } from './types';
+import type { CaptionFile, CaptionTrack } from './types';
 
 /**
  * Indexes for the subtitle tracks the toolkit draws, clear of the player's own: files from
@@ -35,13 +35,14 @@ export const useCaptionTracks = (source: Source, legacyTextTracks: TextTracks | 
   const fileTracks = useMemo<CaptionTrack[]>(
     () =>
       customCaptions && sidecars
-        ? sidecars.map((track, i) => ({
+        ? sidecars.map((track: CaptionFile, i) => ({
             index: FILE_TRACK_INDEX + i,
             title: track.title,
             language: track.language,
             type: track.type,
             source: 'file',
             uri: track.uri,
+            headers: track.headers,
           }))
         : [],
     [customCaptions, sidecars]
