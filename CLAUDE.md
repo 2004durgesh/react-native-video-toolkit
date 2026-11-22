@@ -102,7 +102,7 @@ The player id prefix (`video-player-<id>`) used by web fullscreen is in `playerI
 
 - **Components and hooks:** one global `VideoProvider` in its root layout, `VideoPlayer`, `useVideoSelector`, `BaseIconButton`, `BaseButton`, `Menu`, `useMenuContext`, `VideoPortalHost`, `useControlsVisibility`, `usePlayback`, `usePlaybackRate` and `useProgress`.
 - **Props:** the `components` prop (its own `Slider` everywhere, and its own `Sheet` on phones), the layout slots (`beforeTitle`, `beforeMuteButton`, `beforeProgressBar`, `beforeMenuItems`, `beforeCaptionTracks`), `pinCaptionTrack`, `gestureProps` and `config.onCaptionError`.
-- **Subtitles:** `useSettings()`'s `textTracks` and `setTextTrack` (it finds its added files by `uri` and `source: 'file'`), and `headers` on its `source.textTracks` entries (`CaptionFile`): its providers' subtitle hosts reject requests without the stream's `Referer`.
+- **Subtitles:** `CaptionsPreview` (its subtitle style screen), `useSettings()`'s `textTracks` and `setTextTrack` (it finds its added files by `uri` and `source: 'file'`), and `headers` on its `source.textTracks` entries (`CaptionFile`): its providers' subtitle hosts reject requests without the stream's `Referer`.
 - **Test IDs:** its Argent e2e tests select the toolkit's own (`video-settings-button`, `video-settings-rate-1`, `video-title`, …).
 
 To try an unreleased change in uwumi:
