@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 (2026-11-22)
+
+* feat: a preview of the subtitle style, drawn as the player draws it ([37b59ff](https://github.com/2004durgesh/react-native-video-toolkit/commit/37b59ff))
+* feat: subtitle files can carry their own request headers ([3d54ae1](https://github.com/2004durgesh/react-native-video-toolkit/commit/3d54ae1))
+* fix: subtitles stay clear of the play button while the player buffers ([eb5187e](https://github.com/2004durgesh/react-native-video-toolkit/commit/eb5187e))
+
 ## 1.2.0 (2026-11-20)
 
 * fix: android fullscreen resolves its promise once, from the ui thread ([e2bbfd0](https://github.com/2004durgesh/react-native-video-toolkit/commit/e2bbfd0))
