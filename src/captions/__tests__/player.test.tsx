@@ -243,6 +243,15 @@ describe('who draws the subtitles', () => {
     expect(cueStack().opacity).toBe(1);
   });
 
+  it('keeps them clear of the play button while buffering empties its group', async () => {
+    const { layout } = await withDefaultLayout();
+    await layout('video-controls-bottom', { y: 300, height: 60 });
+    await layout('video-controls-center', { y: 150, height: 60 });
+    await act(() => fireEvent(screen.getByTestId('video-captions-cues'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 640, height: 100 } } }));
+    // Buffering: the group lays out empty at the middle, with the spinner where the button was
+    await layout('video-controls-center', { y: 180, height: 0 });
+    expect(cueStack().opacity).toBe(0);
+  });
 });
 
 describe('HLS subtitle renditions', () => {

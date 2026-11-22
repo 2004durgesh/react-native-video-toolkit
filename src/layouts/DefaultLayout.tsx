@@ -217,7 +217,9 @@ export const DefaultLayout: FC<DefaultLayoutProps> = ({
                   testID={`${id}-controls-center`}
                   onLayout={(event) => {
                     const { y, height } = event.nativeEvent.layout;
-                    frames.set({ centerBottom: y + height });
+                    // Empty while buffering, with the spinner in the button's place: the button's
+                    // frame stays, or subtitles would lift up to the spinner
+                    if (height > 0) frames.set({ centerBottom: y + height });
                   }}>
                   <UnlessBuffering>
                     {/* On TV, left and right stay on the centre controls rather than leaving the player */}
